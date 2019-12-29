@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "discord-paginationembed": "^1.0.3",
+    "discord.js": "^11.5.1",
+    "mongoose": "^5.7.6",
+    "node-fetch": "^2.6.0",
+    "sequelize": "^5.19.0",
+    "sqlite3": "^4.1.0",
+    "validator": "^11.1.0"
+  }
+}
