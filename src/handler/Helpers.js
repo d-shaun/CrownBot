@@ -66,7 +66,6 @@ module.exports = {
 
     const data = await fetch(`${client.url}${params}`).then(r => r.json());
     if (data.error) {
-      console.log("yeeeeeeeeeeeeees");
       if (data.error === 6) {
         await message.reply("the artist could not be found.");
       } else {
@@ -74,7 +73,6 @@ module.exports = {
           "something went wrong while trying to get info from last.fm."
         );
       }
-      console.log(data);
 
       return false;
     } else {
@@ -87,7 +85,7 @@ module.exports = {
       method: "track.getInfo",
       artist: artistName,
       track: songName,
-      user: user.username,
+      user: (user ? user.username : null),
       api_key: client.apikey,
       format: "json"
     });

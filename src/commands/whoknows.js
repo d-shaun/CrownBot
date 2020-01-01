@@ -48,6 +48,14 @@ class WhoKnowsCommand extends Command {
 			artistName = args.join(` `);
 		}
 
+		// check if the artist exists
+		const { artist } = await get_artistinfo({
+			client,
+			message,
+			artistName,
+			user
+		});
+		if (!artist) return;
 		const guild = await message.guild.fetchMembers();
 		const ids = guild.members.map(e => e.id);
 		let registered_guild_users = await users.find({
@@ -172,10 +180,8 @@ class WhoKnowsCommand extends Command {
 			.setFooter(
 				`Psst, try &about to find the support server.`
 			);
-		// Deploy embed
 		FieldsEmbed.build();
-		// paginationEmbed(message, pages);
-		// await message.channel.send(FieldsEmbed);
+
 	}
 }
 
