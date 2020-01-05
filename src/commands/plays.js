@@ -28,7 +28,7 @@ class ArtistPlaysCommand extends Command {
 		if (!user) return;
 
 		if (args.length === 0) {
-			const now_playing = await get_nowplaying(client, message, user);
+			const now_playing = await get_nowplaying(client, message, user, true);
 			if (!now_playing) return;
 			artistName = now_playing.artist[`#text`];
 		} else {
@@ -39,7 +39,8 @@ class ArtistPlaysCommand extends Command {
 			client,
 			message,
 			artistName,
-			user
+			user,
+			silent: true
 		});
 
 		if (!artist) return;

@@ -21,7 +21,7 @@ module.exports = {
     }
   },
 
-  get_nowplaying: async (client, message, user) => {
+  get_nowplaying: async (client, message, user, silent = false) => {
     const params = stringify({
       method: "user.getrecenttracks",
       user: user.username,
@@ -30,22 +30,25 @@ module.exports = {
     });
     const data = await fetch(`${client.url}${params}`).then(r => r.json());
     if (data.error) {
-      await message.reply(
-        "something went wrong while trying to get info from last.fm."
-      );
-
+      if (!silent) {
+        await message.reply(
+          "something went wrong while trying to get info from last.fm."
+        );
+      }
       return false;
     }
     const last_track = data.recenttracks.track[0];
     if (last_track[`@attr`] && last_track[`@attr`].nowplaying) {
       return last_track;
     } else {
-      await message.reply("you aren't playing anything.");
+      if (!silent) {
+        await message.reply("you aren't playing anything.");
+      }
       return false;
     }
   },
 
-  get_artistinfo: async ({ client, message, artistName, user }) => {
+  get_artistinfo: async ({ client, message, artistName, user, silent }) => {
     let params = "";
     if (user) {
       params = stringify({
@@ -66,14 +69,15 @@ module.exports = {
 
     const data = await fetch(`${client.url}${params}`).then(r => r.json());
     if (data.error) {
-      if (data.error === 6) {
-        await message.reply("the artist could not be found.");
-      } else {
-        await message.reply(
-          "something went wrong while trying to get info from last.fm."
-        );
+      if (!silent) {
+        if (data.error === 6) {
+          await message.reply("the artist could not be found.");
+        } else {
+          await message.reply(
+            "something went wrong while trying to get info from last.fm."
+          );
+        }
       }
-
       return false;
     } else {
       return data;
@@ -85,7 +89,7 @@ module.exports = {
       method: "track.getInfo",
       artist: artistName,
       track: songName,
-      user: (user ? user.username : null),
+      user: user ? user.username : null,
       api_key: client.apikey,
       format: "json"
     });
