@@ -54,7 +54,7 @@ class SongPlaysCommand extends Command {
 		if (!track) return;
 		let { name, artist, userplaycount, playcount } = parse_trackinfo(track);
 		if (userplaycount <= 0) {
-			message.reply("you have never played this song.");
+			message.reply("you have never played this song before.");
 		} else {
 			const percentage = ((userplaycount / playcount) * 100).toFixed(2);
 			const embed = new BotEmbed(message)

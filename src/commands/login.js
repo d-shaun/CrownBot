@@ -8,7 +8,7 @@ class LoginCommand extends Command {
 			name: "login",
 			description: "Sets user's last.fm username.",
 			usage: "login <lastfm username>",
-			aliases: ["setnick"]
+			aliases: ["cblogin"]
 		});
 	}
 

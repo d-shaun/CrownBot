@@ -8,7 +8,7 @@ class WhoPlaysCommand extends Command {
     super({
       name: "whoplays",
       description: "Checks if anyone in a guild listens to a certain track. ",
-      usage: ["whoplays", "whoplays <artist name>"],
+      usage: ["whoplays", "whoplays <song name> || <artist name>"],
       aliases: ["wp"]
     });
   }
@@ -74,8 +74,8 @@ class WhoPlaysCommand extends Command {
     if (registered_guild_users.length > 30) {
       registered_guild_users.length = 30;
     }
-	let unsorted_leaderboard = [];
-	let proper_artistName = track.artist.name;
+    let unsorted_leaderboard = [];
+    let proper_artistName = track.artist.name;
     let proper_trackName = track.name;
     for await (const user of registered_guild_users) {
       let { track } = await get_trackinfo({
@@ -97,49 +97,43 @@ class WhoPlaysCommand extends Command {
         userplaycount,
         user
       });
-	}
-	
-	if (unsorted_leaderboard.length <= 0) {
-		message.reply(
-			"no one here has played ``" + proper_trackName + "``."
-		);
-		return;
-	}
+    }
 
-	const leaderboard = unsorted_leaderboard.sort(
-		(a, b) => parseInt(b.userplaycount) - parseInt(a.userplaycount)
-	);
+    if (unsorted_leaderboard.length <= 0) {
+      message.reply("no one here has played ``" + proper_trackName + "`` by ``"+ proper_artistName +"``.");
+      return;
+    }
 
-	
-	const total_scrobbles = leaderboard.reduce(
-		(a, b) => a + parseInt(b.userplaycount),
-		0
-	);
-	const FieldsEmbed = new Pagination.FieldsEmbed()
-		.setArray(leaderboard)
-		.setAuthorizedUsers([])
-		.setChannel(message.channel)
-		.setElementsPerPage(15)
-		.setPageIndicator(true)
-		.setDisabledNavigationEmojis(["DELETE"])
-		.formatField(
-			`Total: ${total_scrobbles} plays`,
-			el =>
-				`${leaderboard.findIndex(e => e.user.id == el.user.id) +
-					1}. ${el.discord_username} — **${
-					el.userplaycount
-				} play(s)**`
-		);
+    const leaderboard = unsorted_leaderboard.sort(
+      (a, b) => parseInt(b.userplaycount) - parseInt(a.userplaycount)
+    );
 
-	FieldsEmbed.embed
-		.setColor(0x00ffff)
-		.setTitle(
-			`Who plays \`\`${proper_trackName}\`\` by \`\`${proper_artistName}\`\` in ${message.guild.name}?`
-		)
-		.setFooter(
-			`Psst, try &about to find the support server.`
-		);
-	FieldsEmbed.build();
+    const total_scrobbles = leaderboard.reduce(
+      (a, b) => a + parseInt(b.userplaycount),
+      0
+    );
+    const FieldsEmbed = new Pagination.FieldsEmbed()
+      .setArray(leaderboard)
+      .setAuthorizedUsers([])
+      .setChannel(message.channel)
+      .setElementsPerPage(15)
+      .setPageIndicator(true)
+      .setDisabledNavigationEmojis(["DELETE"])
+      .formatField(
+        `Total: ${total_scrobbles} plays`,
+        el =>
+          `${leaderboard.findIndex(e => e.user.id == el.user.id) + 1}. ${
+            el.discord_username
+          } — **${el.userplaycount} play(s)**`
+      );
+
+    FieldsEmbed.embed
+      .setColor(0x00ffff)
+      .setTitle(
+        `Who plays \`\`${proper_trackName}\`\` by \`\`${proper_artistName}\`\` in ${message.guild.name}?`
+      )
+      .setFooter(`Psst, try &about to find the support server.`);
+    FieldsEmbed.build();
   }
 }
 
