@@ -56,14 +56,16 @@ module.exports = {
         username: user.username,
         artist: artistName,
         api_key: client.apikey,
-        format: "json"
+        format: "json",
+        autocorrect: 1
       });
     } else {
       params = stringify({
         method: "artist.getinfo",
         artist: artistName,
         api_key: client.apikey,
-        format: "json"
+        format: "json",
+        autocorrect: 1
       });
     }
 
