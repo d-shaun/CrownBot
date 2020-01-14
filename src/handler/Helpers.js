@@ -104,6 +104,7 @@ module.exports = {
     }
   },
 
+  get_prefix: async ({ client, message }) => {},
   //anything updating goes here
 
   update_usercrown: async ({
@@ -162,6 +163,30 @@ module.exports = {
     );
   },
 
+  update_prefix: async ({ client, message, prefix }) => {
+    const { guild, author } = message;
+    const re = /^\S{1,4}$/g;
+    if (!prefix.match(re)) {
+      await message.reply("invalid prefix.");
+      return;
+    }
+    await client.models.prefixes.findOneAndUpdate(
+      {
+        guildID: guild.id
+      },
+      {
+        guildID: guild.id,
+        prefix,
+        guildName: guild.name
+      },
+      {
+        upsert: true,
+        useFindAndModify: false
+      }
+    );
+    client.prefixes = false;
+    await message.reply("the prefix is now set to ``" + prefix + "``.");
+  },
   // anything checking goes here
 
   check_permissions: message => {

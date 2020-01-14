@@ -14,6 +14,8 @@ class WhoPlaysCommand extends Command {
   }
 
   async run(client, message, args) {
+    const server_prefix = client.getCachedPrefix(message);
+
     const { users } = client.models;
 
     // "getters"
@@ -43,7 +45,11 @@ class WhoPlaysCommand extends Command {
       let str_array = str.split("||");
       if (str_array.length !== 2) {
         await message.reply(
-          "invalid format; try ``&wp <song name>||<artist name>``. (Example: ``&wp Sylvia||The Antlers``.)"
+          "invalid format; try ``" +
+            server_prefix +
+            "wp <song name>||<artist name>``. (Example: ``" +
+            server_prefix +
+            "wp Sylvia||The Antlers``.)"
         );
         return;
       }
@@ -100,7 +106,13 @@ class WhoPlaysCommand extends Command {
     }
 
     if (unsorted_leaderboard.length <= 0) {
-      message.reply("no one here has played ``" + proper_trackName + "`` by ``"+ proper_artistName +"``.");
+      message.reply(
+        "no one here has played ``" +
+          proper_trackName +
+          "`` by ``" +
+          proper_artistName +
+          "``."
+      );
       return;
     }
 
@@ -132,7 +144,7 @@ class WhoPlaysCommand extends Command {
       .setTitle(
         `Who plays \`\`${proper_trackName}\`\` by \`\`${proper_artistName}\`\` in ${message.guild.name}?`
       )
-      .setFooter(`Psst, try &about to find the support server.`);
+      .setFooter(`Psst, try ${server_prefix}about to find the support server.`);
     FieldsEmbed.build();
   }
 }
