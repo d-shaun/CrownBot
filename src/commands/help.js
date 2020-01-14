@@ -12,33 +12,35 @@ class HelpCommand extends Command {
   }
 
   async run(client, message, args) {
+    const server_prefix = client.getCachedPrefix(message);
+
     if (args[0]) {
       const command = client.commands
         .filter(e => !e.hidden)
         .find(x => x.name === args[0] || x.aliases.includes(args[0]));
-        console.log(command);
-        if(command){
-            var usage = Array.isArray(command.usage)
-            ? command.usage
-            : [command.usage];
-            usage = usage.map(e=>`\`\`${client.prefix}${e}\`\``)
+      console.log(command);
+      if (command) {
+        var usage = Array.isArray(command.usage)
+          ? command.usage
+          : [command.usage];
+        usage = usage.map(e => `\`\`${server_prefix}${e}\`\``);
 
-            var aliases = command.aliases;
-            aliases = aliases.map(e=>`\`\`${client.prefix}${e}\`\``)
-            const embed = new BotEmbed(message)
-            .setTitle(command.name)
-            .setDescription(
-              command.description
-            )
-            .addField("Usage", usage)
-            .addField("Aliases", aliases)
-            message.channel.send(embed)
-        }
+        var aliases = command.aliases;
+        aliases = aliases.map(e => `\`\`${server_prefix}${e}\`\``);
+        const embed = new BotEmbed(message)
+          .setTitle(command.name)
+          .setDescription(command.description)
+          .addField("Usage", usage)
+          .addField("Aliases", aliases);
+        message.channel.send(embed);
+      }
     } else {
       const embed = new BotEmbed(message)
         .setTitle("Commands")
         .setDescription(
-          "This is a list of the commands this bot offers. The prefix is ``&``; you cannot change it."
+          "This is a list of the commands this bot offers. The prefix is ``" +
+            server_prefix +
+            "``."
         );
 
       client.commands
@@ -50,7 +52,7 @@ class HelpCommand extends Command {
 
           var aliases = command.aliases;
           var all_commands = [usage, ...aliases]
-            .map(e => "``" + client.prefix + e + "``")
+            .map(e => "``" + server_prefix + e + "``")
             .join(" or ");
           embed.addField(`${all_commands}`, command.description, true);
         });

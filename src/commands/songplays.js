@@ -13,6 +13,8 @@ class SongPlaysCommand extends Command {
 	}
 
 	async run(client, message, args) {
+		const server_prefix = client.getCachedPrefix(message);
+
 		// "getters"
 		const { get_username, get_nowplaying, get_trackinfo } = client.helpers;
 
@@ -36,7 +38,7 @@ class SongPlaysCommand extends Command {
 			let str_array = str.split("||");
 			if (str_array.length !== 2) {
 				await message.reply(
-					"invalid format; try ``&spl <song name>||<artist name>``. (Example: ``&spl Sylvia||The Antlers``.)"
+					"invalid format; try ``"+server_prefix+"spl <song name>||<artist name>``. (Example: ``"+server_prefix+"spl Sylvia||The Antlers``.)"
 				);
 				return;
 			}
@@ -51,8 +53,10 @@ class SongPlaysCommand extends Command {
 			songName,
 			user
 		});
+
 		if (!track) return;
-		let { name, artist, userplaycount, playcount } = parse_trackinfo(track);
+		let { name, artist, userplaycount, playcount, duration } = parse_trackinfo(track);
+		console.log(duration);
 		if (userplaycount <= 0) {
 			message.reply("you have never played this song before.");
 		} else {
@@ -63,84 +67,6 @@ class SongPlaysCommand extends Command {
 					`**${name}** by **${artist.name}** — ${userplaycount} play(s) \n\n (**${percentage}%** of ${playcount})`
 				);
 			await message.channel.send(embed);
-		}
-	}
-
-	async run_old(client, message, args) {
-		const { bans, users, crowns } = client.models;
-		const user = await users.findOne({
-			userID: message.author.id
-		});
-		if (!user) {
-			await message.reply(
-				"please set your last.fm username with the ``&login`` command first."
-			);
-			return;
-		}
-		let songName;
-		let artistName;
-		if (args.length === 0) {
-			const params = stringify({
-				method: "user.getrecenttracks",
-				user: user.username,
-				api_key: client.apikey,
-				format: "json"
-			});
-			const data = await fetch(`${client.url}${params}`).then(r =>
-				r.json()
-			);
-			if (data.error) {
-				await message.reply(
-					"something went wrong with getting info from Last.fm."
-				);
-				console.error(data);
-				return;
-			} else {
-				const song = data.recenttracks.track[0];
-				if (song[`@attr`] && song[`@attr`].nowplaying) {
-					artistName = song.artist[`#text`];
-					songName = song.name;
-				} else {
-					await message.reply(
-						"you aren't playing anything; try ``&spl <song name>||<artist name>``. (Example: ``&spl Sylvia||The Antlers``.)"
-					);
-					return;
-				}
-			}
-		} else {
-			let str = args.join(` `);
-			let str_array = str.split("||");
-			if (str_array.length !== 2) {
-				await message.reply(
-					"invalid format; try ``&spl <song name>||<artist name>``. (Example: ``&spl Sylvia||The Antlers``.)"
-				);
-				return;
-			}
-			songName = str_array[0].trim();
-			artistName = str_array[1].trim();
-		}
-
-		const params = stringify({
-			method: "track.getInfo",
-			artist: artistName,
-			track: songName,
-			user: user.username,
-			api_key: client.apikey,
-			format: "json"
-		});
-		const data = await fetch(`${client.url}${params}`).then(r => r.json());
-		if (data.error) {
-			await message.reply(`couldn't find the song.`);
-			return;
-		}
-		if (data.track.userplaycount <= 0) {
-			await message.reply(
-				`you haven't scrobbled the song \`\`${data.track.name}\`\` by \`\`${data.track.artist.name}\`\`.`
-			);
-		} else {
-			await message.reply(
-				`you have scrobbled the song \`\`${data.track.name}\`\` by \`\`${data.track.artist.name}\`\` ${data.track.userplaycount} times.`
-			);
 		}
 	}
 }

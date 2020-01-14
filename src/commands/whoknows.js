@@ -17,6 +17,8 @@ class WhoKnowsCommand extends Command {
 	}
 
 	async run(client, message, args) {
+		const server_prefix = client.getCachedPrefix(message);
+		
 		const { users, userplays } = client.models;
 
 		// "getters"
@@ -171,14 +173,14 @@ class WhoKnowsCommand extends Command {
 						el.userplaycount
 					} play(s)**`
 			);
-
+			
 		FieldsEmbed.embed
 			.setColor(0x00ffff)
 			.setTitle(
 				`Who knows ${proper_artistName} in ${message.guild.name}?`
 			)
 			.setFooter(
-				`Psst, try &about to find the support server.`
+				`Psst, try ${server_prefix}about to find the support server.`
 			);
 		FieldsEmbed.build();
 

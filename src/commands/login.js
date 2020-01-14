@@ -13,6 +13,7 @@ class LoginCommand extends Command {
 	}
 
 	async run(client, message, args) {
+		const server_prefix = client.getCachedPrefix(message);
 		const { get_username } = client.helpers;
 		if (args.length === 0) {
 			message.reply("you must provide a last.fm username.");
@@ -22,8 +23,8 @@ class LoginCommand extends Command {
 		const user = await get_username(client, message, true);
 		if (user) {
 			await message.reply(
-				`you already have a nickname set; send \`\`${client.prefix}mylogin\`\` to ` +
-					`see your username, or \`\`${client.prefix}logout\`\` to unset your nickname.`
+				`you already have a nickname set; send \`\`${server_prefix}mylogin\`\` to ` +
+					`see your username, or \`\`${server_prefix}logout\`\` to unset your nickname.`
 			);
 			return;
 		}
