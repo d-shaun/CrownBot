@@ -56,7 +56,6 @@ class SongPlaysCommand extends Command {
 
 		if (!track) return;
 		let { name, artist, userplaycount, playcount, duration } = parse_trackinfo(track);
-		console.log(duration);
 		if (userplaycount <= 0) {
 			message.reply("you have never played this song before.");
 		} else {

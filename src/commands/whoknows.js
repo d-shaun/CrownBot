@@ -71,8 +71,8 @@ class WhoKnowsCommand extends Command {
 			);
 			return;
 		}
-		if (registered_guild_users.length > 30) {
-			registered_guild_users.length = 30;
+		if (registered_guild_users.length > 100) {
+			registered_guild_users.length = 100;
 		}
 		let unsorted_leaderboard = [];
 		let proper_artistName = false;
