@@ -22,10 +22,7 @@ module.exports = mongoose => {
         },
         userID: String,
         userTag: String,
-        artistName: {
-            type: String,
-            unique: true
-        },
+        artistName: String,
         artistPlays: Number
     })
 }
