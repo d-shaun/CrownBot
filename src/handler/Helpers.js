@@ -1,7 +1,7 @@
 const { stringify } = require("querystring");
 const fetch = require("node-fetch");
 const BotEmbed = require("../classes/BotEmbed");
-
+const moment = require("moment");
 module.exports = {
   // anything get goes here
   get_username: async (client, message, silent = false) => {
@@ -93,7 +93,8 @@ module.exports = {
       track: songName,
       user: user ? user.username : null,
       api_key: client.apikey,
-      format: "json"
+      format: "json",
+      autocorrect: 1
     });
     const data = await fetch(`${client.url}${params}`).then(r => r.json());
     if (data.error) {
@@ -187,6 +188,30 @@ module.exports = {
     client.prefixes = false;
     await message.reply("the prefix is now set to ``" + prefix + "``.");
   },
+
+  update_tracklog: async ({ client, message, track }) => {
+    const { name, userplaycount } = track;
+    const artistName = track.artist.name;
+    const userID = message.author.id;
+    const timestamp = moment.utc().valueOf();
+    await client.models.tracklog.findOneAndUpdate(
+      {
+        name,
+        artistName
+      },
+      {
+        name,
+        artistName,
+        userplaycount,
+        userID,
+        timestamp
+      },
+      {
+        upsert: true,
+        useFindAndModify: false
+      }
+    );
+  },
   // anything checking goes here
 
   check_permissions: message => {
@@ -221,5 +246,20 @@ module.exports = {
       listeners,
       playcount
     };
+  },
+
+  parse_difference: timestamp => {
+    var then = moment.utc(timestamp);
+    var now = moment();
+
+    days = now.diff(then, "days");
+    hours = now.subtract(days, "days").diff(then, "hours");
+    minutes = now.subtract(hours, "hours").diff(then, "minutes");
+
+    const string = `${days > 0 ? days + " day(s)" : ""} ${
+      hours > 0 ? hours + " hour(s)" : ""
+    } ${days < 1 && hours < 1 && minutes>0 ? minutes + " minute(s)" : ""} ${days < 1 && hours < 1 && minutes<1 ? "less than a minute" : ""}
+    `.trim(); 
+    return string;
   }
 };
