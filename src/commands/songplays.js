@@ -2,6 +2,7 @@ const Command = require("../handler/Command");
 const { stringify } = require("querystring");
 const fetch = require("node-fetch");
 const BotEmbed = require("../classes/BotEmbed");
+const abbreviate = require('number-abbreviate');
 class SongPlaysCommand extends Command {
 	constructor() {
 		super({
@@ -55,7 +56,7 @@ class SongPlaysCommand extends Command {
 		});
 
 		if (!track) return;
-		let { name, artist, userplaycount, playcount, duration } = parse_trackinfo(track);
+		let { name, artist, userplaycount, playcount } = parse_trackinfo(track);
 		if (userplaycount <= 0) {
 			message.reply("you have never played this song before.");
 		} else {
@@ -63,7 +64,7 @@ class SongPlaysCommand extends Command {
 			const embed = new BotEmbed(message)
 				.setTitle(`Track plays`)
 				.setDescription(
-					`**${name}** by **${artist.name}** — ${userplaycount} play(s) \n\n (**${percentage}%** of ${playcount})`
+					`**${name}** by **${artist.name}** — ${userplaycount} play(s) \n\n (**${percentage}%** of ${abbreviate(playcount, 1)} plays)`
 				);
 			await message.channel.send(embed);
 		}
