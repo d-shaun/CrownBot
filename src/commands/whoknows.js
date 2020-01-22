@@ -4,187 +4,159 @@ const fetch = require("node-fetch");
 const BotEmbed = require("../classes/BotEmbed");
 const Pagination = require("discord-paginationembed");
 class WhoKnowsCommand extends Command {
-	constructor() {
-		super({
-			name: "whoknows",
-			description:
-				"Checks if anyone in a guild listens to a certain artist. " +
-				"If no artist is defined, the bot will try to look up the artist you are " +
-				"currently listening to.",
-			usage: ["whoknows", "whoknows <artist name>"],
-			aliases: ["w"]
-		});
-	}
+  constructor() {
+    super({
+      name: "whoknows",
+      description:
+        "Checks if anyone in a guild listens to a certain artist. " +
+        "If no artist is defined, the bot will try to look up the artist you are " +
+        "currently listening to.",
+      usage: ["whoknows", "whoknows <artist name>"],
+      aliases: ["w"]
+    });
+  }
 
-	async run(client, message, args) {
-		const server_prefix = client.getCachedPrefix(message);
-		
-		const { users, userplays } = client.models;
+  async run(client, message, args) {
+    const server_prefix = client.getCachedPrefix(message);
 
-		// "getters"
-		const { get_username, get_nowplaying, get_artistinfo } = client.helpers;
+    const { users, userplays } = client.models;
 
-		// "setters"
-		const { update_usercrown, update_userplays } = client.helpers;
+    // "getters"
+    const { get_username, get_nowplaying, get_artistinfo } = client.helpers;
 
-		// parsers
-		const { parse_artistinfo } = client.helpers;
+    // "setters"
+    const { update_usercrown, update_userplays } = client.helpers;
 
-		// checks
-		const { check_permissions } = client.helpers;
+    // parsers
+    const { parse_artistinfo } = client.helpers;
 
-		const has_required_permissions = check_permissions(message);
+    // checks
+    const { check_permissions } = client.helpers;
 
-		if (!has_required_permissions) return;
+    const has_required_permissions = check_permissions(message);
 
-		let artistName = null;
+    if (!has_required_permissions) return;
 
-		const user = await get_username(client, message);
-		if (!user) return;
+    let artistName = null;
 
-		if (args.length === 0) {
-			const now_playing = await get_nowplaying(client, message, user);
-			if (!now_playing) return;
-			artistName = now_playing.artist[`#text`];
-		} else {
-			artistName = args.join(` `);
-		}
+    const user = await get_username(client, message);
+    if (!user) return;
 
-		// check if the artist exists
-		const { artist } = await get_artistinfo({
-			client,
-			message,
-			artistName,
-			user
-		});
-		if (!artist) return;
-		const guild = await message.guild.fetchMembers();
-		const ids = guild.members.map(e => e.id);
-		let registered_guild_users = await users.find({
-			userID: {
-				$in: ids
-			}
-		});
-		if (registered_guild_users.length <= 0) {
-			message.reply(
-				"no user in this guild has registered their last.fm username."
-			);
-			return;
-		}
-		if (registered_guild_users.length > 100) {
-			registered_guild_users.length = 100;
-		}
-		let unsorted_leaderboard = [];
-		let proper_artistName = false;
-		for await (const user of registered_guild_users) {
-			const { artist } = await get_artistinfo({
-				client,
-				message,
-				artistName,
-				user
-			});
-			if (!artist) return;
-			let discord_username = guild.members.find(e => e.id === user.userID)
-				.user.username;
-			let discord_user = guild.members.find(e => e.id === user.userID)
-				.user;
+    if (args.length === 0) {
+      const now_playing = await get_nowplaying(client, message, user);
+      if (!now_playing) return;
+      artistName = now_playing.artist[`#text`];
+    } else {
+      artistName = args.join(` `);
+    }
 
-			const { name, userplaycount } = parse_artistinfo(artist);
+    // check if the artist exists
+    const { artist } = await get_artistinfo({
+      client,
+      message,
+      artistName,
+      user
+    });
+    if (!artist) return;
+    const guild = await message.guild.fetchMembers();
+    const ids = guild.members.map(e => e.id);
+    let registered_guild_users = await users.find({
+      userID: {
+        $in: ids
+      }
+    });
+    if (registered_guild_users.length <= 0) {
+      message.reply(
+        "no user in this guild has registered their last.fm username."
+      );
+      return;
+    }
+    if (registered_guild_users.length > 100) {
+      registered_guild_users.length = 100;
+    }
+    let unsorted_leaderboard = [];
+    let proper_artistName = false;
+    var lastfm_requests = [];
+    for await (const user of registered_guild_users) {
+      const context = {
+        discord_user: guild.members.find(e => e.id === user.userID)
+      };
+      lastfm_requests.push(
+        get_artistinfo({
+          client,
+          message,
+          artistName,
+          user,
+          context
+        })
+      );
+    }
 
-			if (!proper_artistName) proper_artistName = name;
+    var responses;
+    await Promise.all(lastfm_requests).then(res => (responses = res));
 
-			if (userplaycount <= 0) {
-				continue;
-			}
-			let wrapped_message = {
-				author: {
-					id: discord_user.id,
-					tag: discord_user.tag
-				},
-				guild: {
-					id: message.guild.id
-				}
-			};
-			// await update_userplays({
-			// 	client,
-			// 	message: wrapped_message,
-			// 	artistName: name,
-			// 	user,
-			// 	userplaycount
-			// });
+    responses.forEach(({ artist, context }) => {
+      let discord_user = context.discord_user.user;
+      let discord_username = discord_user.username;
 
-			unsorted_leaderboard.push({
-				discord_username,
-				userplaycount,
-				user
-			});
-		}
+      const { name, userplaycount } = parse_artistinfo(artist);
 
-		if (unsorted_leaderboard.length <= 0) {
-			message.reply(
-				"no one here listens to ``" + proper_artistName + "``."
-			);
-			return;
-		}
-		const leaderboard = unsorted_leaderboard.sort(
-			(a, b) => parseInt(b.userplaycount) - parseInt(a.userplaycount)
-		);
+      if (!proper_artistName) proper_artistName = name;
 
-		const top_user = leaderboard[0];
+      if (userplaycount <= 0) {
+        return;
+      }
 
-		await update_usercrown({
-			client,
-			message,
-			artistName: proper_artistName,
-			user: top_user.user,
-			userplaycount: top_user.userplaycount
-		});
+      unsorted_leaderboard.push({
+        discord_username,
+        userplaycount,
+        user
+      });
+    });
 
-		// const description = leaderboard
-		// 	.map((stack, index) => {
-		// 		return `${index + 1}. ${stack.discord_username} — **${
-		// 			stack.userplaycount
-		// 		}** plays`;
-		// 	})
-		// 	.join("\n");
+    if (unsorted_leaderboard.length <= 0) {
+      message.reply("no one here listens to ``" + proper_artistName + "``.");
+      return;
+    }
+    const leaderboard = unsorted_leaderboard.sort(
+      (a, b) => parseInt(b.userplaycount) - parseInt(a.userplaycount)
+    );
 
-		// const embed = new BotEmbed(message)
-		// 	.setTitle(
-		// 		`Who knows ${proper_artistName} in ${message.guild.name}?`
-		// 	)
-		// 	.setDescription(description);
+    const top_user = leaderboard[0];
 
-		const total_scrobbles = leaderboard.reduce(
-			(a, b) => a + parseInt(b.userplaycount),
-			0
-		);
-		const FieldsEmbed = new Pagination.FieldsEmbed()
-			.setArray(leaderboard)
-			.setAuthorizedUsers([])
-			.setChannel(message.channel)
-			.setElementsPerPage(15)
-			.setPageIndicator(true)
-			.setDisabledNavigationEmojis(["DELETE"])
-			.formatField(
-				`Total: ${total_scrobbles} plays`,
-				el =>
-					`${leaderboard.findIndex(e => e.user.id == el.user.id) +
-						1}. ${el.discord_username} — **${
-						el.userplaycount
-					} play(s)**`
-			);
-			
-		FieldsEmbed.embed
-			.setColor(0x00ffff)
-			.setTitle(
-				`Who knows ${proper_artistName} in ${message.guild.name}?`
-			)
-			.setFooter(
-				`Psst, try ${server_prefix}about to find the support server.`
-			);
-		FieldsEmbed.build();
+    await update_usercrown({
+      client,
+      message,
+      artistName: proper_artistName,
+      user: top_user.user,
+      userplaycount: top_user.userplaycount
+    });
 
-	}
+    const total_scrobbles = leaderboard.reduce(
+      (a, b) => a + parseInt(b.userplaycount),
+      0
+    );
+    const FieldsEmbed = new Pagination.FieldsEmbed()
+      .setArray(leaderboard)
+      .setAuthorizedUsers([])
+      .setChannel(message.channel)
+      .setElementsPerPage(15)
+      .setPageIndicator(true)
+      .setDisabledNavigationEmojis(["DELETE"])
+      .formatField(
+        `Total: ${total_scrobbles} plays`,
+        el =>
+          `${leaderboard.findIndex(e => e.user.id == el.user.id) + 1}. ${
+            el.discord_username
+          } — **${el.userplaycount} play(s)**`
+      );
+
+    FieldsEmbed.embed
+      .setColor(0x00ffff)
+      .setTitle(`Who knows ${proper_artistName} in ${message.guild.name}?`)
+      .setFooter(`Psst, try ${server_prefix}about to find the support server.`);
+    FieldsEmbed.build();
+  }
 }
 
 module.exports = WhoKnowsCommand;

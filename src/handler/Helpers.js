@@ -48,7 +48,7 @@ module.exports = {
     }
   },
 
-  get_artistinfo: async ({ client, message, artistName, user, silent }) => {
+  get_artistinfo: async ({ client, message, artistName, user, silent, context }) => {
     let params = "";
     if (user) {
       params = stringify({
@@ -82,6 +82,9 @@ module.exports = {
       }
       return false;
     } else {
+      if(context){
+        data.context = context;
+      }
       return data;
     }
   },
