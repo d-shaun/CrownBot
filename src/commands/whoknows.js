@@ -96,8 +96,8 @@ class WhoKnowsCommand extends Command {
     await Promise.all(lastfm_requests).then(res => (responses = res));
 
     responses.forEach(({ artist, context }) => {
-      let discord_user = context.discord_user.user;
-      let discord_username = discord_user.username;
+      let user = context.discord_user.user;
+      let discord_username = user.username;
 
       const { name, userplaycount } = parse_artistinfo(artist);
 
