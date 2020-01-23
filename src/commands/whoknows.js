@@ -145,8 +145,8 @@ class WhoKnowsCommand extends Command {
       .setDisabledNavigationEmojis(["DELETE"])
       .formatField(
         `Total: ${total_scrobbles} plays`,
-        el =>
-          `${leaderboard.findIndex(e => e.user.id == el.user.id) + 1}. ${
+        (el, i) =>
+          `${i + 1}. ${
             el.discord_username
           } — **${el.userplaycount} play(s)**`
       );
