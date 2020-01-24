@@ -119,14 +119,14 @@ module.exports = {
     user
   }) => {
     const { guild } = message;
-    const { username, userID } = user;
+    const { username, id } = user;
     await client.models.crowns.findOneAndUpdate(
       {
         artistName,
         guildID: guild.id
       },
       {
-        userID: userID,
+        userID: id,
         guildID: guild.id,
         artistPlays: userplaycount,
         lastfm_username: username
