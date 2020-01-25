@@ -66,7 +66,7 @@ class WhoKnowsCommand extends Command {
       }
     });
     if (registered_guild_users.length <= 0) {
-      message.reply(
+      await message.reply(
         "no user in this guild has registered their last.fm username."
       );
       return;
@@ -94,7 +94,18 @@ class WhoKnowsCommand extends Command {
 
     var responses;
     await Promise.all(lastfm_requests).then(res => (responses = res));
-
+    if (
+      responses.some(response => {
+        const { artist } = response;
+        const { userplaycount } = parse_artistinfo(artist);
+        return userplaycount === undefined;
+      })
+    ) {
+      await message.reply(
+        "failed to get info from last.fm; try again after a while."
+      );
+      return;
+    }
     responses.forEach(({ artist, context }) => {
       let user = context.discord_user.user;
       let discord_username = user.username;
@@ -115,7 +126,9 @@ class WhoKnowsCommand extends Command {
     });
 
     if (unsorted_leaderboard.length <= 0) {
-      message.reply("no one here listens to ``" + proper_artistName + "``.");
+      await message.reply(
+        "no one here listens to ``" + proper_artistName + "``."
+      );
       return;
     }
     const leaderboard = unsorted_leaderboard.sort(
@@ -123,7 +136,6 @@ class WhoKnowsCommand extends Command {
     );
 
     const top_user = leaderboard[0];
-
     await update_usercrown({
       client,
       message,
@@ -155,7 +167,7 @@ class WhoKnowsCommand extends Command {
       .setColor(0x00ffff)
       .setTitle(`Who knows ${proper_artistName} in ${message.guild.name}?`)
       .setFooter(`Psst, try ${server_prefix}about to find the support server.`);
-    FieldsEmbed.build();
+    await FieldsEmbed.build();
   }
 }
 

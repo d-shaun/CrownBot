@@ -72,7 +72,7 @@ class WhoPlaysCommand extends Command {
       }
     });
     if (registered_guild_users.length <= 0) {
-      message.reply(
+      await message.reply(
         "no user in this guild has registered their last.fm username."
       );
       return;
@@ -83,6 +83,7 @@ class WhoPlaysCommand extends Command {
     let unsorted_leaderboard = [];
     let proper_artistName = track.artist.name;
     let proper_trackName = track.name;
+    var loop_interrupted = false;
     for await (const user of registered_guild_users) {
       let { track } = await get_trackinfo({
         client,
@@ -95,9 +96,14 @@ class WhoPlaysCommand extends Command {
       let { userplaycount } = parse_trackinfo(track);
       let discord_username = guild.members.find(e => e.id === user.userID).user
         .username;
+      if (userplaycount === undefined) {
+        loop_interrupted = true;
+        break;
+      }
       if (userplaycount <= 0) {
         continue;
       }
+
       unsorted_leaderboard.push({
         discord_username,
         userplaycount,
@@ -105,8 +111,15 @@ class WhoPlaysCommand extends Command {
       });
     }
 
+    if (loop_interrupted) {
+      await message.reply(
+        "failed to get info from last.fm; try again after a while."
+      );
+      return;
+    }
+
     if (unsorted_leaderboard.length <= 0) {
-      message.reply(
+      await message.reply(
         "no one here has played ``" +
           proper_trackName +
           "`` by ``" +
