@@ -63,7 +63,7 @@ class SongPlaysCommand extends Command {
     let { name, artist, userplaycount, playcount } = parse_trackinfo(track);
     var last_played = 0;
     var count_diff_str = "No change";
-    var time_diff_str = "some time";
+    var time_diff_str = false;
     var last_log = await client.models.tracklog.findOne({
       name,
       artistName: artist.name,
@@ -82,8 +82,10 @@ class SongPlaysCommand extends Command {
     } else if (count_diff > 0) {
       count_diff_str = `+${count_diff}`;
     }
-
-    const aggr_str = `**${count_diff_str}** since last checked ${time_diff_str} ago.`;
+    let aggr_str = `**${count_diff_str}** since last checked ${time_diff_str} ago.`;
+    if (!time_diff_str) {
+      aggr_str = "";
+    }
     await update_tracklog({
       client,
       message,
