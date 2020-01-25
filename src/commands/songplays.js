@@ -85,26 +85,22 @@ class SongPlaysCommand extends Command {
 
     const aggr_str = `**${count_diff_str}** since last checked ${time_diff_str} ago.`;
     await update_tracklog({
-    	client,
-    	message,
-    	track
-    })
-    if (userplaycount <= 0) {
-      message.reply("you have never played this song before.");
-    } else {
-      const percentage = ((userplaycount / playcount) * 100).toFixed(2);
-      const embed = new BotEmbed(message)
-        .setTitle(`Track plays`)
-        .setDescription(
-          `**${name}** by **${
-            artist.name
-          }** — ${userplaycount} play(s) \n\n (**${percentage}%** of ${abbreviate(
-            playcount,
-            1
-          )} plays) \n\n ${aggr_str}`
-        );
-      await message.channel.send(embed);
-    }
+      client,
+      message,
+      track
+    });
+    const percentage = ((userplaycount / playcount) * 100).toFixed(2);
+    const embed = new BotEmbed(message)
+      .setTitle(`Track plays`)
+      .setDescription(
+        `**${name}** by **${
+          artist.name
+        }** — ${userplaycount} play(s) \n\n (**${percentage}%** of ${abbreviate(
+          playcount,
+          1
+        )} plays) \n\n ${aggr_str}`
+      );
+    await message.channel.send(embed);
   }
 }
 
