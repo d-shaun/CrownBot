@@ -9,6 +9,35 @@ class Command {
   }
 
   async execute(client, message, args) {
+    const { notify } = client.helpers;
+    const is_banned_user = await client.models.bans.findOne({
+      userID: message.author.id,
+      guildID: { $in: [message.guild.id, "any"] }
+    });
+
+    if (
+      is_banned_user &&
+      this.name !== "about" &&
+      message.author.id !== client.ownerID
+    ) {
+      if (is_banned_user.guildID === "any") {
+        await notify({
+          message,
+          title: "Globally banned",
+          description:
+            "You are globally banned from accessing the bot; try `&about` to find the support server.",
+          reply: true
+        });
+      } else {
+        await notify({
+          message,
+          title: "User banned",
+          description: "You are banned from accessing the bot in this guild.",
+          reply: true
+        });
+      }
+      return;
+    }
     try {
       await this.run(client, message, args);
       await this.log(message);
