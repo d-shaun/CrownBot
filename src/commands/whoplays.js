@@ -16,7 +16,7 @@ class WhoPlaysCommand extends Command {
   async run(client, message, args) {
     const server_prefix = client.getCachedPrefix(message);
 
-    const { users } = client.models;
+    const { users, bans } = client.models;
 
     // "getters"
     const { get_username, get_nowplaying, get_trackinfo } = client.helpers;
@@ -71,6 +71,16 @@ class WhoPlaysCommand extends Command {
         $in: ids
       }
     });
+
+    let banned_users = await bans.find({
+      userID: { $in: ids },
+      guildID: { $in: [message.guild.id, "any"] }
+    });
+    banned_users = banned_users.map(user => user.userID);
+    registered_guild_users = registered_guild_users.filter(
+      user => !banned_users.includes(user.userID)
+    );
+
     if (registered_guild_users.length <= 0) {
       await message.reply(
         "no user in this guild has registered their last.fm username."
