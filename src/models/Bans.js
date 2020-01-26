@@ -2,13 +2,10 @@
 
 module.exports = mongoose => {
     return new mongoose.Schema({
-        guildID: {
-            type: String,
-            unique: true
-        },
-        userID: {
-            type: String,
-            unique: true
-        }
+        guildID: String,
+        guildName: String,
+        userID: String,
+        username: String,
+        executor: String
     })
 }
