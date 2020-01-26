@@ -9,6 +9,9 @@ class Command {
   }
 
   async execute(client, message, args) {
+    if (this.ownerOnly && message.author.id !== client.ownerID) {
+      return;
+    }
     const { notify } = client.helpers;
     const is_banned_user = await client.models.bans.findOne({
       userID: message.author.id,
