@@ -48,7 +48,14 @@ module.exports = {
     }
   },
 
-  get_artistinfo: async ({ client, message, artistName, user, silent, context }) => {
+  get_artistinfo: async ({
+    client,
+    message,
+    artistName,
+    user,
+    silent,
+    context
+  }) => {
     let params = "";
     if (user) {
       params = stringify({
@@ -82,7 +89,7 @@ module.exports = {
       }
       return false;
     } else {
-      if(context){
+      if (context) {
         data.context = context;
       }
       return data;
@@ -261,8 +268,24 @@ module.exports = {
 
     const string = `${days > 0 ? days + " day(s)" : ""} ${
       hours > 0 ? hours + " hour(s)" : ""
-    } ${days < 1 && hours < 1 && minutes>0 ? minutes + " minute(s)" : ""} ${days < 1 && hours < 1 && minutes<1 ? "less than a minute" : ""}
-    `.trim(); 
+    } ${days < 1 && hours < 1 && minutes > 0 ? minutes + " minute(s)" : ""} ${
+      days < 1 && hours < 1 && minutes < 1 ? "less than a minute" : ""
+    }
+    `.trim();
     return string;
+  },
+
+  // other
+  notify: async ({ client, message, title, description, reply }) => {
+    const embed = new BotEmbed(message)
+      .setTitle(title)
+      .setDescription(`\n${description}\n`);
+    let sent_message;
+    if (reply) {
+      sent_message = await message.reply(embed);
+    } else {
+      sent_message = await message.channel.send(embed);
+    }
+    return sent_message;
   }
 };
