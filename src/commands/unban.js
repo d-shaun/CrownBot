@@ -25,9 +25,15 @@ class UnbanCommand extends Command {
       );
       return;
     }
-    const user = message.mentions.members.first()
-      ? message.mentions.members.first().user
-      : false;
+    let user = message.mentions.members.first();
+
+    if (!user) {
+      let username = args.join().trim();
+      user = message.guild.members.find(member => {
+        return member.user.username.startsWith(username);
+      });
+    }
+    user = user ? user.user : false;
 
     if (!user) {
       await message.reply("`@` the user you want to unban.");
