@@ -14,9 +14,20 @@ class CrownsCommand extends Command {
   }
 
   async run(client, message, args) {
-    const crowns = await client.models.crowns.find({
+    const { bans } = client.models;
+    let crowns = await client.models.crowns.find({
       guildID: message.guild.id
     });
+
+    const guild = await message.guild.fetchMembers();
+    const ids = guild.members.map(e => e.id);
+    let banned_users = await bans.find({
+      userID: { $in: ids },
+      guildID: { $in: [message.guild.id, "any"] }
+    });
+    banned_users = banned_users.map(user => user.userID);
+    crowns = crowns.filter(crown => !banned_users.includes(crown.userID));
+
     const amounts = new Map();
     crowns.forEach(x => {
       if (amounts.has(x.userID)) {
@@ -47,7 +58,7 @@ class CrownsCommand extends Command {
               message.guild.members.get(userID).user.username
             } with **${amount}** crowns`;
           })
-          .join("\n") 
+          .join("\n")
       );
     await message.channel.send(embed);
   }
