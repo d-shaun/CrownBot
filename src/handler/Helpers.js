@@ -115,7 +115,20 @@ module.exports = {
     }
   },
 
-  get_prefix: async ({ client, message }) => {},
+  get_guild_user: async ({ args, message }) => {
+    if (args.length === 0) {
+      return false;
+    }
+    const username = args.join().trim();
+    let user = message.guild.members.find(member => {
+      return member.user.username
+        .toLowerCase()
+        .startsWith(username.toLowerCase());
+    });
+    user = user ? user.user : false;
+    return user;
+  },
+
   //anything updating goes here
 
   update_usercrown: async ({

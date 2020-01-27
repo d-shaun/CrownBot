@@ -13,7 +13,7 @@ class BanCommand extends Command {
   }
 
   async run(client, message, args) {
-    const { check_permissions } = client.helpers;
+    const { check_permissions, get_guild_user } = client.helpers;
     const { notify } = client.helpers;
 
     const has_required_permissions = check_permissions(message);
@@ -32,14 +32,14 @@ class BanCommand extends Command {
       return;
     }
     let user = message.mentions.members.first();
+    user = user ? user.user : false;
 
-    if (!user) {
-      let username = args.join().trim();
-      user = message.guild.members.find(member => {
-        return member.user.username.startsWith(username);
+    if (!user && args.length !== 0) {
+      user = await get_guild_user({
+        args,
+        message
       });
     }
-    user = user ? user.user : false;
 
     if (!user) {
       await notify({

@@ -13,7 +13,7 @@ class UnbanCommand extends Command {
   }
 
   async run(client, message, args) {
-    const { check_permissions } = client.helpers;
+    const { check_permissions, get_guild_user } = client.helpers;
 
     const has_required_permissions = check_permissions(message);
 
@@ -26,17 +26,17 @@ class UnbanCommand extends Command {
       return;
     }
     let user = message.mentions.members.first();
-
-    if (!user) {
-      let username = args.join().trim();
-      user = message.guild.members.find(member => {
-        return member.user.username.startsWith(username);
-      });
-    }
     user = user ? user.user : false;
 
+    if (!user && args.length !== 0) {
+      user = await get_guild_user({
+        args,
+        message
+      });
+    }
+
     if (!user) {
-      await message.reply("`@` the user you want to unban.");
+      await message.reply("user not found; `@` the user you want to unban.");
       return;
     }
 
