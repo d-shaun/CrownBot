@@ -6,7 +6,7 @@ class UnbanCommand extends Command {
   constructor() {
     super({
       name: "unban",
-      description: "Ban a user from accessing the bot.",
+      description: "Unban a banned user.",
       usage: ["unban <@user>"],
       aliases: ["ubn"]
     });
