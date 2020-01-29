@@ -60,16 +60,20 @@ class WhoKnowsCommand extends Command {
     if (!artist) return;
     const guild = await message.guild.fetchMembers();
     const ids = guild.members.map(e => e.id);
-    let registered_guild_users = await users.find({
-      userID: {
-        $in: ids
-      }
-    });
+    let registered_guild_users = await users
+      .find({
+        userID: {
+          $in: ids
+        }
+      })
+      .lean();
 
-    let banned_users = await bans.find({
-      userID: { $in: ids },
-      guildID: { $in: [message.guild.id, "any"] }
-    });
+    let banned_users = await bans
+      .find({
+        userID: { $in: ids },
+        guildID: { $in: [message.guild.id, "any"] }
+      })
+      .lean();
     banned_users = banned_users.map(user => user.userID);
     registered_guild_users = registered_guild_users.filter(
       user => !banned_users.includes(user.userID)

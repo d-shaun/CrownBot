@@ -13,10 +13,12 @@ class Command {
       return;
     }
     const { notify } = client.helpers;
-    const is_banned_user = await client.models.bans.findOne({
-      userID: message.author.id,
-      guildID: { $in: [message.guild.id, "any"] }
-    });
+    const is_banned_user = await client.models.bans
+      .findOne({
+        userID: message.author.id,
+        guildID: { $in: [message.guild.id, "any"] }
+      })
+      .lean();
 
     if (
       is_banned_user &&
