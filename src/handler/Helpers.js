@@ -26,7 +26,8 @@ module.exports = {
       method: "user.getrecenttracks",
       user: user.username,
       api_key: client.apikey,
-      format: "json"
+      format: "json",
+      limit: 1
     });
     const data = await fetch(`${client.url}${params}`).then(r => r.json());
     if (data.error) {
