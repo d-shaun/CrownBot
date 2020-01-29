@@ -96,7 +96,14 @@ module.exports = {
     }
   },
 
-  get_trackinfo: async ({ client, message, artistName, songName, user }) => {
+  get_trackinfo: async ({
+    client,
+    message,
+    artistName,
+    songName,
+    user,
+    context
+  }) => {
     const params = stringify({
       method: "track.getInfo",
       artist: artistName,
@@ -111,6 +118,9 @@ module.exports = {
       await message.reply(`couldn't find the song.`);
       return false;
     } else {
+      if (context) {
+        data.context = context;
+      }
       return data;
     }
   },

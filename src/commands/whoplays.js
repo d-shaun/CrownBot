@@ -97,25 +97,48 @@ class WhoPlaysCommand extends Command {
     let unsorted_leaderboard = [];
     let proper_artistName = track.artist.name;
     let proper_trackName = track.name;
-    var loop_interrupted = false;
+
+    var lastfm_requests = [];
     for await (const user of registered_guild_users) {
-      let { track } = await get_trackinfo({
-        client,
-        message,
-        artistName,
-        songName,
-        user
-      });
-      if (!track) return;
-      let { userplaycount } = parse_trackinfo(track);
-      let discord_username = guild.members.find(e => e.id === user.userID).user
-        .username;
-      if (userplaycount === undefined) {
-        loop_interrupted = true;
-        break;
-      }
+      const context = {
+        discord_user: guild.members.find(e => e.id === user.userID)
+      };
+      lastfm_requests.push(
+        get_trackinfo({
+          client,
+          message,
+          artistName,
+          songName,
+          user,
+          context
+        })
+      );
+    }
+
+    var responses;
+    await Promise.all(lastfm_requests).then(res => (responses = res));
+
+    if (
+      responses.some(response => {
+        const { track } = response;
+        const { userplaycount } = parse_trackinfo(track);
+        return userplaycount === undefined;
+      })
+    ) {
+      await message.reply(
+        "failed to get info from last.fm; try again after a while."
+      );
+      return;
+    }
+
+    responses.forEach(({ track, context }) => {
+      let user = context.discord_user.user;
+      let discord_username = user.username;
+
+      const { name, userplaycount } = parse_trackinfo(track);
+
       if (userplaycount <= 0) {
-        continue;
+        return;
       }
 
       unsorted_leaderboard.push({
@@ -123,14 +146,7 @@ class WhoPlaysCommand extends Command {
         userplaycount,
         user
       });
-    }
-
-    if (loop_interrupted) {
-      await message.reply(
-        "failed to get info from last.fm; try again after a while."
-      );
-      return;
-    }
+    });
 
     if (unsorted_leaderboard.length <= 0) {
       await message.reply(
