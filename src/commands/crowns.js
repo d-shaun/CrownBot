@@ -9,7 +9,7 @@ class CrownsCommand extends Command {
     super({
       name: "crowns",
       description: "Displays crowns of an user.",
-      usage: ["crowns", "crowns <user>"],
+      usage: ["crowns", "crowns <username>", "crowns <@user>"],
       aliases: ["cw"]
     });
   }

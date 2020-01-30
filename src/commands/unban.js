@@ -7,7 +7,7 @@ class UnbanCommand extends Command {
     super({
       name: "unban",
       description: "Unban a banned user.",
-      usage: ["unban <@user>"],
+      usage: ["unban <@user>", "unban <username>"],
       aliases: ["ubn"]
     });
   }

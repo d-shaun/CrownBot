@@ -6,7 +6,7 @@ class PrefixCommand extends Command {
     super({
       name: "prefix",
       description: "Changes bot prefix for a guild.",
-      usage: ["prefix <new_prefix>"],
+      usage: ["prefix", "prefix <new_prefix>"],
       aliases: ["pr"]
     });
   }

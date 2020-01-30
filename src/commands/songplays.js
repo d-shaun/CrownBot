@@ -8,7 +8,7 @@ class SongPlaysCommand extends Command {
     super({
       name: "songplays",
       description: "Displays user's play count of a song.",
-      usage: ["songplays", "songplays <artist name>"],
+      usage: ["songplays", "songplays <song name> || <artist name>"],
       aliases: ["spl"]
     });
   }
