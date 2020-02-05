@@ -8,7 +8,7 @@ module.exports = {
     const { users } = client.models;
     const user = await users.findOne({
       userID: message.author.id
-    });
+    }).lean();
     if (!user) {
       if (!silent) {
         await message.reply(
@@ -260,6 +260,7 @@ module.exports = {
 
   // anything parsing goes here
   parse_artistinfo: artist => {
+    if(!artist) return false;
     const { name, url } = artist;
     const { listeners, playcount, userplaycount } = artist.stats;
     return {

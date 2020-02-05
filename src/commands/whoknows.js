@@ -101,7 +101,8 @@ class WhoKnowsCommand extends Command {
           message,
           artistName,
           user,
-          context
+          context,
+          silent: true
         })
       );
     }
@@ -110,6 +111,7 @@ class WhoKnowsCommand extends Command {
     await Promise.all(lastfm_requests).then(res => (responses = res));
     if (
       responses.some(response => {
+        if(!response || !response.artist) return false;
         const { artist } = response;
         const { userplaycount } = parse_artistinfo(artist);
         return userplaycount === undefined;
