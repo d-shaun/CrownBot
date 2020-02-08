@@ -69,7 +69,7 @@ class SongPlaysCommand extends Command {
     if (link) {
       link = ` [Read more](${link}).`;
     }
-    description = description.replace(regex, "");
+    description = description.replace(regex, "").trim();
 
     if (description) {
       description =
