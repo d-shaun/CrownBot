@@ -58,8 +58,26 @@ class SongPlaysCommand extends Command {
       songName,
       user
     });
-
     if (!track) return;
+    let description = track.wiki ? track.wiki.summary : "";
+    const regex = new RegExp(
+      '<a href="([^"]+)">Read more on Last.fm</a>.',
+      "i"
+    );
+    let link = description.match(regex) ? description.match(regex)[1] : "";
+
+    if (link) {
+      link = ` [Read more](${link}).`;
+    }
+    description = description.replace(regex, "");
+
+    if (description) {
+      description =
+        "\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+        description +
+        link +
+        "\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+    }
     let { name, artist, userplaycount, playcount } = parse_trackinfo(track);
     var last_played = 0;
     var count_diff_str = "No change";
@@ -92,15 +110,16 @@ class SongPlaysCommand extends Command {
       track
     });
     const percentage = ((userplaycount / playcount) * 100).toFixed(2);
+
+    let play_stat_str = `\n (**${percentage}%** of ${abbreviate(
+      playcount,
+      1
+    )} plays)`;
+
     const embed = new BotEmbed(message)
       .setTitle(`Track plays`)
       .setDescription(
-        `**${name}** by **${
-          artist.name
-        }** — ${userplaycount} play(s) \n\n (**${percentage}%** of ${abbreviate(
-          playcount,
-          1
-        )} plays) \n\n ${aggr_str}`
+        `**${name}** by **${artist.name}** — ${userplaycount} play(s) \n ${description} ${play_stat_str} \n\n ${aggr_str}`
       );
     await message.channel.send(embed);
   }
