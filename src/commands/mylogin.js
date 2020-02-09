@@ -4,7 +4,7 @@ class MyLoginCommand extends Command {
 	constructor() {
 		super({
 			name: "mylogin",
-			description: "Displays user's last.fm username.",
+			description: "Displays user's Last.fm username.",
 			usage: ["mylogin"],
 			aliases: ["me"]
 		});
@@ -15,7 +15,7 @@ class MyLoginCommand extends Command {
 		const user = await get_username(client, message);
         if(!user) return;
         await message.reply(
-            `your last.fm username is \`\`${user.username}\`\`.`
+            `your Last.fm username is \`\`${user.username}\`\`.`
         );
 
     }

@@ -87,7 +87,7 @@ class WhoPlaysCommand extends Command {
 
     if (registered_guild_users.length <= 0) {
       await message.reply(
-        "no user in this guild has registered their last.fm username."
+        "no user in this guild has registered their Last.fm username."
       );
       return;
     }
@@ -126,7 +126,7 @@ class WhoPlaysCommand extends Command {
       })
     ) {
       await message.reply(
-        "failed to get info from last.fm; try again after a while."
+        "failed to get info from Last.fm; try again after a while."
       );
       return;
     }

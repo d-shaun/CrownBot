@@ -6,7 +6,7 @@ class LoginCommand extends Command {
 	constructor() {
 		super({
 			name: "login",
-			description: "Sets user's last.fm username.",
+			description: "Sets user's Last.fm username.",
 			usage: "login <lastfm username>",
 			aliases: ["cblogin"]
 		});
@@ -16,7 +16,7 @@ class LoginCommand extends Command {
 		const server_prefix = client.getCachedPrefix(message);
 		const { get_username } = client.helpers;
 		if (args.length === 0) {
-			message.reply("you must provide a last.fm username.");
+			message.reply("you must provide a Last.fm username.");
 			return;
 		}
 

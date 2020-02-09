@@ -12,7 +12,7 @@ module.exports = {
     if (!user) {
       if (!silent) {
         await message.reply(
-          "please set your last.fm username with the ``&login`` command first."
+          "please set your Last.fm username with the ``&login`` command first."
         );
       }
       return false;
@@ -33,7 +33,7 @@ module.exports = {
     if (data.error) {
       if (!silent) {
         await message.reply(
-          "something went wrong while trying to get info from last.fm."
+          "something went wrong while trying to get info from Last.fm."
         );
       }
       return false;
@@ -84,7 +84,7 @@ module.exports = {
           await message.reply("the artist could not be found.");
         } else {
           await message.reply(
-            "something went wrong while trying to get info from last.fm."
+            "something went wrong while trying to get info from Last.fm."
           );
         }
       }

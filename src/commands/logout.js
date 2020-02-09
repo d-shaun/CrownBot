@@ -4,7 +4,7 @@ class LogoutCommand extends Command {
 	constructor() {
 		super({
 			name: "logout",
-			description: "Unsets user's last.fm username.",
+			description: "Unsets user's Last.fm username.",
 			usage: ["logout"],
 			aliases: ["delnick"]
 		});
@@ -12,7 +12,7 @@ class LogoutCommand extends Command {
 
 	async run(client, message, args) {
 		const msg = await message.reply(
-			"are you sure you want to unset your last.fm username? " +
+			"are you sure you want to unset your Last.fm username? " +
 				" Click on this reaction to proceed. "
 		);
 		await msg.react("✅");
@@ -45,7 +45,7 @@ class LogoutCommand extends Command {
 				);
 			} else {
 				await message.reply(
-					"no last.fm username is associated to this account; no changes were made."
+					"no Last.fm username is associated to this account; no changes were made."
 				);
 			}
 		} else {
