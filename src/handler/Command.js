@@ -55,14 +55,17 @@ class Command {
   async log(message, stack) {
     const data = {
       command_name: this.name,
-      message_content: `(${message.id}) ${message.content}`,
-      executor: `${message.author.tag} (${message.author.id})`,
-      guild: `${message.guild.name} (${message.guild.id})`,
-      channel: `${message.channel.name} (${message.channel.id})`,
+      message_id: message.id,
+      message_content: message.content,
+      username: message.author.tag,
+      user_ID: message.author.id,
+      guild_name: message.guild.name,
+      guild_ID: message.guild.id,
+      channel_name: message.channel.name,
+      channel_ID: message.channel.id,
       timestamp: `${new Date().toUTCString()}`,
       stack: `${stack || `none`}`
     };
-
     message.client.addLog(data);
   }
 }
