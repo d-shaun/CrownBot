@@ -6,9 +6,11 @@ module.exports = {
   // anything get goes here
   get_username: async (client, message, silent = false) => {
     const { users } = client.models;
-    const user = await users.findOne({
-      userID: message.author.id
-    }).lean();
+    const user = await users
+      .findOne({
+        userID: message.author.id
+      })
+      .lean();
     if (!user) {
       if (!silent) {
         await message.reply(
@@ -140,6 +142,35 @@ module.exports = {
     return user;
   },
 
+  get_albuminfo: async ({
+    client,
+    message,
+    artistName,
+    albumName,
+    user,
+    context
+  }) => {
+    const params = stringify({
+      method: "album.getInfo",
+      artist: artistName,
+      album: albumName,
+      user: user ? user.username : null,
+      api_key: client.apikey,
+      format: "json",
+      autocorrect: 1
+    });
+    const data = await fetch(`${client.url}${params}`).then(r => r.json());
+    if (data.error) {
+      await message.reply(`couldn't find the album.`);
+      return false;
+    } else {
+      if (context) {
+        data.context = context;
+      }
+      return data;
+    }
+  },
+
   //anything updating goes here
 
   update_usercrown: async ({
@@ -246,6 +277,30 @@ module.exports = {
       }
     );
   },
+
+  update_albumlog: async ({ client, message, album }) => {
+    const { name, userplaycount } = album;
+    const artistName = album.artist;
+    const userID = message.author.id;
+    const timestamp = moment.utc().valueOf();
+    await client.models.albumlog.findOneAndUpdate(
+      {
+        name,
+        artistName
+      },
+      {
+        name,
+        artistName,
+        userplaycount,
+        userID,
+        timestamp
+      },
+      {
+        upsert: true,
+        useFindAndModify: false
+      }
+    );
+  },
   // anything checking goes here
 
   check_permissions: message => {
@@ -260,7 +315,7 @@ module.exports = {
 
   // anything parsing goes here
   parse_artistinfo: artist => {
-    if(!artist) return false;
+    if (!artist) return false;
     const { name, url } = artist;
     const { listeners, playcount, userplaycount } = artist.stats;
     return {
