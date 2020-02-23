@@ -106,13 +106,17 @@ class AlbumPlaysCommand extends Command {
     });
     const artist_percentage = ((userplaycount / artist_plays) * 100).toFixed(2);
     const percentage = ((userplaycount / playcount) * 100).toFixed(2);
+    let percentage_text = ` — **${artist_percentage}%** of **${abbreviate(
+      artist_plays,
+      1
+    )}** artist plays `;
+    if (isNaN(artist_percentage)) {
+      percentage_text = "";
+    }
     const embed = new BotEmbed(message)
       .setTitle(`Album plays`)
       .setDescription(
-        `**${name}** by **${artist}** — ${userplaycount} play(s) — **${artist_percentage}%** of **${abbreviate(
-          artist_plays,
-          1
-        )}** artist plays \n\n (**${percentage}%** of ${abbreviate(
+        `**${name}** by **${artist}** — ${userplaycount} play(s) ${percentage_text}\n\n (**${percentage}%** of ${abbreviate(
           playcount,
           1
         )} album plays) \n\n ${aggr_str}`
