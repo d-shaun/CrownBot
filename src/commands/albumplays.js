@@ -77,6 +77,18 @@ class AlbumPlaysCommand extends Command {
     var last_played = 0;
     var count_diff_str = "No change";
     var time_diff_str = false;
+    var album_art = false;
+    try {
+      if (album.image) {
+        var last_item = album.image.pop();
+        album_art = last_item["#text"];
+      }
+    } catch (e) {
+      album_art = false;
+      console.error("Failed to get album art.");
+      console.log(e);
+    }
+
     var last_log = await client.models.albumlog.findOne({
       name,
       artistName: artist,
@@ -121,6 +133,9 @@ class AlbumPlaysCommand extends Command {
           1
         )} album plays) \n\n ${aggr_str}`
       );
+    if (album_art) {
+      embed.setThumbnail(album_art);
+    }
     await message.channel.send(embed);
   }
 }
