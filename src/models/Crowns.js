@@ -1,28 +1,11 @@
-// module.exports = (sequelize, DataTypes) => {
-//     return sequelize.define('crowns', {
-//         guildID: {
-//             type: DataTypes.STRING,
-//             unique: `crown`
-//         },
-//         userID: DataTypes.STRING,
-//         artistName: {
-//             type: DataTypes.STRING,
-//             unique: `crown`
-//         },
-//         artistPlays: DataTypes.INTEGER
-//     })
-// }
-
-
-
 module.exports = mongoose => {
-    return new mongoose.Schema({
-        guildID: {
-            type: String,
-        },
-        userID: String,
-        userTag: String,
-        artistName: String,
-        artistPlays: Number
-    })
-}
+  return new mongoose.Schema({
+    guildID: {
+      type: String
+    },
+    userID: String,
+    userTag: String,
+    artistName: String,
+    artistPlays: Number
+  });
+};

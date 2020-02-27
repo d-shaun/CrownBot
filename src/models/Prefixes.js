@@ -3,8 +3,8 @@ module.exports = mongoose => {
     guildID: {
       type: String,
       unique: true
-	},
-  prefix: String,
-  guildName: String
+    },
+    prefix: String,
+    guildName: String
   });
 };
