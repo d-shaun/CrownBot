@@ -1,7 +1,6 @@
 const { Client, SnowflakeUtil } = require("discord.js");
 const fs = require("fs");
 const path = require("path");
-const Sequelize = require("sequelize");
 const mongoose = require("mongoose");
 
 class CrownBot extends Client {
@@ -21,13 +20,6 @@ class CrownBot extends Client {
         console.log(e);
       });
     this.schema = mongoose.Schema;
-    this.sequelize = new Sequelize("database", "user", "password", {
-      host: "localhost",
-      dialect: "sqlite",
-      logging: false,
-      storage: "database.sqlite"
-    });
-    this.queryInterface = this.sequelize.getQueryInterface();
     this.models = {};
     this.url = "https://ws.audioscrobbler.com/2.0/?";
     this.helpers = require("./Helpers");
