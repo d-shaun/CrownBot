@@ -356,16 +356,27 @@ module.exports = {
   },
 
   // other
-  notify: async ({ client, message, title, description, reply }) => {
-    const embed = new BotEmbed(message)
-      .setTitle(title)
-      .setDescription(`\n${description}\n`);
+  notify: async (message, args, reply = false) => {
+    
+    let title, description, desc;
+    if(!args) args = message;
+    if (typeof args === "object") {
+      ({ message, title, description, desc, reply } = args);
+      if (desc) description = desc;
+    } else {
+      description = args;
+    }
+    const embed = new BotEmbed(message);
+
+    embed.setDescription(`\n${description}\n`);
+    if (title) embed.setTitle(title);
     let sent_message;
     if (reply) {
-      sent_message = await message.reply(embed);
+      embed.setDescription(`\n<@${message.author.id}>, ${description}\n`);
     } else {
-      sent_message = await message.channel.send(embed);
+      embed.setDescription(`\n${description}\n`);
     }
+    sent_message = await message.channel.send(embed);
     return sent_message;
   }
 };
