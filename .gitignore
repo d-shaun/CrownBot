@@ -3,3 +3,4 @@ logs/
 database.sqlite
 config.json
 Proc*
+.vscode
