@@ -81,9 +81,15 @@ class WhoKnowsCommand extends Command {
     );
 
     if (registered_guild_users.length <= 0) {
-      await message.reply(
-        "no user in this guild has registered their Last.fm username."
-      );
+      await client.notify({
+        message,
+        desc:
+          "no user in this guild has registered their Last.fm username; see `" +
+          server_prefix +
+          "help login`.",
+        reply: true
+      });
+
       return;
     }
     if (registered_guild_users.length > 100) {
@@ -118,9 +124,12 @@ class WhoKnowsCommand extends Command {
         return userplaycount === undefined;
       })
     ) {
-      await message.reply(
-        "failed to get info from Last.fm; try again after a while."
-      );
+      await client.notify({
+        message,
+        desc: "failed to get info from Last.fm; try again after a while.",
+        reply: true
+      });
+
       return;
     }
     responses.forEach(({ artist, context }) => {
@@ -143,9 +152,11 @@ class WhoKnowsCommand extends Command {
     });
 
     if (unsorted_leaderboard.length <= 0) {
-      await message.reply(
-        "no one here listens to ``" + proper_artistName + "``."
-      );
+      await client.notify({
+        message,
+        desc: "no one here listens to ``" + proper_artistName + "``.",
+        reply: true
+      });
       return;
     }
     const leaderboard = unsorted_leaderboard.sort(

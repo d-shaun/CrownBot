@@ -31,7 +31,11 @@ class CrownsCommand extends Command {
     }
 
     if (!user) {
-      await message.reply("user not found.");
+      await client.notify({
+        message,
+        desc: "user not found.",
+        reply: true
+      });
       return;
     }
     const crowns = await client.models.crowns.find({
@@ -65,7 +69,11 @@ class CrownsCommand extends Command {
         .setThumbnail(user.avatarURL);
       await FieldsEmbed.build();
     } else {
-      await message.reply(`you don't have any crown in this server.`);
+      await client.notify({
+        message,
+        desc: "you don't have any crown in this server.",
+        reply: true
+      });
     }
   }
 }
