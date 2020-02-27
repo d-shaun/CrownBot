@@ -12,7 +12,8 @@ class WhoKnowsCommand extends Command {
         "If no artist is defined, the bot will try to look up the artist you are " +
         "currently listening to.",
       usage: ["whoknows", "whoknows <artist name>"],
-      aliases: ["w"]
+      aliases: ["w"],
+      examples: ["whoknows Kwoon", "whoknows Poppy"]
     });
   }
 
@@ -111,7 +112,7 @@ class WhoKnowsCommand extends Command {
     await Promise.all(lastfm_requests).then(res => (responses = res));
     if (
       responses.some(response => {
-        if(!response || !response.artist) return false;
+        if (!response || !response.artist) return false;
         const { artist } = response;
         const { userplaycount } = parse_artistinfo(artist);
         return userplaycount === undefined;

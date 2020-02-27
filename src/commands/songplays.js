@@ -9,7 +9,11 @@ class SongPlaysCommand extends Command {
       name: "songplays",
       description: "Displays user's play count of a song.",
       usage: ["songplays", "songplays <song name> || <artist name>"],
-      aliases: ["spl"]
+      aliases: ["spl"],
+      examples: [
+        "songplays The Rip || Portishead",
+        "songplays Little Faith || The National"
+      ]
     });
   }
 

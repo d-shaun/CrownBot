@@ -9,7 +9,11 @@ class AlbumPlaysCommand extends Command {
       name: "albumplays",
       description: "Displays user's play count of an album.",
       usage: ["albumplays", "albumplays <album name> || <artist name>"],
-      aliases: ["alp", "alpl"]
+      aliases: ["alp", "alpl"],
+      examples: [
+        "albumplays Disintegration || The Cure",
+        "albumplays Empath || Devin Townsend"
+      ]
     });
   }
 
