@@ -20,9 +20,13 @@ class UnbanCommand extends Command {
     if (!has_required_permissions) return;
 
     if (!message.member.hasPermission("BAN_MEMBERS")) {
-      await message.reply(
-        "you do not have the permission (``BAN_MEMBERS``) to execute this command."
-      );
+      await client.notify({
+        message,
+        desc:
+          "you do not have the permission (``BAN_MEMBERS``) to execute this command.",
+        reply: true
+      });
+
       return;
     }
     let user = message.mentions.members.first();
@@ -36,7 +40,12 @@ class UnbanCommand extends Command {
     }
 
     if (!user) {
-      await message.reply("user not found; `@` the user you want to unban.");
+      await client.notify({
+        message,
+        desc: "user not found; `@` the user you want to unban.",
+        reply: true
+      });
+
       return;
     }
 
@@ -45,11 +54,20 @@ class UnbanCommand extends Command {
       userID: user.id
     });
     if (!banned_user) {
-      await message.reply(`\`${user.tag}\` hasn't been banned... yet.`);
+      await client.notify({
+        message,
+        desc: `\`${user.tag}\` hasn't been banned... yet.`,
+        reply: true
+      });
+
       return;
     }
     await banned_user.remove();
-    await message.reply(`\`${user.tag}\` has been unbanned.`);
+    await client.notify({
+      message,
+      desc: `\`${user.tag}\` has been unbanned.`,
+      reply: true
+    });
   }
 }
 

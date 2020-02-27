@@ -48,13 +48,12 @@ class WhoPlaysCommand extends Command {
       let str = args.join(` `);
       let str_array = str.split("||");
       if (str_array.length !== 2) {
-        await message.reply(
-          "invalid format; try ``" +
-            server_prefix +
-            "wp <song name>||<artist name>``. (Example: ``" +
-            server_prefix +
-            "wp Sylvia||The Antlers``.)"
-        );
+        await client.notify({
+          message,
+          desc: "invalid format; see `" + server_prefix + "help whoplays`.",
+          reply: true
+        });
+
         return;
       }
       songName = str_array[0].trim();
@@ -90,9 +89,14 @@ class WhoPlaysCommand extends Command {
     );
 
     if (registered_guild_users.length <= 0) {
-      await message.reply(
-        "no user in this guild has registered their Last.fm username."
-      );
+      await client.notify({
+        message,
+        desc:
+          "no user in this guild has registered their Last.fm username; see `" +
+          server_prefix +
+          "help login`.",
+        reply: true
+      });
       return;
     }
     if (registered_guild_users.length > 30) {
@@ -129,9 +133,11 @@ class WhoPlaysCommand extends Command {
         return userplaycount === undefined;
       })
     ) {
-      await message.reply(
-        "failed to get info from Last.fm; try again after a while."
-      );
+      await client.notify({
+        message,
+        desc: "failed to get info from Last.fm; try again after a while.",
+        reply: true
+      });
       return;
     }
 
@@ -153,13 +159,17 @@ class WhoPlaysCommand extends Command {
     });
 
     if (unsorted_leaderboard.length <= 0) {
-      await message.reply(
-        "no one here has played ``" +
+      await client.notify({
+        message,
+        desc:
+          "no one here has played ``" +
           proper_trackName +
           "`` by ``" +
           proper_artistName +
-          "``."
-      );
+          "``.",
+        reply: true
+      });
+
       return;
     }
 

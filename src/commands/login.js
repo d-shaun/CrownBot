@@ -17,16 +17,24 @@ class LoginCommand extends Command {
     const server_prefix = client.getCachedPrefix(message);
     const { get_username } = client.helpers;
     if (args.length === 0) {
-      message.reply("you must provide a Last.fm username.");
+      await client.notify({
+        message,
+        desc: "you must provide a Last.fm username.",
+        reply: true
+      });
       return;
     }
 
     const user = await get_username(client, message, true);
     if (user) {
-      await message.reply(
-        `you already have a nickname set; send \`\`${server_prefix}mylogin\`\` to ` +
-          `see your username, or \`\`${server_prefix}logout\`\` to unset your nickname.`
-      );
+      await client.notify({
+        message,
+        desc:
+          `you already have a nickname set; send \`\`${server_prefix}mylogin\`\` to ` +
+          `see your username, or \`\`${server_prefix}logout\`\` to unset your nickname.`,
+        reply: true
+      });
+
       return;
     }
 
@@ -43,15 +51,25 @@ class LoginCommand extends Command {
           userID: message.author.id,
           username: data.user.name
         });
-        await message.reply(
-          `username \`\`${data.user.name}\`\` has been associated to your Discord account.`
-        );
+
+        await client.notify({
+          message,
+          desc: `username \`\`${data.user.name}\`\` has been associated to your Discord account.`,
+          reply: true
+        });
       } else if (data.error === 6) {
-        await message.reply("erm... nope, that username doesn't exist.");
-        return;
+        await client.notify({
+          message,
+          desc: "erm... nope, that user doesn't exist on Last.fm.",
+          reply: true
+        });
       }
     } catch (e) {
-      await message.reply("something went wrong while executing the command.");
+      await client.notify({
+        message,
+        desc: "something went wrong while executing the command.",
+        reply: true
+      });
       throw e;
     }
   }
