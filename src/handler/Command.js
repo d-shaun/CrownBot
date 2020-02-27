@@ -6,6 +6,7 @@ class Command {
     this.aliases = options.aliases || [];
     this.hidden = options.hidden;
     this.ownerOnly = options.ownerOnly;
+    this.examples = options.examples;
   }
 
   async execute(client, message, args) {

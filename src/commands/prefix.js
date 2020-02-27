@@ -7,12 +7,12 @@ class PrefixCommand extends Command {
       name: "prefix",
       description: "Changes bot prefix for a guild.",
       usage: ["prefix", "prefix <new_prefix>"],
-      aliases: ["pr"]
+      aliases: ["pr"],
+      examples: ["prefix !", "prefix >"]
     });
   }
 
   async run(client, message, args) {
-
     const server_prefix = client.getCachedPrefix(message);
 
     const { update_prefix } = client.helpers;
