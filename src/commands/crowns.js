@@ -20,8 +20,6 @@ class CrownsCommand extends Command {
     const has_required_permissions = check_permissions(message);
     if (!has_required_permissions) return;
 
-    const files = fs.readdirSync(path.join(__dirname, "crowns"));
-    const cmds = files.map(x => x.slice(0, x.length - 3));
     let user;
     if (args.length > 0) {
       user = message.mentions.members.first();
