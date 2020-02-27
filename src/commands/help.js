@@ -7,7 +7,8 @@ class HelpCommand extends Command {
       name: "help",
       description: "Lists the available commands.",
       usage: ["help", "help <command>"],
-      aliases: ["h"]
+      aliases: ["h"],
+      examples: ["help about", "help wp"]
     });
   }
 
@@ -18,7 +19,6 @@ class HelpCommand extends Command {
       const command = client.commands
         .filter(e => !e.hidden)
         .find(x => x.name === args[0] || x.aliases.includes(args[0]));
-      console.log(command);
       if (command) {
         var usage = Array.isArray(command.usage)
           ? command.usage
@@ -27,11 +27,31 @@ class HelpCommand extends Command {
 
         var aliases = command.aliases;
         aliases = aliases.map(e => `\`\`${server_prefix}${e}\`\``);
+        var examples = !command.examples
+          ? false
+          : command.examples
+              .map(example => {
+                return `\`\`${server_prefix}${example}\`\``;
+              })
+              .join("\n");
+
+        var examples = !command.examples
+          ? false
+          : command.examples
+              .map(example => {
+                return `\`\`${server_prefix}${example}\`\``;
+              })
+              .join("\n");
+
         const embed = new BotEmbed(message)
           .setTitle(command.name)
           .setDescription(command.description)
           .addField("Usage", usage)
           .addField("Aliases", aliases);
+
+        if (examples) {
+          embed.addField("Examples", examples);
+        }
         message.channel.send(embed);
       }
     } else {

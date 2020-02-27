@@ -9,7 +9,11 @@ class SongPlaysCommand extends Command {
       name: "songplays",
       description: "Displays user's play count of a song.",
       usage: ["songplays", "songplays <song name> || <artist name>"],
-      aliases: ["spl"]
+      aliases: ["spl"],
+      examples: [
+        "songplays The Rip || Portishead",
+        "songplays Little Faith || The National"
+      ]
     });
   }
 
@@ -38,13 +42,11 @@ class SongPlaysCommand extends Command {
       let str = args.join(` `);
       let str_array = str.split("||");
       if (str_array.length !== 2) {
-        await message.reply(
-          "invalid format; try ``" +
-            server_prefix +
-            "spl <song name>||<artist name>``. (Example: ``" +
-            server_prefix +
-            "spl Sylvia||The Antlers``.)"
-        );
+        await client.notify({
+          message,
+          desc: "invalid format; see `" + server_prefix + "help spl`.",
+          reply: true
+        });
         return;
       }
       songName = str_array[0].trim();

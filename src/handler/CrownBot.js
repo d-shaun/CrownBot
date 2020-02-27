@@ -31,6 +31,7 @@ class CrownBot extends Client {
     this.models = {};
     this.url = "https://ws.audioscrobbler.com/2.0/?";
     this.helpers = require("./Helpers");
+    this.notify = this.helpers.notify;
     this.prefixes = false;
   }
 

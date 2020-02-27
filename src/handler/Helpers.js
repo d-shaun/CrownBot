@@ -13,9 +13,12 @@ module.exports = {
       .lean();
     if (!user) {
       if (!silent) {
-        await message.reply(
-          "please set your Last.fm username with the ``&login`` command first."
-        );
+        await client.notify({
+          message,
+          desc:
+            "please set your Last.fm username with the ``&login`` command first.",
+          reply: true
+        });
       }
       return false;
     } else {
@@ -34,9 +37,11 @@ module.exports = {
     const data = await fetch(`${client.url}${params}`).then(r => r.json());
     if (data.error) {
       if (!silent) {
-        await message.reply(
-          "something went wrong while trying to get info from Last.fm."
-        );
+        await client.notify({
+          message,
+          desc: "something went wrong while trying to get info from Last.fm.",
+          reply: true
+        });
       }
       return false;
     }
@@ -45,7 +50,11 @@ module.exports = {
       return last_track;
     } else {
       if (!silent) {
-        await message.reply("you aren't playing anything.");
+        await client.notify({
+          message,
+          desc: "you aren't playing anything.",
+          reply: true
+        });
       }
       return false;
     }
@@ -83,11 +92,17 @@ module.exports = {
     if (data.error) {
       if (!silent) {
         if (data.error === 6) {
-          await message.reply("the artist could not be found.");
+          await client.notify({
+            message,
+            desc: "the artist could not be found.",
+            reply: true
+          });
         } else {
-          await message.reply(
-            "something went wrong while trying to get info from Last.fm."
-          );
+          await client.notify({
+            message,
+            desc: "something went wrong while trying to get info from Last.fm.",
+            reply: true
+          });
         }
       }
       return false;
@@ -118,7 +133,20 @@ module.exports = {
     });
     const data = await fetch(`${client.url}${params}`).then(r => r.json());
     if (data.error) {
-      await message.reply(`couldn't find the song.`);
+      if (data.error === 6) {
+        await client.notify({
+          message,
+          desc: `couldn't find the song.`,
+          reply: true
+        });
+      } else {
+        await client.notify({
+          message,
+          desc: `something went wrong while trying to get song info from Last.fm.`,
+          reply: true
+        });
+      }
+
       return false;
     } else {
       if (context) {
@@ -161,7 +189,20 @@ module.exports = {
     });
     const data = await fetch(`${client.url}${params}`).then(r => r.json());
     if (data.error) {
-      await message.reply(`couldn't find the album.`);
+      if (data.error === 6) {
+        await client.notify({
+          message,
+          desc: `couldn't find the album.`,
+          reply: true
+        });
+      } else {
+        await client.notify({
+          message,
+          desc: `something went wrong while trying to get song info from Last.fm.`,
+          reply: true
+        });
+      }
+
       return false;
     } else {
       if (context) {
@@ -251,7 +292,11 @@ module.exports = {
       }
     );
     client.prefixes = false;
-    await message.reply("the prefix is now set to ``" + prefix + "``.");
+    await client.notify({
+      message,
+      desc: "the prefix is now set to ``" + prefix + "``.",
+      reply: true
+    });
   },
 
   update_tracklog: async ({ client, message, track }) => {
@@ -303,11 +348,14 @@ module.exports = {
   },
   // anything checking goes here
 
-  check_permissions: message => {
+  check_permissions: async message => {
     if (!message.guild.me.hasPermission("MANAGE_MESSAGES")) {
-      message.reply(
-        "the ``MANAGE_MESSAGES`` permission is required for this command to work."
-      );
+      await client.notify({
+        message,
+        desc:
+          "the ``MANAGE_MESSAGES`` permission is required for this command to work.",
+        reply: true
+      });
       return false;
     }
     return true;
@@ -356,16 +404,26 @@ module.exports = {
   },
 
   // other
-  notify: async ({ client, message, title, description, reply }) => {
-    const embed = new BotEmbed(message)
-      .setTitle(title)
-      .setDescription(`\n${description}\n`);
+  notify: async (message, args, reply = false) => {
+    let title, description, desc;
+    if (!args) args = message;
+    if (typeof args === "object") {
+      ({ message, title, description, desc, reply } = args);
+      if (desc) description = desc;
+    } else {
+      description = args;
+    }
+    const embed = new BotEmbed(message);
+
+    embed.setDescription(`\n${description}\n`);
+    if (title) embed.setTitle(title);
     let sent_message;
     if (reply) {
-      sent_message = await message.reply(embed);
+      embed.setDescription(`\n<@${message.author.id}>, ${description}\n`);
     } else {
-      sent_message = await message.channel.send(embed);
+      embed.setDescription(`\n${description}\n`);
     }
+    sent_message = await message.channel.send(embed);
     return sent_message;
   }
 };

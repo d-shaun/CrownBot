@@ -12,7 +12,8 @@ class WhoKnowsCommand extends Command {
         "If no artist is defined, the bot will try to look up the artist you are " +
         "currently listening to.",
       usage: ["whoknows", "whoknows <artist name>"],
-      aliases: ["w"]
+      aliases: ["w"],
+      examples: ["whoknows Kwoon", "whoknows Poppy"]
     });
   }
 
@@ -80,9 +81,15 @@ class WhoKnowsCommand extends Command {
     );
 
     if (registered_guild_users.length <= 0) {
-      await message.reply(
-        "no user in this guild has registered their Last.fm username."
-      );
+      await client.notify({
+        message,
+        desc:
+          "no user in this guild has registered their Last.fm username; see `" +
+          server_prefix +
+          "help login`.",
+        reply: true
+      });
+
       return;
     }
     if (registered_guild_users.length > 100) {
@@ -111,15 +118,18 @@ class WhoKnowsCommand extends Command {
     await Promise.all(lastfm_requests).then(res => (responses = res));
     if (
       responses.some(response => {
-        if(!response || !response.artist) return false;
+        if (!response || !response.artist) return false;
         const { artist } = response;
         const { userplaycount } = parse_artistinfo(artist);
         return userplaycount === undefined;
       })
     ) {
-      await message.reply(
-        "failed to get info from Last.fm; try again after a while."
-      );
+      await client.notify({
+        message,
+        desc: "failed to get info from Last.fm; try again after a while.",
+        reply: true
+      });
+
       return;
     }
     responses.forEach(({ artist, context }) => {
@@ -142,9 +152,11 @@ class WhoKnowsCommand extends Command {
     });
 
     if (unsorted_leaderboard.length <= 0) {
-      await message.reply(
-        "no one here listens to ``" + proper_artistName + "``."
-      );
+      await client.notify({
+        message,
+        desc: "no one here listens to ``" + proper_artistName + "``.",
+        reply: true
+      });
       return;
     }
     const leaderboard = unsorted_leaderboard.sort(

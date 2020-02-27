@@ -8,7 +8,8 @@ class BanCommand extends Command {
       description:
         "Ban a user from accessing the bot and showing up on the 'whoknows' list.",
       usage: ["ban <@user>"],
-      aliases: ["bn"]
+      aliases: ["bn"],
+      examples: ["ban @shaun", "ban shaun"]
     });
   }
 
