@@ -212,8 +212,46 @@ module.exports = {
     }
   },
 
-  //anything updating goes here
+  // anything related to searching goes here
+  search_track: async ({ client, message, track_name }) => {
+    const params = stringify({
+      method: "track.search",
+      limit: 1,
+      track: track_name,
+      api_key: client.apikey,
+      format: "json"
+    });
+    const data = await fetch(`${client.url}${params}`).then(r => r.json());
 
+    if (data.error) {
+      if (data.error === 6) {
+        await client.notify({
+          message,
+          desc: `couldn't find the track; try providing the artist name—see \`&help spl\`.`,
+          reply: true
+        });
+      } else {
+        await client.notify({
+          message,
+          desc: `something went wrong while trying to get song info from Last.fm.`,
+          reply: true
+        });
+      }
+      return false;
+    }
+    let track = data.results.trackmatches.track[0];
+    if (!track) {
+      await client.notify({
+        message,
+        desc: `couldn't find the track; try providing artist name—see \`&help spl\`.`,
+        reply: true
+      });
+      return false;
+    }
+    return track;
+  },
+
+  // anything updating goes here
   update_usercrown: async ({
     client,
     message,
