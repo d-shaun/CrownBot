@@ -28,6 +28,9 @@ class AlbumPlaysCommand extends Command {
       get_artistinfo
     } = client.helpers;
 
+    // search functions
+    const { search_album } = client.helpers;
+
     // "setters"
     const { update_albumlog } = client.helpers;
 
@@ -36,6 +39,7 @@ class AlbumPlaysCommand extends Command {
 
     let albumName;
     let artistName;
+    let footer_text;
     const user = await get_username(client, message);
     if (!user) return;
     if (args.length === 0) {
@@ -47,17 +51,24 @@ class AlbumPlaysCommand extends Command {
       let str = args.join(` `);
       let str_array = str.split("||");
       if (str_array.length !== 2) {
-        await message.reply(
-          "invalid format; try ``" +
-            server_prefix +
-            "alp <album name>||<artist name>``. (Example: ``" +
-            server_prefix +
-            "alp Hospice||The Antlers``.)"
-        );
-        return;
+        let album_name = str_array.join().trim();
+        let album = await search_album({
+          client,
+          message,
+          album_name
+        });
+
+        if (!album) return;
+        albumName = album.name;
+        artistName = album.artist;
+        footer_text =
+          "Wrong album? Try providing artist name; see " +
+          server_prefix +
+          "help alp";
+      } else {
+        albumName = str_array[0].trim();
+        artistName = str_array[1].trim();
       }
-      albumName = str_array[0].trim();
-      artistName = str_array[1].trim();
     }
 
     let artist_plays = await get_artistinfo({
@@ -139,6 +150,9 @@ class AlbumPlaysCommand extends Command {
       );
     if (album_art) {
       embed.setThumbnail(album_art);
+    }
+    if (footer_text) {
+      embed.setFooter(footer_text);
     }
     await message.channel.send(embed);
   }

@@ -8,9 +8,14 @@ class SongPlaysCommand extends Command {
     super({
       name: "songplays",
       description: "Displays user's play count of a song.",
-      usage: ["songplays", "songplays <song name> || <artist name>"],
+      usage: [
+        "songplays",
+        "songplays <song name>",
+        "songplays <song name> || <artist name>"
+      ],
       aliases: ["spl"],
       examples: [
+        "songplays Mystery of Love",
         "songplays The Rip || Portishead",
         "songplays Little Faith || The National"
       ]
@@ -23,6 +28,9 @@ class SongPlaysCommand extends Command {
     // "getters"
     const { get_username, get_nowplaying, get_trackinfo } = client.helpers;
 
+    // search functions
+    const { search_track } = client.helpers;
+
     // "setters"
     const { update_tracklog } = client.helpers;
 
@@ -31,6 +39,7 @@ class SongPlaysCommand extends Command {
 
     let songName;
     let artistName;
+    let footer_text;
     const user = await get_username(client, message);
     if (!user) return;
     if (args.length === 0) {
@@ -42,15 +51,24 @@ class SongPlaysCommand extends Command {
       let str = args.join(` `);
       let str_array = str.split("||");
       if (str_array.length !== 2) {
-        await client.notify({
+        let track_name = str_array.join().trim();
+        let track = await search_track({
+          client,
           message,
-          desc: "invalid format; see `" + server_prefix + "help spl`.",
-          reply: true
+          track_name
         });
-        return;
+
+        if (!track) return;
+        songName = track.name;
+        artistName = track.artist;
+        footer_text =
+          "Wrong track? Try providing artist name; see " +
+          server_prefix +
+          "help spl";
+      } else {
+        songName = str_array[0].trim();
+        artistName = str_array[1].trim();
       }
-      songName = str_array[0].trim();
-      artistName = str_array[1].trim();
     }
 
     let { track } = await get_trackinfo({
@@ -104,6 +122,9 @@ class SongPlaysCommand extends Command {
           1
         )} plays) \n\n ${aggr_str}`
       );
+    if (footer_text) {
+      embed.setFooter(footer_text);
+    }
     await message.channel.send(embed);
   }
 }
