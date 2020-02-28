@@ -251,6 +251,43 @@ module.exports = {
     return track;
   },
 
+  search_album: async ({ client, message, album_name }) => {
+    const params = stringify({
+      method: "album.search",
+      limit: 1,
+      album: album_name,
+      api_key: client.apikey,
+      format: "json"
+    });
+    const data = await fetch(`${client.url}${params}`).then(r => r.json());
+
+    if (data.error) {
+      if (data.error === 6) {
+        await client.notify({
+          message,
+          desc: `couldn't find the album; try providing the artist name—see \`&help alp\`.`,
+          reply: true
+        });
+      } else {
+        await client.notify({
+          message,
+          desc: `something went wrong while trying to get album info from Last.fm.`,
+          reply: true
+        });
+      }
+      return false;
+    }
+    let album = data.results.albummatches.album[0];
+    if (!album) {
+      await client.notify({
+        message,
+        desc: `couldn't find the album; try providing artist name—see \`&help alp\`.`,
+        reply: true
+      });
+      return false;
+    }
+    return album;
+  },
   // anything updating goes here
   update_usercrown: async ({
     client,
