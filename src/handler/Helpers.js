@@ -451,13 +451,15 @@ module.exports = {
   },
   parse_trackinfo: track => {
     const { name, url, userplaycount, listeners, playcount, artist } = track;
+    const userloved = track.userloved ? !!parseInt(track.userloved) : undefined;
     return {
       name,
       artist,
       url,
       userplaycount,
       listeners,
-      playcount
+      playcount,
+      userloved
     };
   },
 
