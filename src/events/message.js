@@ -2,7 +2,9 @@ module.exports = async (client, message) => {
   if (!client.prefixes) {
     await client.cachePrefixes();
   }
-
+  if (!message.guild) {
+    return;
+  }
   const server_prefix = client.getCachedPrefix(message);
 
   if (message.isMemberMentioned(client.user)) {
