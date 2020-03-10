@@ -374,6 +374,28 @@ module.exports = {
     });
   },
 
+  update_artistlog: async ({ client, message, artist }) => {
+    const { name } = artist;
+    const userplaycount = artist.stats.userplaycount;
+    const userID = message.author.id;
+    const timestamp = moment.utc().valueOf();
+    await client.models.artistlog.findOneAndUpdate(
+      {
+        name
+      },
+      {
+        name,
+        userplaycount,
+        userID,
+        timestamp
+      },
+      {
+        upsert: true,
+        useFindAndModify: false
+      }
+    );
+  },
+
   update_tracklog: async ({ client, message, track }) => {
     const { name, userplaycount } = track;
     const artistName = track.artist.name;
