@@ -31,14 +31,14 @@ class Command {
           message,
           title: "Globally banned",
           description:
-            "You are globally banned from accessing the bot; try `&about` to find the support server.",
+            "you are globally banned from accessing the bot; try `&about` to find the support server.",
           reply: true
         });
       } else {
         await notify({
           message,
           title: "User banned",
-          description: "You are banned from accessing the bot in this guild.",
+          description: "you are banned from accessing the bot in this guild.",
           reply: true
         });
       }
