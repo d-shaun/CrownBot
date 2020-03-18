@@ -381,7 +381,8 @@ module.exports = {
     const timestamp = moment.utc().valueOf();
     await client.models.artistlog.findOneAndUpdate(
       {
-        name
+        name,
+        userID
       },
       {
         name,
@@ -404,7 +405,8 @@ module.exports = {
     await client.models.tracklog.findOneAndUpdate(
       {
         name,
-        artistName
+        artistName,
+        userID
       },
       {
         name,
@@ -428,7 +430,8 @@ module.exports = {
     await client.models.albumlog.findOneAndUpdate(
       {
         name,
-        artistName
+        artistName,
+        userID
       },
       {
         name,
