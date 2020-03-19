@@ -6,8 +6,7 @@ module.exports = async (client, message) => {
     return;
   }
   const server_prefix = client.getCachedPrefix(message);
-
-  if (message.isMemberMentioned(client.user)) {
+  if (message.isMentioned(client.user)) {
     message.reply(
       `the prefix for this server is \`\`${server_prefix}\`\`. Try \`\`${server_prefix}help\`\`.`
     );
