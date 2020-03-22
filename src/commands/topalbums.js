@@ -17,6 +17,36 @@ class TopAlbumsCommand extends Command {
   }
 
   async run(client, message, args) {
+    var SpotifyWebApi = require("spotify-web-api-node");
+
+    console.log({
+      clientId: client.client_id,
+      clientSecret: client.secret_id
+    });
+    // credentials are optional
+    var spotifyAPI = new SpotifyWebApi({
+      clientId: client.client_id,
+      clientSecret: client.secret_id
+    });
+
+    spotifyAPI.clientCredentialsGrant().then(
+      function(data) {
+        console.log("The access token expires in " + data.body["expires_in"]);
+        console.log("The access token is " + data.body["access_token"]);
+
+        // Save the access token so that it's used in future calls
+        spotifyAPI.setAccessToken(data.body["access_token"]);
+      },
+      function(err) {
+        console.log(
+          "Something went wrong when retrieving an access token",
+          err
+        );
+      }
+    );
+
+    console.log(spotifyAPI);
+    return;
     const server_prefix = client.getCachedPrefix(message);
 
     // "getters"
