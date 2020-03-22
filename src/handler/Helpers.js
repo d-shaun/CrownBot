@@ -176,7 +176,8 @@ module.exports = {
     artistName,
     albumName,
     user,
-    context
+    context,
+    silent
   }) => {
     const params = stringify({
       method: "album.getInfo",
@@ -187,20 +188,28 @@ module.exports = {
       format: "json",
       autocorrect: 1
     });
-    const data = await fetch(`${client.url}${params}`).then(r => r.json());
+    let data;
+    try {
+      data = await fetch(`${client.url}${params}`).then(r => r.json());
+    } catch (err) {
+      data = { error: true };
+    }
+
     if (data.error) {
-      if (data.error === 6) {
-        await client.notify({
-          message,
-          desc: `couldn't find the album.`,
-          reply: true
-        });
-      } else {
-        await client.notify({
-          message,
-          desc: `something went wrong while trying to get song info from Last.fm.`,
-          reply: true
-        });
+      if (!silent) {
+        if (data.error === 6) {
+          await client.notify({
+            message,
+            desc: `couldn't find the album.`,
+            reply: true
+          });
+        } else {
+          await client.notify({
+            message,
+            desc: `something went wrong while trying to get song info from Last.fm.`,
+            reply: true
+          });
+        }
       }
 
       return false;
@@ -464,11 +473,12 @@ module.exports = {
   // anything parsing goes here
   parse_artistinfo: artist => {
     if (!artist) return false;
-    const { name, url } = artist;
+    const { name, url, mbid } = artist;
     const { listeners, playcount, userplaycount } = artist.stats;
     return {
       name,
       url,
+      mbid,
       userplaycount,
       listeners,
       playcount
