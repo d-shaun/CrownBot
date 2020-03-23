@@ -10,6 +10,7 @@ class CrownBot extends Client {
     this.token = botOptions.token;
     this.ownerID = botOptions.ownerID;
     this.apikey = botOptions.apikey;
+    this.access_token = botOptions.access_token;
     this.commands = [];
     this.mongoose = mongoose
       .connect(botOptions.mongo, {

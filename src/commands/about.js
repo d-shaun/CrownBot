@@ -21,7 +21,7 @@ class AboutCommand extends Command {
       .setDescription(
         "A cloned and refactored version of <https://github.com/kometh0616/crown-bot>."
       )
-      .addField("Version", "2.4.0-beta")
+      .addField("Version", "2.4.0")
       .addField("Prefix", server_prefix)
       .addField("Status", "stable")
       .addField("Maintainer", "shaun#4761")
