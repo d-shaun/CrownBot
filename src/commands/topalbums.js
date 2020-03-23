@@ -32,52 +32,6 @@ class TopAlbumsCommand extends Command {
     console.log(albums);
   }
 
-  async alsoabandoned_run(client, message, args) {
-    var SpotifyWebApi = require("spotify-web-api-node");
-
-    console.log({
-      clientId: client.client_id,
-      clientSecret: client.client_secret
-    });
-    // credentials are optional
-    var spotifyAPI = new SpotifyWebApi({
-      clientId: client.client_id,
-      clientSecret: client.client_secret
-    });
-
-    const access_token = await spotifyAPI
-      .clientCredentialsGrant()
-      .then(data => data.body.access_token);
-    spotifyAPI.setAccessToken(access_token);
-
-    const { artists } = await spotifyAPI
-      .searchArtists("Opeth", { limit: 1 })
-      .then(data => data.body);
-
-    const artist = artists.items[0];
-    if (!artist) return false;
-
-    const albums = await spotifyAPI
-      .getArtistAlbums(artist.id, { limit: 50, album_type: "album" })
-      .then(data => data.body);
-
-    console.log(artist);
-    console.log(albums);
-    let test = albums.items
-      .filter(e => e.album_group == "album")
-      .filter((elem, i, all) => {
-        console.log(elem);
-        console.log(i);
-        console.log(all);
-        console.log("---");
-      })
-      .map(e => {
-        return { type: e.album_type, name: e.name };
-      });
-    console.log(test);
-    return;
-  }
-
   async abandonded() {
     const server_prefix = client.getCachedPrefix(message);
 
