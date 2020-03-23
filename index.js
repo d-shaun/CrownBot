@@ -5,8 +5,7 @@ const {
   ownerID,
   apikey,
   mongo,
-  client_id,
-  client_secret
+  access_token
 } = require("./config.json");
 
 const bot = new Bot({
@@ -15,8 +14,7 @@ const bot = new Bot({
   ownerID,
   apikey,
   mongo,
-  client_id,
-  client_secret
+  access_token
 });
 
 bot.init();

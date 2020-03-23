@@ -16,7 +16,21 @@ class TopAlbumsCommand extends Command {
     });
   }
 
-  async run(client, message, args) {}
+  async getDeezerAlbums(client, artist) {
+    const { data } = await fetch(
+      `https://api.deezer.com/search/artist?access_token=${client.access_token}&q=${artist}`
+    ).then(r => r.json());
+    if (!data.length) return false;
+    const artist = data[0];
+    console.log(artist);
+
+    let albums = await fetch(
+      `https://api.deezer.com/artist/${artist.id}/albums?access_token=${client.access_token}`
+    ).then(r => r.json());
+    albums = albums.data;
+    if (!albums) return false;
+    console.log(albums);
+  }
 
   async alsoabandoned_run(client, message, args) {
     var SpotifyWebApi = require("spotify-web-api-node");
