@@ -16,23 +16,22 @@ class TopAlbumsCommand extends Command {
     });
   }
 
-  async getDeezerAlbums(client, artist) {
+  async getDeezerAlbums(client, artist_name) {
     const { data } = await fetch(
-      `https://api.deezer.com/search/artist?access_token=${client.access_token}&q=${artist}`
+      `https://api.deezer.com/search/artist?limit=1&access_token=${client.access_token}&q=${artist_name}`
     ).then(r => r.json());
     if (!data.length) return false;
     const artist = data[0];
-    console.log(artist);
 
     let albums = await fetch(
-      `https://api.deezer.com/artist/${artist.id}/albums?access_token=${client.access_token}`
+      `https://api.deezer.com/artist/${artist.id}/albums?limit=50&access_token=${client.access_token}`
     ).then(r => r.json());
     albums = albums.data;
     if (!albums) return false;
-    console.log(albums);
+    return albums;
   }
 
-  async abandonded() {
+  async run(client, message, args) {
     const server_prefix = client.getCachedPrefix(message);
 
     // "getters"
@@ -66,38 +65,42 @@ class TopAlbumsCommand extends Command {
     });
     if (!artist) return;
     const { name } = parse_artistinfo(artist);
-    const params = stringify({
-      artist: name,
-      method: "artist.getTopAlbums",
-      api_key: client.apikey,
-      format: "json",
-      limit: 30
-    });
-    const { topalbums } = await fetch(`${client.url}${params}`).then(r =>
-      r.json()
-    );
-    if (!topalbums) return;
 
+    let albums = await this.getDeezerAlbums(client, name);
+    if (!albums) return;
+
+    albums = albums.filter(
+      (album, index, self) =>
+        index ===
+        self.findIndex(t => t.title.toLowerCase() === album.title.toLowerCase())
+    );
+    // https://stackoverflow.com/questions/2218999/
     let lastfm_requests = [];
-    topalbums.album.forEach(album => {
+    albums.forEach(album => {
       lastfm_requests.push(
         get_albuminfo({
           client,
           message,
           artistName: name,
-          albumName: album.name,
+          albumName: album.title,
           user,
           silent: true
         })
       );
     });
-
     var responses;
     await Promise.all(lastfm_requests).then(res => (responses = res));
 
     responses = responses.filter(res => res && res.album);
 
     const sorted_list = responses
+      .filter(
+        ({ album }, index, self) =>
+          index ===
+          self.findIndex(
+            t => t.album.name.toLowerCase() === album.name.toLowerCase()
+          )
+      )
       .filter(({ album }) => album.userplaycount > 0)
       .map(({ album }) => {
         const { name, userplaycount } = album;
