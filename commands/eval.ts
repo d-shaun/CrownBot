@@ -7,7 +7,7 @@ class EvalCommand extends Command {
     super({
       name: "eval",
       description: "You aren't supposed to be seeing this.",
-      usage: ["login"],
+      usage: [],
       aliases: [],
       owner_only: true,
       hidden: true,

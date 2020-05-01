@@ -52,6 +52,12 @@ export default class Command {
       return;
     }
 
+    if (this.beta) {
+      if (!(await db.check_optin(message))) {
+        return;
+      }
+    }
+
     const ban_info = await check_ban(message, client);
     if (ban_info.banned && message.author.id !== client.owner_ID) {
       if (ban_info.type === "global" && !this.allow_banned) {
@@ -66,11 +72,7 @@ export default class Command {
         return;
       }
     }
-    if (this.beta) {
-      if (!(await db.check_optin(message))) {
-        return;
-      }
-    }
+
     if (this.require_login) {
       const user = await db.fetch_user(message.author.id);
       if (!user) {
