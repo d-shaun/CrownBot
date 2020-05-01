@@ -212,9 +212,13 @@ class WhoKnowsCommand extends Command {
               parseInt(elem.userplaycount) - parseInt(elem.last_count);
           }
           if (count_diff && count_diff < 0) {
-            diff_str = ` ― (:small_red_triangle_down: ${count_diff} plays)`;
+            diff_str = ` ― (:small_red_triangle_down: ${count_diff} ${
+              count_diff > 1 ? "plays" : "play"
+            })`;
           } else if (count_diff && count_diff > 0) {
-            diff_str = ` ― (+${count_diff} plays)`;
+            diff_str = ` ― (+${count_diff} ${
+              count_diff > 1 ? "plays" : "play"
+            })`;
           }
           const index =
             leaderboard.findIndex((e) => e.user_id == elem.user_id) + 1;
