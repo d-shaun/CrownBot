@@ -9,6 +9,8 @@ class EvalCommand extends Command {
       description: "You aren't supposed to be seeing this.",
       usage: ["login"],
       aliases: [],
+      owner_only: true,
+      hidden: true,
     });
   }
 
