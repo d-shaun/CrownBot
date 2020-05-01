@@ -1,12 +1,24 @@
 {
+  "name": "CrownBot",
+  "description": "A Discord bot that uses Last.fm API to track scrobbles and rank users in a guild.",
+  "scripts": {
+    "build": "tsc && node ./dist/index.js"
+  },
+  "main": "./dist/index.js",
+  "author": "Shaun",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^3.8.3"
+  },
   "dependencies": {
-    "discord-paginationembed": "^1.0.3",
-    "discord.js": "^11.5.1",
+    "@types/mongoose": "^5.7.8",
+    "@types/node": "^13.11.0",
+    "@types/ws": "^7.2.3",
+    "axios": "^0.19.2",
+    "discord-paginationembed": "^2.0.0-beta.4",
+    "discord.js": "^12.1.1",
     "moment": "^2.24.0",
-    "mongoose": "^5.7.6",
-    "node-fetch": "^2.6.0",
-    "number-abbreviate": "^2.0.0",
-    "sqlite3": "^4.1.0",
-    "validator": "^11.1.0"
+    "mongoose": "^5.9.7",
+    "number-abbreviate": "^2.0.0"
   }
 }
