@@ -11,6 +11,7 @@ class MyLoginCommand extends Command {
       description: "Displays user's Last.fm username.",
       usage: ["mylogin"],
       aliases: ["me"],
+      require_login: true,
     });
   }
 

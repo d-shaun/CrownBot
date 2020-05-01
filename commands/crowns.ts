@@ -14,6 +14,7 @@ class CrownsCommand extends Command {
       usage: ["crowns", "crowns <username>", "crowns <@user>"],
       aliases: ["cw"],
       require_login: true,
+      required_permissions: ["MANAGE_MESSAGES"],
     });
   }
 

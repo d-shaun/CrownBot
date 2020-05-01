@@ -32,6 +32,7 @@ class SongPlaysCommand extends Command {
         "songplays The Rip || Portishead",
         "songplays Little Faith || The National",
       ],
+      require_login: true,
     });
   }
 

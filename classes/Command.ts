@@ -1,8 +1,9 @@
-import { Message, TextChannel } from "discord.js";
+import { Message, TextChannel, PermissionString } from "discord.js";
 import BotMessage from "../handlers/BotMessage";
 import CrownBot from "../handlers/CrownBot";
 import DB from "../handlers/DB";
 import check_ban from "../misc/check_ban";
+import cb from "../misc/codeblock";
 
 interface CommandInterface {
   name: string;
@@ -42,12 +43,13 @@ export default class Command {
     this.allow_banned = options.allow_banned;
     this.require_login = options.require_login;
     this.beta = options.beta;
+    this.required_permissions = options.required_permissions;
   }
 
   async execute(client: CrownBot, message: Message, args: string[]) {
     const db = new DB(client.models);
     const response = new BotMessage({ client, message, text: "", reply: true });
-
+    if (!message.guild || !message.guild.me) return;
     if (this.owner_only && message.author.id !== client.owner_ID) {
       return;
     }
@@ -80,6 +82,24 @@ export default class Command {
         await response.send();
         return;
       }
+    }
+    let has_permissions = true;
+    const lacking_permissions = [];
+    if (this.required_permissions) {
+      for (const permission of this.required_permissions) {
+        if (!message.guild.me.hasPermission(<PermissionString>permission)) {
+          has_permissions = false;
+          lacking_permissions.push(permission);
+        }
+      }
+    }
+
+    if (!has_permissions) {
+      response.text =
+        `The bot needs to have the following permissions: ` +
+        `${lacking_permissions.join(", ")}.`;
+      await response.send();
+      return;
     }
 
     if (!this.run) throw `${this.name} doesn't have a run function.`;

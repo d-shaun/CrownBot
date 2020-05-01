@@ -12,6 +12,7 @@ class LogoutCommand extends Command {
       description: "Logs user out of the bot.",
       usage: ["logout"],
       aliases: [],
+      required_permissions: ["MANAGE_MESSAGES"],
     });
   }
 

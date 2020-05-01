@@ -24,6 +24,7 @@ class WhoPlaysCommand extends Command {
         "whoplays Last Man Standing || People In Planes",
         "whoplays Under Control || The Strokes",
       ],
+      required_permissions: ["MANAGE_MESSAGES"],
     });
   }
 

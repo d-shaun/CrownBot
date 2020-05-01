@@ -14,6 +14,7 @@ class TasteCommand extends Command {
       usage: ["taste <username>", "taste @user"],
       aliases: ["t"],
       beta: true,
+      require_login: true,
     });
   }
 

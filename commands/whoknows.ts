@@ -27,6 +27,8 @@ class WhoKnowsCommand extends Command {
       usage: ["whoknows", "whoknows <artist name>"],
       aliases: ["w"],
       examples: ["whoknows Kwoon", "whoknows Poppy"],
+      require_login: true,
+      required_permissions: ["MANAGE_MESSAGES"],
     });
   }
 
