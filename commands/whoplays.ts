@@ -86,7 +86,6 @@ class WhoPlaysCommand extends Command {
         auto_correct: 1,
       },
     });
-    console.log(status, data);
     if (data.error === 6) {
       response.text = "Track not found.";
       response.send();

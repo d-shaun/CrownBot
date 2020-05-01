@@ -21,17 +21,6 @@ export default class LastFMUser {
     this.username = username;
   }
 
-  async get_username(): Promise<string> {
-    const request = await new LastFM().query({
-      method: "track.search",
-      params: {
-        track: "someday",
-      },
-    });
-    console.log(request);
-    return "test";
-  }
-
   async get_nowplaying(
     client: CrownBot,
     message: Message

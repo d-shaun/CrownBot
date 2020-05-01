@@ -92,7 +92,6 @@ class TopAlbumsCommand extends Command {
 
     let albums = await this.getDeezerAlbums(client, artist.name);
     if (!albums) return;
-    console.log(albums);
     const lastfm_requests: any = [];
     albums.forEach((album) => {
       lastfm_requests.push(
@@ -161,22 +160,6 @@ class TopAlbumsCommand extends Command {
       )
       .setFooter(`Psst, try ${server_prefix}about to find the support server.`);
     await fields_embed.build();
-
-    console.log(responses);
-    // const lastfm_user = new LastFMUser({
-    //   discord_ID: message.author.id,
-    //   username: user.username,
-    // });
-
-    // const { status, data } = <AxiosResponse>await new LastFM().query({
-    //   method: "album.getinfo",
-    //   params: {
-    //     album: album_name,
-    //     artist: artist_name,
-    //     username: user.username,
-    //     auto_correct: 1,
-    //   },
-    // });
   }
 }
 

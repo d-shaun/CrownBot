@@ -36,7 +36,6 @@ class ArtistPlaysCommand extends Command {
     if (args.length === 0) {
       const now_playing = await lastfm_user.get_nowplaying(client, message);
       if (!now_playing) return;
-      console.log(now_playing);
       artist_name = now_playing.artist["#text"];
     } else {
       artist_name = args.join(" ");
