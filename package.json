@@ -2,7 +2,8 @@
   "name": "CrownBot",
   "description": "A Discord bot that uses Last.fm API to track scrobbles and rank users in a guild.",
   "scripts": {
-    "build": "tsc && node ./dist/index.js"
+    "build": "tsc",
+    "prod": "node ./dist/index.js"
   },
   "main": "./dist/index.js",
   "author": "Shaun",
