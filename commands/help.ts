@@ -22,34 +22,38 @@ class HelpCommand extends Command {
       const command = client.commands
         .filter((e) => !e.hidden)
         .find((x) => x.name === args[0] || x.aliases.includes(args[0]));
-      if (command) {
-        var usage = Array.isArray(command.usage)
-          ? command.usage
-          : [command.usage];
-        usage = usage.map((e) => `\`\`${server_prefix}${e}\`\``);
 
-        var aliases = !command.aliases
-          ? false
-          : command.aliases.map((e) => `\`\`${server_prefix}${e}\`\``);
-
-        var examples = !command.examples
-          ? false
-          : command.examples
-              .map((example) => {
-                return `\`\`${server_prefix}${example}\`\``;
-              })
-              .join("\n");
-
-        const embed = new MessageEmbed()
-          .setTitle(command.name)
-          .setDescription(command.description)
-          .addField("Usage", usage);
-
-        if (aliases) embed.addField("Aliases", aliases);
-        if (examples) embed.addField("Examples", examples);
-
-        message.channel.send(embed);
+      if (!command || command.hidden) return;
+      if (command.beta && !(await db.check_optin(message))) {
+        return;
       }
+
+      var usage = Array.isArray(command.usage)
+        ? command.usage
+        : [command.usage];
+      usage = usage.map((e) => `\`\`${server_prefix}${e}\`\``);
+
+      var aliases = !command.aliases
+        ? false
+        : command.aliases.map((e) => `\`\`${server_prefix}${e}\`\``);
+
+      var examples = !command.examples
+        ? false
+        : command.examples
+            .map((example) => {
+              return `\`\`${server_prefix}${example}\`\``;
+            })
+            .join("\n");
+
+      const embed = new MessageEmbed()
+        .setTitle(command.name)
+        .setDescription(command.description)
+        .addField("Usage", usage);
+
+      if (aliases) embed.addField("Aliases", aliases);
+      if (examples) embed.addField("Examples", examples);
+
+      message.channel.send(embed);
     } else {
       const embed = new MessageEmbed()
         .setTitle("Commands")
