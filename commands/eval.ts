@@ -2,6 +2,7 @@ import { Message } from "discord.js";
 import Command from "../classes/Command";
 import BotMessage from "../handlers/BotMessage";
 import CrownBot from "../handlers/CrownBot";
+import { inspect } from "util";
 class EvalCommand extends Command {
   constructor() {
     super({
@@ -15,26 +16,23 @@ class EvalCommand extends Command {
   }
 
   async run(client: CrownBot, message: Message, args: String[]) {
-    const code = args.join(" ");
-    let result;
+    if (message.author.id !== client.owner_ID) return; // just to be safe
+    let trimmed_string;
     try {
-      result = await eval(code);
-      if (typeof result == "object") {
-        result = JSON.stringify(result, null, 2);
+      const code = args.join(" ");
+      let evaled = await eval(code);
+      if (typeof evaled !== "string") {
+        evaled = inspect(evaled);
       }
+      trimmed_string = evaled.substring(0, 2000);
     } catch (e) {
-      result = e.message;
+      trimmed_string = (e.message ? e.message : e).substring(0, 2000);
     }
-    if (result) {
-      result = result.substring(0, 1900);
-    }
-    await new BotMessage({
-      client,
-      message,
-      text: "```JS\n" + result + "\n```",
-      reply: false,
-      noembed: true,
-    }).send();
+
+    await message.channel.send(trimmed_string, {
+      code: "js",
+      split: true,
+    });
   }
 }
 
