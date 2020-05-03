@@ -237,20 +237,25 @@ class WhoKnowsCommand extends Command {
       .setColor(0x00ffff)
       .setTitle(`Who knows ${artist.name} in ${message.guild?.name}?`)
       .setFooter(footer_text);
+
+    fields_embed.on("start", () => {
+      setImmediate(() => {
+        if (!message.guild) throw "won't happen, TS.";
+        if (last_crown) {
+          const last_user = message.guild.members.cache.find(
+            (user) => user.id === last_crown.userID
+          );
+          if (last_user && last_user.user.id !== top_user.user_id) {
+            response.reply = false;
+            response.text = `**${top_user.discord_username}** took the *${artist.name}* crown from **${last_user.user.username}**.`;
+            response.send();
+          }
+        }
+      });
+    });
     await db.update_crown(top_user);
     await db.log_whoknows(artist.name, leaderboard, message.guild.id);
     await fields_embed.build();
-
-    if (last_crown) {
-      const last_user = message.guild.members.cache.find(
-        (user) => user.id === last_crown.userID
-      );
-      if (last_user && last_user.user.id !== top_user.user_id) {
-        response.reply = false;
-        response.text = `**${top_user.discord_username}** took the *${artist.name}* crown from **${last_user.user.username}**.`;
-        await response.send();
-      }
-    }
   }
 }
 
