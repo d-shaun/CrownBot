@@ -33,7 +33,7 @@ class HelpCommand extends Command {
         : [command.usage];
       usage = usage.map((e) => `\`\`${server_prefix}${e}\`\``);
 
-      var aliases = !command.aliases
+      var aliases = !(command.aliases && command.aliases.length)
         ? false
         : command.aliases.map((e) => `\`\`${server_prefix}${e}\`\``);
 
