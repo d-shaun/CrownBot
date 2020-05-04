@@ -1,6 +1,4 @@
-node_modules
-logs/
-database.sqlite
-config.json
-Proc*
-.vscode
+.vscode/
+node_modules/
+dist/
+*.log
