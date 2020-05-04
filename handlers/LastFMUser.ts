@@ -21,6 +21,17 @@ export default class LastFMUser {
     this.username = username;
   }
 
+  async get_username(): Promise<string> {
+    const request = await new LastFM().query({
+      method: "track.search",
+      params: {
+        track: "someday",
+      },
+    });
+    console.log(request);
+    return "test";
+  }
+
   async get_nowplaying(
     client: CrownBot,
     message: Message
@@ -51,7 +62,7 @@ export default class LastFMUser {
       return undefined;
     }
     const last_track = data.recenttracks.track[0];
-    if (last_track[`@attr`] && last_track[`@attr`].nowplaying) {
+    if (last_track && last_track[`@attr`] && last_track[`@attr`].nowplaying) {
       return last_track;
     } else {
       response.text = "You aren't playing anything.";
