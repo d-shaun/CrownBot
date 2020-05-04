@@ -14,9 +14,11 @@ export default async function check_ban(
     banned: false,
     type: <undefined | string>undefined,
   };
+  if (!message.guild) return response;
   const bans = await client.models.bans
     .find({
       userID: message.author.id,
+      guildID: { $in: [message.guild.id, "any"] },
     })
     .lean();
   if (!bans.length) {
