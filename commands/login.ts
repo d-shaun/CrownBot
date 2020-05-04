@@ -12,7 +12,7 @@ class LoginCommand extends Command {
       name: "login",
       description:
         "Logs user into the bot―linking their Discord and LastFM account in the database.",
-      usage: ["login"],
+      usage: ["login <lastfm username>"],
       aliases: [],
     });
   }
