@@ -27,15 +27,16 @@ class BotMessage {
   }
 
   async send() {
-    if (!this.message.guild || !this.message.guild.me) return;
+    const mention = this.reply ? `<@${this.message.author.id}>: ` : "";
+    if (!this.message.guild || !this.message.guild.me) {
+      return await this.message.channel.send(`${mention}${this.text}`);
+    }
 
     const bot_permissions = (<TextChannel>this.message.channel).permissionsFor(
       this.message.guild.me
     );
-    if (!bot_permissions) throw "Bot has no permission!";
 
-    const mention = this.reply ? `<@${this.message.author.id}>: ` : "";
-    const embed_permission = bot_permissions.has("EMBED_LINKS");
+    const embed_permission = bot_permissions?.has("EMBED_LINKS");
     if (!this.noembed && embed_permission) {
       const embed = new MessageEmbed();
       embed.setDescription(`\n${mention}${this.text}\n`);
