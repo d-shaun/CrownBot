@@ -1,8 +1,9 @@
-import { Message, TextChannel } from "discord.js";
+import { Message, PermissionString, TextChannel } from "discord.js";
 import Command from "../classes/Command";
 import BotMessage from "../handlers/BotMessage";
 import CrownBot from "../handlers/CrownBot";
 import DB from "../handlers/DB";
+import cb from "../misc/codeblock";
 export default async (client: CrownBot, message: Message) => {
   const db = new DB(client.models);
   if (!message.guild) return;
@@ -49,9 +50,46 @@ export default async (client: CrownBot, message: Message) => {
   });
   if (!command || !command.execute) return;
 
+  const lacking_permissions = check_permissions(client, message);
+
+  if (lacking_permissions.length && command.name !== "permissions") {
+    response.text =
+      `The bot needs to have the following permissions: ` +
+      `${lacking_permissions.join(", ")}; see ${cb(
+        "permissions",
+        server_prefix
+      )} for explanations of every permissions the bot requires.`;
+    await response.send();
+    return;
+  }
+
   try {
     await command.execute(client, message, args);
   } catch (e) {
     console.log(e);
   }
 };
+
+function check_permissions(client: CrownBot, message: Message): string[] {
+  if (!message.guild?.me) throw "!?!";
+  const bot_permissions = (<TextChannel>message.channel).permissionsFor(
+    message.guild.me
+  );
+  if (!bot_permissions) throw "Bot has no permission!";
+
+  const permissions = [
+    "MANAGE_MESSAGES",
+    "EMBED_LINKS",
+    "READ_MESSAGE_HISTORY",
+    "ADD_REACTIONS",
+  ];
+
+  const lacking_permissions: string[] = [];
+
+  permissions.forEach((permission) => {
+    if (!bot_permissions.has(<PermissionString>permission)) {
+      lacking_permissions.push(permission);
+    }
+  });
+  return lacking_permissions;
+}

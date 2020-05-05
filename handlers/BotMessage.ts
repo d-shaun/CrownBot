@@ -1,4 +1,4 @@
-import { Client, Message, MessageEmbed } from "discord.js";
+import { Client, Message, MessageEmbed, TextChannel } from "discord.js";
 
 interface BotMessageInterface {
   client: Client;
@@ -28,13 +28,22 @@ class BotMessage {
 
   async send() {
     const mention = this.reply ? `<@${this.message.author.id}>: ` : "";
-    if (!this.noembed) {
+    if (!this.message.guild || !this.message.guild.me) {
+      return await this.message.channel.send(`${mention}${this.text}`);
+    }
+
+    const bot_permissions = (<TextChannel>this.message.channel).permissionsFor(
+      this.message.guild.me
+    );
+
+    const embed_permission = bot_permissions?.has("EMBED_LINKS");
+    if (!this.noembed && embed_permission) {
       const embed = new MessageEmbed();
       embed.setDescription(`\n${mention}${this.text}\n`);
       embed.setColor(this.message.member?.displayColor || "000000");
       return await this.message.channel.send(embed);
     }
-    return await this.message.channel.send(`\n${mention}${this.text}\n`);
+    return await this.message.channel.send(`${mention}${this.text}`);
   }
 }
 
