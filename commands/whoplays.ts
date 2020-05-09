@@ -181,7 +181,7 @@ class WhoPlaysCommand extends Command {
       });
     });
     if (leaderboard.length <= 0) {
-      response.text = `No one here has played \`${track.name}\` by \`${track.artist.name}\'.`;
+      response.text = `No one here has played \`${track.name}\` by \`${track.artist.name}\`.`;
       await response.send();
       return;
     }
