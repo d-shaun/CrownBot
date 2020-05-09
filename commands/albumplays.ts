@@ -159,7 +159,7 @@ class AlbumPlaysCommand extends Command {
       album: `(**${percentage.album}%** of ${abbreviate(
         album.playcount,
         1
-      )} album plays)`,
+      )} global album plays)`,
       artist: ` — **${percentage.artist}%** of **${abbreviate(
         artist_plays,
         1

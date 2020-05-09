@@ -162,7 +162,7 @@ class SongPlaysCommand extends Command {
       track: `(**${percentage.track}%** of ${abbreviate(
         track.playcount,
         1
-      )} album plays)`,
+      )} global track plays)`,
       artist: ` — **${percentage.artist}%** of **${abbreviate(
         artist_plays,
         1
