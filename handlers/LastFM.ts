@@ -8,7 +8,7 @@ interface ParamInterface extends ParsedUrlQueryInput {
   track?: string;
   user?: string;
   limit?: number;
-  auto_correct?: number;
+  autocorrect?: number;
 }
 
 const { API_KEY } = process.env;
@@ -47,7 +47,7 @@ export class LastFM {
         artist: artist_name,
         album: name,
         limit: 1,
-        auto_correct: 1,
+        autocorrect: 1,
         username: username,
       },
     });
@@ -60,7 +60,7 @@ export class LastFM {
       params: {
         album: name,
         limit: 1,
-        auto_correct: 1,
+        autocorrect: 1,
       },
     });
     return { status, data };
@@ -72,7 +72,7 @@ export class LastFM {
       params: {
         track: name,
         limit: 1,
-        auto_correct: 1,
+        autocorrect: 1,
       },
     });
     return { status, data };

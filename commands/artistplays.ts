@@ -45,7 +45,7 @@ class ArtistPlaysCommand extends Command {
       params: {
         artist: artist_name,
         username: user.username,
-        auto_correct: 1,
+        autocorrect: 1,
       },
     });
     if (status !== 200) {

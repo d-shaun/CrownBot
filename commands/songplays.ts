@@ -95,7 +95,7 @@ class SongPlaysCommand extends Command {
         track: track_name,
         artist: artist_name,
         username: user.username,
-        auto_correct: 1,
+        autocorrect: 1,
       },
     });
 
@@ -106,7 +106,7 @@ class SongPlaysCommand extends Command {
       params: {
         artist: artist_name,
         username: user.username,
-        auto_correct: 1,
+        autocorrect: 1,
       },
     });
     if (response.status !== 200) return;

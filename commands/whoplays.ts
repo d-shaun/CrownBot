@@ -84,7 +84,7 @@ class WhoPlaysCommand extends Command {
         artist: artist_name,
         track: track_name,
         username: user.username,
-        auto_correct: 1,
+        autocorrect: 1,
       },
     });
     if (data.error === 6) {
@@ -127,7 +127,7 @@ class WhoPlaysCommand extends Command {
               artist: artist_name,
               track: track_name,
               username: user.username,
-              auto_correct: 1,
+              autocorrect: 1,
             },
           })
           .then((res) => {
