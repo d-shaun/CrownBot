@@ -16,7 +16,12 @@ export default async (client: CrownBot, message: Message) => {
   const response = new BotMessage({ client, message, text: "", reply: true });
 
   const server_prefix = client.get_cached_prefix(message);
-  if (message.mentions.has(client.user)) {
+  if (
+    message.mentions.has(client.user, {
+      ignoreEveryone: true,
+      ignoreRoles: true,
+    })
+  ) {
     response.text = `The prefix for this server is \`${server_prefix}\`. Try \`${server_prefix}help\`.`;
     await response.send();
     return;
