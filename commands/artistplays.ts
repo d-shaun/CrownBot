@@ -10,6 +10,8 @@ import LastFMUser from "../handlers/LastFMUser";
 import { ArtistInterface } from "../interfaces/ArtistInterface";
 import time_difference from "../misc/time_difference";
 import { ArtistLogInterface } from "../models/ArtistLog";
+import BotMessage from "../handlers/BotMessage";
+import { Template } from "../classes/Template";
 class ArtistPlaysCommand extends Command {
   constructor() {
     super({
@@ -25,6 +27,8 @@ class ArtistPlaysCommand extends Command {
   async run(client: CrownBot, message: Message, args: String[]) {
     const db = new DB(client.models);
     const user = await db.fetch_user(message.author.id);
+    const response = new BotMessage({ client, message, text: "", reply: true });
+
     if (!user) return;
 
     const lastfm_user = new LastFMUser({
@@ -48,7 +52,10 @@ class ArtistPlaysCommand extends Command {
         autocorrect: 1,
       },
     });
-    if (status !== 200) {
+
+    if (data.error || !data.artist) {
+      response.text = new Template(client, message).get("lastfm_error");
+      await response.send();
       return;
     }
 

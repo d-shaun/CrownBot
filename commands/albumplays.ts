@@ -92,7 +92,6 @@ class AlbumPlaysCommand extends Command {
         autocorrect: 1,
       },
     });
-    if (status !== 200) return;
 
     let response = <AxiosResponse>await new LastFM().query({
       method: "artist.getinfo",
@@ -102,7 +101,18 @@ class AlbumPlaysCommand extends Command {
         autocorrect: 1,
       },
     });
-    if (response.status !== 200) return;
+
+    if (
+      data.error ||
+      response.data.error ||
+      !data.album ||
+      !response.data.artist
+    ) {
+      reply.text = new Template(client, message).get("lastfm_error");
+      await reply.send();
+      return;
+    }
+
     const artist_info: ArtistInterface = response.data.artist;
 
     const album: AlbumInterface = data.album;
