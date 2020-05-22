@@ -10,7 +10,7 @@ class CrownsCommand extends Command {
   constructor() {
     super({
       name: "crowns",
-      description: "Displays crowns of an user.",
+      description: "Displays crowns of a user.",
       usage: ["crowns", "crowns <username>", "crowns <@user>"],
       aliases: ["cw"],
       require_login: true,
