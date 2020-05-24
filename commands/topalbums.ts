@@ -8,7 +8,10 @@ import CrownBot from "../handlers/CrownBot";
 import DB from "../handlers/DB";
 import { LastFM } from "../handlers/LastFM";
 import LastFMUser from "../handlers/LastFMUser";
-import { AlbumInterface } from "../interfaces/AlbumInterface";
+import {
+  AlbumInterface,
+  TopAlbumInterface,
+} from "../interfaces/AlbumInterface";
 import { ArtistInterface } from "../interfaces/ArtistInterface";
 import { DeezerAlbumInterface } from "../interfaces/DeezerAlbumInterface";
 
@@ -22,24 +25,6 @@ class TopAlbumsCommand extends Command {
       examples: ["topalbums Devin Townsend"],
       require_login: true,
     });
-  }
-
-  async getDeezerAlbums(
-    client: CrownBot,
-    artist_name: string
-  ): Promise<DeezerAlbumInterface[] | undefined> {
-    const { data } = await axios.get(
-      `https://api.deezer.com/search/artist?limit=1&access_token=${client.access_token}&q=${artist_name}`
-    );
-    if (!data || !data.data || !data.data.length) return undefined; // ikr...
-    const artist = data.data[0];
-    let albums = (
-      await axios.get(
-        `https://api.deezer.com/artist/${artist.id}/albums?limit=50&access_token=${client.access_token}`
-      )
-    ).data;
-    if (!albums || !albums.data) return undefined;
-    return albums.data;
   }
 
   async run(client: CrownBot, message: Message, args: String[]) {
@@ -90,12 +75,12 @@ class TopAlbumsCommand extends Command {
       return;
     }
 
-    let albums = await this.getDeezerAlbums(client, artist.name);
+    let albums = await this.getLastfmAlbums(client, artist.name);
     if (!albums) return;
     const lastfm_requests: any = [];
     albums.forEach((album) => {
       lastfm_requests.push(
-        new LastFM().get_albuminfo(album.title, artist.name, user.username)
+        new LastFM().get_albuminfo(album.name, artist.name, user.username)
       );
     });
     interface res {
@@ -160,6 +145,39 @@ class TopAlbumsCommand extends Command {
       )
       .setFooter(`Psst, try ${server_prefix}about to find the support server.`);
     await fields_embed.build();
+  }
+
+  async getDeezerAlbums(
+    client: CrownBot,
+    artist_name: string
+  ): Promise<DeezerAlbumInterface[] | undefined> {
+    const { data } = await axios.get(
+      `https://api.deezer.com/search/artist?limit=1&access_token=${client.access_token}&q=${artist_name}`
+    );
+    if (!data || !data.data || !data.data.length) return undefined; // ikr...
+    const artist = data.data[0];
+    let albums = (
+      await axios.get(
+        `https://api.deezer.com/artist/${artist.id}/albums?limit=50&access_token=${client.access_token}`
+      )
+    ).data;
+    if (!albums || !albums.data) return undefined;
+    return albums.data;
+  }
+
+  async getLastfmAlbums(
+    client: CrownBot,
+    artist_name: string
+  ): Promise<TopAlbumInterface[] | undefined> {
+    const { data } = await new LastFM().query({
+      method: "artist.getTopAlbums",
+      params: {
+        artist: artist_name,
+        autocorrect: 1,
+      },
+    });
+    if (data.error || !data.topalbums?.album) return undefined;
+    return data.topalbums.album;
   }
 }
 

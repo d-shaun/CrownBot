@@ -39,3 +39,19 @@ export interface SearchAlbumInterface {
     results: { albummatches: { album: AlbumInterface[] } };
   };
 }
+
+export interface TopAlbumInterface {
+  name: string;
+  playcount: string;
+  mbid: string;
+  url: string;
+  artist: {
+    name: string;
+    url: string;
+    mbid: string;
+  };
+  image: {
+    "#text": string;
+    size: string;
+  }[];
+}
