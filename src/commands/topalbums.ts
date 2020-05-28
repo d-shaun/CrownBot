@@ -132,7 +132,7 @@ class TopAlbumsCommand extends Command {
       .setChannel(<TextChannel>message.channel)
       .setElementsPerPage(15)
       .setPageIndicator(true)
-      .setDisabledNavigationEmojis(["DELETE"])
+      .setDisabledNavigationEmojis(["delete"])
       .formatField(`Album plays`, (el: any) => {
         const elem: AlbumInterface = el;
         const index = sorted_list.findIndex((e) => e.name == elem.name) + 1;

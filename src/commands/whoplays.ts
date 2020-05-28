@@ -199,7 +199,7 @@ class WhoPlaysCommand extends Command {
       .setChannel(<TextChannel>message.channel)
       .setElementsPerPage(15)
       .setPageIndicator(true)
-      .setDisabledNavigationEmojis(["DELETE"])
+      .setDisabledNavigationEmojis(["delete"])
       .formatField(
         `${total_scrobbles} plays ― ${leaderboard.length} listener(s)\n`,
         (el: any) => {

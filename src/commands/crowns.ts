@@ -61,7 +61,7 @@ class CrownsCommand extends Command {
       .setChannel(<TextChannel>message.channel)
       .setElementsPerPage(15)
       .setPageIndicator(true)
-      .setDisabledNavigationEmojis(["DELETE"])
+      .setDisabledNavigationEmojis(["delete"])
       .formatField(`Total: ${sorted_crowns.length} crowns`, (el: any) => {
         const elem: CrownInterface = el;
         const index =

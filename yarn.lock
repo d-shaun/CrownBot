@@ -108,10 +108,10 @@ denque@^1.4.1:
   resolved "https://registry.yarnpkg.com/denque/-/denque-1.4.1.tgz#6744ff7641c148c3f8a69c307e51235c1f4a37cf"
   integrity sha512-OfzPuSZKGcgr96rf1oODnfjqBFmr1DVoc/TrItj3Ohe0Ah1C5WX5Baquw/9U9KovnQ88EqmJbD66rKYUQYN1tQ==
 
-discord-paginationembed@^2.0.0-beta.4:
-  version "2.0.0-beta.4"
-  resolved "https://registry.yarnpkg.com/discord-paginationembed/-/discord-paginationembed-2.0.0-beta.4.tgz#ac64a92fa7655dbc2d1f3062aca63cb3161dda1b"
-  integrity sha512-SLs+UrBmIe/VAmNEEy4VqTiMGGFExxvXyda7iJy2KADXO3NlGv/Kh4pFuabFTngADXe8DYroZjU2ZduFm7T+Jg==
+discord-paginationembed@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/discord-paginationembed/-/discord-paginationembed-2.0.0.tgz#4e4cc12aa12672d1d958c931654ab0f4f928c38d"
+  integrity sha512-nXwcalPPB/xAcnlySifmicvTZB02ORfkCoNCr/IDFfw+j5vkZ3W7Ypuxnm26//lZ9pUh5Gf+BYdMtZVutoCJmA==
 
 discord.js@^12.1.1:
   version "12.1.1"
