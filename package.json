@@ -3,9 +3,9 @@
   "description": "A Discord bot that uses Last.fm API to track scrobbles and rank users in a guild.",
   "scripts": {
     "build": "tsc",
-    "start": "node ./dist/index.js"
+    "start": "node ./src/dist/index.js"
   },
-  "main": "./dist/index.js",
+  "main": "./src/dist/index.js",
   "author": "Shaun",
   "license": "MIT",
   "devDependencies": {

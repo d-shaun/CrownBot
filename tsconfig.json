@@ -3,7 +3,7 @@
     "module": "commonjs",
     "lib": ["dom", "es2018"],
     "target": "es2018",
-    "outDir": "./dist",
+    "outDir": "./src/dist",
     "strict": true,
     "strictNullChecks": true,
     "esModuleInterop": true,

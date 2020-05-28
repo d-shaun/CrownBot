@@ -1,4 +1,4 @@
-import CrownBot from "./handlers/CrownBot";
+import CrownBot from "./src/handlers/CrownBot";
 const { TOKEN, OWNER_ID, API_KEY, ACCESS_TOKEN, MONGO } = process.env;
 if (!(TOKEN && OWNER_ID && API_KEY && ACCESS_TOKEN && MONGO)) {
   throw "Some of the environment variables are missing.";
