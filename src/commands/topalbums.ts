@@ -78,10 +78,13 @@ class TopAlbumsCommand extends Command {
     let albums = await this.getLastfmAlbums(client, artist.name);
     if (!albums) return;
     const lastfm_requests: any = [];
+    const breaking_album_names = ["null", "(null)", "undefined"]; // weird album names Last.fm has that cause server error in some of its APIs for whatever reason
     albums.forEach((album) => {
-      lastfm_requests.push(
-        new LastFM().get_albuminfo(album.name, artist.name, user.username)
-      );
+      if (album.name && !breaking_album_names.includes(album.name)) {
+        lastfm_requests.push(
+          new LastFM().get_albuminfo(album.name, artist.name, user.username)
+        );
+      }
     });
     interface res {
       data: {
