@@ -102,7 +102,9 @@ class PlayingCommand extends Command {
       .formatField(`${stats.length} user(s)`, (el: any) => {
         const track: RecentTrackInterface = el.track;
         const user: GuildMember = el.context.discord_user;
-        return `**${user.user.username}**\n[${track.name}](${track.url}) · ${track.album["#text"]} — ${track.artist["#text"]}\n`;
+        const artist_url =
+          "https://www.last.fm/music/" + encodeURI(track.artist["#text"]);
+        return `**${user.user.username}**\n[${track.name}](${track.url}) · ${track.album["#text"]} — **[${track.artist["#text"]}](${artist_url})**\n`;
       });
 
     fields_embed.embed
