@@ -48,11 +48,23 @@ export default async (client: CrownBot, message: Message) => {
 
   const args = message.content.slice(server_prefix.length).split(/ +/gi);
   const command_name = args.shift()?.toLowerCase();
+  let override_beta = false;
   if (!command_name) return;
+  let command = null;
+  const override = command_name.split(":");
+  if (override.length == 2 && override[0] == "b") {
+    command = <Command>client.commands.find((x) => {
+      return (
+        x.beta && (x.name === override[1] || x.aliases.includes(override[1]))
+      );
+    });
+    override_beta = true;
+  } else {
+    command = <Command>client.commands.find((x) => {
+      return x.name === command_name || x.aliases.includes(command_name);
+    });
+  }
 
-  const command = <Command>client.commands.find((x) => {
-    return x.name === command_name || x.aliases.includes(command_name);
-  });
   if (!command || !command.execute) return;
 
   const lacking_permissions = check_permissions(client, message);
@@ -69,7 +81,7 @@ export default async (client: CrownBot, message: Message) => {
   }
 
   try {
-    await command.execute(client, message, args);
+    await command.execute(client, message, args, override_beta);
   } catch (e) {
     console.log(e);
   }

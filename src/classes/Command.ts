@@ -46,7 +46,12 @@ export default class Command {
     this.required_permissions = options.required_permissions;
   }
 
-  async execute(client: CrownBot, message: Message, args: string[]) {
+  async execute(
+    client: CrownBot,
+    message: Message,
+    args: string[],
+    override_beta = false
+  ) {
     const db = new DB(client.models);
     const response = new BotMessage({ client, message, text: "", reply: true });
     if (!message.guild || !message.guild.me) return;
@@ -54,7 +59,7 @@ export default class Command {
       return;
     }
 
-    if (this.beta) {
+    if (this.beta && !override_beta) {
       if (!(await db.check_optin(message))) {
         return;
       }
