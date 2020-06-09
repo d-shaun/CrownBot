@@ -96,7 +96,7 @@ class PlayingCommand extends Command {
       .setArray(stats)
       .setAuthorizedUsers([])
       .setChannel(<TextChannel>message.channel)
-      .setElementsPerPage(15)
+      .setElementsPerPage(6)
       .setPageIndicator(true, "hybrid")
       .setDisabledNavigationEmojis(["delete"])
       .formatField(`${stats.length} user(s)`, (el: any) => {
