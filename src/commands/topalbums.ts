@@ -21,7 +21,7 @@ class TopAlbumsCommand extends Command {
       name: "topalbums",
       description: "Displays user's top-played albums of an artist.",
       usage: ["topalbums", "topalbums <artist name>"],
-      aliases: ["ta", "tp", "tpa"],
+      aliases: ["ta", "tpa"],
       examples: ["topalbums Devin Townsend"],
       require_login: true,
     });
