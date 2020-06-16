@@ -23,6 +23,7 @@ export interface TrackInterface {
 }
 
 export interface RecentTrackInterface {
+  id?: number;
   "@attr"?: {
     nowplaying: boolean;
   };
@@ -42,6 +43,10 @@ export interface RecentTrackInterface {
   name: string;
   streamable: string;
   url: string;
+  date: {
+    uts: string;
+    "#text": string;
+  };
 }
 
 export interface ShortenedTrackInterface {
