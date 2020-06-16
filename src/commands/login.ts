@@ -35,9 +35,7 @@ class LoginCommand extends Command {
     const db = new DB(client.models);
     const user = await db.fetch_user(message.author.id);
     if (user) {
-      response.text = new Template(client, message).get("already_logged");
-      await response.send();
-      return;
+      await db.remove_user(message.author.id);
     }
 
     const username = args.join();
