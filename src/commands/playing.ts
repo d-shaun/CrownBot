@@ -108,7 +108,7 @@ class PlayingCommand extends Command {
       });
 
     fields_embed.embed
-      .setColor(0x00ffff)
+      .setColor(message.member?.displayColor || "000000")
       .setTitle(`What is being played in ${message.guild?.name}?`);
 
     await fields_embed.build();

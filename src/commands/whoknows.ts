@@ -234,7 +234,7 @@ class WhoKnowsCommand extends Command {
       footer_text = `Last checked ${time_difference(last_log.timestamp)} ago.`;
     }
     fields_embed.embed
-      .setColor(0x00ffff)
+      .setColor(message.member?.displayColor || "000000")
       .setTitle(`Who knows ${artist.name} in ${message.guild?.name}?`)
       .setFooter(footer_text);
 

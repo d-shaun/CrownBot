@@ -215,7 +215,7 @@ class WhoPlaysCommand extends Command {
     let footer_text = `Psst, try ${server_prefix}about to find the support server.`;
 
     fields_embed.embed
-      .setColor(0x00ffff)
+      .setColor(message.member?.displayColor || "000000")
       .setTitle(
         `Who plays \`${track.name}\` by \`${track.artist.name}\` in ${message.guild.name}?`
       )
