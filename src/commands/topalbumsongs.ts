@@ -110,11 +110,14 @@ class TopAlbumSongs extends Command {
     }
     var responses: AxiosResponse[] = [];
     await Promise.all(lastfm_requests).then((res) => (responses = res));
-
-    if (
-      !responses.length ||
-      responses.some((response) => !response.data || !response.data.track)
-    ) {
+    if (!responses.length) {
+      reply.text = `The album ${cb(album.name)} by ${cb(
+        album.artist
+      )} has no tracks registered on Last.fm.`;
+      await reply.send();
+      return;
+    }
+    if (responses.some((response) => !response.data || !response.data.track)) {
       reply.text = new Template(client, message).get("lastfm_error");
       await reply.send();
       return;
@@ -150,10 +153,15 @@ class TopAlbumSongs extends Command {
       .setElementsPerPage(15)
       .setPageIndicator(true)
       .setDisabledNavigationEmojis(["delete"])
-      .formatField(`Track plays`, (el: any) => {
+      .formatField(`Track plays — Total: ${total_scrobbles}`, (el: any) => {
         const elem: TrackInterface = el;
+        if (!elem.userplaycount) return;
         const index = tracks.findIndex((e) => e.name == elem.name) + 1;
-        return `${index}. ${elem.name} — **${elem.userplaycount} play(s)**`;
+        const user_percentage = (
+          (parseInt(elem.userplaycount) / total_scrobbles) *
+          100
+        ).toFixed(2);
+        return `${index}. ${elem.name} — **${elem.userplaycount} play(s)** — ${user_percentage}%`;
       });
     fields_embed.embed
       .setColor(message.member?.displayColor || "000000")
