@@ -105,7 +105,7 @@ class PlayingCommand extends Command {
         const artist_url =
           "https://www.last.fm/music/" + encodeURI(track.artist["#text"]);
         const str = `**${user.user.username}**\n[${track.name}](${track.url}) · ${track.album["#text"]} — **[${track.artist["#text"]}](${artist_url})**\n`;
-        return str.substring(0, 2000);
+        return str.substring(0, 1020);
       });
 
     fields_embed.embed
