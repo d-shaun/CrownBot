@@ -96,7 +96,7 @@ class PlayingCommand extends Command {
       .setArray(stats)
       .setAuthorizedUsers([])
       .setChannel(<TextChannel>message.channel)
-      .setElementsPerPage(6)
+      .setElementsPerPage(5)
       .setPageIndicator(true, "hybrid")
       .setDisabledNavigationEmojis(["delete"])
       .formatField(`${stats.length} user(s)`, (el: any) => {
@@ -104,7 +104,8 @@ class PlayingCommand extends Command {
         const user: GuildMember = el.context.discord_user;
         const artist_url =
           "https://www.last.fm/music/" + encodeURI(track.artist["#text"]);
-        return `**${user.user.username}**\n[${track.name}](${track.url}) · ${track.album["#text"]} — **[${track.artist["#text"]}](${artist_url})**\n`;
+        const str = `**${user.user.username}**\n[${track.name}](${track.url}) · ${track.album["#text"]} — **[${track.artist["#text"]}](${artist_url})**\n`;
+        return str.substring(0, 2000);
       });
 
     fields_embed.embed
