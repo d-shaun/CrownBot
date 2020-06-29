@@ -4,6 +4,7 @@ import CrownBot from "../handlers/CrownBot";
 import DB from "../handlers/DB";
 import check_ban from "../misc/check_ban";
 import cb from "../misc/codeblock";
+import { Template } from "./Template";
 
 interface CommandInterface {
   name: string;
@@ -83,7 +84,7 @@ export default class Command {
     if (this.require_login) {
       const user = await db.fetch_user(message.author.id);
       if (!user) {
-        response.text = `You must be logged into the bot to use this command.`;
+        response.text = new Template(client, message).get("not_logged");
         await response.send();
         return;
       }
