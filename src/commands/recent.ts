@@ -25,7 +25,7 @@ class RecentCommand extends Command {
 
   async run(client: CrownBot, message: Message, args: string[]) {
     const server_prefix = client.get_cached_prefix(message);
-    const reply = new BotMessage({
+    const response = new BotMessage({
       client,
       message,
       reply: true,
@@ -41,8 +41,8 @@ class RecentCommand extends Command {
       discord_user = message.member ? message.member.user : undefined;
     }
     if (!discord_user) {
-      reply.text = "User not found.";
-      await reply.send();
+      response.text = "User not found.";
+      await response.send();
       return;
     }
     const user = await db.fetch_user(discord_user.id);
@@ -56,8 +56,8 @@ class RecentCommand extends Command {
       },
     });
     if (!data || !data.recenttracks) {
-      reply.text = new Template(client, message).get("lastfm_error");
-      await reply.send();
+      response.text = new Template(client, message).get("lastfm_error");
+      await response.send();
       return;
     }
 
@@ -68,9 +68,10 @@ class RecentCommand extends Command {
       }
     );
     if (!recent_tracks || !recent_tracks.length) {
-      reply.text = `Couldn't find any scrobble on this account; check if your username is mispelled: ${cb(
+      response.text = `Couldn't find any scrobble on this account; check if your username is mispelled: ${cb(
         "mylogin"
       )}.`;
+      await response.send();
       return;
     }
     const embed = new MessageEmbed()

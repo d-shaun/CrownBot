@@ -31,7 +31,7 @@ class ListCommand extends Command {
 
   async run(client: CrownBot, message: Message, args: string[]) {
     const server_prefix = client.get_cached_prefix(message);
-    const reply = new BotMessage({
+    const response = new BotMessage({
       client,
       message,
       reply: true,
@@ -123,11 +123,11 @@ class ListCommand extends Command {
     }
 
     if (!config.type || !config.period.value) {
-      reply.text = `Invalid arguments passed; see ${cb(
+      response.text = `Invalid arguments passed; see ${cb(
         "help list",
         server_prefix
       )}.`;
-      await reply.send();
+      await response.send();
       return;
     }
 
@@ -137,8 +137,8 @@ class ListCommand extends Command {
         period: config.period.value,
       });
       if (!query.topartists || !query.topartists.artist) {
-        reply.text = new Template(client, message).get("lastfm_error");
-        await reply.send();
+        response.text = new Template(client, message).get("lastfm_error");
+        await response.send();
         return;
       }
       const top_artists: TopArtistInterface[] = query.topartists.artist;
@@ -162,8 +162,8 @@ class ListCommand extends Command {
         period: config.period.value,
       });
       if (!query.toptracks || !query.toptracks.track) {
-        reply.text = new Template(client, message).get("lastfm_error");
-        await reply.send();
+        response.text = new Template(client, message).get("lastfm_error");
+        await response.send();
         return;
       }
       const top_tracks: TopTrackInterface[] = query.toptracks.track;

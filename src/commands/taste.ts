@@ -20,7 +20,7 @@ class TasteCommand extends Command {
 
   async run(client: CrownBot, message: Message, args: string[]) {
     const server_prefix = client.get_cached_prefix(message);
-    const reply = new BotMessage({
+    const response = new BotMessage({
       client,
       message,
       reply: true,
@@ -34,18 +34,18 @@ class TasteCommand extends Command {
       user_two = search_user(message, args);
     }
     if (!user_two) {
-      reply.text =
+      response.text =
         "User not found; try mentioning the user instead (`@username`).";
-      await reply.send();
+      await response.send();
       return;
     }
 
     const u1 = await db.fetch_user(message.author.id);
     const u2 = await db.fetch_user(user_two.id);
     if (!(u1 && u2)) {
-      reply.text =
+      response.text =
         "The user hasn't registered their Last.fm username on the bot.";
-      await reply.send();
+      await response.send();
       return;
     }
 

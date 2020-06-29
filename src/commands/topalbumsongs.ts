@@ -25,7 +25,7 @@ class TopAlbumSongs extends Command {
 
   async run(client: CrownBot, message: Message, args: String[]) {
     const server_prefix = client.get_cached_prefix(message);
-    const reply = new BotMessage({
+    const response = new BotMessage({
       client,
       message,
       reply: true,
@@ -55,18 +55,18 @@ class TopAlbumSongs extends Command {
           str_array.join().trim()
         );
         if (data.error) {
-          reply.text = new Template(client, message).get("lastfm_error");
-          await reply.send();
+          response.text = new Template(client, message).get("lastfm_error");
+          await response.send();
           return;
         }
         let album = data.results.albummatches.album[0];
 
         if (!album) {
-          reply.text = `Couldn't find the album; try providing artist name—see ${cb(
+          response.text = `Couldn't find the album; try providing artist name—see ${cb(
             "help tas",
             server_prefix
           )}.`;
-          await reply.send();
+          await response.send();
           return;
         }
         artist_name = album.artist;
@@ -86,8 +86,8 @@ class TopAlbumSongs extends Command {
       },
     });
     if (data.error || !data.album) {
-      reply.text = new Template(client, message).get("lastfm_error");
-      await reply.send();
+      response.text = new Template(client, message).get("lastfm_error");
+      await response.send();
       return;
     }
     const album: AlbumInterface = data.album;
@@ -111,15 +111,15 @@ class TopAlbumSongs extends Command {
     var responses: AxiosResponse[] = [];
     await Promise.all(lastfm_requests).then((res) => (responses = res));
     if (!responses.length) {
-      reply.text = `The album ${cb(album.name)} by ${cb(
+      response.text = `The album ${cb(album.name)} by ${cb(
         album.artist
       )} has no tracks registered on Last.fm.`;
-      await reply.send();
+      await response.send();
       return;
     }
     if (responses.some((response) => !response.data || !response.data.track)) {
-      reply.text = new Template(client, message).get("lastfm_error");
-      await reply.send();
+      response.text = new Template(client, message).get("lastfm_error");
+      await response.send();
       return;
     }
 
@@ -135,10 +135,10 @@ class TopAlbumSongs extends Command {
       .filter((track) => parseInt(track.userplaycount) > 0)
       .sort((a, b) => parseInt(b.userplaycount) - parseInt(a.userplaycount));
     if (!tracks.length) {
-      reply.text = `Couldn't find any track that you *may* have scrobbled from the album ${cb(
+      response.text = `Couldn't find any track that you *may* have scrobbled from the album ${cb(
         album.name
       )} by ${cb(album.artist)}.`;
-      await reply.send();
+      await response.send();
       return;
     }
     const total_scrobbles = tracks.reduce(

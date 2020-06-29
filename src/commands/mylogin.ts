@@ -16,7 +16,7 @@ class MyLoginCommand extends Command {
   }
 
   async run(client: CrownBot, message: Message, args: String[]) {
-    const reply = new BotMessage({
+    const response = new BotMessage({
       client,
       message,
       reply: true,
@@ -25,8 +25,8 @@ class MyLoginCommand extends Command {
     const db = new DB(client.models);
     const user = await db.fetch_user(message.author.id);
     if (!user) return;
-    reply.text = `your Last.fm username is \`\`${user.username}\`\` ([visit](https://last.fm/user/${user.username})).`;
-    await reply.send();
+    response.text = `your Last.fm username is \`\`${user.username}\`\` ([visit](https://last.fm/user/${user.username})).`;
+    await response.send();
   }
 }
 

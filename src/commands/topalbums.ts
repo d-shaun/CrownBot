@@ -29,7 +29,7 @@ class TopAlbumsCommand extends Command {
 
   async run(client: CrownBot, message: Message, args: String[]) {
     const server_prefix = client.get_cached_prefix(message);
-    const reply = new BotMessage({
+    const response = new BotMessage({
       client,
       message,
       reply: true,
@@ -61,8 +61,8 @@ class TopAlbumsCommand extends Command {
       },
     });
     if (status !== 200 || data.error) {
-      reply.text = new Template(client, message).get("lastfm_error");
-      await reply.send();
+      response.text = new Template(client, message).get("lastfm_error");
+      await response.send();
       return;
     }
     const artist: ArtistInterface = data.artist;
@@ -70,8 +70,8 @@ class TopAlbumsCommand extends Command {
       !artist.stats.userplaycount ||
       parseInt(artist.stats.userplaycount) <= 0
     ) {
-      reply.text = `You haven't listened to \`${artist.name}\``;
-      await reply.send();
+      response.text = `You haven't listened to \`${artist.name}\``;
+      await response.send();
       return;
     }
 
@@ -98,13 +98,13 @@ class TopAlbumsCommand extends Command {
     await Promise.all(lastfm_requests).then((res: any) => (responses = res));
     responses = responses.filter((res) => res.data.error !== 6);
     if (!responses.length) {
-      reply.text = "No album found.";
-      await reply.send();
+      response.text = "No album found.";
+      await response.send();
       return;
     }
     if (responses.some((response) => !response.data || !response.data.album)) {
-      reply.text = new Template(client, message).get("lastfm_error");
-      await reply.send();
+      response.text = new Template(client, message).get("lastfm_error");
+      await response.send();
       return;
     }
 
@@ -124,8 +124,8 @@ class TopAlbumsCommand extends Command {
       .sort((a, b) => parseInt(b.userplaycount) - parseInt(a.userplaycount));
 
     if (!sorted_list.length) {
-      reply.text = "Couldn't find any album that you *may* have scrobbled.";
-      await reply.send();
+      response.text = "Couldn't find any album that you *may* have scrobbled.";
+      await response.send();
       return;
     }
 

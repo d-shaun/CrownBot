@@ -38,7 +38,7 @@ class SongPlaysCommand extends Command {
 
   async run(client: CrownBot, message: Message, args: String[]) {
     const server_prefix = client.get_cached_prefix(message);
-    const reply = new BotMessage({
+    const response = new BotMessage({
       client,
       message,
       reply: true,
@@ -68,18 +68,18 @@ class SongPlaysCommand extends Command {
           str_array.join().trim()
         );
         if (data.error) {
-          reply.text = new Template(client, message).get("lastfm_error");
-          await reply.send();
+          response.text = new Template(client, message).get("lastfm_error");
+          await response.send();
           return;
         }
         const track = data.results.trackmatches.track[0];
 
         if (!track) {
-          reply.text = `Couldn't find the track; try providing artist name—see ${cb(
+          response.text = `Couldn't find the track; try providing artist name—see ${cb(
             "help spl",
             server_prefix
           )}.`;
-          await reply.send();
+          await response.send();
           return;
         }
         track_name = track.name;
@@ -99,7 +99,7 @@ class SongPlaysCommand extends Command {
       },
     });
 
-    let response = <AxiosResponse>await new LastFM().query({
+    let axios_response = <AxiosResponse>await new LastFM().query({
       method: "artist.getinfo",
       params: {
         artist: artist_name,
@@ -110,15 +110,15 @@ class SongPlaysCommand extends Command {
 
     if (
       data.error ||
-      response.data.error ||
+      axios_response.data.error ||
       !data.track ||
-      !response.data.artist
+      !axios_response.data.artist
     ) {
-      reply.text = new Template(client, message).get("lastfm_error");
-      await reply.send();
+      response.text = new Template(client, message).get("lastfm_error");
+      await response.send();
       return;
     }
-    const artist_info: ArtistInterface = response.data.artist;
+    const artist_info: ArtistInterface = axios_response.data.artist;
 
     const track: TrackInterface = data.track;
 

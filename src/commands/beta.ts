@@ -17,7 +17,7 @@ class BetaCommand extends Command {
   async run(client: CrownBot, message: Message, args: String[]) {
     const server_prefix = client.get_cached_prefix(message);
     const db = new DB(client.models);
-    const reply = new BotMessage({
+    const response = new BotMessage({
       client,
       message,
       reply: true,
@@ -25,29 +25,29 @@ class BetaCommand extends Command {
     });
 
     if (!message.member?.hasPermission("MANAGE_GUILD")) {
-      reply.text =
+      response.text =
         "You do not have the permission (``MANAGE_GUILD``) to execute this command.";
-      await reply.send();
+      await response.send();
       return;
     }
     const is_beta = await db.check_optin(message);
     if (!is_beta) {
       await db.opt_in(message);
-      reply.text =
+      response.text =
         `Beta features have been enabled in this server—` +
         `run ${cb("beta", server_prefix)} again to disable; ` +
         `see ${cb(
           "commands beta",
           server_prefix
         )} for a list of available beta commands.`;
-      await reply.send();
+      await response.send();
     } else {
       await db.opt_out(message);
-      reply.text = `Beta features have been disabled in this server; run ${cb(
+      response.text = `Beta features have been disabled in this server; run ${cb(
         "beta",
         server_prefix
       )} again to re-enable.`;
-      await reply.send();
+      await response.send();
     }
   }
 }
