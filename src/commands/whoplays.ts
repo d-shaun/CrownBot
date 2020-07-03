@@ -12,6 +12,8 @@ import { LeaderboardInterface } from "../interfaces/LeaderboardInterface";
 import { TrackInterface } from "../interfaces/TrackInterface";
 import cb from "../misc/codeblock";
 import get_registered_users from "../misc/get_registered_users";
+import time_difference from "../misc/time_difference";
+import { LogInterface } from "../models/WhoPlaysLog";
 
 class WhoPlaysCommand extends Command {
   constructor() {
@@ -185,6 +187,27 @@ class WhoPlaysCommand extends Command {
       await response.send();
       return;
     }
+
+    const last_log:
+      | LogInterface
+      | undefined = await client.models.whoplayslog.findOne({
+      track_name: track.name,
+      artist_name: track.artist.name,
+      guild_id: message.guild.id,
+    });
+    if (last_log && last_log.stat) {
+      const { stat } = last_log;
+      leaderboard = leaderboard.map((entry) => {
+        const log = stat.find((lg) => {
+          return lg.user_id === entry.user_id;
+        });
+        if (log) {
+          entry.last_count = log.userplaycount;
+        }
+        return entry;
+      });
+    }
+
     leaderboard = leaderboard.sort(
       (a, b) => parseInt(b.userplaycount) - parseInt(a.userplaycount)
     );
@@ -204,16 +227,34 @@ class WhoPlaysCommand extends Command {
         `${total_scrobbles} plays ― ${leaderboard.length} listener(s)\n`,
         (el: any) => {
           const elem: LeaderboardInterface = el;
-
+          let count_diff;
+          let diff_str = "";
+          if (elem.last_count) {
+            count_diff =
+              parseInt(elem.userplaycount) - parseInt(elem.last_count);
+          }
+          if (count_diff && count_diff < 0) {
+            diff_str = ` ― (:small_red_triangle_down: ${count_diff} ${
+              count_diff > 1 ? "plays" : "play"
+            })`;
+          } else if (count_diff && count_diff > 0) {
+            diff_str = ` ― (+${count_diff} ${
+              count_diff > 1 ? "plays" : "play"
+            })`;
+          }
           const index =
             leaderboard.findIndex((e) => e.user_id == elem.user_id) + 1;
 
-          return `${index}. ${el.discord_username} — **${el.userplaycount} play(s)**`;
+          return `${index + "."} ${el.discord_username} — **${
+            el.userplaycount
+          } play(s)** ${diff_str}`;
         }
       );
 
     let footer_text = `Psst, try ${server_prefix}about to find the support server.`;
-
+    if (last_log) {
+      footer_text = `Last checked ${time_difference(last_log.timestamp)} ago.`;
+    }
     fields_embed.embed
       .setColor(message.member?.displayColor || "000000")
       .setTitle(
@@ -221,6 +262,12 @@ class WhoPlaysCommand extends Command {
       )
       .setFooter(footer_text);
     await fields_embed.build();
+    await db.log_whoplays(
+      track.name,
+      track.artist.name,
+      leaderboard,
+      message.guild.id
+    );
   }
 }
 
