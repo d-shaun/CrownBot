@@ -61,6 +61,35 @@ export default class DB {
     );
   }
 
+  async log_whoplays(
+    track_name: string,
+    artist_name: string,
+    leaderboard: LeaderboardInterface[],
+    guild_id: string
+  ) {
+    const timestamp = moment.utc().valueOf();
+    return this.#models.whoplayslog.findOneAndUpdate(
+      {
+        track_name,
+        artist_name,
+        guild_id,
+      },
+      {
+        track_name,
+        artist_name,
+        guild_id,
+        listener: leaderboard.length,
+        stat: leaderboard,
+        timestamp,
+      },
+      {
+        upsert: true,
+        // @ts-ignore
+        useFindAndModify: false,
+      }
+    );
+  }
+
   async log_whoknows(
     artist_name: string,
     leaderboard: LeaderboardInterface[],
