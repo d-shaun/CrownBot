@@ -4,6 +4,8 @@ import { RecentTrackInterface } from "../interfaces/TrackInterface";
 import BotMessage from "./BotMessage";
 import CrownBot from "./CrownBot";
 import { LastFM } from "./LastFM";
+import Axios from "axios";
+import cheerio from "cheerio";
 export default class LastFMUser {
   username: string;
   discord_id?: string;
@@ -92,5 +94,47 @@ export default class LastFMUser {
       },
     });
     return data;
+  }
+
+  parse_chartpage(data: string) {
+    const $ = cheerio.load(data);
+    const chart_list = $(".chartlist").find(".chartlist-row");
+    const stats: { name: string; plays: number }[] = [];
+    chart_list.each(function (_: any, elem: any) {
+      const name = $(elem).find(".chartlist-name").text().trim();
+      $(elem).find(".stat-name").remove();
+      const plays = $(elem)
+        .find(".chartlist-count-bar-value")
+        .text()
+        .trim()
+        .replace(",", "");
+      stats.push({
+        name,
+        plays: parseInt(plays),
+      });
+    });
+    return stats;
+  }
+
+  async get_albums(artist_name: string) {
+    const response = await Axios.get(
+      `https://www.last.fm/user/${this.username}/library/music/${artist_name}/+albums`
+    );
+    if (response.status !== 200) {
+      return undefined;
+    }
+    const stat = this.parse_chartpage(response.data);
+    return stat;
+  }
+
+  async get_tracks(artist_name: string) {
+    const response = await Axios.get(
+      `https://www.last.fm/user/${this.username}/library/music/${artist_name}/+tracks`
+    );
+    if (response.status !== 200) {
+      return undefined;
+    }
+    const stat = this.parse_chartpage(response.data);
+    return stat;
   }
 }
