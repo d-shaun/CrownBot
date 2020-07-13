@@ -13,7 +13,6 @@ class TasteCommand extends Command {
       description: "Compares same-artist plays between two users.",
       usage: ["taste <username>", "taste @user"],
       aliases: ["t"],
-      beta: true,
       require_login: true,
     });
   }

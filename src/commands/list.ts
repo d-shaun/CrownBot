@@ -25,7 +25,6 @@ class ListCommand extends Command {
       ],
       aliases: ["l"],
       require_login: true,
-      beta: true,
     });
   }
 
