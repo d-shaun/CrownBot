@@ -12,11 +12,13 @@
     "typescript": "^3.9.5"
   },
   "dependencies": {
+    "@types/cheerio": "^0.22.21",
     "@types/mongodb": "^3.5.25",
     "@types/mongoose": "^5.7.28",
     "@types/node": "^14.0.14",
     "@types/ws": "^7.2.5",
     "axios": "^0.19.2",
+    "cheerio": "^1.0.0-rc.3",
     "discord-paginationembed": "^2.0.0",
     "discord.js": "^12.1.1",
     "moment": "^2.24.0",
