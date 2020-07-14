@@ -138,7 +138,7 @@ class WhoPlaysCommand extends Command {
           })
       );
     }
-    var responses: AxiosResponse[] = [];
+    let responses: AxiosResponse[] = [];
     await Promise.all(lastfm_requests).then((res) => (responses = res));
 
     if (
@@ -160,14 +160,14 @@ class WhoPlaysCommand extends Command {
 
     let leaderboard: LeaderboardInterface[] = [];
 
-    interface contextInterface {
+    interface ContextInterface {
       discord_user: GuildMember;
       lastfm_username: string;
     }
 
     responses.forEach(({ data }) => {
       const track: TrackInterface = data.track;
-      const context: contextInterface = data.context;
+      const context: ContextInterface = data.context;
       if (!context || !context.discord_user) return;
       if (!track.userplaycount) return;
       if (parseInt(track.userplaycount) <= 0) return;
@@ -243,7 +243,7 @@ class WhoPlaysCommand extends Command {
             })`;
           }
           const index =
-            leaderboard.findIndex((e) => e.user_id == elem.user_id) + 1;
+            leaderboard.findIndex((e) => e.user_id === elem.user_id) + 1;
 
           return `${index + "."} ${el.discord_username} — **${
             el.userplaycount

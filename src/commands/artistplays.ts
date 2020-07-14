@@ -66,7 +66,7 @@ class ArtistPlaysCommand extends Command {
       count: "No change",
       time: <boolean | string>false,
     };
-    var last_log = await client.models.artistlog.findOne(<ArtistLogInterface>{
+    const last_log = await client.models.artistlog.findOne(<ArtistLogInterface>{
       name: artist.name,
       userID: message.author.id,
     });
@@ -122,7 +122,7 @@ class ArtistPlaysCommand extends Command {
       },
       {
         upsert: true,
-        //@ts-ignore
+        // @ts-ignore
         useFindAndModify: false,
       }
     );

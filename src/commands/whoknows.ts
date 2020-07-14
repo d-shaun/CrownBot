@@ -111,7 +111,7 @@ class WhoKnowsCommand extends Command {
           })
       );
     }
-    var responses: AxiosResponse[] = [];
+    let responses: AxiosResponse[] = [];
     await Promise.all(lastfm_requests).then((res) => (responses = res));
 
     if (
@@ -133,14 +133,14 @@ class WhoKnowsCommand extends Command {
 
     let leaderboard: LeaderboardInterface[] = [];
 
-    interface contextInterface {
+    interface ContextInterface {
       discord_user: GuildMember;
       lastfm_username: string;
     }
 
     responses.forEach(({ data }) => {
       const artist: ArtistInterface = data.artist;
-      const context: contextInterface = data.context;
+      const context: ContextInterface = data.context;
       if (!context || !context.discord_user) return;
       if (!artist.stats.userplaycount) return;
       if (parseInt(artist.stats.userplaycount) <= 0) return;
@@ -221,7 +221,7 @@ class WhoKnowsCommand extends Command {
             })`;
           }
           const index =
-            leaderboard.findIndex((e) => e.user_id == elem.user_id) + 1;
+            leaderboard.findIndex((e) => e.user_id === elem.user_id) + 1;
 
           return `${index === 1 ? ":crown:" : index + "."} ${
             el.discord_username

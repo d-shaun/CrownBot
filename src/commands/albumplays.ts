@@ -58,7 +58,7 @@ class AlbumPlaysCommand extends Command {
       let str = args.join(" ");
       let str_array = str.split("||");
       if (str_array.length !== 2) {
-        const { status, data } = await new LastFM().search_album(
+        const { data } = await new LastFM().search_album(
           str_array.join().trim()
         );
         if (data.error) {
@@ -118,10 +118,10 @@ class AlbumPlaysCommand extends Command {
     const album: AlbumInterface = data.album;
     if (!album.userplaycount) return;
     let last_count = 0;
-    var album_cover: boolean | string = false;
+    let album_cover: boolean | string = false;
 
     if (album.image) {
-      var last_item = album.image.pop();
+      const last_item = album.image.pop();
       album_cover = last_item ? last_item["#text"] : false;
     }
 
@@ -130,7 +130,7 @@ class AlbumPlaysCommand extends Command {
       time: <boolean | string>false,
     };
 
-    var last_log = await client.models.albumlog.findOne(<AlbumLogInterface>{
+    const last_log = await client.models.albumlog.findOne(<AlbumLogInterface>{
       name: album.name,
       artistName: album.artist,
       userID: message.author.id,
@@ -176,7 +176,7 @@ class AlbumPlaysCommand extends Command {
       )}** artist plays `,
     };
 
-    if (percentage.artist == "NaN") {
+    if (percentage.artist === "NaN") {
       percentage_text.artist = "";
     }
 
@@ -211,7 +211,7 @@ class AlbumPlaysCommand extends Command {
       },
       {
         upsert: true,
-        //@ts-ignore
+        // @ts-ignore
         useFindAndModify: false,
       }
     );

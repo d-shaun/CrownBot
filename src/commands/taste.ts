@@ -68,10 +68,10 @@ class TasteCommand extends Command {
       usertwo_plays: number;
     }[] = [];
     const similar_artists = responses[0].filter((artist) => {
-      return responses[1].find((ar) => ar.name == artist.name);
+      return responses[1].find((ar) => ar.name === artist.name);
     });
     similar_artists.forEach((artist) => {
-      const usertwo_artist = responses[1].find((ar) => ar.name == artist.name);
+      const usertwo_artist = responses[1].find((ar) => ar.name === artist.name);
       if (!usertwo_artist) return;
       plays.push({
         name: artist.name,

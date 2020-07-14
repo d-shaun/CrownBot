@@ -68,7 +68,7 @@ class GlobalBanCommand extends Command {
       },
       {
         upsert: true,
-        //@ts-ignore
+        // @ts-ignore
         useFindAndModify: false,
       }
     );

@@ -124,14 +124,13 @@ class SongPlaysCommand extends Command {
 
     if (!track.userplaycount) return;
     let last_count = 0;
-    var album_cover: boolean | string = false;
 
     let strs = {
       count: "No change",
       time: <boolean | string>false,
     };
 
-    var last_log = await client.models.tracklog.findOne(<AlbumLogInterface>{
+    const last_log = await client.models.tracklog.findOne(<AlbumLogInterface>{
       name: track.name,
       artistName: track.artist.name,
       userID: message.author.id,
@@ -177,7 +176,7 @@ class SongPlaysCommand extends Command {
       )}** artist plays `,
     };
 
-    if (percentage.artist == "NaN") {
+    if (percentage.artist === "NaN") {
       percentage_text.artist = "";
     }
 
@@ -212,7 +211,7 @@ class SongPlaysCommand extends Command {
       },
       {
         upsert: true,
-        //@ts-ignore
+        // @ts-ignore
         useFindAndModify: false,
       }
     );

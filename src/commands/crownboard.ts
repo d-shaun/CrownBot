@@ -48,7 +48,7 @@ class CrownboardCommand extends Command {
       .setDescription(
         entries
           .filter(([userID]) => {
-            //check if the user is still on the server
+            // check if the user is still on the server
             return message.guild?.members.cache.get(userID) !== undefined;
           })
           .sort(([_, a], [__, b]) => b - a)

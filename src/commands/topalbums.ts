@@ -78,7 +78,8 @@ class TopAlbumsCommand extends Command {
     let albums = await this.getLastfmAlbums(client, artist.name);
     if (!albums) return;
     const lastfm_requests: any = [];
-    const breaking_album_names = ["null", "(null)", "undefined"]; // weird album names Last.fm has that cause server error in some of its APIs for whatever reason
+    const breaking_album_names = ["null", "(null)", "undefined"];
+    // Last.fm has some weird album names that cause server error in some of its APIs for whatever reason
     albums.forEach((album) => {
       if (album.name && !breaking_album_names.includes(album.name)) {
         lastfm_requests.push(
@@ -86,7 +87,7 @@ class TopAlbumsCommand extends Command {
         );
       }
     });
-    interface res {
+    interface Res {
       data: {
         error: number;
         message?: string;
@@ -94,7 +95,7 @@ class TopAlbumsCommand extends Command {
       };
       status: number;
     }
-    var responses: res[] = [];
+    let responses: Res[] = [];
     await Promise.all(lastfm_requests).then((res: any) => (responses = res));
     responses = responses.filter((res) => res.data.error !== 6);
     if (!responses.length) {
@@ -138,7 +139,7 @@ class TopAlbumsCommand extends Command {
       .setDisabledNavigationEmojis(["delete"])
       .formatField(`Album plays`, (el: any) => {
         const elem: AlbumInterface = el;
-        const index = sorted_list.findIndex((e) => e.name == elem.name) + 1;
+        const index = sorted_list.findIndex((e) => e.name === elem.name) + 1;
         return `${index}. ${elem.name} — **${elem.userplaycount} play(s)**`;
       });
     fields_embed.embed

@@ -65,7 +65,7 @@ class CrownsCommand extends Command {
       .formatField(`Total: ${sorted_crowns.length} crowns`, (el: any) => {
         const elem: CrownInterface = el;
         const index =
-          sorted_crowns.findIndex((e) => e.artistName == elem.artistName) + 1;
+          sorted_crowns.findIndex((e) => e.artistName === elem.artistName) + 1;
         return `${index}. ${elem.artistName} — **${elem.artistPlays} play(s)**`;
       });
 

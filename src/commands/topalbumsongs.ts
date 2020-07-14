@@ -108,7 +108,7 @@ class TopAlbumSongs extends Command {
     if (lastfm_requests.length > 100) {
       lastfm_requests.length = 100; // 100 tracks limit
     }
-    var responses: AxiosResponse[] = [];
+    let responses: AxiosResponse[] = [];
     await Promise.all(lastfm_requests).then((res) => (responses = res));
     if (!responses.length) {
       response.text = `The album ${cb(album.name)} by ${cb(
@@ -156,7 +156,7 @@ class TopAlbumSongs extends Command {
       .formatField(`Track plays — Total: ${total_scrobbles}`, (el: any) => {
         const elem: TrackInterface = el;
         if (!elem.userplaycount) return;
-        const index = tracks.findIndex((e) => e.name == elem.name) + 1;
+        const index = tracks.findIndex((e) => e.name === elem.name) + 1;
         const user_percentage = (
           (parseInt(elem.userplaycount) / total_scrobbles) *
           100

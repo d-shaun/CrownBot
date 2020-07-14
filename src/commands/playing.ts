@@ -67,10 +67,10 @@ class PlayingCommand extends Command {
           })
       );
     }
-    var responses: AxiosResponse[] = [];
+    let responses: AxiosResponse[] = [];
     await Promise.all(lastfm_requests).then((res) => (responses = res));
     responses = responses
-      .filter((response: AxiosResponse) => response.status == 200)
+      .filter((response: AxiosResponse) => response.status === 200)
       .filter((response) => {
         let last_track = response.data.recenttracks.track[0];
         return (

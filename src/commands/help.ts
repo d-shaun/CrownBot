@@ -28,16 +28,16 @@ class HelpCommand extends Command {
         return;
       }
 
-      var usage = Array.isArray(command.usage)
+      let usage = Array.isArray(command.usage)
         ? command.usage
         : [command.usage];
       usage = usage.map((e) => `\`\`${server_prefix}${e}\`\``);
 
-      var aliases = !(command.aliases && command.aliases.length)
+      const aliases = !(command.aliases && command.aliases.length)
         ? false
         : command.aliases.map((e) => `\`\`${server_prefix}${e}\`\``);
 
-      var examples = !command.examples
+      const examples = !command.examples
         ? false
         : command.examples
             .map((example) => {
@@ -64,7 +64,7 @@ class HelpCommand extends Command {
         );
       let commands = client.commands;
       if (args[0] === "beta") {
-        commands = commands.filter((cmd) => cmd.beta == true);
+        commands = commands.filter((cmd) => cmd.beta === true);
       } else {
         const is_beta = await db.check_optin(message);
         if (!is_beta) {
@@ -74,12 +74,12 @@ class HelpCommand extends Command {
       commands
         .filter((e) => !e.hidden)
         .forEach((command) => {
-          var usage = Array.isArray(command.usage)
+          const usage = Array.isArray(command.usage)
             ? command.usage[0]
             : command.usage;
 
-          var aliases = command.aliases;
-          var all_commands = [usage, ...aliases]
+          const aliases = command.aliases;
+          const all_commands = [usage, ...aliases]
             .map((e) => "``" + server_prefix + e + "``")
             .join(" or ");
           embed.addField(
