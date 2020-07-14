@@ -109,8 +109,11 @@ export default class Command {
     }
 
     if (!this.run) throw `${this.name} doesn't have a run function.`;
+    message.channel.startTyping();
     try {
       await this.run(client, message, args);
+      message.channel.stopTyping();
+
       await this.log(client, message);
     } catch (e) {
       console.error(e);
