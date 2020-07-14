@@ -54,9 +54,7 @@ export default async (client: CrownBot, message: Message) => {
   const override = command_name.split(":");
   if (override.length === 2 && override[0] === "b") {
     command = <Command>client.commands.find((x) => {
-      return (
-        x.beta && (x.name === override[1] || x.aliases.includes(override[1]))
-      );
+      return x.name === override[1] || x.aliases.includes(override[1]);
     });
     override_beta = true;
   } else {
