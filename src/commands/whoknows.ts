@@ -239,7 +239,7 @@ class WhoKnowsCommand extends Command {
       .setFooter(footer_text);
 
     fields_embed.on("start", () => {
-      // setImmediate(() => {
+      message.channel.stopTyping();
       if (!message.guild) throw "won't happen, TS.";
       if (last_crown) {
         const last_user = message.guild.members.cache.find(
@@ -251,7 +251,6 @@ class WhoKnowsCommand extends Command {
           response.send();
         }
       }
-      // });
     });
     await db.update_crown(top_user);
     await db.log_whoknows(artist.name, leaderboard, message.guild.id);

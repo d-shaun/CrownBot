@@ -147,6 +147,9 @@ class TopAlbumsCommand extends Command {
         `${message.author.username}'s top-played albums by \`${artist.name}\``
       )
       .setFooter(`Psst, try ${server_prefix}about to find the support server.`);
+    fields_embed.on("start", () => {
+      message.channel.stopTyping();
+    });
     await fields_embed.build();
   }
 

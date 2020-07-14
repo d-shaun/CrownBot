@@ -261,6 +261,9 @@ class WhoPlaysCommand extends Command {
         `Who plays \`${track.name}\` by \`${track.artist.name}\` in ${message.guild.name}?`
       )
       .setFooter(footer_text);
+    fields_embed.on("start", () => {
+      message.channel.stopTyping();
+    });
     await db.log_whoplays(
       track.name,
       track.artist.name,

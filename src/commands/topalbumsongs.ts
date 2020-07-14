@@ -171,6 +171,9 @@ class TopAlbumSongs extends Command {
         )}`
       )
       .setFooter(`${album.name}—${album.artist}`);
+    fields_embed.on("start", () => {
+      message.channel.stopTyping();
+    });
     await fields_embed.build();
   }
 }
