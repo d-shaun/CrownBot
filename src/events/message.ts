@@ -38,7 +38,7 @@ export default async (client: CrownBot, message: Message) => {
       ?.has("SEND_MESSAGES"),
 
     // check if it's a text-channel
-    message.channel.type == "text",
+    message.channel.type === "text",
 
     // check if it's not a bot
     !message.author.bot,
@@ -52,7 +52,7 @@ export default async (client: CrownBot, message: Message) => {
   if (!command_name) return;
   let command = null;
   const override = command_name.split(":");
-  if (override.length == 2 && override[0] == "b") {
+  if (override.length === 2 && override[0] === "b") {
     command = <Command>client.commands.find((x) => {
       return (
         x.beta && (x.name === override[1] || x.aliases.includes(override[1]))

@@ -33,7 +33,7 @@ export class Template {
   }
 
   get(id: string): string {
-    const template = this.templates.find((t) => t.id == id);
+    const template = this.templates.find((t) => t.id === id);
     if (!template) {
       throw "No template with the ID found: " + id;
     }
