@@ -1,6 +1,17 @@
 import CrownBot from "./src/handlers/CrownBot";
+
+/*
+
+TOKEN: Discord API token
+OWNER_ID: User ID of the bot owner
+API_KEY: Last.fm API key
+ACCESS_TOKEN: Deezer access token—used to be used in the topalbums command; no longer required.
+MONGO: Mongo DB connection string
+
+*/
+
 const { TOKEN, OWNER_ID, API_KEY, ACCESS_TOKEN, MONGO } = process.env;
-if (!(TOKEN && OWNER_ID && API_KEY && ACCESS_TOKEN && MONGO)) {
+if (!(TOKEN && OWNER_ID && API_KEY && MONGO)) {
   throw "Some of the environment variables are missing.";
 }
 new CrownBot({

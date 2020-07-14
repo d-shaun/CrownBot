@@ -6,7 +6,7 @@ interface OptionInterface {
   token: string;
   owner_ID: string;
   api_key: string;
-  access_token: string;
+  access_token?: string;
   mongo: string;
   prefixes?: {};
   url?: string;
@@ -26,7 +26,7 @@ class CrownBotClass extends Client {
   owner_ID: string;
   #token: string;
   #api_key: string;
-  access_token: string;
+  access_token?: string;
   #mongo: string;
   url = "https://ws.audioscrobbler.com/2.0/?";
   commands: Command[] = [];
