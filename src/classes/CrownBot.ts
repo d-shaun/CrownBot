@@ -28,7 +28,7 @@ class CrownBotClass extends Client {
   #api_key: string;
   access_token: string;
   #mongo: string;
-  url: string = "https://ws.audioscrobbler.com/2.0/?";
+  url = "https://ws.audioscrobbler.com/2.0/?";
   commands: Command[] = [];
   models: { [key: string]: Model<any> } = {};
 
