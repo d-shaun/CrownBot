@@ -37,12 +37,10 @@ Commands and FAQs: <https://d-shaun.github.io/cbdocs/>.
 - Open up a terminal in the extracted folder and run either `npm install` or `yarn install` to install the required packages.
 - Add the following environment variables:
 
-```
-TOKEN: Discord API token
-OWNER_ID: User ID of the bot owner
-API_KEY: Last.fm API key
-MONGO: Mongo DB connection string
-```
+* - `TOKEN`: Discord API token
+* - `OWNER_ID`: User ID of the bot owner
+* - `API_KEY`: Last.fm API key
+* - `MONGO`: Mongo DB connection string
 
 If you don't know how to do that, see: <https://medium.com/the-node-js-collection/2da8cdf6e786>.
 
