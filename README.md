@@ -1,6 +1,6 @@
 ## CrownBot
 [![GitHub last commit](https://img.shields.io/github/last-commit/google/skia.svg?style=flat)]()
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/05249f00a07e4a1ca3f816daca6b1094)](https://app.codacy.com/manual/d-shaun/CrownBot?utm_source=github.com&utm_medium=referral&utm_content=d-shaun/CrownBot&utm_campaign=Badge_Grade_Settings) 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/05249f00a07e4a1ca3f816daca6b1094)](https://app.codacy.com/manual/d-shaun/CrownBot) 
 [![Discord](https://img.shields.io/discord/657915913567469588.svg?label=Discord)](https://discord.gg/zzJ5zmA)
 
 A Discord bot that uses Last.fm API to track scrobbles and rank users in a guild.
