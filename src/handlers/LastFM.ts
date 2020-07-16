@@ -48,7 +48,7 @@ export class LastFM {
         album: name,
         limit: 1,
         autocorrect: 1,
-        username: username,
+        username,
       },
     });
     return { status, data };
