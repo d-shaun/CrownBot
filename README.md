@@ -1,5 +1,7 @@
 ## CrownBot
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/05249f00a07e4a1ca3f816daca6b1094)](https://app.codacy.com/manual/d-shaun/CrownBot?utm_source=github.com&utm_medium=referral&utm_content=d-shaun/CrownBot&utm_campaign=Badge_Grade_Settings)
+
 A Discord bot that uses Last.fm API to track scrobbles and rank users in a guild.
 
 Commands and FAQs: <https://d-shaun.github.io/cbdocs/>.
