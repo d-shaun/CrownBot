@@ -27,8 +27,8 @@ Commands and FAQs: <https://d-shaun.github.io/cbdocs/>.
 - A Last.fm API key — you'll need to create an ["API account"](https://www.last.fm/api/) on Last.fm.
 
 - A MongoDB connection string; this is how:
-- - On the "Cluster" section, click the "CONNECT" button and then "Connect your application."
-- - Copy the string and replace `<password>` with password and `<dbname>` with the database name.
+  - On the "Cluster" section, click the "CONNECT" button and then "Connect your application."
+  - Copy the string and replace `<password>` with password and `<dbname>` with the database name.
     (See the [reference page](https://docs.mongodb.com/manual/reference/connection-string/) from MongoDB.)
 
 ### Initial setup
@@ -37,11 +37,11 @@ Commands and FAQs: <https://d-shaun.github.io/cbdocs/>.
 - Open up a terminal in the extracted folder and run either `npm install` or `yarn install` to install the required packages.
 - Add the following environment variables:
 
-* - `TOKEN`: Discord API token
-* - `OWNER_ID`: User ID of the bot owner
-* - `API_KEY`: Last.fm API key
-* - `MONGO`: Mongo DB connection string
+  - `TOKEN`: Discord API token
+  - `OWNER_ID`: User ID of the bot owner
+  - `API_KEY`: Last.fm API key
+  - `MONGO`: Mongo DB connection string
 
-If you don't know how to do that, see: <https://medium.com/the-node-js-collection/2da8cdf6e786>.
+    If you don't know how to do that, see: <https://medium.com/the-node-js-collection/2da8cdf6e786>.
 
 - Run `npm run build && npm run start` in the console to build the project with TypeScript and start running the bot.
