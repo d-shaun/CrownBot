@@ -116,6 +116,7 @@ export default class Command {
 
       await this.log(client, message);
     } catch (e) {
+      message.channel.stopTyping();
       console.error(e);
       await this.log(client, message, e.stack);
     }
