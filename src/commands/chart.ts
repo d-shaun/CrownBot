@@ -1,4 +1,4 @@
-import { createCanvas, loadImage } from "canvas";
+import { createCanvas, loadImage, registerFont } from "canvas";
 import { Message, MessageAttachment } from "discord.js";
 import Command from "../classes/Command";
 import { Template } from "../classes/Template";
@@ -43,7 +43,8 @@ class ChartCommand extends Command {
       discord_ID: message.author.id,
       username: user.username,
     });
-    const font = "15px Calibri";
+    registerFont("./src/fonts/Roboto-Regular.ttf", { family: "Roboto" });
+    const font = "15px Roboto";
     const no_title_aliases = ["notitle", "nt", "notitles"];
     let config = {
       period: {
