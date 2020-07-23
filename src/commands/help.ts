@@ -79,7 +79,7 @@ class HelpCommand extends Command {
             : command.usage;
 
           const aliases = command.aliases;
-          const all_commands = [usage, ...aliases]
+          const all_commands = [command.name, ...aliases]
             .map((e) => "``" + server_prefix + e + "``")
             .join(" or ");
           embed.addField(
