@@ -96,6 +96,18 @@ export default class LastFMUser {
     return data;
   }
 
+  async get_top_albums(config: { limit: number; period: string }) {
+    const { data } = await new LastFM().query({
+      method: "user.getTopAlbums",
+      params: {
+        user: this.username,
+        period: config.period,
+        limit: config.limit,
+      },
+    });
+    return data;
+  }
+
   parse_chartpage(data: string) {
     const $ = cheerio.load(data);
     const chart_list = $(".chartlist").find(".chartlist-row");
