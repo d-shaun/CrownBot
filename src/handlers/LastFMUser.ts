@@ -149,4 +149,58 @@ export default class LastFMUser {
     const stat = this.parse_chartpage(response.data);
     return stat;
   }
+
+  parse_library_scrobbles(data: string) {
+    const $ = cheerio.load(data);
+    const items = $(".page-content")
+      .find("ul.metadata-list")
+      .find("li.metadata-item");
+
+    const scrobbles = parseInt(
+      $(items[0]).find("p").text().trim().replace(",", "")
+    );
+    const average_per_day = parseInt(
+      $(items[1]).find("p").text().trim().replace(",", "")
+    );
+    return { scrobbles, average_per_day };
+  }
+
+  find_library_scrobbles(data: string) {
+    const $ = cheerio.load(data);
+    return parseInt(
+      $(".page-content")
+        .find("ul.metadata-list")
+        .find("li.metadata-item")
+        .find("p")
+        .text()
+        .trim()
+        .replace(",", "")
+    );
+  }
+
+  async get_stats(date_preset = "LAST_7_DAYS") {
+    const scrobbles_page = await Axios.get(
+      `https://www.last.fm/user/${this.username}/library?date_preset=${date_preset}`
+    );
+    const artists_page = await Axios.get(
+      `https://www.last.fm/user/${this.username}/library/artists?date_preset=${date_preset}`
+    );
+    const albums_page = await Axios.get(
+      `https://www.last.fm/user/${this.username}/library/albums?date_preset=${date_preset}`
+    );
+    const tracks_page = await Axios.get(
+      `https://www.last.fm/user/${this.username}/library/tracks?date_preset=${date_preset}`
+    );
+    if (scrobbles_page.status !== 200) {
+      return undefined;
+    }
+    const { scrobbles, average_per_day } = this.parse_library_scrobbles(
+      scrobbles_page.data
+    );
+
+    const artists = this.find_library_scrobbles(artists_page.data);
+    const albums = this.find_library_scrobbles(albums_page.data);
+    const tracks = this.find_library_scrobbles(tracks_page.data);
+    return { scrobbles, average_per_day, artists, albums, tracks };
+  }
 }
