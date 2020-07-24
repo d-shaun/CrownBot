@@ -1,5 +1,6 @@
 import { Message, MessageEmbed } from "discord.js";
 import Command from "../classes/Command";
+import BotMessage from "../handlers/BotMessage";
 import CrownBot from "../handlers/CrownBot";
 import DB from "../handlers/DB";
 
@@ -17,7 +18,12 @@ class HelpCommand extends Command {
   async run(client: CrownBot, message: Message, args: string[]) {
     const server_prefix = client.get_cached_prefix(message);
     const db = new DB(client.models);
-
+    const response = new BotMessage({
+      client,
+      message,
+      reply: true,
+      text: "",
+    });
     if (args[0] && args[0] !== "beta") {
       const command = client.commands
         .filter((e) => !e.hidden)
@@ -88,7 +94,11 @@ class HelpCommand extends Command {
             true
           );
         });
-      message.channel.send(embed);
+      response.text =
+        "FAQs and commands' descriptions can be found here: <https://d-shaun.github.io/cbdocs/>.";
+
+      await message.channel.send(embed);
+      await response.send();
     }
   }
 }
