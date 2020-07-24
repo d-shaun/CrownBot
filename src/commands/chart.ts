@@ -110,7 +110,8 @@ class ChartCommand extends Command {
       }
       if (x > 5 || y > 10) {
         response.text = `The max grid size is \`5x10\`; you provided \`${x}x${y}\`. See ${cb(
-          "help chart"
+          "help chart",
+          server_prefix
         )} for help.`;
         await response.send();
         return undefined;
