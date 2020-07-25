@@ -23,17 +23,6 @@ export default class LastFMUser {
     this.username = username;
   }
 
-  async get_username(): Promise<string> {
-    const request = await new LastFM().query({
-      method: "track.search",
-      params: {
-        track: "someday",
-      },
-    });
-    console.log(request);
-    return "test";
-  }
-
   async get_nowplaying(
     client: CrownBot,
     message: Message
@@ -178,12 +167,14 @@ export default class LastFMUser {
     );
   }
 
-  generate_promise(date_preset: string, type: string) {
+  generate_promise(date_preset: string, type?: string) {
     return Axios.get(
-      `https://www.last.fm/user/${this.username}/library/${type}?date_preset=${date_preset}`
+      `https://www.last.fm/user/${this.username}/library${
+        type ? "/" + type : ""
+      }?date_preset=${date_preset}`
     ).then((response) => {
       return {
-        type,
+        type: type ? type : "scrobbles",
         response,
       };
     });
@@ -191,39 +182,49 @@ export default class LastFMUser {
 
   async get_stats(date_preset = "LAST_7_DAYS") {
     const promises = [
+      this.generate_promise(date_preset),
       this.generate_promise(date_preset, "artists"),
       this.generate_promise(date_preset, "albums"),
       this.generate_promise(date_preset, "tracks"),
     ];
-    const scrobbles_page = await Axios.get(
-      `https://www.last.fm/user/${this.username}/library?date_preset=${date_preset}`
-    );
 
-    if (scrobbles_page.status !== 200) {
-      return undefined;
-    }
-    const { scrobbles, average_per_day } = this.parse_library_scrobbles(
-      scrobbles_page.data
-    );
     let responses: { response: AxiosResponse; type: string }[] = [];
-    await Promise.all(promises).then((res) => (responses = res));
-    let artists, albums, tracks;
-    responses.forEach((item) => {
-      switch (item.type) {
-        case "artists":
-          artists = this.find_library_scrobbles(item.response.data);
-          break;
-        case "albums":
-          albums = this.find_library_scrobbles(item.response.data);
-          break;
-        case "tracks":
-          tracks = this.find_library_scrobbles(item.response.data);
+
+    return Promise.all(promises).then((responses) => {
+      let artists: number | undefined,
+        albums: number | undefined,
+        tracks: number | undefined,
+        scrobbles_page;
+      for (const item of responses) {
+        switch (item.type) {
+          case "scrobbles":
+            scrobbles_page = this.parse_library_scrobbles(item.response.data);
+            break;
+          case "artists":
+            artists = this.find_library_scrobbles(item.response.data);
+            break;
+          case "albums":
+            albums = this.find_library_scrobbles(item.response.data);
+            break;
+          case "tracks":
+            tracks = this.find_library_scrobbles(item.response.data);
+        }
       }
+
+      if (!(scrobbles_page && artists && albums && tracks)) {
+        return undefined;
+      }
+
+      const { scrobbles, average_per_day } = scrobbles_page;
+
+      return {
+        date_preset,
+        scrobbles,
+        average_per_day,
+        artists,
+        albums,
+        tracks,
+      };
     });
-    // const artists = this.find_library_scrobbles(artists_page.data);
-    // const albums = this.find_library_scrobbles(albums_page.data);
-    // const tracks = this.find_library_scrobbles(tracks_page.data);
-    return { scrobbles, average_per_day, artists, albums, tracks };
-    // return { scrobbles, average_per_day };
   }
 }

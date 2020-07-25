@@ -34,10 +34,50 @@ class StatsCommand extends Command {
       discord_ID: message.author.id,
       username: user.username,
     });
-    const weekly = await lastfm_user.get_stats("LAST_7_DAYS");
-    const monthly = await lastfm_user.get_stats("LAST_30_DAYS");
-    const yearly = await lastfm_user.get_stats("LAST_365_DAYS");
-    const all_time = await lastfm_user.get_stats("ALL");
+    const requests = [
+      lastfm_user.get_stats("LAST_7_DAYS"),
+      lastfm_user.get_stats("LAST_30_DAYS"),
+      lastfm_user.get_stats("LAST_365_DAYS"),
+      lastfm_user.get_stats("ALL"),
+    ];
+    interface GetStatsResponse {
+      date_preset: string;
+      scrobbles: number;
+      average_per_day: number;
+      artists: number;
+      albums: number;
+      tracks: number;
+    }
+    let responses: (GetStatsResponse | undefined)[] | undefined;
+    await Promise.all(requests).then((res) => {
+      responses = res;
+    });
+    if (!responses || responses.length !== 4) {
+      response.text = new Template(client, message).get("lastfm_error");
+      await response.send();
+      return;
+    }
+    let weekly: GetStatsResponse | undefined,
+      monthly: GetStatsResponse | undefined,
+      yearly: GetStatsResponse | undefined,
+      all_time: GetStatsResponse | undefined;
+
+    for (const item of responses) {
+      switch (item?.date_preset) {
+        case "LAST_7_DAYS":
+          weekly = item;
+          break;
+        case "LAST_30_DAYS":
+          monthly = item;
+          break;
+        case "LAST_365_DAYS":
+          yearly = item;
+          break;
+        case "ALL":
+          all_time = item;
+      }
+    }
+
     if (!(weekly && monthly && yearly && all_time)) {
       response.text = new Template(client, message).get("lastfm_error");
       await response.send();
@@ -58,7 +98,8 @@ class StatsCommand extends Command {
       const data = stat.data;
       embed.addField(
         field_name,
-        `**${data.scrobbles}** scrobbles — **${data.artists}** artists, **${data.albums}** albums, **${data.tracks}** tracks · avg. ${data.average_per_day}/day`
+        `**${data.scrobbles}** scrobbles — **${data.artists}** artists, ` +
+          `**${data.albums}** albums, **${data.tracks}** tracks · avg. ${data.average_per_day}/day`
       );
     });
 
