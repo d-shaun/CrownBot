@@ -8,9 +8,10 @@ export class Template {
     this.templates = [
       {
         id: "not_logged",
-        text: `You are not logged-in to the bot;
-        please set your Last.fm username with the 
-        ${cb("login", prefix)} commmand (see ${cb("help login", prefix)}).`,
+        text:
+          `You are not logged-in to the bot; ` +
+          `please set your Last.fm username with the ` +
+          `${cb("login", prefix)} commmand (see ${cb("help login", prefix)}).`,
       },
       {
         id: "already_logged",
