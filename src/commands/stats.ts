@@ -15,7 +15,6 @@ class StatsCommand extends Command {
       usage: ["stats"],
       aliases: ["stat", "st"],
       require_login: true,
-      beta: true,
     });
   }
 

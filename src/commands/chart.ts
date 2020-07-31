@@ -23,7 +23,6 @@ class ChartCommand extends Command {
       ],
       aliases: ["c"],
       require_login: true,
-      beta: true,
     });
   }
 
