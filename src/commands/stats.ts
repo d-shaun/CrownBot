@@ -1,4 +1,5 @@
 import { Message, MessageEmbed } from "discord.js";
+import moment from "moment";
 import Command from "../classes/Command";
 import { Template } from "../classes/Template";
 import BotMessage from "../handlers/BotMessage";
@@ -32,6 +33,16 @@ class StatsCommand extends Command {
       discord_ID: message.author.id,
       username: user.username,
     });
+    const user_details = await lastfm_user.get_info();
+    if (!user_details) {
+      response.text = new Template(client, message).get("lastfm_error");
+      await response.send();
+      return;
+    }
+    const user_registered_date = moment
+      .unix(user_details.user.registered["#text"])
+      .format("MMMM DD, YYYY");
+
     const requests = [
       lastfm_user.get_stats("LAST_7_DAYS"),
       lastfm_user.get_stats("LAST_30_DAYS"),
@@ -89,8 +100,8 @@ class StatsCommand extends Command {
     ];
     const embed = new MessageEmbed()
       .setTitle(`${message.author.username}'s scrobbling stats`)
-      .setColor(message.member?.displayColor || "000000");
-
+      .setColor(message.member?.displayColor || "000000")
+      .addField("Scrobbling since", user_registered_date);
     stats.forEach((stat) => {
       const field_name = stat.field_name;
       const data = stat.data;
