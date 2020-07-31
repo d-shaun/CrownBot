@@ -1,11 +1,12 @@
+import Axios, { AxiosResponse } from "axios";
+import cheerio from "cheerio";
 import { Message } from "discord.js";
 import { Template } from "../classes/Template";
 import { RecentTrackInterface } from "../interfaces/TrackInterface";
+import { UserinfoInterface } from "../interfaces/UserinfoInterface";
 import BotMessage from "./BotMessage";
 import CrownBot from "./CrownBot";
 import { LastFM } from "./LastFM";
-import Axios, { AxiosResponse } from "axios";
-import cheerio from "cheerio";
 export default class LastFMUser {
   username: string;
   discord_id?: string;
@@ -22,7 +23,20 @@ export default class LastFMUser {
   set_username(username: string) {
     this.username = username;
   }
-
+  async get_info(): Promise<{ user: UserinfoInterface } | undefined> {
+    const { data } = await new LastFM().query({
+      method: "user.getinfo",
+      params: {
+        user: this.username,
+        limit: 1,
+      },
+    });
+    if (data.error) {
+      return undefined;
+    } else {
+      return data;
+    }
+  }
   async get_nowplaying(
     client: CrownBot,
     message: Message
