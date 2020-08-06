@@ -26,8 +26,9 @@ class LoginCommand extends Command {
       text: "",
     });
     if (args.length === 0) {
-      response.text = `please provide your Last.fm username along with the login command;
-      see ${cb("help login", prefix)}.`;
+      response.text =
+        `please provide your Last.fm username along with the login command; ` +
+        `see ${cb("help login", prefix)}.`;
       await response.send();
       return;
     }
