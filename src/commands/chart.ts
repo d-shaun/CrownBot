@@ -231,7 +231,7 @@ class ChartCommand extends Command {
           const yAxis = byChart + inChart;
           const album = album_elements[i];
           if (album) {
-            fctx.fillStyle = `#363636`;
+            fctx.fillStyle = `#858585`;
             fctx.fillText(album.playcount, size.x * 100 + 40, yAxis + spacing);
 
             fctx.fillStyle = `white`;
