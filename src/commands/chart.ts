@@ -198,39 +198,54 @@ class ChartCommand extends Command {
     if (config.no_title) {
       attachment = new MessageAttachment(canv.toBuffer(), "chart.png");
     } else {
-      const namesAndLength = new Map<string, TextMetrics>(
-        albums.map((x) => {
-          const text = `${truncate(x.artist.name, 20)} — ${truncate(
-            x.name,
-            30
-          )}`;
-          return [text, ctx.measureText(text)];
-        })
+      const album_elements = albums.map((x) => {
+        const text = `${truncate(x.artist.name, 20)} — ${truncate(x.name, 30)}`;
+        const playcount = `${x.playcount} ${
+          parseInt(x.playcount) > 1 ? "plays" : "play"
+        } · `;
+        return {
+          text,
+          length: ctx.measureText(text),
+          playcount,
+          playcount_length: ctx.measureText(playcount),
+        };
+      });
+      const max_name_length = Math.max(
+        ...album_elements.map((elem) => elem.length.width)
       );
-      const names: string[] = [...namesAndLength.keys()];
-      const length = Math.max(
-        ...[...namesAndLength.values()].map((x) => x.width)
+      const max_playcount_length = Math.max(
+        ...album_elements.map((elem) => elem.playcount_length.width)
       );
-      const xAxis = size.x * 100 + 75 + length;
+      const xAxis = size.x * 100 + 75 + max_name_length + max_playcount_length;
       const yAxis = size.y * 100 + 50;
       const finalCanvas = createCanvas(xAxis, yAxis);
       const fctx = finalCanvas.getContext(`2d`);
       fctx.fillStyle = `black`;
       fctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
       fctx.drawImage(canv, 25, 25);
-      fctx.fillStyle = `white`;
       fctx.font = font;
       let i = 0;
+      let spacing = 0;
       for (let byChart = 25; byChart < 100 * size.y + 25; byChart += 100) {
         for (let inChart = 15; inChart <= 15 * size.x; inChart += 15) {
           const yAxis = byChart + inChart;
-          if (names[i]) {
-            fctx.fillText(names[i], size.x * 100 + 40, yAxis);
+          const album = album_elements[i];
+          if (album) {
+            fctx.fillStyle = `#363636`;
+            fctx.fillText(album.playcount, size.x * 100 + 40, yAxis + spacing);
+
+            fctx.fillStyle = `white`;
+            fctx.fillText(
+              album.text,
+              size.x * 100 + 40 + max_playcount_length,
+              yAxis + spacing
+            );
           }
           i++;
+          spacing += 2;
         }
+        spacing = 0;
       }
-
       attachment = new MessageAttachment(finalCanvas.toBuffer(), "chart.png");
     }
 
