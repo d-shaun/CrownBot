@@ -9,7 +9,7 @@ class ConfigCommand extends Command {
   constructor() {
     super({
       name: "config",
-      description: "Configures CrownBot preferences in a guild.",
+      description: "Configures CrownBot's preferences in a guild.",
       usage: ["config"],
       aliases: [],
       required_permissions: ["MANAGE_MESSAGES"],
