@@ -1,5 +1,6 @@
 import { Client } from "discord.js";
 import { connect, Model } from "mongoose";
+import { ServerConfigInterface } from "../models/ServerConfig";
 import Command from "./Command";
 interface OptionInterface {
   prefix: string;
@@ -23,6 +24,7 @@ interface PrefixInterface {
 class CrownBotClass extends Client {
   prefix: string;
   prefixes: PrefixInterface | undefined = undefined;
+  server_configs: ServerConfigInterface[] | undefined = undefined;
   owner_ID: string;
   #token: string;
   #api_key: string;

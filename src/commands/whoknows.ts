@@ -45,6 +45,11 @@ class WhoKnowsCommand extends Command {
       username: user.username,
     });
 
+    // set minimum plays required to get a crown
+    let min_plays_for_crown = 1;
+    const server_config = client.get_cached_config(message);
+    if (server_config) min_plays_for_crown = server_config.min_plays_for_crown;
+
     let artist_name;
     if (args.length === 0) {
       const now_playing = await lastfm_user.get_nowplaying(client, message);
@@ -194,6 +199,10 @@ class WhoKnowsCommand extends Command {
       0
     );
     const top_user = leaderboard[0];
+    let min_count_text;
+    if (parseInt(top_user.userplaycount) < min_plays_for_crown) {
+      min_count_text = `(>=${min_plays_for_crown} plays required for the crown.)`;
+    }
     const fields_embed = new FieldsEmbed()
       .setArray(leaderboard)
       .setAuthorizedUsers([])
@@ -223,12 +232,18 @@ class WhoKnowsCommand extends Command {
           const index =
             leaderboard.findIndex((e) => e.user_id === elem.user_id) + 1;
 
-          return `${index === 1 ? ":crown:" : index + "."} ${
-            el.discord_username
-          } — **${el.userplaycount} play(s)** ${diff_str}`;
+          return `${
+            index === 1 && el.userplaycount >= min_plays_for_crown
+              ? ":crown:"
+              : index + "."
+          } ${el.discord_username} — **${
+            el.userplaycount
+          } play(s)** ${diff_str}`;
         }
       );
-
+    if (min_count_text) {
+      fields_embed.embed.addField("\u200b", min_count_text);
+    }
     let footer_text = `Psst, try ${server_prefix}about to find the support server.`;
     if (last_log) {
       footer_text = `Last checked ${time_difference(last_log.timestamp)} ago.`;
@@ -238,21 +253,25 @@ class WhoKnowsCommand extends Command {
       .setTitle(`Who knows ${artist.name} in ${message.guild?.name}?`)
       .setFooter(footer_text);
 
-    fields_embed.on("start", () => {
-      message.channel.stopTyping();
-      if (!message.guild) throw "won't happen, TS.";
-      if (last_crown) {
-        const last_user = message.guild.members.cache.find(
-          (user) => user.id === last_crown.userID
-        );
-        if (last_user && last_user.user.id !== top_user.user_id) {
-          response.reply = false;
-          response.text = `**${top_user.discord_username}** took the *${artist.name}* crown from **${last_user.user.username}**.`;
-          response.send();
+    if (parseInt(top_user.userplaycount) >= min_plays_for_crown) {
+      fields_embed.on("start", () => {
+        message.channel.stopTyping();
+        if (!message.guild) throw "won't happen, TS.";
+        if (last_crown) {
+          const last_user = message.guild.members.cache.find(
+            (user) => user.id === last_crown.userID
+          );
+          if (last_user && last_user.user.id !== top_user.user_id) {
+            response.reply = false;
+            response.text = `**${top_user.discord_username}** took the *${artist.name}* crown from **${last_user.user.username}**.`;
+            response.send();
+          }
         }
-      }
-    });
-    await db.update_crown(top_user);
+      });
+      await db.update_crown(top_user);
+    } else {
+      message.channel.stopTyping();
+    }
     await db.log_whoknows(artist.name, leaderboard, message.guild.id);
     await fields_embed.build();
   }

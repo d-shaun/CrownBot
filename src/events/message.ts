@@ -12,6 +12,9 @@ export default async (client: CrownBot, message: Message) => {
   if (!client.prefixes) {
     await client.cache_prefixes();
   }
+  if (!client.server_configs) {
+    await client.cache_configs();
+  }
 
   const response = new BotMessage({ client, message, text: "", reply: true });
 

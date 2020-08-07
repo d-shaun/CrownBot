@@ -3,6 +3,7 @@ import moment from "moment";
 import { Model } from "mongoose";
 import User from "../classes/User";
 import { LeaderboardInterface } from "../interfaces/LeaderboardInterface";
+import { ServerConfigInterface } from "../models/ServerConfig";
 
 export default class DB {
   #models: { [key: string]: Model<any> };
@@ -117,20 +118,20 @@ export default class DB {
     );
   }
   async opt_out(message: Message): Promise<void> {
-    if (!message.guild) throw "Shut up, typescript.";
+    if (!message.guild) throw "Shut up, TypeScript.";
     await this.#models.optins.findOneAndRemove(
       {
         type: "beta",
         guild_ID: message.guild.id,
       },
       {
-        //@ts-ignore
+        // @ts-ignore
         useFindAndModify: false,
       }
     );
   }
   async opt_in(message: Message): Promise<void> {
-    if (!message.guild) throw "Shut up, typescript.";
+    if (!message.guild) throw "Shut up, TypeScript.";
     await this.#models.optins.findOneAndUpdate(
       {
         type: "beta",
@@ -152,7 +153,7 @@ export default class DB {
     );
   }
   async check_optin(message: Message): Promise<boolean> {
-    if (!message.guild) throw "Shut up, typescript.";
+    if (!message.guild) throw "Shut up, TypeScript.";
     const beta_log = await this.#models.optins
       .findOne({
         type: "beta",
@@ -160,5 +161,21 @@ export default class DB {
       })
       .lean();
     return !!beta_log;
+  }
+
+  async server_config(message: Message) {
+    if (!message.guild) throw "Shut up, TypeScript.";
+    const server_config: ServerConfigInterface = await this.#models.serverconfig.findOne(
+      {
+        guild_ID: message.guild.id,
+      }
+    );
+    if (!server_config) {
+      return new this.#models.serverconfig({
+        guild_ID: message.guild.id,
+        min_plays_for_crowns: 1,
+      });
+    }
+    return server_config;
   }
 }
