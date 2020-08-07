@@ -3,6 +3,7 @@ import fs from "fs";
 import { model } from "mongoose";
 import path from "path";
 import CrownBotClass from "../classes/CrownBot";
+import { ServerConfigInterface } from "../models/ServerConfig";
 class CrownBot extends CrownBotClass {
   async init() {
     await super.load_db();
@@ -46,7 +47,6 @@ class CrownBot extends CrownBotClass {
     });
   }
 
-  async test() {}
   async cache_prefixes() {
     interface PrefixInterface {
       _id: string;
@@ -73,6 +73,20 @@ class CrownBot extends CrownBotClass {
       }
     }
     throw "No guild ID found to fetch prefixes of; probably running in DM?";
+  }
+
+  async cache_configs() {
+    const configs: ServerConfigInterface[] = await this.models.serverconfig.find();
+    this.server_configs = configs;
+    console.log(`initialized ${configs.length} server config(s)`);
+  }
+
+  get_cached_config(message: Message): ServerConfigInterface | undefined {
+    const config = this.server_configs?.find(
+      (config) => config.guild_ID === message.guild?.id
+    );
+    if (config) return config;
+    return undefined;
   }
 }
 
