@@ -8,4 +8,5 @@ export interface LeaderboardInterface {
   user_tag: string;
   guild_id: string | undefined;
   last_count?: string;
+  is_new?: boolean;
 }
