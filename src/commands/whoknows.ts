@@ -187,6 +187,8 @@ class WhoKnowsCommand extends Command {
         });
         if (log) {
           entry.last_count = log.userplaycount;
+        } else {
+          entry.is_new = true;
         }
         return entry;
       });
@@ -229,16 +231,18 @@ class WhoKnowsCommand extends Command {
               count_diff > 1 ? "plays" : "play"
             })`;
           }
+          if (elem.is_new) {
+            diff_str = " ― :new:";
+          }
           const index =
             leaderboard.findIndex((e) => e.user_id === elem.user_id) + 1;
 
-          return `${
+          const indicator = `${
             index === 1 && el.userplaycount >= min_plays_for_crown
               ? ":crown:"
               : index + "."
-          } ${el.discord_username} — **${
-            el.userplaycount
-          } play(s)** ${diff_str}`;
+          }`;
+          return `${indicator} ${el.discord_username} — **${el.userplaycount} play(s)** ${diff_str}`;
         }
       );
     if (min_count_text) {
