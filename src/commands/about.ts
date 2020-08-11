@@ -24,6 +24,7 @@ class AboutCommand extends Command {
       .addField("Prefix", server_prefix)
       .addField("Status", "stable")
       .addField("Maintainer", "shaun#4761")
+      .addField("Repository", "<https://github.com/d-shaun/CrownBot/>")
       .addField(
         "Invite link",
         "https://discordapp.com/api/oauth2/authorize?client_id=636075999154536449&permissions=288832&scope=bot"
