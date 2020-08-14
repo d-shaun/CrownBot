@@ -153,6 +153,17 @@ export default class LastFMUser {
     return stat;
   }
 
+  async get_album_tracks(artist_name: string, album_name: string) {
+    const response = await Axios.get(
+      `https://www.last.fm/user/${this.username}/library/music/${artist_name}/${album_name}`
+    );
+    if (response.status !== 200) {
+      return undefined;
+    }
+    const stat = this.parse_chartpage(response.data);
+    return stat;
+  }
+
   parse_library_scrobbles(data: string) {
     const $ = cheerio.load(data);
     const items = $(".page-content")
