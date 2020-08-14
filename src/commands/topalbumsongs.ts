@@ -23,7 +23,126 @@ class TopAlbumSongs extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: String[]) {
+  async run(client: CrownBot, message: Message, args: string[]) {
+    const server_prefix = client.get_cached_prefix(message);
+    const response = new BotMessage({
+      client,
+      message,
+      reply: true,
+      text: "",
+    });
+    const db = new DB(client.models);
+    const user = await db.fetch_user(message.author.id);
+    if (!user) return;
+
+    const lastfm_user = new LastFMUser({
+      discord_ID: message.author.id,
+      username: user.username,
+    });
+
+    let artist_name;
+    let album_name;
+    if (args.length === 0) {
+      const now_playing = await lastfm_user.get_nowplaying(client, message);
+      if (!now_playing) return;
+      artist_name = now_playing.artist["#text"];
+      album_name = now_playing.album["#text"];
+    } else {
+      let str = args.join(" ");
+      let str_array = str.split("||");
+      if (str_array.length !== 2) {
+        const { status, data } = await new LastFM().search_album(
+          str_array.join().trim()
+        );
+        if (data.error) {
+          response.text = new Template(client, message).get("lastfm_error");
+          await response.send();
+          return;
+        }
+        let album = data.results.albummatches.album[0];
+
+        if (!album) {
+          response.text = `Couldn't find the album; try providing artist name—see ${cb(
+            "help tas",
+            server_prefix
+          )}.`;
+          await response.send();
+          return;
+        }
+        artist_name = album.artist;
+        album_name = album.name;
+      } else {
+        album_name = str_array[0].trim();
+        artist_name = str_array[1].trim();
+      }
+    }
+    const { data } = <AxiosResponse>await new LastFM().query({
+      method: "album.getinfo",
+      params: {
+        album: album_name,
+        artist: artist_name,
+        username: user.username,
+        autocorrect: 1,
+      },
+    });
+    if (data.error || !data.album) {
+      response.text = new Template(client, message).get("lastfm_error");
+      await response.send();
+      return;
+    }
+    const album: AlbumInterface = data.album;
+    const album_tracks = await lastfm_user.get_album_tracks(
+      album.artist,
+      album.name
+    );
+    if (!album_tracks) {
+      response.text = new Template(client, message).get("lastfm_error");
+      await response.send();
+      return;
+    }
+    if (!album_tracks.length) {
+      response.text = "Couldn't find any tracks that you *may* have scrobbled.";
+      await response.send();
+      return;
+    }
+
+    const total_scrobbles = album_tracks.reduce((a, b) => a + b.plays, 0);
+
+    const fields_embed = new FieldsEmbed()
+      .setArray(album_tracks)
+      .setAuthorizedUsers([])
+      .setChannel(<TextChannel>message.channel)
+      .setElementsPerPage(15)
+      .setPageIndicator(true, "hybrid")
+      .setDisabledNavigationEmojis(["delete"])
+      .formatField(
+        `Track plays — ${album_tracks.length} tracks · ${total_scrobbles} plays`,
+        (el: any) => {
+          const elem: {
+            name: string;
+            plays: number;
+          } = el;
+          const index = album_tracks.findIndex((e) => e.name === elem.name) + 1;
+          return `${index}. ${elem.name} — **${elem.plays} play(s)**`;
+        }
+      );
+    fields_embed.embed
+      .setColor(message.member?.displayColor || "000000")
+      .setTitle(
+        `${message.author.username}'s top-played tracks from the album ${cb(
+          album.name
+        )}`
+      )
+      .setFooter(`${album.name}—${album.artist}`);
+
+    fields_embed.on("start", () => {
+      message.channel.stopTyping();
+    });
+    await fields_embed.build();
+  }
+
+  // uses the Last.fm API instead of scraping their pages
+  async run_alternate(client: CrownBot, message: Message, args: String[]) {
     const server_prefix = client.get_cached_prefix(message);
     const response = new BotMessage({
       client,

@@ -27,7 +27,95 @@ class TopAlbumsCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: String[]) {
+  async run(client: CrownBot, message: Message, args: string[]) {
+    const server_prefix = client.get_cached_prefix(message);
+    const response = new BotMessage({
+      client,
+      message,
+      reply: true,
+      text: "",
+    });
+    const db = new DB(client.models);
+    const user = await db.fetch_user(message.author.id);
+    if (!user) return;
+
+    const lastfm_user = new LastFMUser({
+      discord_ID: message.author.id,
+      username: user.username,
+    });
+
+    let artist_name;
+    if (args.length === 0) {
+      const now_playing = await lastfm_user.get_nowplaying(client, message);
+      if (!now_playing) return;
+      artist_name = now_playing.artist["#text"];
+    } else {
+      artist_name = args.join(" ");
+    }
+    const { status, data } = await new LastFM().query({
+      method: "artist.getinfo",
+      params: {
+        artist: artist_name,
+        username: user.username,
+        autocorrect: 1,
+      },
+    });
+    if (status !== 200 || data.error) {
+      response.text = new Template(client, message).get("lastfm_error");
+      await response.send();
+      return;
+    }
+    const artist: ArtistInterface = data.artist;
+    if (
+      !artist.stats.userplaycount ||
+      parseInt(artist.stats.userplaycount) <= 0
+    ) {
+      response.text = `You haven't listened to \`${artist.name}\``;
+      await response.send();
+      return;
+    }
+    const albums = await lastfm_user.get_albums(artist.name);
+    if (!albums) {
+      response.text = new Template(client, message).get("lastfm_error");
+      await response.send();
+      return;
+    }
+    if (!albums.length) {
+      response.text = "Couldn't find any album that you *may* have scrobbled.";
+      await response.send();
+      return;
+    }
+    const total_scrobbles = albums.reduce((a, b) => a + b.plays, 0);
+
+    const fields_embed = new FieldsEmbed()
+      .setArray(albums)
+      .setAuthorizedUsers([])
+      .setChannel(<TextChannel>message.channel)
+      .setElementsPerPage(15)
+      .setPageIndicator(true, "hybrid")
+      .setDisabledNavigationEmojis(["delete"])
+      .formatField(`Album plays — ${albums.length} albums`, (el: any) => {
+        const elem: {
+          name: string;
+          plays: number;
+        } = el;
+        const index = albums.findIndex((e) => e.name === elem.name) + 1;
+        return `${index}. ${elem.name} — **${elem.plays} play(s)**`;
+      });
+    fields_embed.embed
+      .setColor(message.member?.displayColor || "000000")
+      .setTitle(
+        `${message.author.username}'s top-played albums by \`${artist.name}\``
+      )
+      .setFooter(`Psst, try ${server_prefix}about to find the support server.`);
+    fields_embed.on("start", () => {
+      message.channel.stopTyping();
+    });
+    await fields_embed.build();
+  }
+
+  // Uses the Last.fm API instead of scraping their pages
+  async run_alternate(client: CrownBot, message: Message, args: String[]) {
     const server_prefix = client.get_cached_prefix(message);
     const response = new BotMessage({
       client,
