@@ -9,8 +9,14 @@ import CrownBot from "./CrownBot";
 import { LastFM } from "./LastFM";
 export default class LastFMUser {
   username: string;
-  discord_id?: string;
-  constructor({ username, discord_ID }: { [key: string]: string }) {
+  discord_id?: string | number;
+  constructor({
+    username,
+    discord_ID,
+  }: {
+    username: string;
+    discord_ID: string | number;
+  }) {
     if (!username && !discord_ID) {
       throw "Failed to initialize new LastFMUser without username and Discord ID.";
     }
