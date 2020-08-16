@@ -115,7 +115,7 @@ class TopAlbumsCommand extends Command {
   }
 
   // Uses the Last.fm API instead of scraping their pages
-  async run_alternate(client: CrownBot, message: Message, args: String[]) {
+  async run_alternate(client: CrownBot, message: Message, args: string[]) {
     const server_prefix = client.get_cached_prefix(message);
     const response = new BotMessage({
       client,

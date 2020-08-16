@@ -21,7 +21,7 @@ class PlayingCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: String[]) {
+  async run(client: CrownBot, message: Message, args: string[]) {
     const server_prefix = client.get_cached_prefix(message);
     const response = new BotMessage({
       client,

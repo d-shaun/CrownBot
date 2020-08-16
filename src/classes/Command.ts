@@ -146,6 +146,6 @@ export default class Command {
   async run(
     client: CrownBot,
     message: Message,
-    args: String[]
+    args: string[]
   ): Promise<void> {}
 }

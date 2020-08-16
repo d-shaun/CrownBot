@@ -12,7 +12,7 @@ class PermissionsCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: String[]) {
+  async run(client: CrownBot, message: Message, args: string[]) {
     if (!message.guild || !message.guild.me) return;
     const bot_permissions = (<TextChannel>message.channel).permissionsFor(
       message.guild.me

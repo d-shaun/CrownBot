@@ -19,7 +19,7 @@ class OverviewCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: String[]) {
+  async run(client: CrownBot, message: Message, args: string[]) {
     const db = new DB(client.models);
     const user = await db.fetch_user(message.author.id);
     const response = new BotMessage({ client, message, text: "", reply: true });
