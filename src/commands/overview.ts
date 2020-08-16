@@ -12,9 +12,13 @@ class OverviewCommand extends Command {
     super({
       name: "overview",
       description: "Displays user's scrobble overview for an artist.",
-      usage: ["overview", "overview <artist name>"],
+      usage: [
+        "overview",
+        "overview <artist name>",
+        "overview <artist name> @user",
+      ],
       aliases: ["o", "ov"],
-      examples: ["overview Devin Townsend", "overview Joy Division"],
+      examples: ["overview Devin Townsend", "overview Joy Division @user"],
       require_login: true,
     });
   }
