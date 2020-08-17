@@ -9,6 +9,7 @@ interface OptionInterface {
   api_key: string;
   access_token?: string;
   mongo: string;
+  genius_api?: string;
   prefixes?: {};
   url?: string;
 }
@@ -33,8 +34,8 @@ class CrownBotClass extends Client {
   url = "https://ws.audioscrobbler.com/2.0/?";
   commands: Command[] = [];
   models: { [key: string]: Model<any> } = {};
-
   mongoose: any;
+  genius_api?: string;
 
   constructor(options: OptionInterface) {
     super();
@@ -44,6 +45,7 @@ class CrownBotClass extends Client {
     this.#api_key = options.api_key;
     this.access_token = options.access_token;
     this.#mongo = options.mongo;
+    this.genius_api = options.genius_api;
   }
 
   async log_in() {
