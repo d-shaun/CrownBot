@@ -10,7 +10,14 @@ MONGO: Mongo DB connection string
 
 */
 
-const { TOKEN, OWNER_ID, API_KEY, ACCESS_TOKEN, MONGO } = process.env;
+const {
+  TOKEN,
+  OWNER_ID,
+  API_KEY,
+  ACCESS_TOKEN,
+  MONGO,
+  GENIUS_API,
+} = process.env;
 if (!(TOKEN && OWNER_ID && API_KEY && MONGO)) {
   throw "Some of the environment variables are missing.";
 }
@@ -21,6 +28,7 @@ new CrownBot({
   api_key: API_KEY,
   access_token: ACCESS_TOKEN,
   mongo: MONGO,
+  genius_api: GENIUS_API,
 }).init();
 
 // debugger;
