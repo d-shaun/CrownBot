@@ -141,6 +141,11 @@ class LyricsCommand extends Command {
       return;
     }
     let lyrics = `**${song.title}** by **${song.primary_artist.name}**\n\n${original_lyrics}`;
+    if (lyrics.length > 6000) {
+      response.text = "Couldn't find lyrics for the song.";
+      await response.send();
+      return;
+    }
     const lyrics_chunks = toChunks(lyrics);
     if (!lyrics_chunks || !lyrics_chunks.length) {
       throw "toChunks() failed.";
