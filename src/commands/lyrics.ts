@@ -99,7 +99,7 @@ class LyricsCommand extends Command {
 
     const lyricist = new Lyricist(client.genius_api);
     const song = (
-      await lyricist.search(`${track.artist.name} ${track.name}`)
+      await lyricist.search(`${track.name} ${track.artist.name}`)
     )[0];
     if (!song) {
       response.text = "Couldn't find the song on Genius.";
@@ -118,31 +118,42 @@ class LyricsCommand extends Command {
       const lyrics_chunks = toChunks(db_entry.lyrics);
       if (lyrics_chunks && lyrics_chunks.length) {
         response.reply = false;
-
+        let i = 1;
         for (const lyric of lyrics_chunks) {
-          response.text = lyric;
+          if (i === lyrics_chunks.length) {
+            response.footer = "Lyrics scraped from Genius · cached";
+          }
+          let lyrics = `**${db_entry.track_name}** by **${db_entry.artist_name}**\n\n${lyric}`;
+
+          response.text = lyrics;
           await response.send();
+          i++;
         }
         return;
       }
     }
 
     const song_info = await lyricist.song(song.id, { fetchLyrics: true });
-    let lyrics = song_info.lyrics;
-    if (!lyrics) {
+    const original_lyrics = song_info.lyrics;
+    if (!original_lyrics) {
       response.text = "Couldn't parse lyrics for the song.";
       await response.send();
       return;
     }
-    lyrics = `**${track.name}** by **${track.artist.name}**\n\n${lyrics}`;
+    let lyrics = `**${song.title}** by **${song.primary_artist.name}**\n\n${original_lyrics}`;
     const lyrics_chunks = toChunks(lyrics);
     if (!lyrics_chunks || !lyrics_chunks.length) {
       throw "toChunks() failed.";
     }
     response.reply = false;
+    let i = 1;
     for (const lyric of lyrics_chunks) {
+      if (i === lyrics_chunks.length) {
+        response.footer = "Lyrics scraped from Genius";
+      }
       response.text = lyric;
       await response.send();
+      i++;
     }
     const timestamp = moment.utc().valueOf();
 
@@ -152,8 +163,9 @@ class LyricsCommand extends Command {
       },
       <LyricsLogInterface>{
         id: song.id,
-        name: track.name,
-        lyrics,
+        track_name: song.title,
+        artist_name: song.primary_artist.name,
+        lyrics: original_lyrics,
         timestamp,
       },
       {
