@@ -9,7 +9,7 @@ export class Template {
       {
         id: "not_logged",
         text:
-          `You are not logged into the bot; ` +
+          `You are not logged into the bot in this server; ` +
           `please set your Last.fm username with the ` +
           `${cb("login", prefix)} commmand (see ${cb(
             "help login",
