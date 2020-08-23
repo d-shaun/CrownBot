@@ -61,7 +61,7 @@ export default class DB {
         useFindAndModify: false,
       } as any));
     } else {
-      return !!(await this.#models.serverusers.findOneAndRemove(
+      return !!(await this.#models.serverusers.deleteMany(
         { guildID: guild_ID, userID: user_ID },
         {
           useFindAndModify: false,
