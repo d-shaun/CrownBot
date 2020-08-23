@@ -9,13 +9,23 @@ export class Template {
       {
         id: "not_logged",
         text:
-          `You are not logged-in to the bot; ` +
+          `You are not logged into the bot; ` +
           `please set your Last.fm username with the ` +
-          `${cb("login", prefix)} commmand (see ${cb("help login", prefix)}).`,
+          `${cb("login", prefix)} commmand (see ${cb(
+            "help login",
+            prefix
+          )}).\n\n\n` +
+          `Note: The bot now uses **per-server login**; all users logged in before August 2020 ` +
+          `have been logged out.\n\n` +
+          `If you were previously logged into the bot, running ${cb(
+            "login",
+            prefix
+          )} ` +
+          `will automatically register your username in this server.`,
       },
       {
         id: "already_logged",
-        text: `You already are logged-in to the bot; 
+        text: `You already are logged into the bot; 
         send ${cb("me", prefix)} to see your username 
         and ${cb("logout", prefix)} to logout.`,
       },
@@ -38,6 +48,6 @@ export class Template {
     if (!template) {
       throw "No template with the ID found: " + id;
     }
-    return template.text.split("\n").join("");
+    return template.text;
   }
 }
