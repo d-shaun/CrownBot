@@ -17,7 +17,7 @@ export default class DB {
     username: string
   ): Promise<User> {
     if (!guild_ID) throw "Guild ID not specified";
-    return await this.#models.users.create({
+    return await this.#models.serverusers.create({
       guildID: guild_ID,
       userID: user_ID,
       username,
@@ -28,7 +28,7 @@ export default class DB {
     guild_ID: string | undefined,
     user_ID: string
   ): Promise<User | undefined> {
-    const user = await this.#models.users.findOne({
+    const user = await this.#models.serverusers.findOne({
       guildID: guild_ID,
       userID: user_ID,
     });
@@ -40,7 +40,7 @@ export default class DB {
     user_ID: string
   ): Promise<boolean> {
     // TODO: "global" option
-    return !!(await this.#models.users.findOneAndRemove(
+    return !!(await this.#models.serverusers.findOneAndRemove(
       { guildID: guild_ID, userID: user_ID },
       {
         useFindAndModify: false,
