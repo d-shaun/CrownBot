@@ -11,19 +11,31 @@ export default class DB {
     this.#models = models;
   }
 
-  async add_user(user_ID: string, username: string): Promise<User> {
+  async add_user(
+    guild_ID: string | undefined,
+    user_ID: string,
+    username: string
+  ): Promise<User> {
     return await this.#models.users.create({
+      guildID: guild_ID,
       userID: user_ID,
       username,
     });
   }
 
-  async fetch_user(user_ID: string): Promise<User | undefined> {
-    const user = await this.#models.users.findOne({ userID: user_ID });
+  async fetch_user(
+    guild_ID: string | undefined,
+    user_ID: string
+  ): Promise<User | undefined> {
+    const user = await this.#models.users.findOne({
+      guildID: guild_ID,
+      userID: user_ID,
+    });
     return user;
   }
 
-  async remove_user(user_ID: string): Promise<boolean> {
+  async remove_user(guild_ID: string, user_ID: string): Promise<boolean> {
+    // TODO: "global" option
     return !!(await this.#models.users.findOneAndRemove({ userID: user_ID }, {
       useFindAndModify: false,
     } as any));
