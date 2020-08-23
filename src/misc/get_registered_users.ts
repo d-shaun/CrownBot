@@ -18,6 +18,7 @@ export default async function get_registered_users(
   if (!user_ids) throw "Failed to fetch guild members.";
   const all_users: UserInterface[] = await client.models.serverusers
     .find({
+      guildID: message.guild.id,
       userID: {
         $in: user_ids,
       },
