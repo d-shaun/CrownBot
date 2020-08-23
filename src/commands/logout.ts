@@ -10,7 +10,7 @@ class LogoutCommand extends Command {
     super({
       name: "logout",
       description: "Logs user out of the bot.",
-      usage: ["logout"],
+      usage: ["logout", "logout global"],
       aliases: [],
       required_permissions: ["MANAGE_MESSAGES"],
     });
@@ -27,6 +27,33 @@ class LogoutCommand extends Command {
       text: "",
     });
 
+    if (args[0] === "global") {
+      const user = await db.fetch_user(undefined, message.author.id, true);
+      if (!user) {
+        response.text = `You aren't logged into the bot in any server; use the ${cb(
+          "login",
+          prefix
+        )} command to login.`;
+        await response.send();
+        return;
+      }
+
+      if (await db.remove_user(undefined, message.author.id, true)) {
+        response.text = `You have been logged out from the bot globally.`;
+      } else {
+        response.text = new Template(client, message).get("exception");
+      }
+      await response.send();
+      return;
+    } else if (args[0]) {
+      response.text = `Invalid argument passed; see ${cb(
+        "help logout",
+        prefix
+      )}.`;
+      await response.send();
+      return;
+    }
+
     const user = await db.fetch_user(message.guild?.id, message.author.id);
     if (!user) {
       response.text = `You aren't logged in; use the ${cb(
@@ -41,7 +68,7 @@ class LogoutCommand extends Command {
       client,
       message,
       text:
-        "Are you sure you want to logout? Click on the reaction to continue.",
+        "Are you sure you want to logout from the bot in this server? Click on the reaction to continue.",
       reply: true,
     }).send();
     await msg.react("✅");
@@ -58,7 +85,10 @@ class LogoutCommand extends Command {
     msg.delete();
     if (reactions.size > 0) {
       if (await db.remove_user(message.guild?.id, message.author.id)) {
-        response.text = "You have been logged out.";
+        response.text = `You have been logged out from the bot in this server; run ${cb(
+          "logout global",
+          prefix
+        )} to logout globally.`;
       } else {
         response.text = new Template(client, message).get("exception");
       }
