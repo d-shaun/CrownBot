@@ -25,7 +25,34 @@ class LoginCommand extends Command {
       reply: true,
       text: "",
     });
+    const db = new DB(client.models);
+    const user = await db.fetch_user(message.guild?.id, message.author.id);
+
     if (args.length === 0) {
+      const legacy_user = await db.legacy_fetch_user(message.author.id);
+      if (legacy_user && !user) {
+        if (
+          await db.add_user(
+            message.guild?.id,
+            message.author.id,
+            legacy_user.username
+          )
+        ) {
+          response.text =
+            `You've been logged into the bot ` +
+            `with your previously set username ${cb(
+              legacy_user.username
+            )} in this server; if you wish to change it, run ${cb(
+              "login <new username>",
+              prefix
+            )}.`;
+        } else {
+          response.text = new Template(client, message).get("exception");
+        }
+        await response.send();
+
+        return;
+      }
       response.text =
         `please provide your Last.fm username along with the login command; ` +
         `see ${cb("help login", prefix)}.`;
@@ -33,8 +60,6 @@ class LoginCommand extends Command {
       return;
     }
 
-    const db = new DB(client.models);
-    const user = await db.fetch_user(message.guild?.id, message.author.id);
     if (user) {
       await db.remove_user(message.guild?.id, message.author.id);
     }
