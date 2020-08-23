@@ -26,12 +26,20 @@ export default class DB {
 
   async fetch_user(
     guild_ID: string | undefined,
-    user_ID: string
+    user_ID: string,
+    global = false
   ): Promise<User | undefined> {
-    const user = await this.#models.serverusers.findOne({
-      guildID: guild_ID,
-      userID: user_ID,
-    });
+    let user;
+    if (global) {
+      user = await this.#models.serverusers.findOne({
+        userID: user_ID,
+      });
+    } else {
+      user = await this.#models.serverusers.findOne({
+        guildID: guild_ID,
+        userID: user_ID,
+      });
+    }
     return user;
   }
 
@@ -44,15 +52,22 @@ export default class DB {
 
   async remove_user(
     guild_ID: string | undefined,
-    user_ID: string
+    user_ID: string,
+    global = false
   ): Promise<boolean> {
     // TODO: "global" option
-    return !!(await this.#models.serverusers.findOneAndRemove(
-      { guildID: guild_ID, userID: user_ID },
-      {
+    if (global) {
+      return !!(await this.#models.serverusers.deleteMany({ userID: user_ID }, {
         useFindAndModify: false,
-      } as any
-    ));
+      } as any));
+    } else {
+      return !!(await this.#models.serverusers.findOneAndRemove(
+        { guildID: guild_ID, userID: user_ID },
+        {
+          useFindAndModify: false,
+        } as any
+      ));
+    }
   }
 
   async ban_user(message: Message, user: DiscordUser): Promise<boolean> {
