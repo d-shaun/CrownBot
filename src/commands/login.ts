@@ -34,7 +34,7 @@ class LoginCommand extends Command {
     }
 
     const db = new DB(client.models);
-    const user = await db.fetch_user(message.author.id);
+    const user = await db.fetch_user(message.guild?.id, message.author.id);
     if (user) {
       await db.remove_user(message.author.id);
     }

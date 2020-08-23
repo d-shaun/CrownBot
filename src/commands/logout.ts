@@ -27,7 +27,7 @@ class LogoutCommand extends Command {
       text: "",
     });
 
-    const user = await db.fetch_user(message.author.id);
+    const user = await db.fetch_user(message.guild?.id, message.author.id);
     if (!user) {
       response.text = `You aren't logged in; use the ${cb(
         "login",

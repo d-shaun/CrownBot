@@ -82,7 +82,7 @@ export default class Command {
     }
 
     if (this.require_login) {
-      const user = await db.fetch_user(message.author.id);
+      const user = await db.fetch_user(message.guild?.id, message.author.id);
       if (!user) {
         response.text = new Template(client, message).get("not_logged");
         await response.send();

@@ -39,7 +39,7 @@ class TasteCommand extends Command {
       return;
     }
 
-    const u1 = await db.fetch_user(message.author.id);
+    const u1 = await db.fetch_user(message.guild?.id, message.author.id);
     const u2 = await db.fetch_user(user_two.id);
     if (!(u1 && u2)) {
       response.text =
