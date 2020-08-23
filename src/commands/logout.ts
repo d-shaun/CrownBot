@@ -57,7 +57,7 @@ class LogoutCommand extends Command {
     );
     msg.delete();
     if (reactions.size > 0) {
-      if (await db.remove_user(message.author.id)) {
+      if (await db.remove_user(message.guild?.id, message.author.id)) {
         response.text = "You have been logged out.";
       } else {
         response.text = new Template(client, message).get("exception");

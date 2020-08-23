@@ -41,7 +41,7 @@ class OverviewCommand extends Command {
         return;
       }
       discord_user = mention.user;
-      user = await db.fetch_user(mention.user.id);
+      user = await db.fetch_user(message.guild?.id, mention.user.id);
       if (!user) {
         response.text = "The mentioned user isn't logged into the bot.";
         response.send();

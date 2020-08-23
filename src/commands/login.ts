@@ -36,7 +36,7 @@ class LoginCommand extends Command {
     const db = new DB(client.models);
     const user = await db.fetch_user(message.guild?.id, message.author.id);
     if (user) {
-      await db.remove_user(message.author.id);
+      await db.remove_user(message.guild?.id, message.author.id);
     }
 
     const username = args.join();
@@ -50,7 +50,7 @@ class LoginCommand extends Command {
       response.text = `Username not found on Last.fm―please check for any misspellings.`;
       await response.send();
     } else if (status === 200 && data.user) {
-      if (await db.add_user(message.author.id, username)) {
+      if (await db.add_user(message.guild?.id, message.author.id, username)) {
         response.text = `Username ${cb(
           username
         )} has been associated to your Discord account.`;

@@ -40,7 +40,7 @@ class TasteCommand extends Command {
     }
 
     const u1 = await db.fetch_user(message.guild?.id, message.author.id);
-    const u2 = await db.fetch_user(user_two.id);
+    const u2 = await db.fetch_user(message.guild?.id, user_two.id);
     if (!(u1 && u2)) {
       response.text =
         "The user hasn't registered their Last.fm username on the bot.";

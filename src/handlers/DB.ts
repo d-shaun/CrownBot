@@ -16,6 +16,7 @@ export default class DB {
     user_ID: string,
     username: string
   ): Promise<User> {
+    if (!guild_ID) throw "Guild ID not specified";
     return await this.#models.users.create({
       guildID: guild_ID,
       userID: user_ID,
@@ -34,11 +35,17 @@ export default class DB {
     return user;
   }
 
-  async remove_user(guild_ID: string, user_ID: string): Promise<boolean> {
+  async remove_user(
+    guild_ID: string | undefined,
+    user_ID: string
+  ): Promise<boolean> {
     // TODO: "global" option
-    return !!(await this.#models.users.findOneAndRemove({ userID: user_ID }, {
-      useFindAndModify: false,
-    } as any));
+    return !!(await this.#models.users.findOneAndRemove(
+      { guildID: guild_ID, userID: user_ID },
+      {
+        useFindAndModify: false,
+      } as any
+    ));
   }
 
   async ban_user(message: Message, user: DiscordUser): Promise<boolean> {
