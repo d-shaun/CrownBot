@@ -32,7 +32,7 @@ class TopAlbumSongs extends Command {
       text: "",
     });
     const db = new DB(client.models);
-    const user = await db.fetch_user(message.author.id);
+    const user = await db.fetch_user(message.guild?.id, message.author.id);
     if (!user) return;
 
     const lastfm_user = new LastFMUser({
@@ -151,7 +151,7 @@ class TopAlbumSongs extends Command {
       text: "",
     });
     const db = new DB(client.models);
-    const user = await db.fetch_user(message.author.id);
+    const user = await db.fetch_user(message.guild?.id, message.author.id);
     if (!user) return;
 
     const lastfm_user = new LastFMUser({

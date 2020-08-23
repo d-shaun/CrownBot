@@ -61,7 +61,7 @@ export interface ShortenedTrackInterface {
   streamable: string;
   url: string;
 }
-// TODO: verify API response
+
 export interface SearchTrackInterface {
   status: number;
   data: {

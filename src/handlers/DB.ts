@@ -11,22 +11,63 @@ export default class DB {
     this.#models = models;
   }
 
-  async add_user(user_ID: string, username: string): Promise<User> {
-    return await this.#models.users.create({
+  async add_user(
+    guild_ID: string | undefined,
+    user_ID: string,
+    username: string
+  ): Promise<User> {
+    if (!guild_ID) throw "Guild ID not specified";
+    return await this.#models.serverusers.create({
+      guildID: guild_ID,
       userID: user_ID,
       username,
     });
   }
 
-  async fetch_user(user_ID: string): Promise<User | undefined> {
-    const user = await this.#models.users.findOne({ userID: user_ID });
+  async fetch_user(
+    guild_ID: string | undefined,
+    user_ID: string,
+    global = false
+  ): Promise<User | undefined> {
+    let user;
+    if (global) {
+      user = await this.#models.serverusers.findOne({
+        userID: user_ID,
+      });
+    } else {
+      user = await this.#models.serverusers.findOne({
+        guildID: guild_ID,
+        userID: user_ID,
+      });
+    }
     return user;
   }
 
-  async remove_user(user_ID: string): Promise<boolean> {
-    return !!(await this.#models.users.findOneAndRemove({ userID: user_ID }, {
-      useFindAndModify: false,
-    } as any));
+  async legacy_fetch_user(user_ID: string): Promise<User | undefined> {
+    const user = await this.#models.users.findOne({
+      userID: user_ID,
+    });
+    return user;
+  }
+
+  async remove_user(
+    guild_ID: string | undefined,
+    user_ID: string,
+    global = false
+  ): Promise<boolean> {
+    // TODO: "global" option
+    if (global) {
+      return !!(await this.#models.serverusers.deleteMany({ userID: user_ID }, {
+        useFindAndModify: false,
+      } as any));
+    } else {
+      return !!(await this.#models.serverusers.deleteMany(
+        { guildID: guild_ID, userID: user_ID },
+        {
+          useFindAndModify: false,
+        } as any
+      ));
+    }
   }
 
   async ban_user(message: Message, user: DiscordUser): Promise<boolean> {

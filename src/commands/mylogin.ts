@@ -23,7 +23,7 @@ class MyLoginCommand extends Command {
       text: "",
     });
     const db = new DB(client.models);
-    const user = await db.fetch_user(message.author.id);
+    const user = await db.fetch_user(message.guild?.id, message.author.id);
     if (!user) return;
     response.text = `your Last.fm username is \`\`${user.username}\`\` ([visit](https://last.fm/user/${user.username})).`;
     await response.send();

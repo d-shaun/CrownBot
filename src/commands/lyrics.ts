@@ -33,7 +33,7 @@ class LyricsCommand extends Command {
     }
     const server_prefix = client.get_cached_prefix(message);
     const db = new DB(client.models);
-    const user = await db.fetch_user(message.author.id);
+    const user = await db.fetch_user(message.guild?.id, message.author.id);
     if (!user) return;
     if (!message.guild) return;
 

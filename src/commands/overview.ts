@@ -41,7 +41,7 @@ class OverviewCommand extends Command {
         return;
       }
       discord_user = mention.user;
-      user = await db.fetch_user(mention.user.id);
+      user = await db.fetch_user(message.guild?.id, mention.user.id);
       if (!user) {
         response.text = "The mentioned user isn't logged into the bot.";
         response.send();
@@ -50,14 +50,17 @@ class OverviewCommand extends Command {
       args.pop();
     } else {
       discord_user = message.author;
-      user = await db.fetch_user(message.author.id);
+      user = await db.fetch_user(message.guild?.id, message.author.id);
     }
     if (!user) return;
     const lastfm_user = new LastFMUser({
       discord_ID: user.user_ID,
       username: user.username,
     });
-    const author_db_user = await db.fetch_user(message.author.id);
+    const author_db_user = await db.fetch_user(
+      message.guild?.id,
+      message.author.id
+    );
     if (!author_db_user) return;
     const author_user = new LastFMUser({
       username: author_db_user.username,

@@ -1,9 +1,6 @@
-import CrownBotClass from "../../classes/CrownBot";
 import { Message, MessageReaction, User } from "discord.js";
-import CrownBot from "../../handlers/CrownBot";
 import BotMessage from "../../handlers/BotMessage";
-import { Template } from "../../classes/Template";
-import { ModelOptions } from "mongoose";
+import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
 
 export default class MinPlaysForCrown {
