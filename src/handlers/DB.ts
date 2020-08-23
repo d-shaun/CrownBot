@@ -35,6 +35,13 @@ export default class DB {
     return user;
   }
 
+  async legacy_fetch_user(user_ID: string): Promise<User | undefined> {
+    const user = await this.#models.users.findOne({
+      userID: user_ID,
+    });
+    return user;
+  }
+
   async remove_user(
     guild_ID: string | undefined,
     user_ID: string
