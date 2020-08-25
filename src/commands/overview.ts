@@ -103,7 +103,6 @@ class OverviewCommand extends Command {
     }
     const albums = await lastfm_user.get_albums(artist.name);
     const tracks = await lastfm_user.get_tracks(artist.name);
-
     if (!albums || !tracks) {
       response.text = new Template(client, message).get("lastfm_error");
       await response.send();
@@ -122,9 +121,15 @@ class OverviewCommand extends Command {
         "Scrobbles",
         `**${artist.stats.userplaycount}** plays—**${albums.length}** albums · **${tracks.length}** tracks`,
         false
-      )
-      .addField("Top albums", album_str.join("\n"), true)
-      .addField("Top tracks", track_str.join("\n"), true);
+      );
+
+    if (album_str.length) {
+      embed.addField("Top albums", album_str.join("\n"), true);
+    }
+    if (track_str.length) {
+      embed.addField("Top tracks", track_str.join("\n"), true);
+    }
+
     await message.channel.send(embed);
   }
 }
