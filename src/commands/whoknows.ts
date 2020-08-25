@@ -254,7 +254,7 @@ class WhoKnowsCommand extends Command {
     }
     fields_embed.embed
       .setColor(message.member?.displayColor || "000000")
-      .setTitle(`Who knows ${artist.name} in ${message.guild?.name}?`)
+      .setTitle(`Who knows ${artist.name}?`)
       .setFooter(footer_text);
 
     if (parseInt(top_user.userplaycount) >= min_plays_for_crown) {
