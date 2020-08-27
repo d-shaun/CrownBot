@@ -139,7 +139,9 @@ export default class LastFMUser {
 
   async get_albums(artist_name: string) {
     const response = await Axios.get(
-      `https://www.last.fm/user/${this.username}/library/music/${artist_name}/+albums`
+      `https://www.last.fm/user/${encodeURI(
+        this.username
+      )}/library/music/${encodeURI(artist_name)}/+albums`
     );
     if (response.status !== 200) {
       return undefined;
@@ -150,7 +152,9 @@ export default class LastFMUser {
 
   async get_tracks(artist_name: string) {
     const response = await Axios.get(
-      `https://www.last.fm/user/${this.username}/library/music/${artist_name}/+tracks`
+      `https://www.last.fm/user/${encodeURI(
+        this.username
+      )}/library/music/${encodeURI(artist_name)}/+tracks`
     );
     if (response.status !== 200) {
       return undefined;
@@ -161,7 +165,9 @@ export default class LastFMUser {
 
   async get_album_tracks(artist_name: string, album_name: string) {
     const response = await Axios.get(
-      `https://www.last.fm/user/${this.username}/library/music/${artist_name}/${album_name}`
+      `https://www.last.fm/user/${encodeURI(
+        this.username
+      )}/library/music/${encodeURI(artist_name)}/${encodeURI(album_name)}`
     );
     if (response.status !== 200) {
       return undefined;
@@ -200,7 +206,7 @@ export default class LastFMUser {
 
   generate_promise(date_preset: string, type?: string) {
     return Axios.get(
-      `https://www.last.fm/user/${this.username}/library${
+      `https://www.last.fm/user/${encodeURI(this.username)}/library${
         type ? "/" + type : ""
       }?date_preset=${date_preset}`
     ).then((response) => {
