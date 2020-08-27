@@ -3,7 +3,7 @@ import fs from "fs";
 import { model } from "mongoose";
 import path from "path";
 import CrownBotClass from "../classes/CrownBot";
-import { ServerConfigInterface } from "../models/ServerConfig";
+import { ServerConfigInterface } from "../stable/models/ServerConfig";
 class CrownBot extends CrownBotClass {
   async init() {
     await super.load_db();
@@ -13,16 +13,30 @@ class CrownBot extends CrownBotClass {
   }
 
   load_commands() {
-    const dir: string = path.join(__dirname, "../commands");
-    const commands: string[] = fs.readdirSync(dir);
-    commands.forEach((file: string) => {
-      if (file.endsWith(".js")) {
-        const Command: any = require(path.join(dir, file)).default;
-        const command = new Command();
-        this.commands.push(command);
+    const that = this;
+    const register_commands = function (location: string, beta = false) {
+      const dir: string = path.join(__dirname, location);
+      if (!fs.existsSync(dir)) {
+        return;
       }
-    });
-    return this;
+      const commands: string[] = fs.readdirSync(dir);
+      commands.forEach((file: string) => {
+        if (file.endsWith(".js")) {
+          const Command: any = require(path.join(dir, file)).default;
+          const command = new Command();
+          if (beta) {
+            that.beta_commands.push(command);
+          } else {
+            that.commands.push(command);
+          }
+        }
+      });
+    };
+
+    register_commands("../stable/commands");
+    register_commands("../beta/commands", true);
+
+    return that;
   }
 
   load_events() {
@@ -38,7 +52,7 @@ class CrownBot extends CrownBotClass {
   }
 
   load_models() {
-    const dir: string = path.join(__dirname, "../models");
+    const dir: string = path.join(__dirname, "../stable/models");
     const models: string[] = fs.readdirSync(dir);
     models.forEach((file) => {
       const [model_name] = file.split(".");

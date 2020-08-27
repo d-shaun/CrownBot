@@ -17,7 +17,6 @@ interface CommandInterface {
   allow_banned?: boolean;
   require_login?: boolean;
   required_permissions?: string[];
-  beta?: boolean;
 }
 
 export default class Command {
@@ -43,7 +42,6 @@ export default class Command {
     this.examples = options.examples;
     this.allow_banned = options.allow_banned;
     this.require_login = options.require_login;
-    this.beta = options.beta;
     this.required_permissions = options.required_permissions;
   }
 
@@ -58,12 +56,6 @@ export default class Command {
     if (!message.guild || !message.guild.me) return;
     if (this.owner_only && message.author.id !== client.owner_ID) {
       return;
-    }
-
-    if (this.beta && !override_beta) {
-      if (!(await db.check_optin(message))) {
-        return;
-      }
     }
 
     const ban_info = await check_ban(message, client);
