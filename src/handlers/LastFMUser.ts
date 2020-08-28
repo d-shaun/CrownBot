@@ -7,6 +7,7 @@ import { UserinfoInterface } from "../interfaces/UserinfoInterface";
 import BotMessage from "./BotMessage";
 import CrownBot from "./CrownBot";
 import { LastFM } from "./LastFM";
+const timeout = { timeout: 30 * 1000 }; // 30 seconds timeout
 export default class LastFMUser {
   username: string;
   discord_id?: string | number;
@@ -60,7 +61,7 @@ export default class LastFMUser {
       reply: true,
       text: "",
     });
-    if (data.error) {
+    if (!data || data.error) {
       if (data.error === 6) {
         response.text =
           "User ``" +
@@ -141,7 +142,8 @@ export default class LastFMUser {
     const response = await Axios.get(
       `https://www.last.fm/user/${encodeURI(
         this.username
-      )}/library/music/${encodeURI(artist_name)}/+albums`
+      )}/library/music/${encodeURI(artist_name)}/+albums`,
+      timeout
     );
     if (response.status !== 200) {
       return undefined;
@@ -154,7 +156,8 @@ export default class LastFMUser {
     const response = await Axios.get(
       `https://www.last.fm/user/${encodeURI(
         this.username
-      )}/library/music/${encodeURI(artist_name)}/+tracks`
+      )}/library/music/${encodeURI(artist_name)}/+tracks`,
+      timeout
     );
     if (response.status !== 200) {
       return undefined;
