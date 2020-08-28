@@ -12,7 +12,7 @@ interface ParamInterface extends ParsedUrlQueryInput {
 }
 
 const { API_KEY } = process.env;
-
+const timeout = { timeout: 30 * 1000 }; // 30 seconds timeout
 export class LastFM {
   format = "json";
   #apikey = API_KEY;
@@ -29,7 +29,7 @@ export class LastFM {
     params.format = "json";
     params.method = method;
     const response = await axios
-      .get(this.url + stringify(params))
+      .get(this.url + stringify(params), timeout)
       .then((res) => res)
       .catch(({ response }) => response);
     return response;
