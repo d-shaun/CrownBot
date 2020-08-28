@@ -109,7 +109,7 @@ class TopAlbumsCommand extends Command {
       )
       .setFooter(`Psst, try ${server_prefix}about to find the support server.`);
     fields_embed.on("start", () => {
-      message.channel.stopTyping();
+      message.channel.stopTyping(true);
     });
     await fields_embed.build();
   }
@@ -237,7 +237,7 @@ class TopAlbumsCommand extends Command {
       )
       .setFooter(`Psst, try ${server_prefix}about to find the support server.`);
     fields_embed.on("start", () => {
-      message.channel.stopTyping();
+      message.channel.stopTyping(true);
     });
     await fields_embed.build();
   }

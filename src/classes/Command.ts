@@ -112,11 +112,11 @@ export default class Command {
     message.channel.startTyping();
     try {
       await this.run(client, message, args);
-      message.channel.stopTyping();
+      message.channel.stopTyping(true);
 
       await this.log(client, message);
     } catch (e) {
-      message.channel.stopTyping();
+      message.channel.stopTyping(true);
       console.error(e);
       await this.log(client, message, e.stack);
     }

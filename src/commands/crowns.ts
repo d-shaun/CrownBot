@@ -73,7 +73,7 @@ class CrownsCommand extends Command {
       .setColor(message.member?.displayColor || "000000")
       .setTitle(`Crowns of ${user.username} in ${message.guild.name}`);
     fields_embed.on("start", () => {
-      message.channel.stopTyping();
+      message.channel.stopTyping(true);
     });
     const avatar = user.avatarURL();
     if (avatar) {

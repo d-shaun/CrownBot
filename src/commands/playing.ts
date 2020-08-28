@@ -112,7 +112,7 @@ class PlayingCommand extends Command {
       .setColor(message.member?.displayColor || "000000")
       .setTitle(`What is being played in ${message.guild?.name}?`);
     fields_embed.on("start", () => {
-      message.channel.stopTyping();
+      message.channel.stopTyping(true);
     });
     await fields_embed.build();
   }
