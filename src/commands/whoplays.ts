@@ -133,7 +133,8 @@ class WhoPlaysCommand extends Command {
             },
           })
           .then((res) => {
-            res.data.context = context;
+            // check if response is an object because Last.fm has now started serving empty string
+            if (typeof res.data === "object") res.data.context = context;
             return res;
           })
       );
@@ -262,7 +263,7 @@ class WhoPlaysCommand extends Command {
       )
       .setFooter(footer_text);
     fields_embed.on("start", () => {
-      message.channel.stopTyping();
+      message.channel.stopTyping(true);
     });
     await db.log_whoplays(
       track.name,

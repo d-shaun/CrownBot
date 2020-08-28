@@ -111,7 +111,8 @@ class WhoKnowsCommand extends Command {
             },
           })
           .then((res) => {
-            res.data.context = context;
+            // check if response is an object because Last.fm has now started serving empty string
+            if (typeof res.data === "object") res.data.context = context;
             return res;
           })
       );
@@ -259,7 +260,7 @@ class WhoKnowsCommand extends Command {
 
     if (parseInt(top_user.userplaycount) >= min_plays_for_crown) {
       fields_embed.on("start", () => {
-        message.channel.stopTyping();
+        message.channel.stopTyping(true);
         if (!message.guild) throw "won't happen, TS.";
         if (last_crown) {
           const last_user = message.guild.members.cache.find(
@@ -274,7 +275,7 @@ class WhoKnowsCommand extends Command {
       });
       await db.update_crown(top_user);
     } else {
-      message.channel.stopTyping();
+      message.channel.stopTyping(true);
     }
     await db.log_whoknows(artist.name, leaderboard, message.guild.id);
     await fields_embed.build();
