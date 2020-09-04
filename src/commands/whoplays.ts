@@ -134,7 +134,7 @@ class WhoPlaysCommand extends Command {
           })
           .then((res) => {
             // check if response is an object because Last.fm has now started serving empty string
-            if (typeof res.data === "object") res.data.context = context;
+            if (res && typeof res.data === "object") res.data.context = context;
             return res;
           })
       );
