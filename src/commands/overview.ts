@@ -115,11 +115,19 @@ class OverviewCommand extends Command {
     const track_str = tracks.slice(0, 15).map((track, i) => {
       return `${i + 1}. **${track.name}** (${track.plays})`;
     });
+
+    const has_crown = await client.models.crowns.findOne({
+      artistName: artist.name,
+      guildID: message.guild?.id,
+    });
+
     const embed = new MessageEmbed()
       .setTitle(`\`${artist.name}\` overview for ${discord_user.username}`)
       .addField(
         "Scrobbles",
-        `**${artist.stats.userplaycount}** plays—**${albums.length}** albums · **${tracks.length}** tracks`,
+        `${has_crown ? ":crown:" : ""} **${
+          artist.stats.userplaycount
+        }** plays—**${albums.length}** albums · **${tracks.length}** tracks`,
         false
       );
 
