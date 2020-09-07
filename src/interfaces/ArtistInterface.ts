@@ -43,4 +43,6 @@ export interface TopArtistInterface {
   playcount: string;
   streamable: string;
   url: string;
+  last_count?: string;
+  is_new?: boolean;
 }
