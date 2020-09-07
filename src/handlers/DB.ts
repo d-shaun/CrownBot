@@ -4,6 +4,7 @@ import { Model } from "mongoose";
 import User from "../classes/User";
 import { LeaderboardInterface } from "../interfaces/LeaderboardInterface";
 import { ServerConfigInterface } from "../models/ServerConfig";
+import { TopArtistInterface } from "../interfaces/ArtistInterface";
 
 export default class DB {
   #models: { [key: string]: Model<any> };
@@ -158,6 +159,34 @@ export default class DB {
       }
     );
   }
+
+  // log `&list artist alltime`
+  async log_list_artist(
+    stat: TopArtistInterface[],
+    user_id: string,
+    guild_id: string
+  ) {
+    const timestamp = moment.utc().valueOf();
+
+    return this.#models.listartistlog.findOneAndUpdate(
+      {
+        user_id,
+        guild_id,
+      },
+      {
+        user_id,
+        guild_id,
+        stat,
+        timestamp,
+      },
+      {
+        upsert: true,
+        // @ts-ignore
+        useFindAndModify: false,
+      }
+    );
+  }
+
   async opt_out(message: Message): Promise<void> {
     if (!message.guild) throw "Shut up, TypeScript.";
     await this.#models.optins.findOneAndRemove(
