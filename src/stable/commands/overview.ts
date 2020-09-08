@@ -1,11 +1,11 @@
 import { Message, MessageEmbed, User } from "discord.js";
 import Command from "../../classes/Command";
+import { Template } from "../../classes/Template";
+import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
-import BotMessage from "../../handlers/BotMessage";
-import LastFMUser from "../../handlers/LastFMUser";
 import { LastFM } from "../../handlers/LastFM";
-import { Template } from "../../classes/Template";
+import LastFMUser from "../../handlers/LastFMUser";
 import { ArtistInterface } from "../../interfaces/ArtistInterface";
 
 class OverviewCommand extends Command {
