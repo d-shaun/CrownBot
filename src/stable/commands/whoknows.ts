@@ -1,20 +1,20 @@
 import { AxiosResponse } from "axios";
 import { FieldsEmbed } from "discord-paginationembed";
 import { GuildMember, Message, TextChannel } from "discord.js";
-import { CrownInterface } from "../models/Crowns";
-import { LogInterface } from "../models/WhoKnowsLog";
 import Command from "../../classes/Command";
+import { Template } from "../../classes/Template";
+import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
-import BotMessage from "../../handlers/BotMessage";
-import LastFMUser from "../../handlers/LastFMUser";
 import { LastFM } from "../../handlers/LastFM";
-import { Template } from "../../classes/Template";
+import LastFMUser from "../../handlers/LastFMUser";
 import { ArtistInterface } from "../../interfaces/ArtistInterface";
-import get_registered_users from "../../misc/get_registered_users";
-import cb from "../../misc/codeblock";
 import { LeaderboardInterface } from "../../interfaces/LeaderboardInterface";
+import cb from "../../misc/codeblock";
+import get_registered_users from "../../misc/get_registered_users";
 import time_difference from "../../misc/time_difference";
+import { CrownInterface } from "../models/Crowns";
+import { LogInterface } from "../models/WhoPlaysLog";
 
 class WhoKnowsCommand extends Command {
   constructor() {
