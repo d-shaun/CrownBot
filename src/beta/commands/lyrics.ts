@@ -2,17 +2,16 @@ import { AxiosResponse } from "axios";
 import { Message } from "discord.js";
 import Lyricist from "lyricist";
 import moment from "moment";
-
-import { LyricsLogInterface } from "../models/LyricsLog";
 import Command from "../../classes/Command";
+import { Template } from "../../classes/Template";
+import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
-import BotMessage from "../../handlers/BotMessage";
-import LastFMUser from "../../handlers/LastFMUser";
 import { LastFM } from "../../handlers/LastFM";
-import { Template } from "../../classes/Template";
-import cb from "../../misc/codeblock";
+import LastFMUser from "../../handlers/LastFMUser";
 import { TrackInterface } from "../../interfaces/TrackInterface";
+import cb from "../../misc/codeblock";
+import { LyricsLogInterface } from "../../stable/models/LyricsLog";
 
 class LyricsCommand extends Command {
   constructor() {
