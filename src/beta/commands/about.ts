@@ -22,7 +22,6 @@ class AboutCommand extends Command {
       )
       .addField("Version", "7.0.0-beta")
       .addField("Prefix", server_prefix)
-      .addField("Status", "stable")
       .addField("Maintainer", "shaun#4761")
       .addField("Repository", "<https://github.com/d-shaun/CrownBot/>")
       .addField(
