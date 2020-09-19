@@ -14,6 +14,7 @@ class ConfigCommand extends Command {
       usage: ["config"],
       aliases: [],
       required_permissions: ["MANAGE_MESSAGES"],
+      category: "configure",
     });
   }
 

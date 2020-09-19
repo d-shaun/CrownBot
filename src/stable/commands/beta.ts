@@ -12,6 +12,7 @@ class BetaCommand extends Command {
       description: "Toggles beta features in a server.",
       usage: ["beta"],
       aliases: [],
+      category: "configure",
     });
   }
 

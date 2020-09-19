@@ -12,6 +12,7 @@ class MyLoginCommand extends Command {
       usage: ["mylogin"],
       aliases: ["me"],
       require_login: true,
+      category: "setup",
     });
   }
 

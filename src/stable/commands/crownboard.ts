@@ -11,6 +11,7 @@ class CrownboardCommand extends Command {
       description: "Displays the server's crown leaderboard.",
       usage: ["crownboard", "cb"],
       aliases: ["cb"],
+      category: "serverstat",
     });
   }
 

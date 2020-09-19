@@ -18,6 +18,7 @@ class PlayingCommand extends Command {
         "Displays list of songs being played in a server by registered users.",
       usage: ["playing"],
       aliases: ["pl", "play"],
+      category: "serverstat",
     });
   }
 

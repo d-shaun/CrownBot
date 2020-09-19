@@ -29,6 +29,7 @@ class WhoKnowsCommand extends Command {
       examples: ["whoknows Kwoon", "whoknows Poppy"],
       require_login: true,
       required_permissions: ["MANAGE_MESSAGES"],
+      category: "serverstat",
     });
   }
 

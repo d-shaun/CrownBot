@@ -24,6 +24,7 @@ class ChartCommand extends Command {
       ],
       aliases: ["c"],
       require_login: true,
+      category: "userstat",
     });
   }
 

@@ -12,6 +12,7 @@ class PrefixCommand extends Command {
       usage: ["prefix", "prefix <new_prefix>"],
       aliases: ["pr"],
       examples: ["prefix !", "prefix >"],
+      category: "configure",
     });
   }
 

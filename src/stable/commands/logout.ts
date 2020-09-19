@@ -14,6 +14,7 @@ class LogoutCommand extends Command {
       usage: ["logout", "logout global"],
       aliases: [],
       required_permissions: ["MANAGE_MESSAGES"],
+      category: "setup",
     });
   }
 

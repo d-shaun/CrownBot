@@ -10,6 +10,7 @@ class AboutCommand extends Command {
       usage: ["about"],
       aliases: ["invite"],
       allow_banned: true,
+      category: "setup",
     });
   }
 

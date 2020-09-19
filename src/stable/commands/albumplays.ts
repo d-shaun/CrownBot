@@ -27,6 +27,7 @@ class AlbumPlaysCommand extends Command {
         "albumplays Empath || Devin Townsend",
       ],
       require_login: true,
+      category: "userstat",
     });
   }
 

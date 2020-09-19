@@ -24,6 +24,7 @@ class TopAlbumsCommand extends Command {
       aliases: ["ta", "tpa"],
       examples: ["topalbums Devin Townsend"],
       require_login: true,
+      category: "userstat",
     });
   }
 

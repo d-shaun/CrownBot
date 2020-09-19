@@ -16,6 +16,7 @@ class CrownsCommand extends Command {
       aliases: ["cw"],
       require_login: true,
       required_permissions: ["MANAGE_MESSAGES"],
+      category: "userstat",
     });
   }
 

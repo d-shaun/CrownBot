@@ -20,6 +20,7 @@ class RecentCommand extends Command {
       examples: ["recent"],
       aliases: ["r", "rc"],
       require_login: true,
+      category: "userstat",
     });
   }
 

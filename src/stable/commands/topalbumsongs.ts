@@ -21,6 +21,7 @@ class TopAlbumSongs extends Command {
       aliases: ["tas", "tsa"],
       examples: ["tas In the Aeroplane Over the Sea"],
       require_login: true,
+      category: "userstat",
     });
   }
 

@@ -22,6 +22,7 @@ class ArtistPlaysCommand extends Command {
       aliases: ["a", "ap", "apl"],
       examples: ["artistplays Devin Townsend", "artistplays Joy Division"],
       require_login: true,
+      category: "userstat",
     });
   }
 

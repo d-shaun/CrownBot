@@ -34,6 +34,7 @@ class SongPlaysCommand extends Command {
         "songplays Little Faith || The National",
       ],
       require_login: true,
+      category: "userstat",
     });
   }
 

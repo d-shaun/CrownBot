@@ -27,6 +27,7 @@ class WhoPlaysCommand extends Command {
         "whoplays Under Control || The Strokes",
       ],
       required_permissions: ["MANAGE_MESSAGES"],
+      category: "serverstat",
     });
   }
 

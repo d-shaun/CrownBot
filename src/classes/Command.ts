@@ -17,6 +17,8 @@ interface CommandInterface {
   allow_banned?: boolean;
   require_login?: boolean;
   required_permissions?: string[];
+  beta?: boolean;
+  category?: string;
 }
 
 export default class Command {
@@ -31,6 +33,7 @@ export default class Command {
   require_login?: boolean;
   required_permissions?: string[];
   beta?: boolean;
+  category?: string;
 
   constructor(options: CommandInterface) {
     this.name = options.name;
@@ -43,6 +46,7 @@ export default class Command {
     this.allow_banned = options.allow_banned;
     this.require_login = options.require_login;
     this.required_permissions = options.required_permissions;
+    this.category = options.category;
   }
 
   async execute(

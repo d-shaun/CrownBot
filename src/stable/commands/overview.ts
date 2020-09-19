@@ -21,6 +21,7 @@ class OverviewCommand extends Command {
       aliases: ["o", "ov"],
       examples: ["overview Devin Townsend", "overview Joy Division @user"],
       require_login: true,
+      category: "userstat",
     });
   }
 
