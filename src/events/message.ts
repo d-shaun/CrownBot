@@ -53,7 +53,6 @@ export default async (client: CrownBot, message: Message) => {
   const command_name = args.shift()?.toLowerCase();
   let override_beta = false;
   if (!command_name) return;
-  // const is_beta = await db.check_optin(message);
 
   const get_command = function (name: string, beta = false) {
     if (!beta) {
@@ -91,16 +90,6 @@ export default async (client: CrownBot, message: Message) => {
   } catch (e) {
     console.log(e);
   }
-  /*
- 
-
-  try {
-    await command.execute(client, message, args, override_beta);
-  } catch (e) {
-    console.log(e);
-  }
-
-  */
 };
 
 function check_permissions(
