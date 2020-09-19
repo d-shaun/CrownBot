@@ -8,8 +8,6 @@ import LastFMUser from "../../handlers/LastFMUser";
 import { TopArtistInterface } from "../../interfaces/ArtistInterface";
 import { TopTrackInterface } from "../../interfaces/TrackInterface";
 import cb from "../../misc/codeblock";
-import time_difference from "../../misc/time_difference";
-import { ListArtistLogInterface } from "../../models/ListArtistLog";
 
 class ListCommand extends Command {
   constructor() {
@@ -144,53 +142,11 @@ class ListCommand extends Command {
         await response.send();
         return;
       }
-      let top_artists: TopArtistInterface[] = query.topartists.artist;
+      const top_artists: TopArtistInterface[] = query.topartists.artist;
 
-      let last_log: ListArtistLogInterface | undefined;
-      if (config.period.value === "overall") {
-        last_log = await client.models.listartistlog.findOne({
-          user_id: message.author.id,
-          guild_id: message.guild?.id,
-        });
-      }
-
-      if (last_log && last_log.stat) {
-        const { stat } = last_log;
-        top_artists = top_artists.map((entry) => {
-          const log = stat.find((lg) => {
-            return lg.name === entry.name;
-          });
-          if (log) {
-            entry.last_count = log.playcount;
-          } else {
-            entry.is_new = true;
-          }
-          return entry;
-        });
-      }
       const embed_list = top_artists
         .map((artist) => {
-          let count_diff;
-          let diff_str = "";
-          if (artist.last_count) {
-            count_diff =
-              parseInt(artist.playcount) - parseInt(artist.last_count);
-          }
-
-          if (count_diff && count_diff < 0) {
-            diff_str = ` ― (:small_red_triangle_down: ${count_diff} ${
-              count_diff > 1 ? "plays" : "play"
-            })`;
-          } else if (count_diff && count_diff > 0) {
-            diff_str = ` ― (+${count_diff} ${
-              count_diff > 1 ? "plays" : "play"
-            })`;
-          }
-
-          if (artist.is_new) {
-            diff_str = " ― :new:";
-          }
-          return `${artist["@attr"].rank}. **${artist.name}** — **${artist.playcount}** plays ${diff_str}`;
+          return `${artist["@attr"].rank}. **${artist.name}** — **${artist.playcount}** plays`;
         })
         .join("\n");
 
@@ -199,18 +155,6 @@ class ListCommand extends Command {
           `${message.author.username}'s ${config.period.text}-top ${config.type}s`
         )
         .setDescription(embed_list);
-      if (last_log) {
-        embed.setFooter(
-          `Last checked ${time_difference(last_log.timestamp)} ago.`
-        );
-      }
-      if (config.period.value === "overall" && message.guild) {
-        await db.log_list_artist(
-          top_artists,
-          message.author.id,
-          message.guild.id
-        );
-      }
 
       await message.channel.send(embed);
     } else if (config.type === "song") {
