@@ -1,6 +1,6 @@
 import { Client } from "discord.js";
 import { connect, Model } from "mongoose";
-import { ServerConfigInterface } from "../models/ServerConfig";
+import { ServerConfigInterface } from "../stable/models/ServerConfig";
 import Command from "./Command";
 interface OptionInterface {
   prefix: string;
@@ -33,6 +33,7 @@ class CrownBotClass extends Client {
   #mongo: string;
   url = "https://ws.audioscrobbler.com/2.0/?";
   commands: Command[] = [];
+  beta_commands: Command[] = [];
   models: { [key: string]: Model<any> } = {};
   mongoose: any;
   genius_api?: string;

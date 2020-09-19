@@ -53,42 +53,53 @@ export default async (client: CrownBot, message: Message) => {
   const command_name = args.shift()?.toLowerCase();
   let override_beta = false;
   if (!command_name) return;
-  let command = null;
+
+  const get_command = function (name: string, beta = false) {
+    if (!beta) {
+      return client.commands.find((x) => {
+        return x.name === name || x.aliases.includes(name);
+      });
+    } else {
+      return client.beta_commands.find((x) => {
+        return x.name === name || x.aliases.includes(name);
+      });
+    }
+  };
+
   const override = command_name.split(":");
+  let command = get_command(command_name);
+  let beta_command = get_command(command_name, true);
   if (override.length === 2 && override[0] === "b") {
-    command = <Command>client.commands.find((x) => {
-      return x.name === override[1] || x.aliases.includes(override[1]);
-    });
+    let beta_command = get_command(override[1], true);
+    if (beta_command) {
+      command = beta_command;
+      override_beta = true;
+    } else {
+      command = get_command(override[1]);
+    }
+  } else if (beta_command && (await db.check_optin(message))) {
     override_beta = true;
-  } else {
-    command = <Command>client.commands.find((x) => {
-      return x.name === command_name || x.aliases.includes(command_name);
-    });
+    command = beta_command;
   }
 
   if (!command || !command.execute) return;
-
-  const lacking_permissions = check_permissions(client, message);
-
-  if (lacking_permissions.length && command.name !== "permissions") {
-    response.text =
-      `The bot needs to have the following permissions: ` +
-      `${lacking_permissions.join(", ")}; see ${cb(
-        "permissions",
-        server_prefix
-      )} for explanations of every permissions the bot requires.`;
-    await response.send();
-    return;
-  }
+  if (!check_permissions(client, message, command)) return;
 
   try {
-    await command.execute(client, message, args, override_beta);
+    await command.execute(client, message, args);
   } catch (e) {
     console.log(e);
   }
 };
 
-function check_permissions(client: CrownBot, message: Message): string[] {
+function check_permissions(
+  client: CrownBot,
+  message: Message,
+  command: Command
+): boolean {
+  const response = new BotMessage({ client, message, text: "", reply: true });
+  const server_prefix = client.get_cached_prefix(message);
+
   if (!message.guild?.me) throw "!?!";
   const bot_permissions = (<TextChannel>message.channel).permissionsFor(
     message.guild.me
@@ -109,5 +120,16 @@ function check_permissions(client: CrownBot, message: Message): string[] {
       lacking_permissions.push(permission);
     }
   });
-  return lacking_permissions;
+
+  if (lacking_permissions.length && command.name !== "permissions") {
+    response.text =
+      `The bot needs to have the following permissions: ` +
+      `${lacking_permissions.join(", ")}; see ${cb(
+        "permissions",
+        server_prefix
+      )} for explanations of every permissions the bot requires.`;
+    response.send();
+    return false;
+  }
+  return true;
 }

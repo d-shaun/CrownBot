@@ -2,9 +2,9 @@ import { Message, User as DiscordUser } from "discord.js";
 import moment from "moment";
 import { Model } from "mongoose";
 import User from "../classes/User";
-import { LeaderboardInterface } from "../interfaces/LeaderboardInterface";
-import { ServerConfigInterface } from "../models/ServerConfig";
 import { TopArtistInterface } from "../interfaces/ArtistInterface";
+import { LeaderboardInterface } from "../interfaces/LeaderboardInterface";
+import { ServerConfigInterface } from "../stable/models/ServerConfig";
 
 export default class DB {
   #models: { [key: string]: Model<any> };

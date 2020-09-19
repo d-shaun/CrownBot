@@ -1,7 +1,7 @@
 import { Message } from "discord.js";
 import CrownBot from "../handlers/CrownBot";
-import { BanInterface } from "../models/Bans";
-import { UserInterface } from "../models/Users";
+import { BanInterface } from "../stable/models/Bans";
+import { UserInterface } from "../stable/models/Users";
 interface UserFetchInterface {
   users: UserInterface[];
   banned_users: BanInterface[];
