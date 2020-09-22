@@ -3,6 +3,7 @@ import Command from "../../classes/Command";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
 import BotMessage from "../../handlers/BotMessage";
+import cb from "../../misc/codeblock";
 
 class HelpCommand extends Command {
   constructor() {
@@ -24,6 +25,8 @@ class HelpCommand extends Command {
       reply: true,
       text: "",
     });
+
+    // if `&help <command_name>` excluding `&help beta`
     if (args[0] && args[0] !== "beta") {
       const command = client.commands
         .filter((e) => !e.hidden)
@@ -60,46 +63,126 @@ class HelpCommand extends Command {
       if (examples) embed.addField("Examples", examples);
 
       message.channel.send(embed);
-    } else {
-      const embed = new MessageEmbed()
-        .setTitle("Commands")
-        .setDescription(
-          `This is a list of the${
-            args[0] === "beta" ? " __beta__" : ""
-          } commands this bot offers. The prefix is \`${server_prefix}\`.`
-        );
-      let commands = client.commands;
-      if (args[0] === "beta") {
-        commands = commands.filter((cmd) => cmd.beta === true);
-      } else {
-        const is_beta = await db.check_optin(message);
-        if (!is_beta) {
-          commands = commands.filter((cmd) => cmd.beta !== true);
-        }
-      }
-      commands
-        .filter((e) => !e.hidden)
-        .forEach((command) => {
-          const usage = Array.isArray(command.usage)
-            ? command.usage[0]
-            : command.usage;
-
-          const aliases = command.aliases;
-          const all_commands = [command.name, ...aliases]
-            .map((e) => "``" + server_prefix + e + "``")
-            .join(" or ");
-          embed.addField(
-            `${all_commands}`,
-            (command.beta ? "(:warning: Beta) " : "") + command.description,
-            true
-          );
-        });
-      response.text =
-        "FAQs and commands' descriptions can be found here: <https://d-shaun.github.io/cbdocs/>.";
-
-      await message.channel.send(embed);
-      await response.send();
+      return;
     }
+
+    let description = `This is a list of the commands this bot offers. The prefix is \`${server_prefix}\`.`;
+    if (args[0] === "beta") {
+      description = `This is a list of the __beta__ commands this bot offers that are not in the stable version. The prefix is \`${server_prefix}\`.`;
+    }
+
+    const embed = new MessageEmbed()
+      .setTitle("Commands")
+      .setDescription(
+        `See ${cb(
+          "help <command_name>",
+          server_prefix
+        )} for detailed information. The prefix is ${cb(server_prefix)}.`
+      );
+
+    const stable_commands = client.commands;
+    const beta_commands = client.beta_commands;
+
+    const unique_beta_commands = beta_commands
+      .filter(
+        (command) => !stable_commands.find((c) => c.name === command.name)
+      )
+      .map((e) => {
+        e.beta = true;
+        return e;
+      });
+
+    let commands = stable_commands;
+
+    if (args[0] === "beta") {
+      commands = unique_beta_commands;
+    } else {
+      const is_beta = await db.check_optin(message);
+      if (is_beta) {
+        commands = [...stable_commands, ...unique_beta_commands];
+      }
+    }
+
+    commands = commands.filter((e) => !e.hidden);
+
+    const setup: Command[] = [];
+    const userstat: Command[] = [];
+    const serverstat: Command[] = [];
+    const configure: Command[] = [];
+    const other: Command[] = [];
+    commands.forEach((command) => {
+      switch (command.category) {
+        case "setup":
+          setup.push(command);
+          break;
+
+        case "userstat":
+          userstat.push(command);
+          break;
+
+        case "serverstat":
+          serverstat.push(command);
+          break;
+
+        case "configure":
+          configure.push(command);
+          break;
+
+        default:
+          other.push(command);
+      }
+    });
+
+    const that = this;
+    const setup_str: string = setup
+      .map((command) => that.format_command(command, server_prefix))
+      .join("\n\n");
+    const userstat_str: string[] = userstat.map((command) =>
+      that.format_command(command, server_prefix)
+    );
+
+    const serverstat_str: string = serverstat
+      .map((command) => that.format_command(command, server_prefix))
+      .join("\n\n");
+    const configure_str: string = configure
+      .map((command) => that.format_command(command, server_prefix))
+      .join("\n\n");
+    const other_str: string = other
+      .map((command) => that.format_command(command, server_prefix))
+      .join("\n\n");
+
+    // https://stackoverflow.com/questions/9181188
+    const halfwayThrough = Math.floor(userstat_str.length / 2);
+    const userstat_one = userstat_str.slice(0, halfwayThrough).join("\n\n");
+    const userstat_two = userstat_str
+      .slice(halfwayThrough, userstat_str.length)
+      .join("\n\n");
+
+    embed.addField("__Setting up__", setup_str, true);
+    embed.addField("__User-related stats__", userstat_one, true);
+    embed.addField("__More user-related stats__", userstat_two, true);
+    embed.addField("__Server-related stats__", serverstat_str, true);
+    embed.addField("__Preferences__", configure_str, true);
+    embed.addField("__Other__", other_str, true);
+
+    response.text =
+      "FAQs and commands' descriptions can be found here: <https://d-shaun.github.io/cbdocs/>.";
+
+    await message.channel.send(embed);
+  }
+
+  format_command(command: Command, server_prefix: string) {
+    const usage = Array.isArray(command.usage)
+      ? command.usage[0]
+      : command.usage;
+
+    const aliases = command.aliases;
+    const all_shortcuts = [command.name, ...aliases]
+      .map((e) => `\`\`${server_prefix}${e}\`\``)
+      .join(" / ");
+
+    const beta_str = command.beta ? "(:warning: beta)" : "";
+    return beta_str + all_shortcuts + "\n" + command.description;
   }
 }
 
