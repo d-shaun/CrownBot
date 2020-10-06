@@ -11,17 +11,7 @@ export class Template {
         text:
           `You are not logged into the bot in this server; ` +
           `please set your Last.fm username with the ` +
-          `${cb("login", prefix)} commmand (see ${cb(
-            "help login",
-            prefix
-          )}).\n\n\n` +
-          `Note: The bot now uses **per-server login**; all users logged in before August 2020 ` +
-          `have been logged out.\n\n` +
-          `If you were previously logged into the bot, running ${cb(
-            "login",
-            prefix
-          )} ` +
-          `will automatically register your username in this server.`,
+          `${cb("login", prefix)} commmand (see ${cb("help login", prefix)}).`,
       },
       {
         id: "already_logged",
