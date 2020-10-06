@@ -139,7 +139,7 @@ export default class Command {
     if (stack) {
       await new client.models.errorlogs({ ...data }).save();
       response.text =
-        `The bot encountered an unexpected error; ` +
+        `The bot has encountered an unexpected error while executing your request; ` +
         `please consider reporting this incident (id: ${cb(
           incident_id
         )}) to the bot's support server—see ${cb("about", server_prefix)}.`;
