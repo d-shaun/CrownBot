@@ -2,14 +2,11 @@ import { Mongoose } from "mongoose";
 
 export default (mongoose: Mongoose) => {
   return new mongoose.Schema({
+    incident_id: String,
     command_name: String,
-    message_id: String,
     message_content: String,
-    username: String,
     user_ID: String,
-    guild_name: String,
     guild_ID: String,
-    channel: String,
     timestamp: String,
     stack: String,
   });
