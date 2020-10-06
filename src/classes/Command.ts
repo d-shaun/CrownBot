@@ -111,21 +111,21 @@ export default class Command {
       await this.run(client, message, args);
       message.channel.stopTyping(true);
 
-      await this.log(client, message);
+      // await this.log(client, message);
     } catch (e) {
       message.channel.stopTyping(true);
       console.error(e);
-      await this.log(client, message, e.stack);
+      await this.log_error(client, message, e.stack || e);
     }
   }
 
-  async log(client: CrownBot, message: Message, stack?: string) {
+  async log_error(client: CrownBot, message: Message, stack?: string) {
     const response = new BotMessage({ client, message, text: "", reply: true });
     const server_prefix = client.get_cached_prefix(message);
 
     if (!message.guild) return;
 
-    const incident_id = generate_random_strings();
+    const incident_id = generate_random_strings(8);
     const data = {
       incident_id,
       command_name: this.name,
@@ -140,7 +140,7 @@ export default class Command {
       await new client.models.errorlogs({ ...data }).save();
       response.text =
         `The bot encountered an unexpected error; ` +
-        `please consider reporting this incident (${cb(
+        `please consider reporting this incident (id: ${cb(
           incident_id
         )}) to the bot's support server—see ${cb("about", server_prefix)}.`;
       await response.send();
