@@ -1,9 +1,10 @@
-import { Message, TextChannel, PermissionString } from "discord.js";
+import { Message, PermissionString } from "discord.js";
 import BotMessage from "../handlers/BotMessage";
 import CrownBot from "../handlers/CrownBot";
 import DB from "../handlers/DB";
 import check_ban from "../misc/check_ban";
 import cb from "../misc/codeblock";
+import generate_random_strings from "../misc/generate_random_strings";
 import { Template } from "./Template";
 
 interface CommandInterface {
@@ -119,24 +120,31 @@ export default class Command {
   }
 
   async log(client: CrownBot, message: Message, stack?: string) {
+    const response = new BotMessage({ client, message, text: "", reply: true });
+    const server_prefix = client.get_cached_prefix(message);
+
     if (!message.guild) return;
+
+    const incident_id = generate_random_strings();
     const data = {
+      incident_id,
       command_name: this.name,
-      message_id: message.id,
       message_content: message.content,
-      username: message.author.tag,
       user_ID: message.author.id,
-      guild_name: message.guild.name,
       guild_ID: message.guild.id,
-      channel_name: (<TextChannel>message.channel).name,
-      channel_ID: message.channel.id,
       timestamp: `${new Date().toUTCString()}`,
       stack: `${stack || `none`}`,
     };
-    await new client.models.logs({ ...data }).save();
+    // await new client.models.logs({ ...data }).save();
     if (stack) {
       await new client.models.errorlogs({ ...data }).save();
     }
+    response.text =
+      `The bot encountered an unexpected error; ` +
+      `please consider reporting this incident (${cb(
+        incident_id
+      )}) to the bot's support server—see ${cb("about", server_prefix)}.`;
+    await response.send();
   }
 
   async run(
