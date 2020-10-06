@@ -138,13 +138,13 @@ export default class Command {
     // await new client.models.logs({ ...data }).save();
     if (stack) {
       await new client.models.errorlogs({ ...data }).save();
+      response.text =
+        `The bot encountered an unexpected error; ` +
+        `please consider reporting this incident (${cb(
+          incident_id
+        )}) to the bot's support server—see ${cb("about", server_prefix)}.`;
+      await response.send();
     }
-    response.text =
-      `The bot encountered an unexpected error; ` +
-      `please consider reporting this incident (${cb(
-        incident_id
-      )}) to the bot's support server—see ${cb("about", server_prefix)}.`;
-    await response.send();
   }
 
   async run(
