@@ -139,12 +139,10 @@ export default class LastFMUser {
   }
 
   async get_albums(artist_name: string) {
-    const response = await Axios.get(
-      `https://www.last.fm/user/${encodeURI(
-        this.username
-      )}/library/music/${encodeURI(artist_name)}/+albums`,
-      timeout
-    );
+    const URL = `https://www.last.fm/user/${encodeURIComponent(
+      this.username
+    )}/library/music/${encodeURIComponent(artist_name)}/+albums`;
+    const response = await Axios.get(URL, timeout);
     if (response.status !== 200) {
       return undefined;
     }
@@ -154,9 +152,9 @@ export default class LastFMUser {
 
   async get_tracks(artist_name: string) {
     const response = await Axios.get(
-      `https://www.last.fm/user/${encodeURI(
+      `https://www.last.fm/user/${encodeURIComponent(
         this.username
-      )}/library/music/${encodeURI(artist_name)}/+tracks`,
+      )}/library/music/${encodeURIComponent(artist_name)}/+tracks`,
       timeout
     );
     if (response.status !== 200) {
@@ -168,9 +166,11 @@ export default class LastFMUser {
 
   async get_album_tracks(artist_name: string, album_name: string) {
     const response = await Axios.get(
-      `https://www.last.fm/user/${encodeURI(
+      `https://www.last.fm/user/${encodeURIComponent(
         this.username
-      )}/library/music/${encodeURI(artist_name)}/${encodeURI(album_name)}`
+      )}/library/music/${encodeURIComponent(artist_name)}/${encodeURIComponent(
+        album_name
+      )}`
     );
     if (response.status !== 200) {
       return undefined;
@@ -209,7 +209,7 @@ export default class LastFMUser {
 
   generate_promise(date_preset: string, type?: string) {
     return Axios.get(
-      `https://www.last.fm/user/${encodeURI(this.username)}/library${
+      `https://www.last.fm/user/${encodeURIComponent(this.username)}/library${
         type ? "/" + type : ""
       }?date_preset=${date_preset}`
     ).then((response) => {
