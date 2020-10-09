@@ -103,7 +103,7 @@ class TopAlbumSongs extends Command {
       return;
     }
     if (!album_tracks.length) {
-      response.text = "Couldn't find any tracks that you *may* have scrobbled.";
+      response.text = "Couldn't find any track that you *may* have scrobbled.";
       await response.send();
       return;
     }
