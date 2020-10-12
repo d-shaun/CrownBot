@@ -110,12 +110,17 @@ class OverviewCommand extends Command {
       await response.send();
       return;
     }
+
+    const truncate = function (str: string, n: number) {
+      return str.length > n ? str.substr(0, n - 1) + "..." : str;
+    };
+
     const album_str = albums.slice(0, 15).map((album, i) => {
-      return `${i + 1}. **${album.name}** (${album.plays})`;
+      return `${i + 1}. **${truncate(album.name, 20)}** (${album.plays})`;
     });
 
     const track_str = tracks.slice(0, 15).map((track, i) => {
-      return `${i + 1}. **${track.name}** (${track.plays})`;
+      return `${i + 1}. **${truncate(track.name, 20)}** (${track.plays})`;
     });
 
     const has_crown = await client.models.crowns.findOne({
