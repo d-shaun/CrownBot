@@ -15,6 +15,7 @@
     "typescript": "^3.9.5"
   },
   "dependencies": {
+    "@types/chart.js": "^2.9.25",
     "@types/cheerio": "^0.22.21",
     "@types/lyricist": "^2.2.0",
     "@types/mongodb": "^3.5.25",
@@ -23,6 +24,8 @@
     "@types/ws": "^7.2.5",
     "axios": "^0.19.2",
     "canvas": "^2.6.1",
+    "chart.js": "^2.9.3",
+    "chartjs-node-canvas": "^3.0.6",
     "cheerio": "^1.0.0-rc.3",
     "discord-paginationembed": "^2.0.0",
     "discord.js": "^12.1.1",
