@@ -25,6 +25,7 @@ class CrownBot extends CrownBotClass {
           const Command: any = require(path.join(dir, file)).default;
           const command = new Command();
           if (beta) {
+            command.beta = true;
             that.beta_commands.push(command);
           } else {
             that.commands.push(command);
