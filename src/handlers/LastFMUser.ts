@@ -170,7 +170,8 @@ export default class LastFMUser {
         this.username
       )}/library/music/${encodeURIComponent(artist_name)}/${encodeURIComponent(
         album_name
-      )}`
+      )}`,
+      timeout
     );
     if (response.status !== 200) {
       return undefined;
@@ -211,7 +212,8 @@ export default class LastFMUser {
     return Axios.get(
       `https://www.last.fm/user/${encodeURIComponent(this.username)}/library${
         type ? "/" + type : ""
-      }?date_preset=${date_preset}`
+      }?date_preset=${date_preset}`,
+      timeout
     ).then((response) => {
       return {
         type: type ? type : "scrobbles",
@@ -266,5 +268,43 @@ export default class LastFMUser {
         tracks,
       };
     });
+  }
+
+  parse_listening_history(data: string) {
+    const $ = cheerio.load(data);
+    const data_points = $(".scrobble-table")
+      .find(".table")
+      .find("tbody")
+      .find("tr");
+    const stats: { date: string; playcount: number }[] = [];
+
+    data_points.each(function (_, elem: any) {
+      const date = $(elem).find(".js-period").text().trim();
+      const playcount = $(elem)
+        .find(".js-scrobbles")
+        .text()
+        .trim()
+        .replace(",", "");
+      stats.push({
+        date,
+        playcount: parseInt(playcount),
+      });
+    });
+    return stats;
+  }
+
+  async get_listening_history(date_preset = "LAST_7_DAYS") {
+    const response = await Axios.get(
+      `https://www.last.fm/user/${encodeURIComponent(
+        this.username
+      )}/library?date_preset=${date_preset}`,
+      timeout
+    );
+
+    if (response.status !== 200) {
+      return undefined;
+    }
+    const stat = this.parse_listening_history(response.data);
+    return stat;
   }
 }
