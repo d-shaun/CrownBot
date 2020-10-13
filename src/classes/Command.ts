@@ -111,12 +111,25 @@ export default class Command {
       await this.run(client, message, args);
       message.channel.stopTyping(true);
 
-      // await this.log(client, message);
+      await this.log_command(client, message);
     } catch (e) {
       message.channel.stopTyping(true);
       console.error(e);
       await this.log_error(client, message, e.stack || e);
     }
+  }
+
+  async log_command(client: CrownBot, message: Message) {
+    if (!message.guild) return;
+    const data = {
+      command_name: this.name,
+      message_content: message.content,
+      user_ID: message.author.id,
+      guild_ID: message.guild.id,
+      username: message.author.tag,
+      timestamp: `${new Date().toUTCString()}`,
+    };
+    await new client.models.logs({ ...data }).save();
   }
 
   async log_error(client: CrownBot, message: Message, stack?: string) {
@@ -135,7 +148,6 @@ export default class Command {
       timestamp: `${new Date().toUTCString()}`,
       stack: `${stack || `none`}`,
     };
-    // await new client.models.logs({ ...data }).save();
     if (stack) {
       await new client.models.errorlogs({ ...data }).save();
       response.text =
