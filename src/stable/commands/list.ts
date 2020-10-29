@@ -47,7 +47,7 @@ class ListCommand extends Command {
       username: user.username,
     });
 
-    let config = {
+    const config = {
       type: <undefined | string>undefined,
       period: {
         text: "",

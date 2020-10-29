@@ -145,7 +145,7 @@ class WhoPlaysCommand extends Command {
 
     if (
       !responses.length ||
-      responses.some((response) => !response.data || !response.data.track)
+      responses.some((response) => !response?.data?.track?.playcount)
     ) {
       response.text = new Template(client, message).get("lastfm_error");
       await response.send();

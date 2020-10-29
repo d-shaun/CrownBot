@@ -123,7 +123,7 @@ class WhoKnowsCommand extends Command {
 
     if (
       !responses.length ||
-      responses.some((response) => !response.data || !response.data.artist)
+      responses.some((response) => !response?.data?.artist?.stats?.playcount)
     ) {
       response.text = new Template(client, message).get("lastfm_error");
       await response.send();
