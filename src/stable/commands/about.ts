@@ -27,7 +27,7 @@ class AboutCommand extends Command {
       .addField("Repository", "<https://github.com/d-shaun/CrownBot/>")
       .addField(
         "Invite link",
-        "The bot can no longer be added to new servers; [learn why](https://github.com/d-shaun/CrownBot/blob/master/INVITERESTRICTION.md)."
+        "<https://discordapp.com/api/oauth2/authorize?client_id=636075999154536449&permissions=288832&scope=bot>"
       )
       .addField("Support server", "https://discord.gg/zzJ5zmA");
 

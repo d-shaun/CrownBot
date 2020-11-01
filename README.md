@@ -12,9 +12,7 @@ Commands and FAQs: <https://d-shaun.github.io/cbdocs/>.
 
 ### Invite link
 
-The bot can no longer be added to new servers; read [this file](https://github.com/d-shaun/CrownBot/blob/master/INVITERESTRICTION.md).
-
-~~<https://discordapp.com/api/oauth2/authorize?client_id=636075999154536449&permissions=288832&scope=bot>~~
+<https://discordapp.com/api/oauth2/authorize?client_id=636075999154536449&permissions=288832&scope=bot>
 
 ### Support server
 
