@@ -19,7 +19,7 @@ class GraphCommand extends Command {
         "Graphs user's last week, month, or year's, or all-time playing stats; defaults to week.",
       usage: ["graph <time_period>"],
       aliases: ["gp", "grp"],
-      examples: ["graph week"],
+      examples: ["graph week", "graph month", "graph year", "graph alltime"],
       require_login: true,
       category: "userstat",
     });
