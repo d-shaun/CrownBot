@@ -18,17 +18,17 @@ class CrownboardCommand extends Command {
   async run(client: CrownBot, message: Message, args: string[]) {
     if (!message.guild) return;
     const response = new BotMessage({ client, message, text: "", reply: true });
-    const banned_ids = (await get_registered_users(client, message))
-      ?.banned_ids;
+    const server_users = (await get_registered_users(client, message))?.users;
+    if (!server_users) return;
 
-    if (!banned_ids) return;
-    let crowns = await client.models.crowns
+    const crowns = await client.models.crowns
       .find({
         guildID: message.guild.id,
+        userID: {
+          $in: server_users.map((user) => user.database.userID),
+        },
       })
       .lean();
-    crowns = crowns.filter((crown) => !banned_ids.includes(crown.userID));
-
     const amounts = new Map();
     crowns.forEach((x) => {
       if (amounts.has(x.userID)) {
@@ -40,27 +40,23 @@ class CrownboardCommand extends Command {
     });
     let num = 0;
     const entries = [...amounts.entries()];
-    const has_crowns = entries.findIndex(
-      ([userID]) => userID === message.author.id
-    );
-    const author_pos = has_crowns ? has_crowns + 1 : null;
+
+    const description_text = entries
+
+      .sort(([_, a], [__, b]) => b - a)
+      .map(([userID, amount]) => {
+        // yes, this monstrosity fetches GuildMember from the server.
+        const discord_username = server_users.find(
+          (user) => user.database.userID === userID
+        )?.discord.user.username;
+
+        return `${++num}. ${discord_username} with **${amount}** crowns`;
+      })
+      .join("\n");
+
     const embed = new MessageEmbed()
       .setTitle(`${message.guild.name}'s crown leaderboard`)
-
-      .setDescription(
-        entries
-          .filter(([userID]) => {
-            // check if the user is still on the server
-            return message.guild?.members.cache.get(userID) !== undefined;
-          })
-          .sort(([_, a], [__, b]) => b - a)
-          .map(([userID, amount]) => {
-            return `${++num}. ${
-              message.guild?.members.cache.get(userID)?.user.username
-            } with **${amount}** crowns`;
-          })
-          .join("\n")
-      );
+      .setDescription(description_text);
 
     const guild_icon = message.guild.iconURL();
     if (guild_icon) {

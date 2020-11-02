@@ -41,7 +41,7 @@ class BanCommand extends Command {
     let user = mentioned ? mentioned.user : undefined;
 
     if (!user && args.length !== 0) {
-      user = search_user(message, args);
+      user = await search_user(message, args);
     }
 
     if (!user) {

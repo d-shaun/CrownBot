@@ -117,10 +117,8 @@ class WhoPlaysCommand extends Command {
 
     for await (const user of users) {
       const context = {
-        discord_user: message.guild?.members.cache.find(
-          (e) => e.id === user.userID
-        ),
-        lastfm_username: user.username,
+        discord_user: user.discord,
+        lastfm_username: user.database.username,
       };
       lastfm_requests.push(
         new LastFM()
@@ -129,7 +127,7 @@ class WhoPlaysCommand extends Command {
             params: {
               artist: artist_name,
               track: track_name,
-              username: user.username,
+              username: user.database.username,
               autocorrect: 1,
             },
           })
