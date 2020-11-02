@@ -48,17 +48,15 @@ class PlayingCommand extends Command {
     const lastfm_requests = [];
     for await (const user of users) {
       const context = {
-        discord_user: message.guild?.members.cache.find(
-          (e) => e.id === user.userID
-        ),
-        lastfm_username: user.username,
+        discord_user: user.discord,
+        lastfm_username: user.database.username,
       };
       lastfm_requests.push(
         new LastFM()
           .query({
             method: "user.getrecenttracks",
             params: {
-              user: user.username,
+              user: user.database.username,
               limit: 1,
             },
           })

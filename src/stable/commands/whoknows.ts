@@ -79,7 +79,7 @@ class WhoKnowsCommand extends Command {
     }
 
     const artist: ArtistInterface = data.artist;
-    let users = (await get_registered_users(client, message))?.users;
+    const users = (await get_registered_users(client, message))?.users;
     if (!users || users.length <= 0) {
       response.text = `No user in this guild has registered their Last.fm username; see ${cb(
         "help login",
@@ -96,10 +96,8 @@ class WhoKnowsCommand extends Command {
 
     for await (const user of users) {
       const context = {
-        discord_user: message.guild?.members.cache.find(
-          (e) => e.id === user.userID
-        ),
-        lastfm_username: user.username,
+        discord_user: user.discord,
+        lastfm_username: user.database.username,
       };
       lastfm_requests.push(
         new LastFM()
@@ -107,7 +105,7 @@ class WhoKnowsCommand extends Command {
             method: "artist.getinfo",
             params: {
               artist: artist_name,
-              username: user.username,
+              username: user.database.username,
               autocorrect: 1,
             },
           })

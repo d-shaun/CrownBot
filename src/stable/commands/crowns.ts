@@ -27,7 +27,7 @@ class CrownsCommand extends Command {
     let not_op = false;
     if (args.length > 0) {
       const mention = message.mentions.members?.first();
-      user = mention ? mention.user : search_user(message, args);
+      user = mention ? mention.user : await search_user(message, args);
       not_op = true;
     } else {
       user = message.member ? message.member.user : undefined;

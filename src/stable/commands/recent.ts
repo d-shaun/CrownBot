@@ -37,7 +37,7 @@ class RecentCommand extends Command {
 
     if (args.length > 0) {
       const mention = message.mentions.members?.first();
-      discord_user = mention ? mention.user : search_user(message, args);
+      discord_user = mention ? mention.user : await search_user(message, args);
     } else {
       discord_user = message.member ? message.member.user : undefined;
     }

@@ -32,7 +32,7 @@ class TasteCommand extends Command {
     let user_two = mentioned ? mentioned.user : undefined;
 
     if (!user_two && args.length !== 0) {
-      user_two = search_user(message, args);
+      user_two = await search_user(message, args);
     }
     if (!user_two) {
       response.text =
