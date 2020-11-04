@@ -19,7 +19,7 @@ class AboutCommand extends Command {
     const embed = new MessageEmbed()
       .setTitle("CrownBot")
       .setDescription(
-        "A cloned and refactored version of <https://github.com/kometh0616/crown-bot>."
+        "A Discord bot that uses the Last.fm API to track users' scrobbling-history to provide various stats and leader-boards."
       )
       .addField("Version", "8.0.0")
       .addField("Prefix", server_prefix)
