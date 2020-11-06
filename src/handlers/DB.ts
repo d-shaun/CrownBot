@@ -82,6 +82,14 @@ export default class DB {
     });
   }
 
+  async delete_crown(artistName: string, guildID?: string) {
+    if (!guildID) return;
+    return this.#models.crowns.deleteOne({
+      artistName,
+      guildID,
+    });
+  }
+
   async update_crown(top: LeaderboardInterface) {
     return this.#models.crowns.findOneAndUpdate(
       {
