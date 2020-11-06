@@ -28,10 +28,17 @@ export class LastFM {
     params.api_key = API_KEY;
     params.format = "json";
     params.method = method;
-    const response = await axios
+    let response = await axios
       .get(this.url + stringify(params), timeout)
       .then((res) => res)
       .catch(({ response }) => response);
+    if (typeof response !== "object") {
+      // workaround for empty Last.fm responses
+      response = {
+        data: undefined,
+        actual_response: response,
+      };
+    }
     return response;
     // will refactor and code for each queries individually with proper type interfaces... someday.
   }
