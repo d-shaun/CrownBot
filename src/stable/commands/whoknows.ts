@@ -201,9 +201,19 @@ class WhoKnowsCommand extends Command {
       0
     );
     const top_user = leaderboard[0];
+    let disallow_crown = false;
     let min_count_text;
     if (parseInt(top_user.userplaycount) < min_plays_for_crown) {
       min_count_text = `(>=${min_plays_for_crown} plays required for the crown.)`;
+    } else {
+      if (leaderboard.length >= 2) {
+        const [first_user, second_user] = leaderboard;
+        if (first_user.userplaycount === second_user.userplaycount) {
+          // disallow crown if #1 and #2 have the same amount of scrobbles.
+          disallow_crown = true;
+          min_count_text = `(Equal amount of scrobbles—nobody acquired the crown.)`;
+        }
+      }
     }
     const fields_embed = new FieldsEmbed()
       .setArray(leaderboard)
@@ -238,7 +248,9 @@ class WhoKnowsCommand extends Command {
             leaderboard.findIndex((e) => e.user_id === elem.user_id) + 1;
 
           const indicator = `${
-            index === 1 && el.userplaycount >= min_plays_for_crown
+            index === 1 &&
+            !disallow_crown &&
+            el.userplaycount >= min_plays_for_crown
               ? ":crown:"
               : index + "."
           }`;
@@ -257,7 +269,13 @@ class WhoKnowsCommand extends Command {
       .setTitle(`Who knows ${artist.name}?`)
       .setFooter(footer_text);
 
-    if (parseInt(top_user.userplaycount) >= min_plays_for_crown) {
+    // delete if there's an existing crown for the artist in the server
+    await db.delete_crown(top_user.artist_name, top_user.guild_id);
+
+    if (
+      parseInt(top_user.userplaycount) >= min_plays_for_crown &&
+      !disallow_crown
+    ) {
       fields_embed.on("start", () => {
         message.channel.stopTyping(true);
         if (!message.guild) throw "won't happen, TS.";
