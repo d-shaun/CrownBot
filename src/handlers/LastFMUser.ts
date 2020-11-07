@@ -142,8 +142,10 @@ export default class LastFMUser {
     const URL = `https://www.last.fm/user/${encodeURIComponent(
       this.username
     )}/library/music/${encodeURIComponent(artist_name)}/+albums`;
-    const response = await Axios.get(URL, timeout);
-    if (response.status !== 200) {
+    const response = await Axios.get(URL, timeout).catch((_) => {
+      return undefined;
+    });
+    if (response?.status !== 200) {
       return undefined;
     }
     const stat = this.parse_chartpage(response.data);
@@ -156,8 +158,10 @@ export default class LastFMUser {
         this.username
       )}/library/music/${encodeURIComponent(artist_name)}/+tracks`,
       timeout
-    );
-    if (response.status !== 200) {
+    ).catch((_) => {
+      return undefined;
+    });
+    if (response?.status !== 200) {
       return undefined;
     }
     const stat = this.parse_chartpage(response.data);
@@ -172,8 +176,10 @@ export default class LastFMUser {
         album_name
       )}`,
       timeout
-    );
-    if (response.status !== 200) {
+    ).catch((_) => {
+      return undefined;
+    });
+    if (response?.status !== 200) {
       return undefined;
     }
     const stat = this.parse_chartpage(response.data);
@@ -214,12 +220,16 @@ export default class LastFMUser {
         type ? "/" + type : ""
       }?date_preset=${date_preset}`,
       timeout
-    ).then((response) => {
-      return {
-        type: type ? type : "scrobbles",
-        response,
-      };
-    });
+    )
+      .catch((_) => {
+        return undefined;
+      })
+      .then((response) => {
+        return {
+          type: type ? type : "scrobbles",
+          response,
+        };
+      });
   }
 
   async get_stats(date_preset = "LAST_7_DAYS") {
@@ -230,7 +240,7 @@ export default class LastFMUser {
       this.generate_promise(date_preset, "tracks"),
     ];
 
-    let responses: { response: AxiosResponse; type: string }[] = [];
+    // let responses: { response: AxiosResponse; type: string }[] = [];
 
     return Promise.all(promises).then((responses) => {
       let artists: number | undefined,
@@ -240,16 +250,16 @@ export default class LastFMUser {
       for (const item of responses) {
         switch (item.type) {
           case "scrobbles":
-            scrobbles_page = this.parse_library_scrobbles(item.response.data);
+            scrobbles_page = this.parse_library_scrobbles(item.response?.data);
             break;
           case "artists":
-            artists = this.find_library_scrobbles(item.response.data);
+            artists = this.find_library_scrobbles(item.response?.data);
             break;
           case "albums":
-            albums = this.find_library_scrobbles(item.response.data);
+            albums = this.find_library_scrobbles(item.response?.data);
             break;
           case "tracks":
-            tracks = this.find_library_scrobbles(item.response.data);
+            tracks = this.find_library_scrobbles(item.response?.data);
         }
       }
 
@@ -299,9 +309,11 @@ export default class LastFMUser {
         this.username
       )}/library?date_preset=${date_preset}`,
       timeout
-    );
+    ).catch((_) => {
+      return undefined;
+    });
 
-    if (response.status !== 200) {
+    if (response?.status !== 200) {
       return undefined;
     }
     const stat = this.parse_listening_history(response.data);
