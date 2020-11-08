@@ -12,7 +12,7 @@ class BanCommand extends Command {
     super({
       name: "ban",
       description:
-        "Ban a user from accessing the bot and showing up on the 'whoknows' list.",
+        "Bans a user from accessing the bot and showing up on the 'whoknows' list.",
       usage: ["ban <@user>"],
       aliases: ["bn"],
       examples: ["ban @shaun", "ban shaun"],
