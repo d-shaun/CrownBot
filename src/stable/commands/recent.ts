@@ -91,7 +91,7 @@ class RecentCommand extends Command {
       }
       embed.addField(
         time_str,
-        `[${track.name}](${track.url}) · ${track.album["#text"]} — **${track.artist["#text"]}**`
+        `**${track.artist["#text"]}** — [${track.name}](${track.url}) · ${track.album["#text"]}`
       );
     }
     message.channel.send(embed);
