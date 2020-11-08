@@ -5,7 +5,9 @@ import { Template } from "../../classes/Template";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
+import { LastFM } from "../../handlers/LastFM";
 import LastFMUser from "../../handlers/LastFMUser";
+import { ArtistInterface } from "../../interfaces/ArtistInterface";
 import cb from "../../misc/codeblock";
 interface GraphStat {
   date: string;
@@ -17,9 +19,14 @@ class GraphCommand extends Command {
       name: "graph",
       description:
         "Graphs user's last week, month, or year's, or all-time playing stats; defaults to week.",
-      usage: ["graph <time_period>"],
+      usage: ["graph <time_period> [<artist_name> or np]"],
       aliases: ["gp", "grp"],
-      examples: ["graph week", "graph month", "graph year", "graph alltime"],
+      examples: [
+        "graph week",
+        "graph month The Strokes",
+        "graph year np",
+        "graph alltime",
+      ],
       require_login: true,
       category: "userstat",
     });
@@ -36,36 +43,75 @@ class GraphCommand extends Command {
       username: user.username,
     });
 
-    let period: string | undefined = "LAST_7_DAYS";
-    if (args.length !== 0) {
-      switch (args[0]) {
-        case `a`:
-        case `alltime`:
-        case `o`:
-        case `overall`:
-          period = "ALL";
-          break;
-        case `w`:
-        case `weekly`:
-        case `week`:
-          period = "LAST_7_DAYS";
-          break;
-        case `monthly`:
-        case `month`:
-        case `m`:
-          period = "LAST_30_DAYS";
-          break;
-        case `yearly`:
-        case `year`:
-        case `y`:
-          period = "LAST_365_DAYS";
-          break;
-        default:
-          period = undefined;
-          break;
-      }
+    const config = {
+      period: {
+        value: <undefined | string>"LAST_7_DAYS",
+        text: "last 7 days",
+      },
+      artist_name: <undefined | string>undefined,
+    };
+
+    switch (args[0]) {
+      case `a`:
+      case `all`:
+      case `alltime`:
+      case `o`:
+      case `overall`:
+        config.period.value = "ALL";
+        config.period.text = "all-time";
+        break;
+      case `w`:
+      case `weekly`:
+      case `week`:
+        config.period.value = "LAST_7_DAYS";
+        config.period.text = "last 7 days";
+        break;
+      case `monthly`:
+      case `month`:
+      case `m`:
+        config.period.value = "LAST_30_DAYS";
+        config.period.text = "last 30 days";
+        break;
+      case `yearly`:
+      case `year`:
+      case `y`:
+        config.period.value = "LAST_365_DAYS";
+        config.period.text = "last 365 days";
+        break;
+      default:
+        config.period.value = undefined;
+        break;
     }
-    if (!period) {
+
+    if (args[1]) {
+      /* artist name */
+      let artist_name: string;
+      if (args[1] === "np") {
+        const now_playing = await lastfm_user.get_nowplaying(client, message);
+        if (!now_playing) return;
+        artist_name = now_playing.artist["#text"];
+      } else {
+        const raw_artist_name = args.slice(1).join(" ");
+        const { status, data } = await new LastFM().query({
+          method: "artist.getinfo",
+          params: {
+            artist: raw_artist_name,
+            autocorrect: 1,
+          },
+        });
+
+        if (data.error || !data.artist) {
+          response.text = new Template(client, message).get("lastfm_error");
+          await response.send();
+          return;
+        }
+        const artist: ArtistInterface = data.artist;
+        artist_name = artist.name;
+      }
+      config.artist_name = artist_name;
+    }
+
+    if (!config.period.value) {
       response.text = `Invalid time-period provided; see ${cb(
         "help graph",
         server_prefix
@@ -74,19 +120,40 @@ class GraphCommand extends Command {
       return;
     }
 
-    const stats = await lastfm_user.get_listening_history(period);
+    const stats = await lastfm_user.get_listening_history(
+      config.period.value,
+      config.artist_name
+    );
     if (!stats) {
       response.text = new Template(client, message).get("lastfm_error");
       await response.send();
       return;
     }
 
-    const graph_image_buffer = await this.generate_graph(stats);
+    const graph_image_buffer = await this.generate_graph(
+      stats,
+      undefined,
+      undefined,
+      config.artist_name
+    );
     const attachment = new MessageAttachment(graph_image_buffer, "graph.jpg");
-    message.reply(`here's your ${cb(period)} scrobble graph.`, attachment);
+    let artist_text = "";
+    if (config.artist_name) {
+      artist_text = `(Artist: \`${config.artist_name}\`)`;
+    }
+    let reply_message = `here's your scrobble graph for the **${config.period.text}**. ${artist_text}`;
+    if (config.period.value === "ALL") {
+      reply_message = `here's your all-time scrobble graph. ${artist_text}`;
+    }
+    message.reply(reply_message, attachment);
   }
 
-  async generate_graph(stats: GraphStat[], width = 800, height = 400) {
+  async generate_graph(
+    stats: GraphStat[],
+    width = 800,
+    height = 400,
+    artist_name?: undefined | string
+  ) {
     const canvasRenderService = new CanvasRenderService(
       width,
       height,
@@ -121,6 +188,10 @@ class GraphCommand extends Command {
         legend: {
           display: false,
         },
+        title: {
+          display: !!artist_name,
+          text: artist_name,
+        },
       },
       data: {
         labels: stats.map((point) => point.date),
@@ -128,15 +199,6 @@ class GraphCommand extends Command {
           {
             borderColor: "#07ad79",
             data: stats.map((point) => point.playcount),
-            backgroundColor: [
-              "#192333",
-              "#103559",
-              "#1156b4",
-              "#2dc0b7",
-              "#1e2632",
-              "#5a503f",
-              "#a8824e",
-            ],
           },
         ],
       },
