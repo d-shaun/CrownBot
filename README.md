@@ -6,7 +6,7 @@
 
 ![CrownBot profile picture](https://i.imgur.com/a6zovhE.png)
 
-A Discord bot that uses Last.fm API to track scrobbles and rank users in a guild.
+A Discord bot that uses the Last.fm API to track scrobbles and rank users.
 
 Commands and FAQs: <https://d-shaun.github.io/cbdocs/>.
 
@@ -22,11 +22,11 @@ Commands and FAQs: <https://d-shaun.github.io/cbdocs/>.
 
 ### Requirements
 
-- A Discord API token — see <https://discord.com/developers/docs/topics/oauth2#shared-resources>.
+- A Discord API token: see <https://discord.com/developers/docs/topics/oauth2#shared-resources>.
 
-- Your (bot owner's) Discord ID—you need to specify this for the "owner only" commands to work. ([Learn how to get it](https://support.discord.com/hc/en-us/articles/206346498))
+- Your (bot owner's) Discord ID: you need to specify this for the "owner only" commands to work. ([Learn how to get it](https://support.discord.com/hc/en-us/articles/206346498))
 
-- A Last.fm API key — you'll need to create an ["API account"](https://www.last.fm/api/) on Last.fm.
+- A Last.fm API key: you'll need to create an ["API account"](https://www.last.fm/api/) on Last.fm.
 
 - A MongoDB connection string; this is how:
   - On the "Cluster" section, click the "CONNECT" button and then "Connect your application."
