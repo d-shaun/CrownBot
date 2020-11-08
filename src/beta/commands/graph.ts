@@ -51,36 +51,38 @@ class GraphCommand extends Command {
       artist_name: <undefined | string>undefined,
     };
 
-    switch (args[0]) {
-      case `a`:
-      case `all`:
-      case `alltime`:
-      case `o`:
-      case `overall`:
-        config.period.value = "ALL";
-        config.period.text = "all-time";
-        break;
-      case `w`:
-      case `weekly`:
-      case `week`:
-        config.period.value = "LAST_7_DAYS";
-        config.period.text = "last 7 days";
-        break;
-      case `monthly`:
-      case `month`:
-      case `m`:
-        config.period.value = "LAST_30_DAYS";
-        config.period.text = "last 30 days";
-        break;
-      case `yearly`:
-      case `year`:
-      case `y`:
-        config.period.value = "LAST_365_DAYS";
-        config.period.text = "last 365 days";
-        break;
-      default:
-        config.period.value = undefined;
-        break;
+    if (args[0]) {
+      switch (args[0]) {
+        case `a`:
+        case `all`:
+        case `alltime`:
+        case `o`:
+        case `overall`:
+          config.period.value = "ALL";
+          config.period.text = "all-time";
+          break;
+        case `w`:
+        case `weekly`:
+        case `week`:
+          config.period.value = "LAST_7_DAYS";
+          config.period.text = "last 7 days";
+          break;
+        case `monthly`:
+        case `month`:
+        case `m`:
+          config.period.value = "LAST_30_DAYS";
+          config.period.text = "last 30 days";
+          break;
+        case `yearly`:
+        case `year`:
+        case `y`:
+          config.period.value = "LAST_365_DAYS";
+          config.period.text = "last 365 days";
+          break;
+        default:
+          config.period.value = undefined;
+          break;
+      }
     }
 
     if (args[1]) {
