@@ -175,6 +175,7 @@ class HelpCommand extends Command {
       "FAQs and commands' descriptions can be found here: <https://d-shaun.github.io/cbdocs/>.";
 
     await message.channel.send(embed);
+    await response.send();
   }
 
   format_command(command: Command, server_prefix: string) {
