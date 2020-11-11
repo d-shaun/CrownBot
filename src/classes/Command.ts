@@ -12,6 +12,7 @@ interface CommandInterface {
   description: string;
   usage: string[];
   aliases: string[];
+  extra_aliases?: string[];
   hidden?: boolean;
   owner_only?: boolean;
   examples?: string[];
@@ -27,6 +28,7 @@ export default class Command {
   description: string;
   usage: string[];
   aliases: string[];
+  extra_aliases?: string[];
   hidden?: boolean;
   owner_only?: boolean;
   examples?: string[];
@@ -41,6 +43,7 @@ export default class Command {
     this.description = options.description;
     this.usage = options.usage || [];
     this.aliases = options.aliases || [];
+    this.extra_aliases = options.extra_aliases || [];
     this.hidden = options.hidden;
     this.owner_only = options.owner_only;
     this.examples = options.examples;

@@ -57,7 +57,11 @@ export default async (client: CrownBot, message: Message) => {
   const get_command = function (name: string, beta = false) {
     if (!beta) {
       return client.commands.find((x) => {
-        return x.name === name || x.aliases.includes(name);
+        return (
+          x.name === name ||
+          x.aliases.includes(name) ||
+          x.extra_aliases?.includes(name)
+        );
       });
     } else {
       return client.beta_commands.find((x) => {

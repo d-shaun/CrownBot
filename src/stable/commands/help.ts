@@ -52,6 +52,10 @@ class HelpCommand extends Command {
         ? false
         : command.aliases.map((e) => `\`\`${server_prefix}${e}\`\``);
 
+      const extra_aliases = command.extra_aliases
+        ?.map((e) => `\`${server_prefix}${e}\``)
+        .join(", ");
+
       const examples = !command.examples
         ? false
         : command.examples
@@ -66,12 +70,14 @@ class HelpCommand extends Command {
         .addField("Usage", usage);
 
       if (aliases) embed.addField("Aliases", aliases);
+      if (extra_aliases) embed.addField("Extra aliases", extra_aliases);
       if (examples) embed.addField("Examples", examples);
 
       message.channel.send(embed);
       return;
     }
 
+    /* if no specific command is requested */
     let description = `This is a list of the commands this bot offers. The prefix is \`${server_prefix}\`.`;
     if (args[0] === "beta") {
       description = `This is a list of the __beta__ commands this bot offers that are not in the stable version. The prefix is \`${server_prefix}\`.`;
