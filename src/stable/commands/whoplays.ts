@@ -22,6 +22,7 @@ class WhoPlaysCommand extends Command {
       description: "Checks if anyone in a guild listens to a certain track. ",
       usage: ["whoplays", "whoplays <song name> || <artist name>"],
       aliases: ["wp"],
+      extra_aliases: ["wpl"],
       examples: [
         "whoplays Last Man Standing || People In Planes",
         "whoplays Under Control || The Strokes",

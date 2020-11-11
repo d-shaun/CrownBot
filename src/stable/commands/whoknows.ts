@@ -26,6 +26,7 @@ class WhoKnowsCommand extends Command {
         "currently listening to.",
       usage: ["whoknows", "whoknows <artist name>"],
       aliases: ["w"],
+      extra_aliases: ["whoknow", "wk", "whk", "wh"],
       examples: ["whoknows Kwoon", "whoknows Poppy"],
       require_login: true,
       required_permissions: ["MANAGE_MESSAGES"],
