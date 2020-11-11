@@ -21,7 +21,7 @@ class AboutCommand extends Command {
       .setDescription(
         "A Discord bot that uses the Last.fm API to track users' scrobbling-history to provide various stats and leader-boards."
       )
-      .addField("Version", "8.0.0")
+      .addField("Version", "8.1.0")
       .addField("Prefix", server_prefix)
       .addField("Maintainer", "shaun#4761")
       .addField("Repository", "<https://github.com/d-shaun/CrownBot/>")
