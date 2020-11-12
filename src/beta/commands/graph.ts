@@ -187,6 +187,14 @@ class GraphCommand extends Command {
     const configuration = {
       type: "line",
       options: {
+        layout: {
+          padding: {
+            top: 30,
+            left: 15,
+            bottom: 15,
+            right: 15,
+          },
+        },
         legend: {
           display: false,
         },
