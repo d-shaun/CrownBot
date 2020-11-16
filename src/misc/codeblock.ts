@@ -1,3 +1,5 @@
 export default function cb(text: string, prefix?: string) {
-  return "``" + (prefix ? prefix : "") + text + "``";
+  /* replace backticks (`) with single-quotes (') */
+  const escaped = text.replace(/[`]/g, "'");
+  return "``" + (prefix ? prefix : "") + escaped + "``";
 }
