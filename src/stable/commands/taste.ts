@@ -1,11 +1,12 @@
 import { Message, MessageEmbed } from "discord.js";
 import Command from "../../classes/Command";
-import CrownBot from "../../handlers/CrownBot";
 import BotMessage from "../../handlers/BotMessage";
+import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
-import search_user from "../../misc/search_user";
-import { TopArtistInterface } from "../../interfaces/ArtistInterface";
 import LastFMUser from "../../handlers/LastFMUser";
+import { TopArtistInterface } from "../../interfaces/ArtistInterface";
+import esm from "../../misc/escapemarkdown";
+import search_user from "../../misc/search_user";
 
 class TasteCommand extends Command {
   constructor() {
@@ -95,7 +96,7 @@ class TasteCommand extends Command {
     plays.forEach((stat) => {
       const { name, userone_plays, usertwo_plays } = stat;
       embed.addField(
-        name,
+        esm(name),
         `${userone_plays} plays — ${usertwo_plays} plays`,
         true
       );

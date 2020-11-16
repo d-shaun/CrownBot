@@ -1,7 +1,8 @@
 import { Message, MessageEmbed } from "discord.js";
 import Command from "../../classes/Command";
-import CrownBot from "../../handlers/CrownBot";
 import BotMessage from "../../handlers/BotMessage";
+import CrownBot from "../../handlers/CrownBot";
+import esm from "../../misc/escapemarkdown";
 import get_registered_users from "../../misc/get_registered_users";
 
 class CrownboardCommand extends Command {
@@ -49,13 +50,13 @@ class CrownboardCommand extends Command {
         const discord_username = server_users.find(
           (user) => user.database.userID === userID
         )?.discord.user.username;
-
-        return `${++num}. ${discord_username} with **${amount}** crowns`;
+        if (!discord_username) return;
+        return `${++num}. ${esm(discord_username)} with **${amount}** crowns`;
       })
       .join("\n");
 
     const embed = new MessageEmbed()
-      .setTitle(`${message.guild.name}'s crown leaderboard`)
+      .setTitle(`${esm(message.guild.name)}'s crown leaderboard`)
       .setDescription(description_text);
 
     const guild_icon = message.guild.iconURL();

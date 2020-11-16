@@ -1,4 +1,3 @@
-import { AxiosResponse } from "axios";
 import { FieldsEmbed } from "discord-paginationembed";
 import { GuildMember, Message, TextChannel } from "discord.js";
 import Command from "../../classes/Command";
@@ -8,6 +7,7 @@ import DB from "../../handlers/DB";
 import { LastFM, ResponseInterface } from "../../handlers/LastFM";
 import { RecentTrackInterface } from "../../interfaces/TrackInterface";
 import cb from "../../misc/codeblock";
+import esm from "../../misc/escapemarkdown";
 import get_registered_users from "../../misc/get_registered_users";
 class PlayingCommand extends Command {
   constructor() {
@@ -103,7 +103,11 @@ class PlayingCommand extends Command {
         const artist_url =
           "https://www.last.fm/music/" +
           encodeURIComponent(track.artist["#text"]);
-        const str = `**${user.user.username}**\n[${track.name}](${track.url}) · ${track.album["#text"]} — **${track.artist["#text"]}**\n`;
+        const str = `**${esm(user.user.username)}**\n[${esm(track.name)}](${
+          track.url
+        }) · ${esm(track.album["#text"])} — **${esm(
+          track.artist["#text"]
+        )}**\n`;
         return str.substring(0, 1020);
       });
 

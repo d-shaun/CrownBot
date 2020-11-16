@@ -1,11 +1,11 @@
 import { FieldsEmbed } from "discord-paginationembed";
 import { Message, TextChannel, User } from "discord.js";
-
-import { CrownInterface } from "../models/Crowns";
 import Command from "../../classes/Command";
-import CrownBot from "../../handlers/CrownBot";
 import BotMessage from "../../handlers/BotMessage";
+import CrownBot from "../../handlers/CrownBot";
+import esm from "../../misc/escapemarkdown";
 import search_user from "../../misc/search_user";
+import { CrownInterface } from "../models/Crowns";
 
 class CrownsCommand extends Command {
   constructor() {
@@ -68,7 +68,9 @@ class CrownsCommand extends Command {
         const elem: CrownInterface = el;
         const index =
           sorted_crowns.findIndex((e) => e.artistName === elem.artistName) + 1;
-        return `${index}. ${elem.artistName} — **${elem.artistPlays} play(s)**`;
+        return `${index}. ${esm(elem.artistName)} — **${
+          elem.artistPlays
+        } play(s)**`;
       });
 
     fields_embed.embed

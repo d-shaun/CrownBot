@@ -2,15 +2,16 @@ import { AxiosResponse } from "axios";
 import { FieldsEmbed } from "discord-paginationembed";
 import { Message, TextChannel } from "discord.js";
 import Command from "../../classes/Command";
-import CrownBot from "../../handlers/CrownBot";
-import BotMessage from "../../handlers/BotMessage";
-import DB from "../../handlers/DB";
-import LastFMUser from "../../handlers/LastFMUser";
-import { LastFM, ResponseInterface } from "../../handlers/LastFM";
 import { Template } from "../../classes/Template";
-import cb from "../../misc/codeblock";
+import BotMessage from "../../handlers/BotMessage";
+import CrownBot from "../../handlers/CrownBot";
+import DB from "../../handlers/DB";
+import { LastFM, ResponseInterface } from "../../handlers/LastFM";
+import LastFMUser from "../../handlers/LastFMUser";
 import { AlbumInterface } from "../../interfaces/AlbumInterface";
 import { TrackInterface } from "../../interfaces/TrackInterface";
+import cb from "../../misc/codeblock";
+import esm from "../../misc/escapemarkdown";
 
 class TopAlbumSongs extends Command {
   constructor() {
@@ -125,7 +126,7 @@ class TopAlbumSongs extends Command {
             plays: number;
           } = el;
           const index = album_tracks.findIndex((e) => e.name === elem.name) + 1;
-          return `${index}. ${elem.name} — **${elem.plays} play(s)**`;
+          return `${index}. ${esm(elem.name)} — **${elem.plays} play(s)**`;
         }
       );
     fields_embed.embed

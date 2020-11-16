@@ -13,6 +13,7 @@ import LastFMUser from "../../handlers/LastFMUser";
 import { AlbumInterface } from "../../interfaces/AlbumInterface";
 import { ArtistInterface } from "../../interfaces/ArtistInterface";
 import cb from "../../misc/codeblock";
+import esm from "../../misc/escapemarkdown";
 import time_difference from "../../misc/time_difference";
 import { AlbumLogInterface } from "../models/AlbumLog";
 class AlbumPlaysCommand extends Command {
@@ -184,7 +185,9 @@ class AlbumPlaysCommand extends Command {
     const embed = new MessageEmbed()
       .setTitle(`Album plays`)
       .setDescription(
-        `**${album.name}** by **${album.artist}** — ${album.userplaycount} play(s)` +
+        `**${esm(album.name)}** by **${esm(album.artist)}** — ${
+          album.userplaycount
+        } play(s)` +
           `${percentage_text.artist}\n\n` +
           `${percentage_text.album}\n\n` +
           `${aggr_str}`

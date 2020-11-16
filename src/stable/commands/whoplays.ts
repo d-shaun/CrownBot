@@ -185,7 +185,9 @@ class WhoPlaysCommand extends Command {
       });
     });
     if (leaderboard.length <= 0) {
-      response.text = `No one here has played \`${track.name}\` by \`${track.artist.name}\`.`;
+      response.text = `No one here has played ${cb(track.name)} by ${cb(
+        track.artist.name
+      )}.`;
       await response.send();
       return;
     }
@@ -260,7 +262,9 @@ class WhoPlaysCommand extends Command {
     fields_embed.embed
       .setColor(message.member?.displayColor || "000000")
       .setTitle(
-        `Who plays \`${track.name}\` by \`${track.artist.name}\` in ${message.guild.name}?`
+        `Who plays ${cb(track.name)} by ${cb(track.artist.name)} in ${
+          message.guild.name
+        }?`
       )
       .setFooter(footer_text);
     fields_embed.on("start", () => {

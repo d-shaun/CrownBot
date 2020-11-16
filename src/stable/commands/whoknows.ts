@@ -11,6 +11,7 @@ import LastFMUser from "../../handlers/LastFMUser";
 import { ArtistInterface } from "../../interfaces/ArtistInterface";
 import { LeaderboardInterface } from "../../interfaces/LeaderboardInterface";
 import cb from "../../misc/codeblock";
+import esm from "../../misc/escapemarkdown";
 import get_registered_users from "../../misc/get_registered_users";
 import time_difference from "../../misc/time_difference";
 import { CrownInterface } from "../models/Crowns";
@@ -162,7 +163,7 @@ class WhoKnowsCommand extends Command {
       });
     });
     if (leaderboard.length <= 0) {
-      response.text = `No one here listens to \`${artist.name}\`.`;
+      response.text = `No one here listens to ${cb(artist.name)}.`;
       await response.send();
       return;
     }
@@ -267,7 +268,7 @@ class WhoKnowsCommand extends Command {
     }
     fields_embed.embed
       .setColor(message.member?.displayColor || "000000")
-      .setTitle(`Who knows ${artist.name}?`)
+      .setTitle(`Who knows ${esm(artist.name)}?`)
       .setFooter(footer_text);
 
     // delete if there's an existing crown for the artist in the server
@@ -286,7 +287,11 @@ class WhoKnowsCommand extends Command {
           );
           if (last_user && last_user.user.id !== top_user.user_id) {
             response.reply = false;
-            response.text = `**${top_user.discord_username}** took the *${artist.name}* crown from **${last_user.user.username}**.`;
+            response.text = `**${esm(
+              top_user.discord_username
+            )}** took the *${cb(artist.name)}* crown from **${esm(
+              last_user.user.username
+            )}**.`;
             response.send();
           }
         }

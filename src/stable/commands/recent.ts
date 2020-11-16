@@ -1,14 +1,15 @@
 import { Message, MessageEmbed, User } from "discord.js";
 import moment from "moment";
 import Command from "../../classes/Command";
-import CrownBot from "../../handlers/CrownBot";
-import BotMessage from "../../handlers/BotMessage";
-import DB from "../../handlers/DB";
-import search_user from "../../misc/search_user";
-import { LastFM } from "../../handlers/LastFM";
 import { Template } from "../../classes/Template";
+import BotMessage from "../../handlers/BotMessage";
+import CrownBot from "../../handlers/CrownBot";
+import DB from "../../handlers/DB";
+import { LastFM } from "../../handlers/LastFM";
 import { RecentTrackInterface } from "../../interfaces/TrackInterface";
 import cb from "../../misc/codeblock";
+import esm from "../../misc/escapemarkdown";
+import search_user from "../../misc/search_user";
 import time_difference from "../../misc/time_difference";
 
 class RecentCommand extends Command {
@@ -91,7 +92,9 @@ class RecentCommand extends Command {
       }
       embed.addField(
         time_str,
-        `**${track.artist["#text"]}** — [${track.name}](${track.url}) · ${track.album["#text"]}`
+        `**${esm(track.artist["#text"])}** — [${esm(track.name)}](${
+          track.url
+        }) · ${esm(track.album["#text"])}`
       );
     }
     message.channel.send(embed);

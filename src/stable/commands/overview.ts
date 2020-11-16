@@ -7,6 +7,8 @@ import DB from "../../handlers/DB";
 import { LastFM } from "../../handlers/LastFM";
 import LastFMUser from "../../handlers/LastFMUser";
 import { ArtistInterface } from "../../interfaces/ArtistInterface";
+import cb from "../../misc/codeblock";
+import esm from "../../misc/escapemarkdown";
 
 class OverviewCommand extends Command {
   constructor() {
@@ -99,7 +101,9 @@ class OverviewCommand extends Command {
     const artist: ArtistInterface = data.artist;
     if (!artist.stats.userplaycount) return;
     if (parseInt(artist.stats.userplaycount) <= 0) {
-      response.text = `${discord_user.username} hasn't scrobbled \`${artist.name}\`.`;
+      response.text = `${discord_user.username} hasn't scrobbled ${cb(
+        artist.name
+      )}.`;
       await response.send();
       return;
     }
@@ -116,11 +120,11 @@ class OverviewCommand extends Command {
     };
 
     const album_str = albums.slice(0, 15).map((album, i) => {
-      return `${i + 1}. **${truncate(album.name, 20)}** (${album.plays})`;
+      return `${i + 1}. **${esm(truncate(album.name, 25))}** (${album.plays})`;
     });
 
     const track_str = tracks.slice(0, 15).map((track, i) => {
-      return `${i + 1}. **${truncate(track.name, 20)}** (${track.plays})`;
+      return `${i + 1}. **${esm(truncate(track.name, 25))}** (${track.plays})`;
     });
 
     const has_crown = await client.models.crowns.findOne({
@@ -129,7 +133,7 @@ class OverviewCommand extends Command {
     });
 
     const embed = new MessageEmbed()
-      .setTitle(`\`${artist.name}\` overview for ${discord_user.username}`)
+      .setTitle(`${cb(artist.name)} overview for ${discord_user.username}`)
       .addField(
         "Scrobbles",
         `${has_crown ? ":crown:" : ""} **${

@@ -11,6 +11,7 @@ import { LastFM } from "../../handlers/LastFM";
 import LastFMUser from "../../handlers/LastFMUser";
 import { TrackInterface } from "../../interfaces/TrackInterface";
 import cb from "../../misc/codeblock";
+import esm from "../../misc/escapemarkdown";
 import { LyricsLogInterface } from "../../stable/models/LyricsLog";
 
 class LyricsCommand extends Command {
@@ -139,7 +140,9 @@ class LyricsCommand extends Command {
       await response.send();
       return;
     }
-    let lyrics = `**${song.title}** by **${song.primary_artist.name}**\n\n${original_lyrics}`;
+    let lyrics = `**${esm(song.title)}** by **${esm(
+      song.primary_artist.name
+    )}**\n\n${original_lyrics}`;
     if (lyrics.length > 6000) {
       response.text = "Couldn't find lyrics for the song.";
       await response.send();
