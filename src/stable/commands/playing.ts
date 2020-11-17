@@ -2,14 +2,13 @@ import { AxiosResponse } from "axios";
 import { FieldsEmbed } from "discord-paginationembed";
 import { GuildMember, Message, TextChannel } from "discord.js";
 import Command from "../../classes/Command";
-import CrownBot from "../../handlers/CrownBot";
 import BotMessage from "../../handlers/BotMessage";
+import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
-import get_registered_users from "../../misc/get_registered_users";
-import cb from "../../misc/codeblock";
-import { LastFM } from "../../handlers/LastFM";
+import { LastFM, ResponseInterface } from "../../handlers/LastFM";
 import { RecentTrackInterface } from "../../interfaces/TrackInterface";
-
+import cb from "../../misc/codeblock";
+import get_registered_users from "../../misc/get_registered_users";
 class PlayingCommand extends Command {
   constructor() {
     super({
@@ -66,10 +65,10 @@ class PlayingCommand extends Command {
           })
       );
     }
-    let responses: AxiosResponse[] = [];
+    let responses: ResponseInterface[] = [];
     await Promise.all(lastfm_requests).then((res) => (responses = res));
     responses = responses
-      .filter((response: AxiosResponse) => response.status === 200)
+      .filter((response) => response.status === 200)
       .filter((response) => {
         let last_track = response.data.recenttracks.track[0];
         return (

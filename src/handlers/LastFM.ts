@@ -11,6 +11,12 @@ interface ParamInterface extends ParsedUrlQueryInput {
   autocorrect?: number;
 }
 
+export interface ResponseInterface {
+  data: undefined | any;
+  status?: any;
+  actual_response?: any;
+}
+
 const { API_KEY } = process.env;
 const timeout = { timeout: 30 * 1000 }; // 30 seconds timeout
 export class LastFM {
@@ -24,7 +30,13 @@ export class LastFM {
     return this;
   }
 
-  async query({ method, params }: { method: string; params: ParamInterface }) {
+  async query({
+    method,
+    params,
+  }: {
+    method: string;
+    params: ParamInterface;
+  }): Promise<ResponseInterface> {
     params.api_key = API_KEY;
     params.format = "json";
     params.method = method;
@@ -32,9 +44,10 @@ export class LastFM {
       .get(this.url + stringify(params), timeout)
       .then((res) => res)
       .catch(({ response }) => response);
-    if (typeof response !== "object") {
+    if (typeof response !== "object" || !response) {
       // workaround for empty Last.fm responses
       response = {
+        status: undefined,
         data: undefined,
         actual_response: response,
       };

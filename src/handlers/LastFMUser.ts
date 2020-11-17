@@ -62,7 +62,7 @@ export default class LastFMUser {
       text: "",
     });
     if (!data || data.error) {
-      if (data.error === 6) {
+      if (data?.error === 6) {
         response.text =
           "User ``" +
           this.username +
@@ -145,7 +145,7 @@ export default class LastFMUser {
     const response = await Axios.get(URL, timeout).catch((_) => {
       return undefined;
     });
-    if (response?.status !== 200) {
+    if (response?.status !== 200 || !response.data) {
       return undefined;
     }
     const stat = this.parse_chartpage(response.data);
@@ -153,15 +153,14 @@ export default class LastFMUser {
   }
 
   async get_tracks(artist_name: string) {
-    const response = await Axios.get(
-      `https://www.last.fm/user/${encodeURIComponent(
-        this.username
-      )}/library/music/${encodeURIComponent(artist_name)}/+tracks`,
-      timeout
-    ).catch((_) => {
+    const URL = `https://www.last.fm/user/${encodeURIComponent(
+      this.username
+    )}/library/music/${encodeURIComponent(artist_name)}/+tracks`;
+
+    const response = await Axios.get(URL, timeout).catch((_) => {
       return undefined;
     });
-    if (response?.status !== 200) {
+    if (response?.status !== 200 || !response.data) {
       return undefined;
     }
     const stat = this.parse_chartpage(response.data);

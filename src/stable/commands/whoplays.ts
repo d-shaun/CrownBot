@@ -6,7 +6,7 @@ import { Template } from "../../classes/Template";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
-import { LastFM } from "../../handlers/LastFM";
+import { LastFM, ResponseInterface } from "../../handlers/LastFM";
 import LastFMUser from "../../handlers/LastFMUser";
 import { LeaderboardInterface } from "../../interfaces/LeaderboardInterface";
 import { TrackInterface } from "../../interfaces/TrackInterface";
@@ -139,7 +139,7 @@ class WhoPlaysCommand extends Command {
           })
       );
     }
-    let responses: AxiosResponse[] = [];
+    let responses: ResponseInterface[] = [];
     await Promise.all(lastfm_requests).then((res) => (responses = res));
 
     if (
@@ -152,7 +152,7 @@ class WhoPlaysCommand extends Command {
     }
 
     responses = responses
-      .filter((response: AxiosResponse) => response.status !== 404)
+      .filter((response) => response.status !== 404)
       .filter((response) => {
         // filter out users who have deleted their Last.fm account
         const track: TrackInterface = response.data.track;

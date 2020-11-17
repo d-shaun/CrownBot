@@ -6,7 +6,7 @@ import CrownBot from "../../handlers/CrownBot";
 import BotMessage from "../../handlers/BotMessage";
 import DB from "../../handlers/DB";
 import LastFMUser from "../../handlers/LastFMUser";
-import { LastFM } from "../../handlers/LastFM";
+import { LastFM, ResponseInterface } from "../../handlers/LastFM";
 import { Template } from "../../classes/Template";
 import cb from "../../misc/codeblock";
 import { AlbumInterface } from "../../interfaces/AlbumInterface";
@@ -229,7 +229,7 @@ class TopAlbumSongs extends Command {
     if (lastfm_requests.length > 100) {
       lastfm_requests.length = 100; // 100 tracks limit
     }
-    let responses: AxiosResponse[] = [];
+    let responses: ResponseInterface[] = [];
     await Promise.all(lastfm_requests).then((res) => (responses = res));
     if (!responses.length) {
       response.text = `The album ${cb(album.name)} by ${cb(
@@ -245,7 +245,7 @@ class TopAlbumSongs extends Command {
     }
 
     responses = responses
-      .filter((response: AxiosResponse) => response.status !== 404)
+      .filter((response) => response.status !== 404)
       .filter((response) => {
         // filter out users who have deleted their Last.fm account
         const track: TrackInterface = response.data.track;
