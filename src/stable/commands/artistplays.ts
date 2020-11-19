@@ -10,6 +10,7 @@ import DB from "../../handlers/DB";
 import { LastFM } from "../../handlers/LastFM";
 import LastFMUser from "../../handlers/LastFMUser";
 import { ArtistInterface } from "../../interfaces/ArtistInterface";
+import esm from "../../misc/escapemarkdown";
 import time_difference from "../../misc/time_difference";
 import { ArtistLogInterface } from "../models/ArtistLog";
 
@@ -93,7 +94,7 @@ class ArtistPlaysCommand extends Command {
     const embed = new MessageEmbed()
       .setTitle(`Artist plays`)
       .setDescription(
-        `**${artist.name}** — **${
+        `**${esm(artist.name)}** — **${
           artist.stats.userplaycount
         } play(s)** \n\n (**${percentage}%** of ${abbreviate(
           artist.stats.playcount,

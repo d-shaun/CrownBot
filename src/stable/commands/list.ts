@@ -8,6 +8,7 @@ import LastFMUser from "../../handlers/LastFMUser";
 import { TopArtistInterface } from "../../interfaces/ArtistInterface";
 import { TopTrackInterface } from "../../interfaces/TrackInterface";
 import cb from "../../misc/codeblock";
+import esm from "../../misc/escapemarkdown";
 import time_difference from "../../misc/time_difference";
 
 class ListCommand extends Command {
@@ -202,7 +203,9 @@ class ListCommand extends Command {
           // if (artist.is_new) {
           //   diff_str = " ― :new:";
           // }
-          return `${artist["@attr"].rank}. **${artist.name}** — **${artist.playcount}** plays ${diff_str}`;
+          return `${artist["@attr"].rank}. **${esm(artist.name)}** — **${
+            artist.playcount
+          }** plays ${diff_str}`;
         })
         .join("\n");
 
@@ -237,7 +240,9 @@ class ListCommand extends Command {
       const top_tracks: TopTrackInterface[] = query.toptracks.track;
       const embed_list = top_tracks
         .map((track) => {
-          return `${track["@attr"].rank}. **${track.name}** by **${track.artist.name}**— **${track.playcount}** plays`;
+          return `${track["@attr"].rank}. **${esm(track.name)}** by **${esm(
+            track.artist.name
+          )}**— **${track.playcount}** plays`;
         })
         .join("\n");
 

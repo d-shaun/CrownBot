@@ -2,18 +2,19 @@ import axios from "axios";
 import { FieldsEmbed } from "discord-paginationembed";
 import { Message, TextChannel } from "discord.js";
 import Command from "../../classes/Command";
-import CrownBot from "../../handlers/CrownBot";
-import BotMessage from "../../handlers/BotMessage";
-import DB from "../../handlers/DB";
-import LastFMUser from "../../handlers/LastFMUser";
-import { LastFM } from "../../handlers/LastFM";
 import { Template } from "../../classes/Template";
-import { ArtistInterface } from "../../interfaces/ArtistInterface";
+import BotMessage from "../../handlers/BotMessage";
+import CrownBot from "../../handlers/CrownBot";
+import DB from "../../handlers/DB";
+import { LastFM } from "../../handlers/LastFM";
+import LastFMUser from "../../handlers/LastFMUser";
 import {
   AlbumInterface,
   TopAlbumInterface,
 } from "../../interfaces/AlbumInterface";
+import { ArtistInterface } from "../../interfaces/ArtistInterface";
 import { DeezerAlbumInterface } from "../../interfaces/DeezerAlbumInterface";
+import cb from "../../misc/codeblock";
 
 class TopAlbumsCommand extends Command {
   constructor() {
@@ -71,7 +72,7 @@ class TopAlbumsCommand extends Command {
       !artist.stats.userplaycount ||
       parseInt(artist.stats.userplaycount) <= 0
     ) {
-      response.text = `You haven't listened to \`${artist.name}\``;
+      response.text = `You haven't listened to ${cb(artist.name)}`;
       await response.send();
       return;
     }
@@ -106,7 +107,7 @@ class TopAlbumsCommand extends Command {
     fields_embed.embed
       .setColor(message.member?.displayColor || "000000")
       .setTitle(
-        `${message.author.username}'s top-played albums by \`${artist.name}\``
+        `${message.author.username}'s top-played albums by ${cb(artist.name)}`
       )
       .setFooter(`Psst, try ${server_prefix}about to find the support server.`);
     fields_embed.on("start", () => {
@@ -159,7 +160,7 @@ class TopAlbumsCommand extends Command {
       !artist.stats.userplaycount ||
       parseInt(artist.stats.userplaycount) <= 0
     ) {
-      response.text = `You haven't listened to \`${artist.name}\``;
+      response.text = `You haven't listened to ${cb(artist.name)}`;
       await response.send();
       return;
     }
@@ -234,7 +235,7 @@ class TopAlbumsCommand extends Command {
     fields_embed.embed
       .setColor(message.member?.displayColor || "000000")
       .setTitle(
-        `${message.author.username}'s top-played albums by \`${artist.name}\``
+        `${message.author.username}'s top-played albums by ${cb(artist.name)}`
       )
       .setFooter(`Psst, try ${server_prefix}about to find the support server.`);
     fields_embed.on("start", () => {

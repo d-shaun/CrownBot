@@ -57,15 +57,15 @@ class BanCommand extends Command {
     });
     if (banned_user) {
       response.text =
-        `\`${user.tag}\` has already been banned in this guild; ` +
+        `${cb(user.tag)} has already been banned in this guild; ` +
         `looking for the ${cb("unban", server_prefix)} command, maybe?`;
       await response.send();
       return;
     }
     const msg = await message.reply(
-      "Are you sure you want to ban `" +
-        user.tag +
-        "`? This will ban them from accessing the bot and showing up on the 'whoknows' list. " +
+      "Are you sure you want to ban " +
+        cb(user.tag) +
+        "? This will ban them from accessing the bot and showing up on the 'whoknows' list. " +
         "Click the reaction to continue."
     );
 
@@ -84,7 +84,9 @@ class BanCommand extends Command {
     if (reactions.size > 0) {
       if (await db.ban_user(message, user)) {
         await msg.edit(
-          `\`${user.tag}\` has been banned from accessing the bot and showing up on the 'whoknows' list.`
+          `${cb(
+            user.tag
+          )} has been banned from accessing the bot and showing up on the 'whoknows' list.`
         );
       } else {
         await msg.edit(new Template(client, message).get("exception"));

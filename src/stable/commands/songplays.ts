@@ -3,20 +3,21 @@ import { Message, MessageEmbed } from "discord.js";
 import moment from "moment";
 // @ts-ignore
 import abbreviate from "number-abbreviate";
-
-import { AlbumLogInterface } from "../models/AlbumLog";
-import { TrackLogInterface } from "../models/TrackLog";
 import Command from "../../classes/Command";
-import CrownBot from "../../handlers/CrownBot";
-import BotMessage from "../../handlers/BotMessage";
-import DB from "../../handlers/DB";
-import LastFMUser from "../../handlers/LastFMUser";
-import { LastFM } from "../../handlers/LastFM";
 import { Template } from "../../classes/Template";
-import cb from "../../misc/codeblock";
+import BotMessage from "../../handlers/BotMessage";
+import CrownBot from "../../handlers/CrownBot";
+import DB from "../../handlers/DB";
+import { LastFM } from "../../handlers/LastFM";
+import LastFMUser from "../../handlers/LastFMUser";
 import { ArtistInterface } from "../../interfaces/ArtistInterface";
 import { TrackInterface } from "../../interfaces/TrackInterface";
+import cb from "../../misc/codeblock";
+import esm from "../../misc/escapemarkdown";
 import time_difference from "../../misc/time_difference";
+import { AlbumLogInterface } from "../models/AlbumLog";
+import { TrackLogInterface } from "../models/TrackLog";
+
 class SongPlaysCommand extends Command {
   constructor() {
     super({
@@ -185,7 +186,9 @@ class SongPlaysCommand extends Command {
     const embed = new MessageEmbed()
       .setTitle(`Track plays`)
       .setDescription(
-        `**${track.name}** by **${track.artist.name}** — ${track.userplaycount} play(s)` +
+        `**${esm(track.name)}** by **${track.artist.name}** — ${
+          track.userplaycount
+        } play(s)` +
           `${percentage_text.artist}\n\n` +
           `${percentage_text.track}\n\n` +
           `${aggr_str}`
