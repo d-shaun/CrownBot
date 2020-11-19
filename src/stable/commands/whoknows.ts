@@ -289,7 +289,7 @@ class WhoKnowsCommand extends Command {
             response.reply = false;
             response.text = `**${esm(
               top_user.discord_username
-            )}** took the *${cb(artist.name)}* crown from **${esm(
+            )}** took the ${cb(artist.name)} crown from **${esm(
               last_user.user.username
             )}**.`;
             response.send();
