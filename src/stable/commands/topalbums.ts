@@ -72,7 +72,7 @@ class TopAlbumsCommand extends Command {
       !artist.stats.userplaycount ||
       parseInt(artist.stats.userplaycount) <= 0
     ) {
-      response.text = `You haven't listened to ${cb(artist.name)}\``;
+      response.text = `You haven't listened to ${cb(artist.name)}`;
       await response.send();
       return;
     }
@@ -107,7 +107,7 @@ class TopAlbumsCommand extends Command {
     fields_embed.embed
       .setColor(message.member?.displayColor || "000000")
       .setTitle(
-        `${message.author.username}'s top-played albums by ${cb(artist.name)}\``
+        `${message.author.username}'s top-played albums by ${cb(artist.name)}`
       )
       .setFooter(`Psst, try ${server_prefix}about to find the support server.`);
     fields_embed.on("start", () => {
@@ -160,7 +160,7 @@ class TopAlbumsCommand extends Command {
       !artist.stats.userplaycount ||
       parseInt(artist.stats.userplaycount) <= 0
     ) {
-      response.text = `You haven't listened to ${cb(artist.name)}\``;
+      response.text = `You haven't listened to ${cb(artist.name)}`;
       await response.send();
       return;
     }
@@ -235,9 +235,7 @@ class TopAlbumsCommand extends Command {
     fields_embed.embed
       .setColor(message.member?.displayColor || "000000")
       .setTitle(
-        `${message.author.username}'s top-played albums by \`${cb(
-          artist.name
-        )}\``
+        `${message.author.username}'s top-played albums by ${cb(artist.name)}`
       )
       .setFooter(`Psst, try ${server_prefix}about to find the support server.`);
     fields_embed.on("start", () => {
