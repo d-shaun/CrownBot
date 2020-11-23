@@ -1,4 +1,3 @@
-import { AxiosResponse } from "axios";
 import { FieldsEmbed } from "discord-paginationembed";
 import { GuildMember, Message, TextChannel } from "discord.js";
 import Command from "../../classes/Command";
@@ -15,17 +14,17 @@ import get_registered_users from "../../misc/get_registered_users";
 import time_difference from "../../misc/time_difference";
 import { LogInterface } from "../models/WhoPlaysLog";
 
-class WhoPlaysCommand extends Command {
+class WhoKnowsTrack extends Command {
   constructor() {
     super({
-      name: "whoplays",
+      name: "whoknowstrack",
       description: "Checks if anyone in a guild listens to a certain track. ",
-      usage: ["whoplays", "whoplays <song name> || <artist name>"],
-      aliases: ["wp"],
-      extra_aliases: ["wpl"],
+      usage: ["whoknowstrack", "whoknowstrack <song name> || <artist name>"],
+      aliases: ["wkt", "wp"],
+      extra_aliases: ["whoplays", "wpl"],
       examples: [
-        "whoplays Last Man Standing || People In Planes",
-        "whoplays Under Control || The Strokes",
+        "whoknowstrack Last Man Standing || People In Planes",
+        "whoknowstrack Under Control || The Strokes",
       ],
       required_permissions: ["MANAGE_MESSAGES"],
       require_login: true,
@@ -69,7 +68,7 @@ class WhoPlaysCommand extends Command {
 
         if (!track) {
           response.text = `Couldn't find the track; try providing artist name—see ${cb(
-            "help whoplays",
+            "help wkt",
             server_prefix
           )}.`;
           await response.send();
@@ -280,4 +279,4 @@ class WhoPlaysCommand extends Command {
   }
 }
 
-export default WhoPlaysCommand;
+export default WhoKnowsTrack;
