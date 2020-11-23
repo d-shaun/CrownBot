@@ -13,14 +13,18 @@ import { TrackInterface } from "../../interfaces/TrackInterface";
 import cb from "../../misc/codeblock";
 import esm from "../../misc/escapemarkdown";
 
-class TopAlbumSongs extends Command {
+class TopAlbumTracks extends Command {
   constructor() {
     super({
-      name: "topalbumsongs",
+      name: "topalbumtracks",
       description: "Displays user's top-played tracks in an album.",
-      usage: ["topalbumsongs", "topalbumsongs  <album name> || <artist name>"],
-      aliases: ["tas", "tsa"],
-      examples: ["tas In the Aeroplane Over the Sea"],
+      usage: [
+        "topalbumtracks",
+        "topalbumtracks  <album name> || <artist name>",
+      ],
+      aliases: ["tat", "tt", "tas"],
+      extra_aliases: ["topalbumsongs", "tsa"],
+      examples: ["tat In the Aeroplane Over the Sea"],
       require_login: true,
       category: "userstat",
     });
@@ -185,7 +189,7 @@ class TopAlbumSongs extends Command {
 
         if (!album) {
           response.text = `Couldn't find the album; try providing artist name—see ${cb(
-            "help tas",
+            "help tat",
             server_prefix
           )}.`;
           await response.send();
@@ -300,4 +304,4 @@ class TopAlbumSongs extends Command {
   }
 }
 
-export default TopAlbumSongs;
+export default TopAlbumTracks;
