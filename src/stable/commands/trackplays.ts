@@ -18,21 +18,22 @@ import time_difference from "../../misc/time_difference";
 import { AlbumLogInterface } from "../models/AlbumLog";
 import { TrackLogInterface } from "../models/TrackLog";
 
-class SongPlaysCommand extends Command {
+class TrackPlaysCommand extends Command {
   constructor() {
     super({
-      name: "songplays",
+      name: "trackplays",
       description: "Displays user's play count of a song.",
       usage: [
-        "songplays",
-        "songplays <song name>",
-        "songplays <song name> || <artist name>",
+        "trackplays",
+        "trackplays <song name>",
+        "trackplays <song name> || <artist name>",
       ],
-      aliases: ["spl"],
+      aliases: ["tp", "tpl", "spl"],
+      extra_aliases: ["songplays"],
       examples: [
-        "songplays Mystery of Love",
-        "songplays The Rip || Portishead",
-        "songplays Little Faith || The National",
+        "trackplays Mystery of Love",
+        "trackplays The Rip || Portishead",
+        "trackplays Little Faith || The National",
       ],
       require_login: true,
       category: "userstat",
@@ -79,7 +80,7 @@ class SongPlaysCommand extends Command {
 
         if (!track) {
           response.text = `Couldn't find the track; try providing artist name—see ${cb(
-            "help spl",
+            "help tpl",
             server_prefix
           )}.`;
           await response.send();
@@ -223,4 +224,4 @@ class SongPlaysCommand extends Command {
   }
 }
 
-export default SongPlaysCommand;
+export default TrackPlaysCommand;
