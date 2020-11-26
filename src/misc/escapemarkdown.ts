@@ -6,7 +6,7 @@ export default function esm(text: string) {
   const unescaped = text.replace(/[`]/g, "'");
 
   // .replace(/\\(\*|_|`|~|\\)/g, "$1"); // unescape any "backslashed" character
-  const escaped = unescaped.replace(/(\*|_|`|~|\\)/g, "\\$1"); // escape *, _, `, ~, \
+  const escaped = unescaped.replace(/(\*|_|`|~|\\)/g, "\\$1").trim(); // escape *, _, `, ~, \
 
   return escaped;
 }
