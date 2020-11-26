@@ -261,9 +261,7 @@ class WhoKnowsTrack extends Command {
     fields_embed.embed
       .setColor(message.member?.displayColor || "000000")
       .setTitle(
-        `Who plays ${cb(track.name)} by ${cb(track.artist.name)} in ${
-          message.guild.name
-        }?`
+        `Who knows the track ${cb(track.name)} by ${cb(track.artist.name)}?`
       )
       .setFooter(footer_text);
     fields_embed.on("start", () => {
