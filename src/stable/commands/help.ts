@@ -191,7 +191,7 @@ class HelpCommand extends Command {
 
     const aliases = command.aliases;
     const all_shortcuts = [command.name, ...aliases]
-      .map((e) => `\`\`${server_prefix}${e}\`\``)
+      .map((e) => cb(e, server_prefix))
       .join(" / ");
 
     const beta_str = command.beta ? "(:warning: beta)" : "";
