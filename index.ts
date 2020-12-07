@@ -1,13 +1,19 @@
 import CrownBot from "./src/handlers/CrownBot";
 
 /*
-
+# REQUIRED
+======================================================================================================
 TOKEN: Discord API token
 OWNER_ID: User ID of the bot owner
 API_KEY: Last.fm API key
-ACCESS_TOKEN: Deezer access token—used to be used in the topalbums command; no longer required.
 MONGO: Mongo DB connection string
+======================================================================================================
 
+# OPTIONAL
+ACCESS_TOKEN: Deezer access token—used to be used in the topalbums command; no longer required.
+GENIUS_API: Genius API for the &lyrics command.
+SPOTIFY_CLIENTID: Spotify client ID for the &chart command to show artist images
+SPOTIFY_SECRETID: Spotify client ID for the &chart command to show artist images
 */
 
 const {
