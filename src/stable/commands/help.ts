@@ -37,7 +37,7 @@ class HelpCommand extends Command {
         .filter((e) => !e.hidden)
         .find((x) => x.name === args[0] || x.aliases.includes(args[0]));
 
-      let command = beta_version;
+      let command;
 
       if (beta_version && is_beta) {
         command = beta_version;
@@ -52,21 +52,21 @@ class HelpCommand extends Command {
       let usage = Array.isArray(command.usage)
         ? command.usage
         : [command.usage];
-      usage = usage.map((e) => `\`\`${server_prefix}${e}\`\``);
+      usage = usage.map((e) => cb(server_prefix + e));
 
       const aliases = !(command.aliases && command.aliases.length)
         ? false
-        : command.aliases.map((e) => `\`\`${server_prefix}${e}\`\``);
+        : command.aliases.map((e) => cb(server_prefix + e));
 
       const extra_aliases = command.extra_aliases
-        ?.map((e) => `\`${server_prefix}${e}\``)
+        ?.map((e) => cb(server_prefix + e))
         .join(", ");
 
       const examples = !command.examples
         ? false
         : command.examples
             .map((example) => {
-              return `\`\`${server_prefix}${example}\`\``;
+              return cb(server_prefix + example);
             })
             .join("\n");
 
