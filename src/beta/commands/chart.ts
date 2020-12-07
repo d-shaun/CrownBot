@@ -256,7 +256,7 @@ class ChartCommand extends Command {
     } else {
       const data_element = data.map((x) => {
         const text = `${
-          x.artist_name ? truncate(x.name, 20) + " — " : ""
+          x.artist_name ? truncate(x.artist_name, 20) + " — " : ""
         }${truncate(x.name, 30)}`;
         const playcount = `${x.playcount} ${
           x.playcount > 1 ? "plays" : "play"
@@ -346,6 +346,7 @@ class ChartCommand extends Command {
   format_tracks(tracks: TopTrackInterface[]) {
     return tracks.map((track) => {
       return {
+        artist_name: track.artist.name,
         name: track.name,
         playcount: parseInt(track.playcount),
       };
