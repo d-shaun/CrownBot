@@ -29,20 +29,25 @@ class HelpCommand extends Command {
 
     // if `&help <command_name>` excluding `&help beta`
     if (args[0] && args[0] !== "beta") {
-      let command = client.commands
+      const beta_version = client.beta_commands
         .filter((e) => !e.hidden)
         .find((x) => x.name === args[0] || x.aliases.includes(args[0]));
 
-      if (!command || is_beta) {
-        command = client.beta_commands
-          .filter((e) => !e.hidden)
-          .find((x) => x.name === args[0] || x.aliases.includes(args[0]));
+      const stable_version = client.commands
+        .filter((e) => !e.hidden)
+        .find((x) => x.name === args[0] || x.aliases.includes(args[0]));
+
+      let command = beta_version;
+
+      if (beta_version && is_beta) {
+        command = beta_version;
+      } else if (stable_version) {
+        command = stable_version;
+      } else {
+        command = beta_version;
       }
 
       if (!command || command.hidden) return;
-      // if (command.beta && !(await db.check_optin(message))) {
-      //   return;
-      // }
 
       let usage = Array.isArray(command.usage)
         ? command.usage
