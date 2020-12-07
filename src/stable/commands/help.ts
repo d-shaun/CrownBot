@@ -25,6 +25,7 @@ class HelpCommand extends Command {
       reply: true,
       text: "",
     });
+    const is_beta = await db.check_optin(message);
 
     // if `&help <command_name>` excluding `&help beta`
     if (args[0] && args[0] !== "beta") {
@@ -32,7 +33,7 @@ class HelpCommand extends Command {
         .filter((e) => !e.hidden)
         .find((x) => x.name === args[0] || x.aliases.includes(args[0]));
 
-      if (!command) {
+      if (!command || is_beta) {
         command = client.beta_commands
           .filter((e) => !e.hidden)
           .find((x) => x.name === args[0] || x.aliases.includes(args[0]));
@@ -66,12 +67,12 @@ class HelpCommand extends Command {
 
       const embed = new MessageEmbed()
         .setTitle(command.name)
-        .setDescription(command.description)
-        .addField("Usage", usage);
+        .setDescription(command.description);
 
       if (aliases) embed.addField("Aliases", aliases);
       if (extra_aliases) embed.addField("Extra aliases", extra_aliases);
       if (examples) embed.addField("Examples", examples);
+      if (usage.length) embed.addField("Usage", usage);
 
       message.channel.send(embed);
       return;
@@ -109,7 +110,6 @@ class HelpCommand extends Command {
     if (args[0] === "beta") {
       commands = unique_beta_commands;
     } else {
-      const is_beta = await db.check_optin(message);
       if (is_beta) {
         commands = [...stable_commands, ...unique_beta_commands];
       }
