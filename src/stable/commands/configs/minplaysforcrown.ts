@@ -2,6 +2,7 @@ import { Message, MessageReaction, User } from "discord.js";
 import CrownBot from "../../../handlers/CrownBot";
 import DB from "../../../handlers/DB";
 import BotMessage from "../../../handlers/BotMessage";
+import { GuildMessage } from "../../../classes/Command";
 
 export default class MinPlaysForCrown {
   name = "minplaysforcrown";
@@ -10,8 +11,8 @@ export default class MinPlaysForCrown {
     "For example, running `&config minplaysforcrown 10` would then require users to " +
     "have at least 10 plays on an artist before they get the crown.\n\n" +
     "Examples: \n`&config minplaysforcrown 30` \n `&config minplaysforcrown 20`";
-  async run(client: CrownBot, message: Message, args: string[]) {
-    const server_prefix = client.get_cached_prefix(message);
+  async run(client: CrownBot, message: GuildMessage, args: string[]) {
+    const server_prefix = client.cache.prefix.get(message.guild);
     const db = new DB(client.models);
     let current_val = 1;
     const server_config = client.get_cached_config(message);

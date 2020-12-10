@@ -1,4 +1,4 @@
-import { Message, PermissionString } from "discord.js";
+import { Guild, Message, PermissionString } from "discord.js";
 import BotMessage from "../handlers/BotMessage";
 import CrownBot from "../handlers/CrownBot";
 import DB from "../handlers/DB";
@@ -21,6 +21,10 @@ interface CommandInterface {
   required_permissions?: string[];
   beta?: boolean;
   category?: string;
+}
+
+export interface GuildMessage extends Message {
+  guild: Guild;
 }
 
 export default class Command {
@@ -55,7 +59,7 @@ export default class Command {
 
   async execute(
     client: CrownBot,
-    message: Message,
+    message: GuildMessage,
     args: string[],
     override_beta = false
   ) {
@@ -140,7 +144,7 @@ export default class Command {
 
   async log_error(client: CrownBot, message: Message, stack?: string) {
     const response = new BotMessage({ client, message, text: "", reply: true });
-    const server_prefix = client.get_cached_prefix(message);
+    const server_prefix = client.cache.prefix.get(message.guild);
 
     if (!message.guild) return;
     var expire_date = new Date();

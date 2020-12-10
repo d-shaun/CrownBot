@@ -20,7 +20,7 @@ class CrownsCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: string[]) {
+  async run(client: CrownBot, message: GuildMessage, args: string[]) {
     if (!message.guild) return;
     const response = new BotMessage({ client, message, text: "", reply: true });
     let user: User | undefined;

@@ -2,7 +2,7 @@ import { Message, MessageEmbed } from "discord.js";
 import moment from "moment";
 // @ts-ignore
 import abbreviate from "number-abbreviate";
-import Command from "../../classes/Command";
+import Command, { GuildMessage } from "../../classes/Command";
 import { Template } from "../../classes/Template";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
@@ -27,7 +27,7 @@ class ArtistPlaysCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: string[]) {
+  async run(client: CrownBot, message: GuildMessage, args: string[]) {
     const db = new DB(client.models);
     const user = await db.fetch_user(message.guild?.id, message.author.id);
     const response = new BotMessage({ client, message, text: "", reply: true });

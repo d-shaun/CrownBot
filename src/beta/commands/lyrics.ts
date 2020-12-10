@@ -27,11 +27,11 @@ class LyricsCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: string[]) {
+  async run(client: CrownBot, message: GuildMessage, args: string[]) {
     if (!client.genius_api) {
       throw "You must set the `GENIUS_API` in the environment variable for this command to work.";
     }
-    const server_prefix = client.get_cached_prefix(message);
+    const server_prefix = client.cache.prefix.get(message.guild);
     const db = new DB(client.models);
     const user = await db.fetch_user(message.guild?.id, message.author.id);
     if (!user) return;

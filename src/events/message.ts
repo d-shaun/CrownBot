@@ -9,8 +9,8 @@ export default async (client: CrownBot, message: Message) => {
   if (!message.guild) return;
   if (!client.user)
     throw "'client.user' is not defined; how are we even here?!";
-  if (!client.prefixes) {
-    await client.cache_prefixes();
+  if (!client.cache.prefix.check()) {
+    throw "Prefixes were not cached. Please execute `[client].cache.prefix.init()` before event handlers.";
   }
   if (!client.server_configs) {
     await client.cache_configs();
@@ -18,7 +18,7 @@ export default async (client: CrownBot, message: Message) => {
 
   const response = new BotMessage({ client, message, text: "", reply: true });
 
-  const server_prefix = client.get_cached_prefix(message);
+  const server_prefix = client.cache.prefix.get(message.guild);
   if (
     message.mentions.has(client.user, {
       ignoreEveryone: true,
@@ -102,7 +102,7 @@ function check_permissions(
   command: Command
 ): boolean {
   const response = new BotMessage({ client, message, text: "", reply: true });
-  const server_prefix = client.get_cached_prefix(message);
+  const server_prefix = client.cache.prefix.get(message.guild);
 
   if (!message.guild?.me) throw "!?!";
   const bot_permissions = (<TextChannel>message.channel).permissionsFor(

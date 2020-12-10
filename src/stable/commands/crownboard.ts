@@ -16,7 +16,7 @@ class CrownboardCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: string[]) {
+  async run(client: CrownBot, message: GuildMessage, args: string[]) {
     if (!message.guild) return;
     const response = new BotMessage({ client, message, text: "", reply: true });
     const server_users = (await get_registered_users(client, message))?.users;

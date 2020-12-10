@@ -27,7 +27,7 @@ class OverviewCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: string[]) {
+  async run(client: CrownBot, message: GuildMessage, args: string[]) {
     const db = new DB(client.models);
     const response = new BotMessage({ client, message, text: "", reply: true });
     let discord_user: User;

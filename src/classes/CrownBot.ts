@@ -2,6 +2,7 @@ import { Client } from "discord.js";
 import { connect, Model } from "mongoose";
 import { ServerConfigInterface } from "../stable/models/ServerConfig";
 import Command from "./Command";
+
 interface OptionInterface {
   prefix: string;
   token: string;
@@ -10,7 +11,6 @@ interface OptionInterface {
   access_token?: string;
   mongo: string;
   genius_api?: string;
-  prefixes?: {};
   url?: string;
 }
 
@@ -24,11 +24,9 @@ interface PrefixInterface {
 
 class CrownBotClass extends Client {
   prefix: string;
-  prefixes: PrefixInterface | undefined = undefined;
   server_configs: ServerConfigInterface[] | undefined = undefined;
   owner_ID: string;
   #token: string;
-  #api_key: string;
   access_token?: string;
   #mongo: string;
   url = "https://ws.audioscrobbler.com/2.0/?";
@@ -43,7 +41,6 @@ class CrownBotClass extends Client {
     this.prefix = options.prefix;
     this.#token = options.token;
     this.owner_ID = options.owner_ID;
-    this.#api_key = options.api_key;
     this.access_token = options.access_token;
     this.#mongo = options.mongo;
     this.genius_api = options.genius_api;

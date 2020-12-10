@@ -30,8 +30,8 @@ class TopAlbumTracks extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: string[]) {
-    const server_prefix = client.get_cached_prefix(message);
+  async run(client: CrownBot, message: GuildMessage, args: string[]) {
+    const server_prefix = client.cache.prefix.get(message.guild);
     const response = new BotMessage({
       client,
       message,
@@ -150,7 +150,7 @@ class TopAlbumTracks extends Command {
 
   // uses the Last.fm API instead of scraping their pages
   async run_alternate(client: CrownBot, message: Message, args: string[]) {
-    const server_prefix = client.get_cached_prefix(message);
+    const server_prefix = client.cache.prefix.get(message.guild);
     const response = new BotMessage({
       client,
       message,

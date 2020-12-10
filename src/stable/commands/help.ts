@@ -1,5 +1,5 @@
 import { Message, MessageEmbed } from "discord.js";
-import Command from "../../classes/Command";
+import Command, { GuildMessage } from "../../classes/Command";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
 import BotMessage from "../../handlers/BotMessage";
@@ -16,8 +16,8 @@ class HelpCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: string[]) {
-    const server_prefix = client.get_cached_prefix(message);
+  async run(client: CrownBot, message: GuildMessage, args: string[]) {
+    const server_prefix = client.cache.prefix.get(message.guild);
     const db = new DB(client.models);
     const response = new BotMessage({
       client,

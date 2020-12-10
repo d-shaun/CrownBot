@@ -4,10 +4,14 @@ import { model } from "mongoose";
 import path from "path";
 import CrownBotClass from "../classes/CrownBot";
 import { ServerConfigInterface } from "../stable/models/ServerConfig";
+import CacheHandler from "./Cache";
 class CrownBot extends CrownBotClass {
+  cache = new CacheHandler(this);
+
   async init() {
     await super.load_db();
     this.load_commands().load_events().load_models();
+    await this.cache.prefix.init(); /* cache prefixes for the session */
     await super.log_in();
     return this;
   }
@@ -62,33 +66,33 @@ class CrownBot extends CrownBotClass {
     });
   }
 
-  async cache_prefixes() {
-    interface PrefixInterface {
-      _id: string;
-      guildID: string;
-      guildName: string;
-      prefix: string;
-    }
-    const prefixes = await this.models.prefixes.find();
-    this.prefixes = {};
-    prefixes.forEach((prefix: PrefixInterface) => {
-      if (this.prefixes) {
-        this.prefixes[prefix.guildID] = prefix.prefix;
-      }
-    });
-    console.log(`initialized ${prefixes.length} prefix(es)`);
-  }
+  // async cache_prefixes() {
+  //   interface PrefixInterface {
+  //     _id: string;
+  //     guildID: string;
+  //     guildName: string;
+  //     prefix: string;
+  //   }
+  //   const prefixes = await this.models.prefixes.find();
+  //   this.prefixes = {};
+  //   prefixes.forEach((prefix: PrefixInterface) => {
+  //     if (this.prefixes) {
+  //       this.prefixes[prefix.guildID] = prefix.prefix;
+  //     }
+  //   });
+  //   console.log(`initialized ${prefixes.length} prefix(es)`);
+  // }
 
-  get_cached_prefix(message: Message): string {
-    if (message.guild?.id) {
-      if (this.prefixes && this.prefixes[message.guild.id]) {
-        return this.prefixes[message.guild.id];
-      } else {
-        return "&";
-      }
-    }
-    throw "No guild ID found to fetch prefixes of; probably running in DM?";
-  }
+  // get_cached_prefix(message: Message): string {
+  //   if (message.guild?.id) {
+  //     if (this.prefixes && this.prefixes[message.guild.id]) {
+  //       return this.prefixes[message.guild.id];
+  //     } else {
+  //       return "&";
+  //     }
+  //   }
+  //   throw "No guild ID found to fetch prefixes of; probably running in DM?";
+  // }
 
   async cache_configs() {
     const configs: ServerConfigInterface[] = await this.models.serverconfig.find();

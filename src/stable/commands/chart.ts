@@ -28,9 +28,9 @@ class ChartCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: string[]) {
+  async run(client: CrownBot, message: GuildMessage, args: string[]) {
     const no_album_cover = "https://i.imgur.com/N5xps21.png";
-    const server_prefix = client.get_cached_prefix(message);
+    const server_prefix = client.cache.prefix.get(message.guild);
     const response = new BotMessage({
       client,
       message,
