@@ -1,8 +1,7 @@
-import Command from "../../classes/Command";
-import CrownBot from "../../handlers/CrownBot";
-import { Message } from "discord.js";
-import DB from "../../handlers/DB";
+import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
+import CrownBot from "../../handlers/CrownBot";
+import DB from "../../handlers/DB";
 import cb from "../../misc/codeblock";
 
 class BetaCommand extends Command {

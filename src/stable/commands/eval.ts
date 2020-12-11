@@ -1,7 +1,7 @@
 import { Message } from "discord.js";
 
 import { inspect } from "util";
-import Command from "../../classes/Command";
+import Command, { GuildMessage } from "../../classes/Command";
 import CrownBot from "../../handlers/CrownBot";
 class EvalCommand extends Command {
   constructor() {

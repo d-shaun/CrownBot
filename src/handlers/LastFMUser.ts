@@ -1,6 +1,7 @@
 import Axios, { AxiosResponse } from "axios";
 import cheerio from "cheerio";
 import { Message } from "discord.js";
+import { GuildMessage } from "../classes/Command";
 import { Template } from "../classes/Template";
 import { RecentTrackInterface } from "../interfaces/TrackInterface";
 import { UserinfoInterface } from "../interfaces/UserinfoInterface";
@@ -46,7 +47,7 @@ export default class LastFMUser {
   }
   async get_nowplaying(
     client: CrownBot,
-    message: Message
+    message: GuildMessage
   ): Promise<RecentTrackInterface | undefined> {
     const { data } = await new LastFM().query({
       method: "user.getrecenttracks",

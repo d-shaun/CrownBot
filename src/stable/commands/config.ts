@@ -1,10 +1,9 @@
 import { Message } from "discord.js";
-import path from "path";
-
 import fs from "fs";
-import Command from "../../classes/Command";
-import CrownBot from "../../handlers/CrownBot";
+import path from "path";
+import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
+import CrownBot from "../../handlers/CrownBot";
 
 class ConfigCommand extends Command {
   constructor() {

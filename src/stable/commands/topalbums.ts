@@ -1,7 +1,7 @@
 import axios from "axios";
 import { FieldsEmbed } from "discord-paginationembed";
 import { Message, TextChannel } from "discord.js";
-import Command from "../../classes/Command";
+import Command, { GuildMessage } from "../../classes/Command";
 import { Template } from "../../classes/Template";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
@@ -117,7 +117,7 @@ class TopAlbumsCommand extends Command {
   }
 
   // Uses the Last.fm API instead of scraping their pages
-  async run_alternate(client: CrownBot, message: Message, args: string[]) {
+  async run_alternate(client: CrownBot, message: GuildMessage, args: string[]) {
     const server_prefix = client.cache.prefix.get(message.guild);
     const response = new BotMessage({
       client,

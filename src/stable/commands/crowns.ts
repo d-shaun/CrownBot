@@ -1,6 +1,6 @@
 import { FieldsEmbed } from "discord-paginationembed";
 import { Message, TextChannel, User } from "discord.js";
-import Command from "../../classes/Command";
+import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import esm from "../../misc/escapemarkdown";

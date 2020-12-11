@@ -1,9 +1,10 @@
 import { Message } from "discord.js";
 import CrownBot from "../handlers/CrownBot";
 import cb from "../misc/codeblock";
+import { GuildMessage } from "./Command";
 export class Template {
   templates: { id: string; text: string }[];
-  constructor(client: CrownBot, message: Message) {
+  constructor(client: CrownBot, message: GuildMessage) {
     const prefix = client.cache.prefix.get(message.guild);
     this.templates = [
       {

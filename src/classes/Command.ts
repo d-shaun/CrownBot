@@ -126,7 +126,7 @@ export default class Command {
     }
   }
 
-  async log_command(client: CrownBot, message: Message) {
+  async log_command(client: CrownBot, message: GuildMessage) {
     if (!message.guild) return;
     var expire_date = new Date();
     expire_date.setDate(expire_date.getDate() + 28); // add 28 days to current date
@@ -142,7 +142,7 @@ export default class Command {
     await new client.models.logs({ ...data }).save();
   }
 
-  async log_error(client: CrownBot, message: Message, stack?: string) {
+  async log_error(client: CrownBot, message: GuildMessage, stack?: string) {
     const response = new BotMessage({ client, message, text: "", reply: true });
     const server_prefix = client.cache.prefix.get(message.guild);
 

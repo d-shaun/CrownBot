@@ -1,10 +1,10 @@
 import { Message, PermissionString, TextChannel } from "discord.js";
-import Command from "../classes/Command";
+import Command, { GuildMessage } from "../classes/Command";
 import BotMessage from "../handlers/BotMessage";
 import CrownBot from "../handlers/CrownBot";
 import DB from "../handlers/DB";
 import cb from "../misc/codeblock";
-export default async (client: CrownBot, message: Message) => {
+export default async (client: CrownBot, message: GuildMessage) => {
   const db = new DB(client.models);
   if (!message.guild) return;
   if (!client.user)
@@ -98,7 +98,7 @@ export default async (client: CrownBot, message: Message) => {
 
 function check_permissions(
   client: CrownBot,
-  message: Message,
+  message: GuildMessage,
   command: Command
 ): boolean {
   const response = new BotMessage({ client, message, text: "", reply: true });
