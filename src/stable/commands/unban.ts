@@ -2,7 +2,6 @@ import Command, { GuildMessage } from "../../classes/Command";
 import { Template } from "../../classes/Template";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
-import DB from "../../handlers/DB";
 import search_user from "../../misc/search_user";
 
 class BanCommand extends Command {
@@ -18,9 +17,6 @@ class BanCommand extends Command {
   }
 
   async run(client: CrownBot, message: GuildMessage, args: string[]) {
-    const server_prefix = client.cache.prefix.get(message.guild);
-    const db = new DB(client.models);
-
     const response = new BotMessage({
       client,
       message,

@@ -85,7 +85,7 @@ class AlbumPlaysCommand extends Command {
         artist_name = str_array[1].trim();
       }
     }
-    const { status, data } = <AxiosResponse>await new LastFM().query({
+    const { data } = <AxiosResponse>await new LastFM().query({
       method: "album.getinfo",
       params: {
         album: album_name,
@@ -192,7 +192,7 @@ class AlbumPlaysCommand extends Command {
           `${percentage_text.album}\n\n` +
           `${aggr_str}`
       );
-
+    if (album_cover) embed.setThumbnail(album_cover);
     await this.update_log(client, message, album);
     await message.channel.send(embed);
   }

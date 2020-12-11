@@ -87,7 +87,6 @@ class TopAlbumsCommand extends Command {
       await response.send();
       return;
     }
-    const total_scrobbles = albums.reduce((a, b) => a + b.plays, 0);
 
     const fields_embed = new FieldsEmbed()
       .setArray(albums)

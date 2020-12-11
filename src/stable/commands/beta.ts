@@ -15,7 +15,7 @@ class BetaCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage, args: string[]) {
+  async run(client: CrownBot, message: GuildMessage) {
     const server_prefix = client.cache.prefix.get(message.guild);
     const db = new DB(client.models);
     const response = new BotMessage({

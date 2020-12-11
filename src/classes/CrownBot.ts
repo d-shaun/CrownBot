@@ -1,5 +1,5 @@
 import { Client } from "discord.js";
-import { connect, Model } from "mongoose";
+import { connect, Model, Mongoose } from "mongoose";
 import { ServerConfigInterface } from "../stable/models/ServerConfig";
 import Command from "./Command";
 
@@ -14,14 +14,6 @@ interface OptionInterface {
   url?: string;
 }
 
-interface PrefixInterface {
-  _id?: string;
-  guildID?: string;
-  guildName?: string;
-  prefix?: string;
-  [key: string]: any;
-}
-
 class CrownBotClass extends Client {
   prefix: string;
   server_configs: ServerConfigInterface[] | undefined = undefined;
@@ -33,7 +25,7 @@ class CrownBotClass extends Client {
   commands: Command[] = [];
   beta_commands: Command[] = [];
   models: { [key: string]: Model<any> } = {};
-  mongoose: any;
+  mongoose: Mongoose | undefined;
   genius_api?: string;
 
   constructor(options: OptionInterface) {
@@ -47,9 +39,8 @@ class CrownBotClass extends Client {
   }
 
   async log_in() {
-    const that = this;
     this.login(this.#token).then(() => {
-      console.log(`Logged in as ${that.user?.tag}`);
+      console.log(`Logged in as ${this.user?.tag}`);
     });
   }
 
@@ -60,6 +51,7 @@ class CrownBotClass extends Client {
       useUnifiedTopology: true,
     }).catch((e) => {
       console.log(e);
+      return e;
     });
   }
 }

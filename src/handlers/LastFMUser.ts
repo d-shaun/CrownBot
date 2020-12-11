@@ -142,7 +142,7 @@ export default class LastFMUser {
     const URL = `https://www.last.fm/user/${encodeURIComponent(
       this.username
     )}/library/music/${encodeURIComponent(artist_name)}/+albums`;
-    const response = await Axios.get(URL, timeout).catch((_) => {
+    const response = await Axios.get(URL, timeout).catch(() => {
       return undefined;
     });
     if (response?.status !== 200 || !response.data) {
@@ -157,7 +157,7 @@ export default class LastFMUser {
       this.username
     )}/library/music/${encodeURIComponent(artist_name)}/+tracks`;
 
-    const response = await Axios.get(URL, timeout).catch((_) => {
+    const response = await Axios.get(URL, timeout).catch(() => {
       return undefined;
     });
     if (response?.status !== 200 || !response.data) {
@@ -175,7 +175,7 @@ export default class LastFMUser {
         album_name
       )}`,
       timeout
-    ).catch((_) => {
+    ).catch(() => {
       return undefined;
     });
     if (response?.status !== 200) {
@@ -220,7 +220,7 @@ export default class LastFMUser {
       }?date_preset=${date_preset}`,
       timeout
     )
-      .catch((_) => {
+      .catch(() => {
         return undefined;
       })
       .then((response) => {
@@ -315,7 +315,7 @@ export default class LastFMUser {
         this.username
       )}/library${artist_specific}?date_preset=${date_preset}`,
       timeout
-    ).catch((_) => {
+    ).catch(() => {
       return undefined;
     });
 

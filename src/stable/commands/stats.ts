@@ -19,7 +19,7 @@ class StatsCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage, args: string[]) {
+  async run(client: CrownBot, message: GuildMessage) {
     const response = new BotMessage({
       client,
       message,

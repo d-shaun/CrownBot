@@ -14,7 +14,7 @@ class AboutCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage, args: string[]) {
+  async run(client: CrownBot, message: GuildMessage) {
     const server_prefix = client.cache.prefix.get(message.guild);
     const embed = new MessageEmbed()
       .setTitle("CrownBot")

@@ -57,12 +57,7 @@ export default class Command {
     this.category = options.category;
   }
 
-  async execute(
-    client: CrownBot,
-    message: GuildMessage,
-    args: string[],
-    override_beta = false
-  ) {
+  async execute(client: CrownBot, message: GuildMessage, args: string[]) {
     const db = new DB(client.models);
     const response = new BotMessage({ client, message, text: "", reply: true });
     if (!message.guild || !message.guild.me) return;
@@ -173,5 +168,9 @@ export default class Command {
     client: CrownBot,
     message: GuildMessage,
     args: string[]
-  ): Promise<void> {}
+  ): Promise<void> {
+    // placeholder
+    console.log(client, message, args);
+    return;
+  }
 }

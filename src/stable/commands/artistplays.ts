@@ -47,7 +47,7 @@ class ArtistPlaysCommand extends Command {
     } else {
       artist_name = args.join(" ");
     }
-    const { status, data } = await new LastFM().query({
+    const { data } = await new LastFM().query({
       method: "artist.getinfo",
       params: {
         artist: artist_name,

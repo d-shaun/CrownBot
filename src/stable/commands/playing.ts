@@ -3,7 +3,6 @@ import { GuildMember, TextChannel } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
-import DB from "../../handlers/DB";
 import { LastFM, ResponseInterface } from "../../handlers/LastFM";
 import { RecentTrackInterface } from "../../interfaces/TrackInterface";
 import cb from "../../misc/codeblock";
@@ -21,7 +20,7 @@ class PlayingCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage, args: string[]) {
+  async run(client: CrownBot, message: GuildMessage) {
     const server_prefix = client.cache.prefix.get(message.guild);
     const response = new BotMessage({
       client,
@@ -29,7 +28,6 @@ class PlayingCommand extends Command {
       reply: true,
       text: "",
     });
-    const db = new DB(client.models);
 
     const users = (await get_registered_users(client, message))?.users;
     if (!users || users.length <= 0) {
@@ -100,9 +98,7 @@ class PlayingCommand extends Command {
       .formatField(`${stats.length} user(s)`, (el: any) => {
         const track: RecentTrackInterface = el.track;
         const user: GuildMember = el.context.discord_user;
-        const artist_url =
-          "https://www.last.fm/music/" +
-          encodeURIComponent(track.artist["#text"]);
+
         const str = `**${esm(user.user.username)}**\n[${esm(track.name)}](${
           track.url
         }) · ${esm(track.album["#text"])} — **${esm(

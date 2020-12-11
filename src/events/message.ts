@@ -51,7 +51,6 @@ export default async (client: CrownBot, message: GuildMessage) => {
 
   const args = message.content.slice(server_prefix.length).split(/ +/gi);
   const command_name = args.shift()?.toLowerCase();
-  let override_beta = false;
   if (!command_name) return;
 
   const get_command = function (name: string, beta = false) {
@@ -77,12 +76,10 @@ export default async (client: CrownBot, message: GuildMessage) => {
     const beta_command = get_command(override[1], true);
     if (beta_command) {
       command = beta_command;
-      override_beta = true;
     } else {
       command = get_command(override[1]);
     }
   } else if (beta_command && (await db.check_optin(message))) {
-    override_beta = true;
     command = beta_command;
   }
 

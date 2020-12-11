@@ -12,7 +12,6 @@ export default class MinPlaysForCrown {
     "have at least 10 plays on an artist before they get the crown.\n\n" +
     "Examples: \n`&config minplaysforcrown 30` \n `&config minplaysforcrown 20`";
   async run(client: CrownBot, message: GuildMessage, args: string[]) {
-    const server_prefix = client.cache.prefix.get(message.guild);
     const db = new DB(client.models);
     let current_val = 1;
     const server_config = client.get_cached_config(message);

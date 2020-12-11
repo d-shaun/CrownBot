@@ -1,7 +1,6 @@
 import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
-import DB from "../../handlers/DB";
 
 class GlobalBanCommand extends Command {
   constructor() {
@@ -17,9 +16,6 @@ class GlobalBanCommand extends Command {
   }
 
   async run(client: CrownBot, message: GuildMessage, args: string[]) {
-    const server_prefix = client.cache.prefix.get(message.guild);
-    const db = new DB(client.models);
-
     const response = new BotMessage({
       client,
       message,

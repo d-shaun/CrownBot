@@ -17,8 +17,7 @@ class CrownBot extends CrownBotClass {
   }
 
   load_commands() {
-    const that = this;
-    const register_commands = function (location: string, beta = false) {
+    const register_commands = (location: string, beta = false) => {
       const dir: string = path.join(__dirname, location);
       if (!fs.existsSync(dir)) {
         return;
@@ -26,13 +25,13 @@ class CrownBot extends CrownBotClass {
       const commands: string[] = fs.readdirSync(dir);
       commands.forEach((file: string) => {
         if (file.endsWith(".js")) {
-          const Command: any = require(path.join(dir, file)).default;
+          const Command = require(path.join(dir, file)).default;
           const command = new Command();
           if (beta) {
             command.beta = true;
-            that.beta_commands.push(command);
+            this.beta_commands.push(command);
           } else {
-            that.commands.push(command);
+            this.commands.push(command);
           }
         }
       });
@@ -41,7 +40,7 @@ class CrownBot extends CrownBotClass {
     register_commands("../stable/commands");
     register_commands("../beta/commands", true);
 
-    return that;
+    return this;
   }
 
   load_events() {

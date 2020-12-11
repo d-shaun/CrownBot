@@ -26,7 +26,6 @@ class RecentCommand extends Command {
   }
 
   async run(client: CrownBot, message: GuildMessage, args: string[]) {
-    const server_prefix = client.cache.prefix.get(message.guild);
     const response = new BotMessage({
       client,
       message,

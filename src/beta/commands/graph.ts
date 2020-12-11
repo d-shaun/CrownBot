@@ -94,7 +94,7 @@ class GraphCommand extends Command {
         artist_name = now_playing.artist["#text"];
       } else {
         const raw_artist_name = args.slice(1).join(" ");
-        const { status, data } = await new LastFM().query({
+        const { data } = await new LastFM().query({
           method: "artist.getinfo",
           params: {
             artist: raw_artist_name,
@@ -161,8 +161,9 @@ class GraphCommand extends Command {
       height,
       (ChartJS) => {
         ChartJS.plugins.register({
-          afterDraw: function (chartInstance: any) {
-            const ctx = chartInstance.chart.ctx;
+          afterDraw: function (chartInstance) {
+            const ctx = chartInstance.ctx;
+            if (!ctx) return;
             ctx.font = ChartJS.helpers.fontString(
               ChartJS.defaults.global.defaultFontSize,
               "normal",
@@ -172,9 +173,11 @@ class GraphCommand extends Command {
             ctx.textBaseline = "bottom";
             ctx.fillStyle = `white`;
 
-            chartInstance.data.datasets.forEach(function (dataset: any) {
+            chartInstance.data.datasets?.forEach(function (dataset) {
+              if (!dataset.data?.length) return;
               for (let i = 0; i < dataset.data.length; i++) {
                 const model =
+                  // @ts-ignore
                   dataset._meta[Object.keys(dataset._meta)[0]].data[i]._model;
                 ctx.fillText(dataset.data[i] + " plays", model.x, model.y - 2);
               }

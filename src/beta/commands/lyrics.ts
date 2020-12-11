@@ -77,7 +77,7 @@ class LyricsCommand extends Command {
         artist_name = str_array[1].trim();
       }
     }
-    const { status, data } = <AxiosResponse>await new LastFM().query({
+    const { data } = <AxiosResponse>await new LastFM().query({
       method: "track.getinfo",
       params: {
         track: track_name,

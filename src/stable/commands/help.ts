@@ -84,10 +84,6 @@ class HelpCommand extends Command {
     }
 
     /* if no specific command is requested */
-    let description = `This is a list of the commands this bot offers. The prefix is \`${server_prefix}\`.`;
-    if (args[0] === "beta") {
-      description = `This is a list of the __beta__ commands this bot offers that are not in the stable version. The prefix is \`${server_prefix}\`.`;
-    }
 
     const embed = new MessageEmbed()
       .setTitle("Commands")
@@ -150,22 +146,21 @@ class HelpCommand extends Command {
       }
     });
 
-    const that = this;
     const setup_str: string = setup
-      .map((command) => that.format_command(command, server_prefix))
+      .map((command) => this.format_command(command, server_prefix))
       .join("\n\n");
     const userstat_str: string[] = userstat.map((command) =>
-      that.format_command(command, server_prefix)
+      this.format_command(command, server_prefix)
     );
 
     const serverstat_str: string = serverstat
-      .map((command) => that.format_command(command, server_prefix))
+      .map((command) => this.format_command(command, server_prefix))
       .join("\n\n");
     const configure_str: string = configure
-      .map((command) => that.format_command(command, server_prefix))
+      .map((command) => this.format_command(command, server_prefix))
       .join("\n\n");
     const other_str: string = other
-      .map((command) => that.format_command(command, server_prefix))
+      .map((command) => this.format_command(command, server_prefix))
       .join("\n\n");
 
     // https://stackoverflow.com/questions/9181188
@@ -190,10 +185,6 @@ class HelpCommand extends Command {
   }
 
   format_command(command: Command, server_prefix: string) {
-    const usage = Array.isArray(command.usage)
-      ? command.usage[0]
-      : command.usage;
-
     const aliases = command.aliases;
     const all_shortcuts = [command.name, ...aliases]
       .map((e) => cb(e, server_prefix))

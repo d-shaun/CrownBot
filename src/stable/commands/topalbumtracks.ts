@@ -58,7 +58,7 @@ class TopAlbumTracks extends Command {
       const str = args.join(" ");
       const str_array = str.split("||");
       if (str_array.length !== 2) {
-        const { status, data } = await new LastFM().search_album(
+        const { data } = await new LastFM().search_album(
           str_array.join().trim()
         );
         if (data.error) {
@@ -177,7 +177,7 @@ class TopAlbumTracks extends Command {
       const str = args.join(" ");
       const str_array = str.split("||");
       if (str_array.length !== 2) {
-        const { status, data } = await new LastFM().search_album(
+        const { data } = await new LastFM().search_album(
           str_array.join().trim()
         );
         if (data.error) {
