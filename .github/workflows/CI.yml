@@ -1,18 +1,20 @@
+name: CI
 on:
   push:
   pull_request:
 
 jobs:
-  tsc:
-    name: tsc
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - name: install node v12
+      - name: Install node v12
         uses: actions/setup-node@v1
         with:
           node-version: 12
-      - name: yarn install
+      - name: Install packages
         run: yarn install
-      - name: tsc
+      - name: Run tsc
         uses: icrawl/action-tsc@v1
+      - name: lint
+        run: yarn run lint
