@@ -1,6 +1,7 @@
-import { Message, User as DiscordUser } from "discord.js";
+import { User as DiscordUser } from "discord.js";
 import moment from "moment";
 import { Model } from "mongoose";
+import { GuildMessage } from "../classes/Command";
 import User from "../classes/User";
 import { TopArtistInterface } from "../interfaces/ArtistInterface";
 import { LeaderboardInterface } from "../interfaces/LeaderboardInterface";
@@ -71,8 +72,7 @@ export default class DB {
     }
   }
 
-  async ban_user(message: Message, user: DiscordUser): Promise<boolean> {
-    if (!message.guild) return false;
+  async ban_user(message: GuildMessage, user: DiscordUser): Promise<boolean> {
     return this.#models.bans.create({
       guildID: message.guild.id,
       guildName: message.guild.name,
@@ -195,8 +195,7 @@ export default class DB {
     );
   }
 
-  async opt_out(message: Message): Promise<void> {
-    if (!message.guild) throw "Shut up, TypeScript.";
+  async opt_out(message: GuildMessage): Promise<void> {
     await this.#models.optins.findOneAndRemove(
       {
         type: "beta",
@@ -208,8 +207,7 @@ export default class DB {
       }
     );
   }
-  async opt_in(message: Message): Promise<void> {
-    if (!message.guild) throw "Shut up, TypeScript.";
+  async opt_in(message: GuildMessage): Promise<void> {
     await this.#models.optins.findOneAndUpdate(
       {
         type: "beta",
@@ -230,8 +228,7 @@ export default class DB {
       }
     );
   }
-  async check_optin(message: Message): Promise<boolean> {
-    if (!message.guild) throw "Shut up, TypeScript.";
+  async check_optin(message: GuildMessage): Promise<boolean> {
     const beta_log = await this.#models.optins
       .findOne({
         type: "beta",
@@ -241,8 +238,7 @@ export default class DB {
     return !!beta_log;
   }
 
-  async server_config(message: Message) {
-    if (!message.guild) throw "Shut up, TypeScript.";
+  async server_config(message: GuildMessage) {
     const server_config: ServerConfigInterface = await this.#models.serverconfig.findOne(
       {
         guild_ID: message.guild.id,

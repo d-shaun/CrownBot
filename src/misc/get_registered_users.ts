@@ -1,4 +1,5 @@
-import { GuildMember, Message } from "discord.js";
+import { GuildMember } from "discord.js";
+import { GuildMessage } from "../classes/Command";
 import CrownBot from "../handlers/CrownBot";
 import { BanInterface } from "../stable/models/Bans";
 import { UserInterface } from "../stable/models/Users";
@@ -12,10 +13,8 @@ interface UserFetchInterface {
 
 export default async function get_registered_users(
   client: CrownBot,
-  message: Message
+  message: GuildMessage
 ): Promise<UserFetchInterface | undefined> {
-  if (!message.guild) return undefined;
-
   const database_users: UserInterface[] = await client.models.serverusers
     .find({
       guildID: message.guild.id,

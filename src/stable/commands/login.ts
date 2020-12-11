@@ -27,14 +27,14 @@ class LoginCommand extends Command {
       text: "",
     });
     const db = new DB(client.models);
-    const user = await db.fetch_user(message.guild?.id, message.author.id);
+    const user = await db.fetch_user(message.guild.id, message.author.id);
 
     if (args.length === 0) {
       const legacy_user = await db.legacy_fetch_user(message.author.id);
       if (legacy_user && !user) {
         if (
           await db.add_user(
-            message.guild?.id,
+            message.guild.id,
             message.author.id,
             legacy_user.username
           )
@@ -62,7 +62,7 @@ class LoginCommand extends Command {
     }
 
     if (user) {
-      await db.remove_user(message.guild?.id, message.author.id);
+      await db.remove_user(message.guild.id, message.author.id);
     }
 
     const username = args.join();
@@ -76,7 +76,7 @@ class LoginCommand extends Command {
       response.text = `Username not found on Last.fm―please check for any misspellings.`;
       await response.send();
     } else if (status === 200 && data.user) {
-      if (await db.add_user(message.guild?.id, message.author.id, username)) {
+      if (await db.add_user(message.guild.id, message.author.id, username)) {
         response.text = `Username ${cb(
           username
         )} has been associated to your Discord account.`;

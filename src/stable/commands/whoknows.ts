@@ -37,9 +37,8 @@ class WhoKnowsCommand extends Command {
   async run(client: CrownBot, message: GuildMessage, args: string[]) {
     const server_prefix = client.cache.prefix.get(message.guild);
     const db = new DB(client.models);
-    const user = await db.fetch_user(message.guild?.id, message.author.id);
+    const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
-    if (!message.guild) return;
 
     const response = new BotMessage({ client, message, text: "", reply: true });
     const lastfm_user = new LastFMUser({
@@ -158,7 +157,7 @@ class WhoKnowsCommand extends Command {
         userplaycount: artist.stats.userplaycount,
         user_id: context.discord_user.user.id,
         user_tag: context.discord_user.user.tag,
-        guild_id: message.guild?.id,
+        guild_id: message.guild.id,
       });
     });
     if (leaderboard.length <= 0) {
@@ -279,7 +278,6 @@ class WhoKnowsCommand extends Command {
     ) {
       fields_embed.on("start", () => {
         message.channel.stopTyping(true);
-        if (!message.guild) throw "won't happen, TS.";
         if (last_crown) {
           const last_user = message.guild.members.cache.find(
             (user) => user.id === last_crown.userID

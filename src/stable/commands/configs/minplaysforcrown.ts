@@ -18,7 +18,6 @@ export default class MinPlaysForCrown {
     const server_config = client.get_cached_config(message);
     if (server_config) current_val = server_config.min_plays_for_crown;
     const response = new BotMessage({ client, message, text: "", reply: true });
-    if (!message.guild) return;
     if (args.length !== 1) {
       response.reply = false;
       response.text =

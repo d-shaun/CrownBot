@@ -86,7 +86,7 @@ export default class Command {
     }
 
     if (this.require_login) {
-      const user = await db.fetch_user(message.guild?.id, message.author.id);
+      const user = await db.fetch_user(message.guild.id, message.author.id);
       if (!user) {
         response.text = new Template(client, message).get("not_logged");
         await response.send();
@@ -127,7 +127,6 @@ export default class Command {
   }
 
   async log_command(client: CrownBot, message: GuildMessage) {
-    if (!message.guild) return;
     var expire_date = new Date();
     expire_date.setDate(expire_date.getDate() + 28); // add 28 days to current date
     const data = {
@@ -146,7 +145,6 @@ export default class Command {
     const response = new BotMessage({ client, message, text: "", reply: true });
     const server_prefix = client.cache.prefix.get(message.guild);
 
-    if (!message.guild) return;
     var expire_date = new Date();
     expire_date.setDate(expire_date.getDate() + 28); // add 28 days to current date
     const incident_id = generate_random_strings(8);
@@ -173,7 +171,7 @@ export default class Command {
 
   async run(
     client: CrownBot,
-    message: Message,
+    message: GuildMessage,
     args: string[]
   ): Promise<void> {}
 }

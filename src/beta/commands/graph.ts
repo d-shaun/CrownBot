@@ -36,7 +36,7 @@ class GraphCommand extends Command {
     const server_prefix = client.cache.prefix.get(message.guild);
     const response = new BotMessage({ client, message, text: "", reply: true });
     const db = new DB(client.models);
-    const user = await db.fetch_user(message.guild?.id, message.author.id);
+    const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
     const lastfm_user = new LastFMUser({
       discord_ID: message.author.id,

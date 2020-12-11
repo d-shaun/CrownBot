@@ -35,9 +35,8 @@ class WhoKnowsTrack extends Command {
   async run(client: CrownBot, message: GuildMessage, args: string[]) {
     const server_prefix = client.cache.prefix.get(message.guild);
     const db = new DB(client.models);
-    const user = await db.fetch_user(message.guild?.id, message.author.id);
+    const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
-    if (!message.guild) return;
 
     const response = new BotMessage({ client, message, text: "", reply: true });
     const lastfm_user = new LastFMUser({
@@ -180,7 +179,7 @@ class WhoKnowsTrack extends Command {
         userplaycount: track.userplaycount,
         user_id: context.discord_user.user.id,
         user_tag: context.discord_user.user.tag,
-        guild_id: message.guild?.id,
+        guild_id: message.guild.id,
       });
     });
     if (leaderboard.length <= 0) {

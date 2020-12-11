@@ -1,17 +1,18 @@
-import { Client, Message, MessageEmbed, TextChannel } from "discord.js";
+import { Client, MessageEmbed, TextChannel } from "discord.js";
+import { GuildMessage } from "../classes/Command";
 
 interface BotMessageInterface {
   client: Client;
   text: string;
   reply: boolean;
-  message: Message;
+  message: GuildMessage;
   noembed?: boolean;
   footer?: string;
 }
 
 class BotMessage {
   client: Client;
-  message: Message;
+  message: GuildMessage;
   text?: string;
   reply?: boolean;
   noembed?: boolean;

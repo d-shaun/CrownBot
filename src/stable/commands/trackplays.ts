@@ -1,5 +1,5 @@
 import { AxiosResponse } from "axios";
-import { Message, MessageEmbed } from "discord.js";
+import { MessageEmbed } from "discord.js";
 import moment from "moment";
 // @ts-ignore
 import abbreviate from "number-abbreviate";
@@ -49,7 +49,7 @@ class TrackPlaysCommand extends Command {
       text: "",
     });
     const db = new DB(client.models);
-    const user = await db.fetch_user(message.guild?.id, message.author.id);
+    const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
 
     const lastfm_user = new LastFMUser({
@@ -199,7 +199,11 @@ class TrackPlaysCommand extends Command {
     await message.channel.send(embed);
   }
 
-  async update_log(client: CrownBot, message: Message, track: TrackInterface) {
+  async update_log(
+    client: CrownBot,
+    message: GuildMessage,
+    track: TrackInterface
+  ) {
     const timestamp = moment.utc().valueOf();
 
     await client.models.tracklog.findOneAndUpdate(

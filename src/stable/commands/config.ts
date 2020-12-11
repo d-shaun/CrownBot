@@ -1,4 +1,3 @@
-import { Message } from "discord.js";
 import fs from "fs";
 import path from "path";
 import Command, { GuildMessage } from "../../classes/Command";
@@ -28,7 +27,7 @@ class ConfigCommand extends Command {
     }
     interface ConfigCommandInterface {
       name: string;
-      run: (client: CrownBot, message: Message, args: string[]) => void;
+      run: (client: CrownBot, message: GuildMessage, args: string[]) => void;
     }
 
     const command_name = args[0];

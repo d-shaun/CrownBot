@@ -23,7 +23,6 @@ class PrefixCommand extends Command {
     */
     // const server_prefix = client.cache.prefix.get(message.guild);
     // const response = new BotMessage({ client, message, text: "", reply: true });
-    // if (!message.guild) return;
     // if (args.length === 0) {
     //   response.text =
     //     `The prefix for this server is \`${server_prefix}\`; ` +

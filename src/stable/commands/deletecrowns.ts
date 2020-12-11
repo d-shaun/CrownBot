@@ -21,9 +21,8 @@ class DeleteCrownCommand extends Command {
   async run(client: CrownBot, message: GuildMessage, args: string[]) {
     const server_prefix = client.cache.prefix.get(message.guild);
     const db = new DB(client.models);
-    const user = await db.fetch_user(message.guild?.id, message.author.id);
+    const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
-    if (!message.guild) return;
 
     const response = new BotMessage({
       client,

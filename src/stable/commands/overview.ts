@@ -45,7 +45,7 @@ class OverviewCommand extends Command {
         return;
       }
       discord_user = mention.user;
-      user = await db.fetch_user(message.guild?.id, mention.user.id);
+      user = await db.fetch_user(message.guild.id, mention.user.id);
       if (!user) {
         response.text = "The mentioned user isn't logged into the bot.";
         response.send();
@@ -54,7 +54,7 @@ class OverviewCommand extends Command {
       args.pop();
     } else {
       discord_user = message.author;
-      user = await db.fetch_user(message.guild?.id, message.author.id);
+      user = await db.fetch_user(message.guild.id, message.author.id);
     }
     if (!user) return;
     const lastfm_user = new LastFMUser({
@@ -62,7 +62,7 @@ class OverviewCommand extends Command {
       username: user.username,
     });
     const author_db_user = await db.fetch_user(
-      message.guild?.id,
+      message.guild.id,
       message.author.id
     );
     if (!author_db_user) return;
@@ -129,7 +129,7 @@ class OverviewCommand extends Command {
 
     const has_crown = await client.models.crowns.findOne({
       artistName: artist.name,
-      guildID: message.guild?.id,
+      guildID: message.guild.id,
     });
 
     const embed = new MessageEmbed()

@@ -41,7 +41,7 @@ class ListCommand extends Command {
       text: "",
     });
     const db = new DB(client.models);
-    const user = await db.fetch_user(message.guild?.id, message.author.id);
+    const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
     const lastfm_user = new LastFMUser({
       discord_ID: message.author.id,
@@ -150,7 +150,7 @@ class ListCommand extends Command {
       if (config.period.value === "overall") {
         last_log = await client.models.listartistlog.findOne({
           user_id: message.author.id,
-          guild_id: message.guild?.id,
+          guild_id: message.guild.id,
         });
       }
 

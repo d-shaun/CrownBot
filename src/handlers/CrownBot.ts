@@ -1,7 +1,7 @@
-import { Message } from "discord.js";
 import fs from "fs";
 import { model } from "mongoose";
 import path from "path";
+import { GuildMessage } from "../classes/Command";
 import CrownBotClass from "../classes/CrownBot";
 import { ServerConfigInterface } from "../stable/models/ServerConfig";
 import CacheHandler from "./Cache";
@@ -66,43 +66,15 @@ class CrownBot extends CrownBotClass {
     });
   }
 
-  // async cache_prefixes() {
-  //   interface PrefixInterface {
-  //     _id: string;
-  //     guildID: string;
-  //     guildName: string;
-  //     prefix: string;
-  //   }
-  //   const prefixes = await this.models.prefixes.find();
-  //   this.prefixes = {};
-  //   prefixes.forEach((prefix: PrefixInterface) => {
-  //     if (this.prefixes) {
-  //       this.prefixes[prefix.guildID] = prefix.prefix;
-  //     }
-  //   });
-  //   console.log(`initialized ${prefixes.length} prefix(es)`);
-  // }
-
-  // get_cached_prefix(message: Message): string {
-  //   if (message.guild?.id) {
-  //     if (this.prefixes && this.prefixes[message.guild.id]) {
-  //       return this.prefixes[message.guild.id];
-  //     } else {
-  //       return "&";
-  //     }
-  //   }
-  //   throw "No guild ID found to fetch prefixes of; probably running in DM?";
-  // }
-
   async cache_configs() {
     const configs: ServerConfigInterface[] = await this.models.serverconfig.find();
     this.server_configs = configs;
     console.log(`initialized ${configs.length} server config(s)`);
   }
 
-  get_cached_config(message: Message): ServerConfigInterface | undefined {
+  get_cached_config(message: GuildMessage): ServerConfigInterface | undefined {
     const config = this.server_configs?.find(
-      (config) => config.guild_ID === message.guild?.id
+      (config) => config.guild_ID === message.guild.id
     );
     if (config) return config;
     return undefined;

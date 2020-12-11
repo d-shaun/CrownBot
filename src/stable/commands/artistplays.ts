@@ -1,4 +1,4 @@
-import { Message, MessageEmbed } from "discord.js";
+import { MessageEmbed } from "discord.js";
 import moment from "moment";
 // @ts-ignore
 import abbreviate from "number-abbreviate";
@@ -29,7 +29,7 @@ class ArtistPlaysCommand extends Command {
 
   async run(client: CrownBot, message: GuildMessage, args: string[]) {
     const db = new DB(client.models);
-    const user = await db.fetch_user(message.guild?.id, message.author.id);
+    const user = await db.fetch_user(message.guild.id, message.author.id);
     const response = new BotMessage({ client, message, text: "", reply: true });
 
     if (!user) return;
@@ -107,7 +107,7 @@ class ArtistPlaysCommand extends Command {
 
   async update_log(
     client: CrownBot,
-    message: Message,
+    message: GuildMessage,
     artist: ArtistInterface
   ) {
     const timestamp = moment.utc().valueOf();

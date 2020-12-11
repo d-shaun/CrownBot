@@ -21,7 +21,6 @@ class BanCommand extends Command {
     const server_prefix = client.cache.prefix.get(message.guild);
     const db = new DB(client.models);
 
-    if (!message.guild) return;
     const response = new BotMessage({
       client,
       message,

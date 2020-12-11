@@ -56,7 +56,7 @@ class LogoutCommand extends Command {
       return;
     }
 
-    const user = await db.fetch_user(message.guild?.id, message.author.id);
+    const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) {
       response.text = `You aren't logged in; use the ${cb(
         "login",
@@ -86,7 +86,7 @@ class LogoutCommand extends Command {
     );
     msg.delete();
     if (reactions.size > 0) {
-      if (await db.remove_user(message.guild?.id, message.author.id)) {
+      if (await db.remove_user(message.guild.id, message.author.id)) {
         response.text = `You have been logged out from the bot in this server; run ${cb(
           "logout global",
           prefix

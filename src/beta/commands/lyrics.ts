@@ -32,9 +32,8 @@ class LyricsCommand extends Command {
     }
     const server_prefix = client.cache.prefix.get(message.guild);
     const db = new DB(client.models);
-    const user = await db.fetch_user(message.guild?.id, message.author.id);
+    const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
-    if (!message.guild) return;
 
     const response = new BotMessage({ client, message, text: "", reply: true });
     const lastfm_user = new LastFMUser({

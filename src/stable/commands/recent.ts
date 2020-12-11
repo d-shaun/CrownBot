@@ -47,7 +47,7 @@ class RecentCommand extends Command {
       await response.send();
       return;
     }
-    const user = await db.fetch_user(message.guild?.id, discord_user.id);
+    const user = await db.fetch_user(message.guild.id, discord_user.id);
     if (!user) return;
 
     const { data } = await new LastFM().query({
