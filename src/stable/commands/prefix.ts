@@ -51,8 +51,15 @@ class PrefixCommand extends Command {
         useFindAndModify: false,
       }
     );
-    client.cache.prefix.set(prefix, message.guild);
-    response.text = `The prefix for this server is now set to ${cb(prefix)}.`;
+    if (client.cache.prefix.set(prefix, message.guild)) {
+      response.text = `The prefix for this server is now set to ${cb(prefix)}.`;
+    } else {
+      response.text =
+        `The prefix for this server is now set to ${cb(
+          prefix
+        )} but the cache couldn't be updated; the bot will continue using the previous prefix until it restarts. ` +
+        `Please contact the bot maintainer (see [&]about).`;
+    }
     response.send();
   }
 }

@@ -30,11 +30,9 @@ export class Prefix implements CacheComponent {
     } else {
       guild_id = guild;
     }
-
     const server_prefix = this.#prefixes.find((prefix) => {
-      prefix.guildID === guild_id;
+      return prefix.guildID === guild_id;
     });
-
     return server_prefix?.prefix || this.#client.prefix || "&";
   }
 
