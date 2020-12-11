@@ -37,12 +37,12 @@ class CrownsCommand extends Command {
       return;
     }
 
-    const crowns: CrownInterface[] = await client.models.crowns
-      .find(<CrownInterface>{
-        guildID: message.guild.id,
-        userID: user.id,
-      })
-      .lean();
+    const crowns: CrownInterface[] = await client.models.crowns.find(<
+      CrownInterface
+    >{
+      guildID: message.guild.id,
+      userID: user.id,
+    });
 
     if (crowns.length <= 0) {
       if (!not_op) {

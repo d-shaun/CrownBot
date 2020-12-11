@@ -15,17 +15,12 @@ export default async function get_registered_users(
   client: CrownBot,
   message: GuildMessage
 ): Promise<UserFetchInterface | undefined> {
-  const database_users: UserInterface[] = await client.models.serverusers
-    .find({
-      guildID: message.guild.id,
-    })
-    .lean();
-
-  const banned_users: BanInterface[] = await client.models.bans
-    .find({
-      guildID: { $in: [message.guild.id, "any"] },
-    })
-    .lean();
+  const database_users: UserInterface[] = await client.models.serverusers.find({
+    guildID: message.guild.id,
+  });
+  const banned_users: BanInterface[] = await client.models.bans.find({
+    guildID: { $in: [message.guild.id, "any"] },
+  });
   const banned_ids = banned_users.map((user) => user.userID);
 
   const relevant_users = [
