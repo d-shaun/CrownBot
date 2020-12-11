@@ -1,10 +1,9 @@
-import { Message } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
+import { Template } from "../../classes/Template";
+import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
-import BotMessage from "../../handlers/BotMessage";
 import search_user from "../../misc/search_user";
-import { Template } from "../../classes/Template";
 
 class BanCommand extends Command {
   constructor() {

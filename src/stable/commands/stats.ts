@@ -1,11 +1,11 @@
-import { Message, MessageEmbed } from "discord.js";
+import { MessageEmbed } from "discord.js";
 import moment from "moment";
 import Command, { GuildMessage } from "../../classes/Command";
-import CrownBot from "../../handlers/CrownBot";
+import { Template } from "../../classes/Template";
 import BotMessage from "../../handlers/BotMessage";
+import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
 import LastFMUser from "../../handlers/LastFMUser";
-import { Template } from "../../classes/Template";
 
 class StatsCommand extends Command {
   constructor() {

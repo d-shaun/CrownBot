@@ -1,8 +1,8 @@
-import { Message, MessageEmbed } from "discord.js";
+import { MessageEmbed } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
+import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
-import BotMessage from "../../handlers/BotMessage";
 import cb from "../../misc/codeblock";
 
 class HelpCommand extends Command {

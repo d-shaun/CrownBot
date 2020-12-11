@@ -1,6 +1,5 @@
-import Axios, { AxiosResponse } from "axios";
+import Axios from "axios";
 import cheerio from "cheerio";
-import { Message } from "discord.js";
 import { GuildMessage } from "../classes/Command";
 import { Template } from "../classes/Template";
 import { RecentTrackInterface } from "../interfaces/TrackInterface";

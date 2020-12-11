@@ -1,10 +1,10 @@
-import { Message, MessageReaction, User } from "discord.js";
+import { MessageReaction, User } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
+import { Template } from "../../classes/Template";
+import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
-import BotMessage from "../../handlers/BotMessage";
 import cb from "../../misc/codeblock";
-import { Template } from "../../classes/Template";
 
 class LogoutCommand extends Command {
   constructor() {

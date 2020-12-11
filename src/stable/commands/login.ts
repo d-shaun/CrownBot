@@ -1,11 +1,10 @@
-import { Message } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
-import CrownBot from "../../handlers/CrownBot";
-import BotMessage from "../../handlers/BotMessage";
-import DB from "../../handlers/DB";
-import cb from "../../misc/codeblock";
 import { Template } from "../../classes/Template";
+import BotMessage from "../../handlers/BotMessage";
+import CrownBot from "../../handlers/CrownBot";
+import DB from "../../handlers/DB";
 import { LastFM } from "../../handlers/LastFM";
+import cb from "../../misc/codeblock";
 
 class LoginCommand extends Command {
   constructor() {

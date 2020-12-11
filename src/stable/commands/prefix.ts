@@ -1,8 +1,5 @@
-import { Message } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import CrownBot from "../../handlers/CrownBot";
-import BotMessage from "../../handlers/BotMessage";
-import cb from "../../misc/codeblock";
 
 class PrefixCommand extends Command {
   constructor() {

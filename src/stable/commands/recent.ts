@@ -1,4 +1,4 @@
-import { Message, MessageEmbed, User } from "discord.js";
+import { MessageEmbed, User } from "discord.js";
 import moment from "moment";
 import Command, { GuildMessage } from "../../classes/Command";
 import { Template } from "../../classes/Template";

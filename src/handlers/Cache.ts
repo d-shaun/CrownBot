@@ -1,4 +1,3 @@
-import { Client, Message, MessageEmbed, TextChannel } from "discord.js";
 import CrownBotClass from "../classes/CrownBot";
 import { Prefix } from "./cache_components/Prefix";
 import CrownBot from "./CrownBot";

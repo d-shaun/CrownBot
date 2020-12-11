@@ -1,12 +1,11 @@
-import { Message, MessageEmbed, MessageReaction, User } from "discord.js";
-
-import { CrownInterface } from "../models/Crowns";
+import { MessageReaction, User } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
+import { Template } from "../../classes/Template";
+import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
-import BotMessage from "../../handlers/BotMessage";
 import cb from "../../misc/codeblock";
-import { Template } from "../../classes/Template";
+import { CrownInterface } from "../models/Crowns";
 
 class DeleteCrownCommand extends Command {
   constructor() {

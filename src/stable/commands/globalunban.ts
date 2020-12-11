@@ -1,8 +1,7 @@
-import { Message } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
+import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
-import BotMessage from "../../handlers/BotMessage";
 
 class GlobalUnbanCommand extends Command {
   constructor() {

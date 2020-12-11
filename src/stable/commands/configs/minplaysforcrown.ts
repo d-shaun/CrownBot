@@ -1,8 +1,8 @@
-import { Message, MessageReaction, User } from "discord.js";
+import { MessageReaction, User } from "discord.js";
+import { GuildMessage } from "../../../classes/Command";
+import BotMessage from "../../../handlers/BotMessage";
 import CrownBot from "../../../handlers/CrownBot";
 import DB from "../../../handlers/DB";
-import BotMessage from "../../../handlers/BotMessage";
-import { GuildMessage } from "../../../classes/Command";
 
 export default class MinPlaysForCrown {
   name = "minplaysforcrown";

@@ -1,4 +1,3 @@
-import { Message } from "discord.js";
 import CrownBot from "../handlers/CrownBot";
 import cb from "../misc/codeblock";
 import { GuildMessage } from "./Command";
