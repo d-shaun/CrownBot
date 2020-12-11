@@ -5,7 +5,7 @@
   "scripts": {
     "build": "tsc && yarn run copy:fonts",
     "start": "node ./dist/index.js",
-    "lint":"yarn run eslint ./src/",
+    "lint": "yarn run eslint ./src/",
     "dev": "yarn run copy:fonts && tsc -w",
     "copy:fonts": "copyfiles src/fonts/* dist/src/fonts/"
   },
@@ -23,6 +23,7 @@
     "@types/chart.js": "^2.9.25",
     "@types/cheerio": "^0.22.21",
     "@types/lyricist": "^2.2.0",
+    "@types/moment": "^2.13.0",
     "@types/mongodb": "^3.5.25",
     "@types/mongoose": "^5.7.28",
     "@types/node": "^14.0.14",
