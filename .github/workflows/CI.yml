@@ -8,13 +8,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - name: Install node v12
+      - name: Install Node.js v12
         uses: actions/setup-node@v1
         with:
           node-version: 12
       - name: Install packages
         run: yarn install
-      - name: Run tsc
-        uses: icrawl/action-tsc@v1
-      - name: lint
+      - name: Build project
+        run: yarn run build
+      - name: Lint
         run: yarn run lint
