@@ -31,7 +31,7 @@ class PlayingCommand extends Command {
     });
     const db = new DB(client.models);
 
-    let users = (await get_registered_users(client, message))?.users;
+    const users = (await get_registered_users(client, message))?.users;
     if (!users || users.length <= 0) {
       response.text = `No user in this guild has registered their Last.fm username; see ${cb(
         "help login",
@@ -70,7 +70,7 @@ class PlayingCommand extends Command {
     responses = responses
       .filter((response) => response.status === 200)
       .filter((response) => {
-        let last_track = response.data.recenttracks.track[0];
+        const last_track = response.data.recenttracks.track[0];
         return (
           last_track && last_track[`@attr`] && last_track[`@attr`].nowplaying
         );
@@ -83,7 +83,7 @@ class PlayingCommand extends Command {
       return;
     }
     const stats = responses.map((response) => {
-      let last_track = response.data.recenttracks.track[0];
+      const last_track = response.data.recenttracks.track[0];
 
       return {
         track: last_track,

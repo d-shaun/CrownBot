@@ -40,7 +40,7 @@ export class Spotify {
 
   async attach_artist_images(data: Data[]) {
     // assign ids
-    let artists = data.map((d, i) => {
+    const artists = data.map((d, i) => {
       d.id = i;
       return d;
     });
@@ -49,7 +49,7 @@ export class Spotify {
       return this.get_artist_images(artist.name, artist.id);
     });
 
-    let responses = (await Promise.all(promises)).filter((res) => res);
+    const responses = (await Promise.all(promises)).filter((res) => res);
 
     artists.map((artist) => {
       const spotify_data = responses.find((res) => res?.id === artist.id);

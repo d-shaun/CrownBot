@@ -109,7 +109,7 @@ class ListCommand extends Command {
     }
 
     if (args[2]) {
-      let length = parseInt(args[2]);
+      const length = parseInt(args[2]);
       if (isNaN(length)) {
         message.reply(
           "invalid size argument; see `" + server_prefix + "help list`."
@@ -135,7 +135,7 @@ class ListCommand extends Command {
     }
 
     if (config.type === "artist") {
-      let query = await lastfm_user.get_top_artists({
+      const query = await lastfm_user.get_top_artists({
         limit: config.limit,
         period: config.period.value,
       });
@@ -228,7 +228,7 @@ class ListCommand extends Command {
       }
       await message.channel.send(embed);
     } else if (config.type === "song") {
-      let query = await lastfm_user.get_top_tracks({
+      const query = await lastfm_user.get_top_tracks({
         limit: config.limit,
         period: config.period.value,
       });

@@ -71,7 +71,7 @@ class ChartCommand extends Command {
     await spotify.attach_access_token();
 
     const no_title_aliases = ["notitle", "nt", "notitles"];
-    let config: Config = {
+    const config: Config = {
       period: {
         text: "weekly",
         value: "7day",
@@ -162,7 +162,7 @@ class ChartCommand extends Command {
     let data: Data[] | undefined;
 
     if (config.type === "album") {
-      let query = await lastfm_user.get_top_albums({
+      const query = await lastfm_user.get_top_albums({
         limit: config.limit,
         period: config.period.value,
       });
@@ -174,7 +174,7 @@ class ChartCommand extends Command {
       const albums: TopAlbumInterface[] = query.topalbums.album;
       data = this.format_albums(albums);
     } else if (config.type === "artist") {
-      let query = await lastfm_user.get_top_artists({
+      const query = await lastfm_user.get_top_artists({
         limit: config.limit,
         period: config.period.value,
       });
@@ -185,11 +185,11 @@ class ChartCommand extends Command {
         return;
       }
       const artists: TopArtistInterface[] = query.topartists.artist;
-      let temp_data = this.format_artists(artists);
+      const temp_data = this.format_artists(artists);
 
       data = await spotify.attach_artist_images(temp_data);
     } else if (config.type === "track") {
-      let query = await lastfm_user.get_top_tracks({
+      const query = await lastfm_user.get_top_tracks({
         limit: config.limit,
         period: config.period.value,
       });
@@ -216,7 +216,7 @@ class ChartCommand extends Command {
     registerFont("./src/fonts/Roboto-Regular.ttf", { family: "Roboto" });
     const font = "15px Roboto";
 
-    let cached_noalbumcover = loadImage(no_album_cover);
+    const cached_noalbumcover = loadImage(no_album_cover);
 
     const promises = data.map((elem) => {
       if (elem.image_url) {

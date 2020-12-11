@@ -29,7 +29,7 @@ class TasteCommand extends Command {
       text: "",
     });
     const db = new DB(client.models);
-    let mentioned = message.mentions.members?.first();
+    const mentioned = message.mentions.members?.first();
     let user_two = mentioned ? mentioned.user : undefined;
 
     if (!user_two && args.length !== 0) {
@@ -84,8 +84,8 @@ class TasteCommand extends Command {
     });
 
     plays = plays.sort((a, b) => {
-      let cur_diff = Math.abs(b.userone_plays - b.usertwo_plays);
-      let then_diff = Math.abs(a.userone_plays - a.usertwo_plays);
+      const cur_diff = Math.abs(b.userone_plays - b.usertwo_plays);
+      const then_diff = Math.abs(a.userone_plays - a.usertwo_plays);
       return then_diff - cur_diff;
     });
     if (plays.length > 25) plays.length = 25;

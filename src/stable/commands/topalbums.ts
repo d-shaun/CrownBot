@@ -165,7 +165,7 @@ class TopAlbumsCommand extends Command {
       return;
     }
 
-    let albums = await this.getLastfmAlbums(client, artist.name);
+    const albums = await this.getLastfmAlbums(client, artist.name);
     if (!albums) return;
     const lastfm_requests: any = [];
     const breaking_album_names = ["null", "(null)", "undefined"];
@@ -253,7 +253,7 @@ class TopAlbumsCommand extends Command {
     );
     if (!data || !data.data || !data.data.length) return undefined; // ikr...
     const artist = data.data[0];
-    let albums = (
+    const albums = (
       await axios.get(
         `https://api.deezer.com/artist/${artist.id}/albums?limit=50&access_token=${client.access_token}`
       )

@@ -47,7 +47,7 @@ class ChartCommand extends Command {
     registerFont("./src/fonts/Roboto-Regular.ttf", { family: "Roboto" });
     const font = "15px Roboto";
     const no_title_aliases = ["notitle", "nt", "notitles"];
-    let config = {
+    const config = {
       period: {
         text: "weekly",
         value: <string | undefined>"7day",
@@ -137,7 +137,7 @@ class ChartCommand extends Command {
       return;
     }
 
-    let query = await lastfm_user.get_top_albums({
+    const query = await lastfm_user.get_top_albums({
       limit: config.limit,
       period: config.period.value,
     });

@@ -127,7 +127,7 @@ export default class Command {
   }
 
   async log_command(client: CrownBot, message: GuildMessage) {
-    var expire_date = new Date();
+    const expire_date = new Date();
     expire_date.setDate(expire_date.getDate() + 28); // add 28 days to current date
     const data = {
       expireAt: expire_date,
@@ -145,7 +145,7 @@ export default class Command {
     const response = new BotMessage({ client, message, text: "", reply: true });
     const server_prefix = client.cache.prefix.get(message.guild);
 
-    var expire_date = new Date();
+    const expire_date = new Date();
     expire_date.setDate(expire_date.getDate() + 28); // add 28 days to current date
     const incident_id = generate_random_strings(8);
     const data = {

@@ -35,7 +35,7 @@ class BanCommand extends Command {
 
       return;
     }
-    let mentioned = message.mentions.members?.first();
+    const mentioned = message.mentions.members?.first();
     let user = mentioned ? mentioned.user : undefined;
 
     if (!user && args.length !== 0) {

@@ -42,7 +42,7 @@ class PermissionsCommand extends Command {
       },
     ];
 
-    let reply = permissions.map((permission) => {
+    const reply = permissions.map((permission) => {
       return `\`${permission.name}\`: ${permission.detail}`;
     });
 

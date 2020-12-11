@@ -57,8 +57,8 @@ class AlbumPlaysCommand extends Command {
       artist_name = now_playing.artist["#text"];
       album_name = now_playing.album["#text"];
     } else {
-      let str = args.join(" ");
-      let str_array = str.split("||");
+      const str = args.join(" ");
+      const str_array = str.split("||");
       if (str_array.length !== 2) {
         const { data } = await new LastFM().search_album(
           str_array.join().trim()
@@ -68,7 +68,7 @@ class AlbumPlaysCommand extends Command {
           await response.send();
           return;
         }
-        let album = data.results.albummatches.album[0];
+        const album = data.results.albummatches.album[0];
 
         if (!album) {
           response.text = `Couldn't find the album; try providing artist name—see ${cb(
@@ -95,7 +95,7 @@ class AlbumPlaysCommand extends Command {
       },
     });
 
-    let axios_response = <AxiosResponse>await new LastFM().query({
+    const axios_response = <AxiosResponse>await new LastFM().query({
       method: "artist.getinfo",
       params: {
         artist: artist_name,
@@ -127,7 +127,7 @@ class AlbumPlaysCommand extends Command {
       album_cover = last_item ? last_item["#text"] : false;
     }
 
-    let strs = {
+    const strs = {
       count: "No change",
       time: <boolean | string>false,
     };

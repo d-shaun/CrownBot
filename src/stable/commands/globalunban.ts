@@ -27,7 +27,7 @@ class GlobalUnbanCommand extends Command {
     });
 
     let userID;
-    let mentioned = message.mentions.members?.first()?.user;
+    const mentioned = message.mentions.members?.first()?.user;
     if (!mentioned) {
       if (args.length === 0) {
         response.text = "No user ID provided.";

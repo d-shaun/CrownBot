@@ -162,7 +162,7 @@ class GraphCommand extends Command {
       (ChartJS) => {
         ChartJS.plugins.register({
           afterDraw: function (chartInstance: any) {
-            var ctx = chartInstance.chart.ctx;
+            const ctx = chartInstance.chart.ctx;
             ctx.font = ChartJS.helpers.fontString(
               ChartJS.defaults.global.defaultFontSize,
               "normal",
@@ -173,8 +173,8 @@ class GraphCommand extends Command {
             ctx.fillStyle = `white`;
 
             chartInstance.data.datasets.forEach(function (dataset: any) {
-              for (var i = 0; i < dataset.data.length; i++) {
-                var model =
+              for (let i = 0; i < dataset.data.length; i++) {
+                const model =
                   dataset._meta[Object.keys(dataset._meta)[0]].data[i]._model;
                 ctx.fillText(dataset.data[i] + " plays", model.x, model.y - 2);
               }

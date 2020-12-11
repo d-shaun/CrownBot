@@ -65,7 +65,7 @@ class ArtistPlaysCommand extends Command {
     const artist: ArtistInterface = data.artist;
     if (!artist.stats.userplaycount) return;
     let last_count = 0;
-    let strs = {
+    const strs = {
       count: "No change",
       time: <boolean | string>false,
     };

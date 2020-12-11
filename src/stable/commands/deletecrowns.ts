@@ -68,7 +68,7 @@ class DeleteCrownCommand extends Command {
       await response.send();
       return;
     }
-    let msg = await new BotMessage({
+    const msg = await new BotMessage({
       client,
       message,
       text,

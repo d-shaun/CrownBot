@@ -72,9 +72,9 @@ export default async (client: CrownBot, message: GuildMessage) => {
 
   const override = command_name.split(":");
   let command = get_command(command_name);
-  let beta_command = get_command(command_name, true);
+  const beta_command = get_command(command_name, true);
   if (override.length === 2 && override[0] === "b") {
-    let beta_command = get_command(override[1], true);
+    const beta_command = get_command(override[1], true);
     if (beta_command) {
       command = beta_command;
       override_beta = true;

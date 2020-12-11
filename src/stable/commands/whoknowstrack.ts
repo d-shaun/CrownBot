@@ -52,8 +52,8 @@ class WhoKnowsTrack extends Command {
       artist_name = now_playing.artist["#text"];
       track_name = now_playing.name;
     } else {
-      let str = args.join(" ");
-      let str_array = str.split("||");
+      const str = args.join(" ");
+      const str_array = str.split("||");
       if (str_array.length !== 2) {
         const { data } = await new LastFM().search_track(
           str_array.join().trim()
@@ -100,7 +100,7 @@ class WhoKnowsTrack extends Command {
       return;
     }
     const track: TrackInterface = data.track;
-    let users = (await get_registered_users(client, message))?.users;
+    const users = (await get_registered_users(client, message))?.users;
     if (!users || users.length <= 0) {
       response.text = `No user in this guild has registered their Last.fm username; see ${cb(
         "help login",

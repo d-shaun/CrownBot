@@ -65,8 +65,8 @@ class TrackPlaysCommand extends Command {
       artist_name = now_playing.artist["#text"];
       track_name = now_playing.name;
     } else {
-      let str = args.join(" ");
-      let str_array = str.split("||");
+      const str = args.join(" ");
+      const str_array = str.split("||");
       if (str_array.length !== 2) {
         const { data } = await new LastFM().search_track(
           str_array.join().trim()
@@ -103,7 +103,7 @@ class TrackPlaysCommand extends Command {
       },
     });
 
-    let axios_response = <AxiosResponse>await new LastFM().query({
+    const axios_response = <AxiosResponse>await new LastFM().query({
       method: "artist.getinfo",
       params: {
         artist: artist_name,
@@ -129,7 +129,7 @@ class TrackPlaysCommand extends Command {
     if (!track.userplaycount) return;
     let last_count = 0;
 
-    let strs = {
+    const strs = {
       count: "No change",
       time: <boolean | string>false,
     };

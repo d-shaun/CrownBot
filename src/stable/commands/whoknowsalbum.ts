@@ -51,8 +51,8 @@ class WhoKnowsAlbum extends Command {
       artist_name = now_playing.artist["#text"];
       album_name = now_playing.album["#text"];
     } else {
-      let str = args.join(" ");
-      let str_array = str.split("||");
+      const str = args.join(" ");
+      const str_array = str.split("||");
       if (str_array.length !== 2) {
         const { data } = await new LastFM().search_album(
           str_array.join().trim()
@@ -99,7 +99,7 @@ class WhoKnowsAlbum extends Command {
       return;
     }
     const album: AlbumInterface = data.album;
-    let users = (await get_registered_users(client, message))?.users;
+    const users = (await get_registered_users(client, message))?.users;
     if (!users || users.length <= 0) {
       response.text = `No user in this guild has registered their Last.fm username; see ${cb(
         "help login",

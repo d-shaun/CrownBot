@@ -3,7 +3,7 @@ import { LeaderboardInterface } from "../../interfaces/LeaderboardInterface";
 
 export interface LogInterface {
   track_name: string;
-  artist_name: String;
+  artist_name: string;
   guild_id: string;
   listener: number;
   stat: LeaderboardInterface[];

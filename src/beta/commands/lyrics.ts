@@ -49,8 +49,8 @@ class LyricsCommand extends Command {
       artist_name = now_playing.artist["#text"];
       track_name = now_playing.name;
     } else {
-      let str = args.join(" ");
-      let str_array = str.split("||");
+      const str = args.join(" ");
+      const str_array = str.split("||");
       if (str_array.length !== 2) {
         const { data } = await new LastFM().search_track(
           str_array.join().trim()
@@ -121,7 +121,7 @@ class LyricsCommand extends Command {
           if (i === lyrics_chunks.length) {
             response.footer = "Lyrics scraped from Genius · cached";
           }
-          let lyrics = `**${db_entry.track_name}** by **${db_entry.artist_name}**\n\n${lyric}`;
+          const lyrics = `**${db_entry.track_name}** by **${db_entry.artist_name}**\n\n${lyric}`;
 
           response.text = lyrics;
           await response.send();
@@ -138,7 +138,7 @@ class LyricsCommand extends Command {
       await response.send();
       return;
     }
-    let lyrics = `**${esm(song.title)}** by **${esm(
+    const lyrics = `**${esm(song.title)}** by **${esm(
       song.primary_artist.name
     )}**\n\n${original_lyrics}`;
     if (lyrics.length > 6000) {

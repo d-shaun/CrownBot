@@ -55,8 +55,8 @@ class TopAlbumTracks extends Command {
       artist_name = now_playing.artist["#text"];
       album_name = now_playing.album["#text"];
     } else {
-      let str = args.join(" ");
-      let str_array = str.split("||");
+      const str = args.join(" ");
+      const str_array = str.split("||");
       if (str_array.length !== 2) {
         const { status, data } = await new LastFM().search_album(
           str_array.join().trim()
@@ -66,7 +66,7 @@ class TopAlbumTracks extends Command {
           await response.send();
           return;
         }
-        let album = data.results.albummatches.album[0];
+        const album = data.results.albummatches.album[0];
 
         if (!album) {
           response.text = `Couldn't find the album; try providing artist name—see ${cb(
@@ -174,8 +174,8 @@ class TopAlbumTracks extends Command {
       artist_name = now_playing.artist["#text"];
       album_name = now_playing.album["#text"];
     } else {
-      let str = args.join(" ");
-      let str_array = str.split("||");
+      const str = args.join(" ");
+      const str_array = str.split("||");
       if (str_array.length !== 2) {
         const { status, data } = await new LastFM().search_album(
           str_array.join().trim()
@@ -185,7 +185,7 @@ class TopAlbumTracks extends Command {
           await response.send();
           return;
         }
-        let album = data.results.albummatches.album[0];
+        const album = data.results.albummatches.album[0];
 
         if (!album) {
           response.text = `Couldn't find the album; try providing artist name—see ${cb(
@@ -217,7 +217,7 @@ class TopAlbumTracks extends Command {
       return;
     }
     const album: AlbumInterface = data.album;
-    let lastfm_requests = [];
+    const lastfm_requests = [];
     for (const track of album.tracks.track) {
       lastfm_requests.push(
         new LastFM().query({
