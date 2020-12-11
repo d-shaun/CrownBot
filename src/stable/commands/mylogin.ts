@@ -2,6 +2,8 @@ import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
+import { LastFM } from "../../handlers/LastFM";
+import Artist from "../../handlers/LastFM_components/Artist";
 import esm from "../../misc/escapemarkdown";
 
 class MyLoginCommand extends Command {

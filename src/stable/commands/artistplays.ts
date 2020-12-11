@@ -3,13 +3,12 @@ import moment from "moment";
 // @ts-ignore
 import abbreviate from "number-abbreviate";
 import Command, { GuildMessage } from "../../classes/Command";
-import { Template } from "../../classes/Template";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
-import { LastFM } from "../../handlers/LastFM";
 import LastFMUser from "../../handlers/LastFMUser";
-import { ArtistInterface } from "../../interfaces/ArtistInterface";
+import Artist from "../../handlers/LastFM_components/Artist";
+import { UserArtistInterface } from "../../interfaces/ArtistInterface";
 import esm from "../../misc/escapemarkdown";
 import time_difference from "../../misc/time_difference";
 import { ArtistLogInterface } from "../models/ArtistLog";
@@ -30,10 +29,9 @@ class ArtistPlaysCommand extends Command {
   async run(client: CrownBot, message: GuildMessage, args: string[]) {
     const db = new DB(client.models);
     const user = await db.fetch_user(message.guild.id, message.author.id);
-    const response = new BotMessage({ client, message, text: "", reply: true });
+    const response = new BotMessage({ client, message, reply: true });
 
     if (!user) return;
-
     const lastfm_user = new LastFMUser({
       discord_ID: message.author.id,
       username: user.username,
@@ -47,23 +45,19 @@ class ArtistPlaysCommand extends Command {
     } else {
       artist_name = args.join(" ");
     }
-    const { data } = await new LastFM().query({
-      method: "artist.getinfo",
-      params: {
-        artist: artist_name,
-        username: user.username,
-        autocorrect: 1,
-      },
-    });
 
-    if (data.error || !data.artist) {
-      response.text = new Template(client, message).get("lastfm_error");
-      await response.send();
+    const query = await new Artist({
+      name: artist_name,
+      username: user.username,
+    }).user_get_info();
+
+    if (query.lastfm_errorcode || !query.success) {
+      response.error("lastfm_error", query.lastfm_errormessage);
       return;
     }
 
-    const artist: ArtistInterface = data.artist;
-    if (!artist.stats.userplaycount) return;
+    const artist = query.data.artist;
+
     let last_count = 0;
     const strs = {
       count: "No change",
@@ -108,7 +102,7 @@ class ArtistPlaysCommand extends Command {
   async update_log(
     client: CrownBot,
     message: GuildMessage,
-    artist: ArtistInterface
+    artist: UserArtistInterface
   ) {
     const timestamp = moment.utc().valueOf();
 

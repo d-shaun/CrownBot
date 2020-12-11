@@ -25,11 +25,18 @@ export interface ArtistInterface {
   stats: {
     listeners: string;
     playcount: string;
-    userplaycount?: string;
   };
   streamable: string;
   tags: { tag: { name: string; url: string }[] };
   url: string;
+}
+
+export interface UserArtistInterface extends ArtistInterface {
+  stats: {
+    listeners: string;
+    playcount: string;
+    userplaycount: string;
+  };
 }
 
 export interface TopArtistInterface {

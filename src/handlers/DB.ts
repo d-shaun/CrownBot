@@ -2,7 +2,7 @@ import { User as DiscordUser } from "discord.js";
 import moment from "moment";
 import { Model } from "mongoose";
 import { GuildMessage } from "../classes/Command";
-import User from "../classes/User";
+import DBUser from "../interfaces/DBUserInterface";
 import { TopArtistInterface } from "../interfaces/ArtistInterface";
 import { LeaderboardInterface } from "../interfaces/LeaderboardInterface";
 import { ServerConfigInterface } from "../stable/models/ServerConfig";
@@ -17,7 +17,7 @@ export default class DB {
     guild_ID: string | undefined,
     user_ID: string,
     username: string
-  ): Promise<User> {
+  ): Promise<DBUser> {
     if (!guild_ID) throw "Guild ID not specified";
     return await this.#models.serverusers.create({
       guildID: guild_ID,
@@ -30,7 +30,7 @@ export default class DB {
     guild_ID: string | undefined,
     user_ID: string,
     global = false
-  ): Promise<User | undefined> {
+  ): Promise<DBUser | undefined> {
     let user;
     if (global) {
       user = await this.#models.serverusers.findOne({
@@ -45,7 +45,7 @@ export default class DB {
     return user;
   }
 
-  async legacy_fetch_user(user_ID: string): Promise<User | undefined> {
+  async legacy_fetch_user(user_ID: string): Promise<DBUser | undefined> {
     const user = await this.#models.users.findOne({
       userID: user_ID,
     });
