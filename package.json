@@ -1,5 +1,6 @@
 {
-  "name": "CrownBot",
+  "name": "crownbot",
+  "styled": "CrownBot",
   "description": "A Discord bot that uses Last.fm API to track scrobbles and rank users in a guild.",
   "scripts": {
     "build": "tsc && yarn run copy:fonts",
@@ -12,6 +13,7 @@
   "license": "MIT",
   "devDependencies": {
     "copyfiles": "^2.3.0",
+    "eslint": "^7.15.0",
     "typescript": "^3.9.5"
   },
   "dependencies": {
