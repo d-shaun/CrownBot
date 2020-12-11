@@ -219,7 +219,6 @@ class AlbumPlaysCommand extends Command {
       },
       {
         upsert: true,
-        // @ts-ignore
         useFindAndModify: false,
       }
     );

@@ -175,7 +175,6 @@ class LyricsCommand extends Command {
       },
       {
         upsert: true,
-        // @ts-ignore
         useFindAndModify: false,
       }
     );

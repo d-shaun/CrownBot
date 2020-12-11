@@ -106,7 +106,6 @@ export default class DB {
       },
       {
         upsert: true,
-        // @ts-ignore
         useFindAndModify: false,
       }
     );
@@ -135,7 +134,6 @@ export default class DB {
       },
       {
         upsert: true,
-        // @ts-ignore
         useFindAndModify: false,
       }
     );
@@ -162,7 +160,6 @@ export default class DB {
       },
       {
         upsert: true,
-        // @ts-ignore
         useFindAndModify: false,
       }
     );
@@ -189,7 +186,6 @@ export default class DB {
       },
       {
         upsert: true,
-        // @ts-ignore
         useFindAndModify: false,
       }
     );
@@ -202,7 +198,6 @@ export default class DB {
         guild_ID: message.guild.id,
       },
       {
-        // @ts-ignore
         useFindAndModify: false,
       }
     );
@@ -223,7 +218,6 @@ export default class DB {
       },
       {
         upsert: true,
-        // @ts-ignore
         useFindAndModify: false,
       }
     );

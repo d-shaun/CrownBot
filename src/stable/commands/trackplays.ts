@@ -221,7 +221,6 @@ class TrackPlaysCommand extends Command {
       },
       {
         upsert: true,
-        // @ts-ignore
         useFindAndModify: false,
       }
     );

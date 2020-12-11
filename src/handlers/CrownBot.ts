@@ -49,7 +49,6 @@ class CrownBot extends CrownBotClass {
     events.forEach((file: string) => {
       const [eventName]: string[] = file.split(".");
       const props = require(path.join(dir, file));
-      // @ts-ignore
       this.on(eventName, props.default.bind(null, this));
     });
     return this;
