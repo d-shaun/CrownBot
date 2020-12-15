@@ -2,8 +2,8 @@ import { User as DiscordUser } from "discord.js";
 import moment from "moment";
 import { Model } from "mongoose";
 import { GuildMessage } from "../classes/Command";
+import { UserTopArtist } from "../interfaces/ArtistInterface";
 import DBUser from "../interfaces/DBUserInterface";
-import { TopArtistInterface } from "../interfaces/ArtistInterface";
 import { LeaderboardInterface } from "../interfaces/LeaderboardInterface";
 import { ServerConfigInterface } from "../stable/models/ServerConfig";
 
@@ -167,12 +167,11 @@ export default class DB {
 
   // log `&list artist alltime`
   async log_list_artist(
-    stat: TopArtistInterface[],
+    stat: UserTopArtist["topartists"]["artist"],
     user_id: string,
     guild_id: string
   ) {
     const timestamp = moment.utc().valueOf();
-
     return this.#models.listartistlog.findOneAndUpdate(
       {
         user_id,

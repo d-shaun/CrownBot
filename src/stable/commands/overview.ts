@@ -1,12 +1,12 @@
-import { MessageEmbed, User } from "discord.js";
+import { MessageEmbed, User as DiscordUser } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import { Template } from "../../classes/Template";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
 import { LastFM } from "../../handlers/LastFM";
-import LastFMUser from "../../handlers/LastFMUser";
-import { ArtistInterface } from "../../interfaces/ArtistInterface";
+import Artist from "../../handlers/LastFM_components/Artist";
+import User from "../../handlers/LastFM_components/User";
 import cb from "../../misc/codeblock";
 import esm from "../../misc/escapemarkdown";
 
@@ -30,7 +30,7 @@ class OverviewCommand extends Command {
   async run(client: CrownBot, message: GuildMessage, args: string[]) {
     const db = new DB(client.models);
     const response = new BotMessage({ client, message, text: "", reply: true });
-    let discord_user: User;
+    let discord_user: DiscordUser;
     let [last_item] = args.slice(-1);
     let user;
     if (last_item && last_item.startsWith("<@") && last_item.endsWith(">")) {
@@ -57,8 +57,7 @@ class OverviewCommand extends Command {
       user = await db.fetch_user(message.guild.id, message.author.id);
     }
     if (!user) return;
-    const lastfm_user = new LastFMUser({
-      discord_ID: user.user_ID,
+    const lastfm_user = new User({
       username: user.username,
     });
     const author_db_user = await db.fetch_user(
@@ -66,12 +65,11 @@ class OverviewCommand extends Command {
       message.author.id
     );
     if (!author_db_user) return;
-    const author_user = new LastFMUser({
+    const author_user = new User({
       username: author_db_user.username,
-      discord_ID: author_db_user.user_ID,
     });
 
-    let artist_name;
+    let artist_name: string;
     if (args.length === 0) {
       const now_playing = await author_user.get_nowplaying(client, message);
       if (!now_playing) return;
@@ -79,26 +77,19 @@ class OverviewCommand extends Command {
     } else {
       artist_name = args.join(" ");
     }
-    const { status, data } = await new LastFM().query({
-      method: "artist.getinfo",
-      params: {
-        artist: artist_name,
-        username: user.username,
-        autocorrect: 1,
-      },
-    });
 
-    if (data.error === 6) {
-      response.text = "Artist not found.";
-      response.send();
-      return;
-    } else if (status !== 200 || !data.artist) {
-      response.text = new Template(client, message).get("lastfm_error");
-      await response.send();
+    const query = await new Artist({
+      name: artist_name,
+      username: user.username,
+    }).user_get_info();
+
+    if (query.lastfm_errorcode || !query.success) {
+      await response.error("lastfm_error", query.lastfm_errormessage);
       return;
     }
 
-    const artist: ArtistInterface = data.artist;
+    const artist = query.data.artist;
+
     if (!artist.stats.userplaycount) return;
     if (parseInt(artist.stats.userplaycount) <= 0) {
       response.text = `${discord_user.username} hasn't scrobbled ${cb(

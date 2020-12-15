@@ -26,7 +26,7 @@ export class LastFM {
       this.timeout
     )
       .then((res) => res)
-      .catch((response) => response);
+      .catch((error) => error.response || error);
 
     const reply = {
       lastfm_errorcode: response.data?.error,

@@ -3,8 +3,8 @@ import { GuildMember, TextChannel } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
-import { LastFM, ResponseInterface } from "../../handlers/LastFM";
-import { RecentTrackInterface } from "../../interfaces/TrackInterface";
+import User from "../../handlers/LastFM_components/User";
+import { UserRecentTrack } from "../../interfaces/TrackInterface";
 import cb from "../../misc/codeblock";
 import esm from "../../misc/escapemarkdown";
 import get_registered_users from "../../misc/get_registered_users";
@@ -26,7 +26,6 @@ class PlayingCommand extends Command {
       client,
       message,
       reply: true,
-      text: "",
     });
 
     const users = (await get_registered_users(client, message))?.users;
@@ -49,29 +48,29 @@ class PlayingCommand extends Command {
         lastfm_username: user.database.username,
       };
       lastfm_requests.push(
-        new LastFM()
-          .query({
-            method: "user.getrecenttracks",
-            params: {
-              user: user.database.username,
-              limit: 1,
-            },
-          })
+        new User({ username: user.database.username, limit: 1 })
+          .get_recenttracks()
           .then((res) => {
-            res.data.context = context;
-            return res;
+            const response_with_context = {
+              wrapper: res,
+              context: context,
+            };
+            return response_with_context;
           })
       );
     }
-    let responses: ResponseInterface[] = [];
-    await Promise.all(lastfm_requests).then((res) => (responses = res));
+    let responses = await Promise.all(lastfm_requests);
+    if (!responses) {
+      await response.error("lastfm_error");
+      return;
+    }
     responses = responses
-      .filter((response) => response.status === 200)
+      .filter((response) => response.wrapper.success)
       .filter((response) => {
-        const last_track = response.data.recenttracks.track[0];
-        return (
-          last_track && last_track[`@attr`] && last_track[`@attr`].nowplaying
-        );
+        const last_track = [
+          ...response.wrapper.data.recenttracks.track,
+        ].shift();
+        return last_track && last_track[`@attr`]?.nowplaying;
       });
 
     if (!responses.length) {
@@ -81,24 +80,24 @@ class PlayingCommand extends Command {
       return;
     }
     const stats = responses.map((response) => {
-      const last_track = response.data.recenttracks.track[0];
+      const last_track = [...response.wrapper.data.recenttracks.track].shift();
 
       return {
         track: last_track,
-        context: response.data.context,
+        context: response.context,
       };
     });
-    const fields_embed = new FieldsEmbed()
+    const fields_embed = new FieldsEmbed<typeof stats[0]>()
       .setArray(stats)
       .setAuthorizedUsers([])
       .setChannel(<TextChannel>message.channel)
       .setElementsPerPage(5)
       .setPageIndicator(true, "hybrid")
       .setDisabledNavigationEmojis(["delete"])
-      .formatField(`${stats.length} user(s)`, (el: any) => {
-        const track: RecentTrackInterface = el.track;
-        const user: GuildMember = el.context.discord_user;
-
+      .formatField(`${stats.length} user(s)`, (res) => {
+        const track = res.track;
+        const user: GuildMember = res.context.discord_user;
+        if (!track || !user) return;
         const str = `**${esm(user.user.username)}**\n[${esm(track.name)}](${
           track.url
         }) · ${esm(track.album["#text"])} — **${esm(

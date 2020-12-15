@@ -1,4 +1,4 @@
-export interface ArtistInterface {
+interface ArtistComponent {
   bio?: {
     content: string;
     links: { link: { "#text": string; href: string; rel: string } };
@@ -31,25 +31,35 @@ export interface ArtistInterface {
   url: string;
 }
 
-export interface UserArtistInterface extends ArtistInterface {
-  stats: {
-    listeners: string;
-    playcount: string;
-    userplaycount: string;
+export interface Artist {
+  artist: ArtistComponent;
+}
+
+export interface UserArtist {
+  artist: ArtistComponent & {
+    stats: {
+      listeners: string;
+      playcount: string;
+      userplaycount: string;
+    };
   };
 }
 
-export interface TopArtistInterface {
-  "@attr": { rank: string };
-  image: {
-    "#text": string;
-    size: string;
-  }[];
-  mbid: string;
-  name: string;
-  playcount: string;
-  streamable: string;
-  url: string;
-  last_count?: string;
-  is_new?: boolean;
+export interface UserTopArtist {
+  topartists: {
+    artist: {
+      "@attr": { rank: string };
+      image: {
+        "#text": string;
+        size: string;
+      }[];
+      mbid: string;
+      name: string;
+      playcount: string;
+      streamable: string;
+      url: string;
+      last_count?: string;
+      is_new?: boolean;
+    }[];
+  };
 }

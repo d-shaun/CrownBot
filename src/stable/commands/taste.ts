@@ -3,8 +3,8 @@ import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
-import LastFMUser from "../../handlers/LastFMUser";
-import { TopArtistInterface } from "../../interfaces/ArtistInterface";
+import User from "../../handlers/LastFM_components/User";
+import { UserTopArtist } from "../../interfaces/ArtistInterface";
 import esm from "../../misc/escapemarkdown";
 import search_user from "../../misc/search_user";
 
@@ -50,18 +50,21 @@ class TasteCommand extends Command {
       return;
     }
 
-    const responses: TopArtistInterface[][] = [];
+    const responses: UserTopArtist["topartists"]["artist"][] = [];
 
     for (const user of [u1, u2]) {
-      const lastfm_user = new LastFMUser({
-        discord_ID: message.author.id,
+      const lastfm_user = new User({
         username: user.username,
+        limit: 200,
       });
       const query = await lastfm_user.get_top_artists({
-        limit: 200,
         period: "overall",
       });
-      responses.push(query.topartists.artist);
+      if (query.lastfm_errorcode || !query.success) {
+        response.error("lastfm_error", query.lastfm_errormessage);
+        return;
+      }
+      responses.push(query.data.topartists.artist);
     }
 
     let plays: {

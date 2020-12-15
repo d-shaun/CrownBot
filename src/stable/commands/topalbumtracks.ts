@@ -6,10 +6,8 @@ import { Template } from "../../classes/Template";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
-import { LastFM, ResponseInterface } from "../../handlers/LastFM";
-import LastFMUser from "../../handlers/LastFMUser";
-import { AlbumInterface } from "../../interfaces/AlbumInterface";
-import { TrackInterface } from "../../interfaces/TrackInterface";
+import Album from "../../handlers/LastFM_components/Album";
+import User from "../../handlers/LastFM_components/User";
 import cb from "../../misc/codeblock";
 import esm from "../../misc/escapemarkdown";
 
@@ -42,8 +40,7 @@ class TopAlbumTracks extends Command {
     const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
 
-    const lastfm_user = new LastFMUser({
-      discord_ID: message.author.id,
+    const lastfm_user = new User({
       username: user.username,
     });
 
@@ -58,15 +55,14 @@ class TopAlbumTracks extends Command {
       const str = args.join(" ");
       const str_array = str.split("||");
       if (str_array.length !== 2) {
-        const { data } = await new LastFM().search_album(
-          str_array.join().trim()
-        );
-        if (data.error) {
-          response.text = new Template(client, message).get("lastfm_error");
-          await response.send();
+        const query = await new Album({
+          name: str_array.join().trim(),
+        }).search();
+        if (query.lastfm_errorcode || !query.success) {
+          response.error("lastfm_error", query.lastfm_errormessage);
           return;
         }
-        const album = data.results.albummatches.album[0];
+        const album = query.data.results.albummatches.album[0];
 
         if (!album) {
           response.text = `Couldn't find the album; try providing artist name—see ${cb(
@@ -83,21 +79,16 @@ class TopAlbumTracks extends Command {
         artist_name = str_array[1].trim();
       }
     }
-    const { data } = <AxiosResponse>await new LastFM().query({
-      method: "album.getinfo",
-      params: {
-        album: album_name,
-        artist: artist_name,
-        username: user.username,
-        autocorrect: 1,
-      },
-    });
-    if (data.error || !data.album) {
-      response.text = new Template(client, message).get("lastfm_error");
-      await response.send();
+    const query = await new Album({
+      name: album_name,
+      artist_name,
+      username: user.username,
+    }).user_get_info();
+    if (query.lastfm_errorcode || !query.success) {
+      response.error("lastfm_error", query.lastfm_errormessage);
       return;
     }
-    const album: AlbumInterface = data.album;
+    const album = query.data.album;
     const album_tracks = await lastfm_user.get_album_tracks(
       album.artist,
       album.name
@@ -148,6 +139,7 @@ class TopAlbumTracks extends Command {
     await fields_embed.build();
   }
 
+  /*
   // uses the Last.fm API instead of scraping their pages
   async run_alternate(client: CrownBot, message: GuildMessage, args: string[]) {
     const server_prefix = client.cache.prefix.get(message.guild);
@@ -302,6 +294,7 @@ class TopAlbumTracks extends Command {
     });
     await fields_embed.build();
   }
+  */
 }
 
 export default TopAlbumTracks;

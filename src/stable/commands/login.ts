@@ -4,6 +4,7 @@ import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
 import { LastFM } from "../../handlers/LastFM";
+import User from "../../handlers/LastFM_components/User";
 import cb from "../../misc/codeblock";
 
 class LoginCommand extends Command {
@@ -66,28 +67,21 @@ class LoginCommand extends Command {
     }
 
     const username = args.join();
-    const { status, data } = await new LastFM().query({
-      method: "user.getinfo",
-      params: {
-        user: username,
-      },
-    });
-    if (status === 404) {
-      response.text = `Username not found on Last.fm―please check for any misspellings.`;
-      await response.send();
-    } else if (status === 200 && data.user) {
-      if (await db.add_user(message.guild.id, message.author.id, username)) {
-        response.text = `Username ${cb(
-          username
-        )} has been associated to your Discord account.`;
-      } else {
-        response.text = new Template(client, message).get("exception");
-      }
-      await response.send();
-    } else {
-      response.text = new Template(client, message).get("lastfm_error");
-      await response.send();
+
+    const lastfm_user = await new User({ username }).get_info();
+    if (lastfm_user.lastfm_errorcode || !lastfm_user.success) {
+      response.error("lastfm_error", lastfm_user.lastfm_errormessage);
+      return;
     }
+
+    if (await db.add_user(message.guild.id, message.author.id, username)) {
+      response.text = `Username ${cb(
+        username
+      )} has been associated to your Discord account.`;
+    } else {
+      response.text = new Template(client, message).get("exception");
+    }
+    await response.send();
   }
 }
 

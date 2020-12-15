@@ -5,9 +5,8 @@ import { Template } from "../../classes/Template";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
-import { LastFM, ResponseInterface } from "../../handlers/LastFM";
-import LastFMUser from "../../handlers/LastFMUser";
-import { AlbumInterface } from "../../interfaces/AlbumInterface";
+import Album from "../../handlers/LastFM_components/Album";
+import User from "../../handlers/LastFM_components/User";
 import { LeaderboardInterface } from "../../interfaces/LeaderboardInterface";
 import cb from "../../misc/codeblock";
 import esm from "../../misc/escapemarkdown";
@@ -38,8 +37,7 @@ class WhoKnowsAlbum extends Command {
     if (!user) return;
 
     const response = new BotMessage({ client, message, text: "", reply: true });
-    const lastfm_user = new LastFMUser({
-      discord_ID: message.author.id,
+    const lastfm_user = new User({
       username: user.username,
     });
 
@@ -54,15 +52,15 @@ class WhoKnowsAlbum extends Command {
       const str = args.join(" ");
       const str_array = str.split("||");
       if (str_array.length !== 2) {
-        const { data } = await new LastFM().search_album(
-          str_array.join().trim()
-        );
-        if (data.error) {
-          response.text = new Template(client, message).get("lastfm_error");
-          await response.send();
+        const query = await new Album({
+          name: str_array.join().trim(),
+        }).search();
+        if (query.lastfm_errorcode || !query.success) {
+          response.error("lastfm_error", query.lastfm_errormessage);
           return;
         }
-        const album = data.results.albummatches.album[0];
+
+        const album = query.data.results.albummatches.album[0];
 
         if (!album) {
           response.text = `Couldn't find the album; try providing artist name—see ${cb(
@@ -80,25 +78,16 @@ class WhoKnowsAlbum extends Command {
       }
     }
 
-    const { status, data } = await new LastFM().query({
-      method: "album.getinfo",
-      params: {
-        artist: artist_name,
-        album: album_name,
-        username: user.username,
-        autocorrect: 1,
-      },
-    });
-    if (data.error === 6) {
-      response.text = "Album not found.";
-      response.send();
-      return;
-    } else if (status !== 200 || !data.album) {
-      response.text = new Template(client, message).get("lastfm_error");
-      await response.send();
+    const query = await new Album({
+      name: album_name,
+      artist_name,
+      username: user.username,
+    }).user_get_info();
+    if (query.lastfm_errorcode || !query.success) {
+      response.error("lastfm_error", query.lastfm_errormessage);
       return;
     }
-    const album: AlbumInterface = data.album;
+    const album = query.data.album;
     const users = (await get_registered_users(client, message))?.users;
     if (!users || users.length <= 0) {
       response.text = `No user in this guild has registered their Last.fm username; see ${cb(
@@ -120,42 +109,33 @@ class WhoKnowsAlbum extends Command {
         lastfm_username: user.database.username,
       };
       lastfm_requests.push(
-        new LastFM()
-          .query({
-            method: "album.getinfo",
-            params: {
-              artist: artist_name,
-              album: album_name,
-              username: user.database.username,
-              autocorrect: 1,
-            },
-          })
+        new Album({
+          name: album_name,
+          artist_name,
+          username: user.database.username,
+        })
+          .user_get_info()
           .then((res) => {
-            // check if response is an object because Last.fm has now started serving empty string
-            if (res && typeof res.data === "object") res.data.context = context;
-            return res;
+            const response_with_context = {
+              wrapper: res,
+              context: context,
+            };
+            return response_with_context;
           })
       );
     }
-    let responses: ResponseInterface[] = [];
-    await Promise.all(lastfm_requests).then((res) => (responses = res));
+    let responses = await Promise.all(lastfm_requests);
 
     if (
       !responses.length ||
-      responses.some((response) => !response?.data?.album?.playcount)
+      responses.some((response) => !response.wrapper.data?.album?.playcount)
     ) {
       response.text = new Template(client, message).get("lastfm_error");
       await response.send();
       return;
     }
 
-    responses = responses
-      .filter((response) => response.status !== 404)
-      .filter((response) => {
-        // filter out users who have deleted their Last.fm account
-        const album: AlbumInterface = response.data.album;
-        return !(album && !album.userplaycount);
-      });
+    responses = responses.filter((response) => response.wrapper.success);
     let leaderboard: LeaderboardInterface[] = [];
 
     interface ContextInterface {
@@ -163,9 +143,9 @@ class WhoKnowsAlbum extends Command {
       lastfm_username: string;
     }
 
-    responses.forEach(({ data }) => {
-      const album: AlbumInterface = data.album;
-      const context: ContextInterface = data.context;
+    responses.forEach((response) => {
+      const album = response.wrapper.data.album;
+      const context = response.context;
       if (!context || !context.discord_user) return;
       if (!album.userplaycount) return;
       if (parseInt(album.userplaycount) <= 0) return;

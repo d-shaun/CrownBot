@@ -1,122 +1,119 @@
-import Axios from "axios";
+import { GuildMessage } from "../../classes/Command";
+import { UserTopAlbum } from "../../interfaces/AlbumInterface";
+import { UserTopArtist } from "../../interfaces/ArtistInterface";
+import { Period } from "../../interfaces/LastFMQueryInterface";
+import { UserinfoInterface } from "../../interfaces/LastFMUserinfoInterface";
+import { UserRecentTrack, UserTopTrack } from "../../interfaces/TrackInterface";
+import BotMessage from "../BotMessage";
+import CrownBot from "../CrownBot";
+import { LastFM } from "../LastFM";
 import cheerio from "cheerio";
-import { GuildMessage } from "../classes/Command";
-import { Template } from "../classes/Template";
-import { RecentTrackInterface } from "../interfaces/TrackInterface";
-import { UserinfoInterface } from "../interfaces/UserinfoInterface";
-import BotMessage from "./BotMessage";
-import CrownBot from "./CrownBot";
-import { LastFM } from "./LastFM";
-const timeout = { timeout: 30 * 1000 }; // 30 seconds timeout
-export default class LastFMUser {
+import cb from "../../misc/codeblock";
+import Axios from "axios";
+
+export default class extends LastFM {
+  prefix = "user.";
+  configs = {
+    autocorrect: 1,
+    limit: 10,
+  };
   username: string;
-  discord_id?: string | number;
-  constructor({
-    username,
-    discord_ID,
-  }: {
-    username: string;
-    discord_ID: string | number;
-  }) {
-    if (!username && !discord_ID) {
-      throw "Failed to initialize new LastFMUser without username and Discord ID.";
-    }
-    this.username = username;
-    this.discord_id = discord_ID;
 
-    return this;
+  constructor({ username, limit }: { username: string; limit?: number }) {
+    super();
+    this.username = username;
+    if (limit) this.configs.limit = limit;
   }
 
-  set_username(username: string) {
-    this.username = username;
-  }
-  async get_info(): Promise<{ user: UserinfoInterface } | undefined> {
-    const { data } = await new LastFM().query({
-      method: "user.getinfo",
-      params: {
-        user: this.username,
-        limit: 1,
-      },
+  async get_info() {
+    const query = await this.query<UserinfoInterface>({
+      method: this.prefix + "getInfo",
+      user: this.username,
+      ...this.configs,
     });
-    if (data.error) {
-      return undefined;
-    } else {
-      return data;
-    }
+    if (query.success && !query.data.user) query.success = false;
+    return query;
   }
-  async get_nowplaying(
-    client: CrownBot,
-    message: GuildMessage
-  ): Promise<RecentTrackInterface | undefined> {
-    const { data } = await new LastFM().query({
-      method: "user.getrecenttracks",
-      params: {
-        user: this.username,
-        limit: 1,
-      },
+
+  async get_recenttracks() {
+    return this.query<UserRecentTrack>({
+      method: this.prefix + "getRecentTracks",
+      user: this.username,
+      ...this.configs,
     });
+  }
+
+  async get_top_artists({ period }: { period: Period }) {
+    return this.query<UserTopArtist>({
+      method: this.prefix + "getTopArtists",
+      user: this.username,
+
+      period: period,
+      ...this.configs,
+    });
+  }
+
+  async get_top_tracks({ period }: { period: Period }) {
+    return this.query<UserTopTrack>({
+      method: this.prefix + "getTopTracks",
+      user: this.username,
+      period: period,
+      ...this.configs,
+    });
+  }
+
+  async get_top_albums({ period }: { period: Period }) {
+    return this.query<UserTopAlbum>({
+      method: this.prefix + "getTopAlbums",
+      user: this.username,
+      period: period,
+      ...this.configs,
+    });
+  }
+
+  //
+  //This is here only to free bunch of commands of doing these checks.
+  async get_nowplaying(client: CrownBot, message: GuildMessage) {
     const response = new BotMessage({
       client,
       message,
       reply: true,
-      text: "",
     });
-    if (!data || data.error) {
-      if (data?.error === 6) {
-        response.text =
-          "User ``" +
-          this.username +
-          "`` doesn't exist on Last.fm; please try logging out and in again.";
-      } else {
-        response.text = new Template(client, message).get("lastfm_error");
-      }
-      await response.send();
-      return undefined;
+    const prev_limit = this.configs.limit;
+    this.configs.limit = 1;
+    const query = await this.get_recenttracks();
+    this.configs.limit = prev_limit;
+    if (query.lastfm_errorcode === 6) {
+      response.error(
+        "lastfm_error",
+        `User ${cb(
+          this.username
+        )} doesn't exist on Last.fm; please try logging out and in again.`
+      );
+      return;
     }
-    const last_track = data.recenttracks.track[0];
+    if (!query.success) return;
+
+    const last_track = [...query.data.recenttracks.track].shift();
+
     if (last_track && last_track[`@attr`] && last_track[`@attr`].nowplaying) {
       return last_track;
     } else {
       response.text = "You aren't playing anything.";
       await response.send();
-      return undefined;
+      return;
     }
   }
 
-  async get_top_artists(config: { limit: number; period: string }) {
-    const { data } = await new LastFM().query({
-      method: "user.getTopArtists",
-      params: {
-        user: this.username,
-        period: config.period,
-        limit: config.limit,
-      },
-    });
-    return data;
-  }
-  async get_top_tracks(config: { limit: number; period: string }) {
-    const { data } = await new LastFM().query({
-      method: "user.getTopTracks",
-      params: {
-        user: this.username,
-        period: config.period,
-        limit: config.limit,
-      },
-    });
-    return data;
-  }
-
-  async get_top_albums(config: { limit: number; period: string }) {
-    const { data } = await new LastFM().query({
-      method: "user.getTopAlbums",
-      params: {
-        user: this.username,
-        period: config.period,
-        limit: config.limit,
-      },
-    });
-    return data;
-  }
+  //
+  //
+  // JUST WERKS SECTION
+  //
+  // LEGACY: SCRAPING.
+  // I don't want to remember how these parsers below work, but they work.
+  // They're supposed to return either the requested data or undefined.
+  // I have no plans of refactoring this to make it consistent with the LastFMResponse<T>.
+  //
 
   parse_chartpage(data: string) {
     const $ = cheerio.load(data);
@@ -142,7 +139,7 @@ export default class LastFMUser {
     const URL = `https://www.last.fm/user/${encodeURIComponent(
       this.username
     )}/library/music/${encodeURIComponent(artist_name)}/+albums`;
-    const response = await Axios.get(URL, timeout).catch(() => {
+    const response = await Axios.get(URL, this.timeout).catch(() => {
       return undefined;
     });
     if (response?.status !== 200 || !response.data) {
@@ -157,7 +154,7 @@ export default class LastFMUser {
       this.username
     )}/library/music/${encodeURIComponent(artist_name)}/+tracks`;
 
-    const response = await Axios.get(URL, timeout).catch(() => {
+    const response = await Axios.get(URL, this.timeout).catch(() => {
       return undefined;
     });
     if (response?.status !== 200 || !response.data) {
@@ -174,7 +171,7 @@ export default class LastFMUser {
       )}/library/music/${encodeURIComponent(artist_name)}/${encodeURIComponent(
         album_name
       )}`,
-      timeout
+      this.timeout
     ).catch(() => {
       return undefined;
     });
@@ -218,7 +215,7 @@ export default class LastFMUser {
       `https://www.last.fm/user/${encodeURIComponent(this.username)}/library${
         type ? "/" + type : ""
       }?date_preset=${date_preset}`,
-      timeout
+      this.timeout
     )
       .catch(() => {
         return undefined;
@@ -238,8 +235,6 @@ export default class LastFMUser {
       this.generate_promise(date_preset, "albums"),
       this.generate_promise(date_preset, "tracks"),
     ];
-
-    // let responses: { response: AxiosResponse; type: string }[] = [];
 
     return Promise.all(promises).then((responses) => {
       let artists: number | undefined,
@@ -314,7 +309,7 @@ export default class LastFMUser {
       `https://www.last.fm/user/${encodeURIComponent(
         this.username
       )}/library${artist_specific}?date_preset=${date_preset}`,
-      timeout
+      this.timeout
     ).catch(() => {
       return undefined;
     });
@@ -325,4 +320,10 @@ export default class LastFMUser {
     const stat = this.parse_listening_history(response.data);
     return stat;
   }
+
+  //
+  //
+  // END OF JUST WERKS SECTION
+  //
+  //
 }

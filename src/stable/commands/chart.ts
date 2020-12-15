@@ -1,13 +1,36 @@
-import { createCanvas, loadImage, registerFont } from "canvas";
+import { registerFont, loadImage, createCanvas } from "canvas";
 import { MessageAttachment } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import { Template } from "../../classes/Template";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
-import LastFMUser from "../../handlers/LastFMUser";
-import { TopAlbumInterface } from "../../interfaces/AlbumInterface";
+import User from "../../handlers/LastFM_components/User";
+import { Spotify } from "../../handlers/Spotify";
+import { UserAlbum, UserTopAlbum } from "../../interfaces/AlbumInterface";
+import { UserTopArtist } from "../../interfaces/ArtistInterface";
+import { Period } from "../../interfaces/LastFMQueryInterface";
+import { UserTopTrack } from "../../interfaces/TrackInterface";
 import cb from "../../misc/codeblock";
+
+export interface Data {
+  id?: number;
+  name: string;
+  artist_name?: string;
+  image_url?: string;
+  playcount: number;
+}
+
+interface Config {
+  period: {
+    text: string;
+    value: Period;
+  };
+  limit: number;
+  no_title: boolean;
+  size: { x: number; y: number };
+  type: "artist" | "album" | "track";
+}
 
 class ChartCommand extends Command {
   constructor() {
@@ -15,11 +38,13 @@ class ChartCommand extends Command {
       name: "chart",
       description:
         "Generates user's weekly, monthly, or yearly top-albums chart. By default, `period` is 'weekly', `grid size` is '5x5', and `notitles` is turned off.",
-      usage: ["chart [<period>] [<grid size>] [<nt/notitles>]"],
+      usage: [
+        "chart [<artist/track/album>] [<weekly/monthly/yearly/alltime>] [<grid size>] [<nt/notitles>]",
+      ],
       examples: [
-        "chart weekly",
-        "chart monthly 4x4",
-        "chart monthly notitles",
+        "chart artist weekly",
+        "chart track monthly 4x4",
+        "chart album monthly notitles",
         "chart monthly 5x6 notitles",
       ],
       aliases: ["c"],
@@ -29,7 +54,6 @@ class ChartCommand extends Command {
   }
 
   async run(client: CrownBot, message: GuildMessage, args: string[]) {
-    const no_album_cover = "https://i.imgur.com/N5xps21.png";
     const server_prefix = client.cache.prefix.get(message.guild);
     const response = new BotMessage({
       client,
@@ -40,63 +64,24 @@ class ChartCommand extends Command {
     const db = new DB(client.models);
     const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
-    const lastfm_user = new LastFMUser({
-      discord_ID: message.author.id,
+    const lastfm_user = new User({
       username: user.username,
     });
-    registerFont("./src/fonts/Roboto-Regular.ttf", { family: "Roboto" });
-    const font = "15px Roboto";
+    const spotify = new Spotify();
+    await spotify.attach_access_token();
+
     const no_title_aliases = ["notitle", "nt", "notitles"];
-    const config = {
+    const config: Config = {
       period: {
         text: "weekly",
-        value: <string | undefined>"7day",
+        value: "7day",
       },
       limit: 0,
       no_title: false,
+      size: { x: 5, y: 5 },
+      type: "album",
     };
 
-    if (no_title_aliases.includes(args[0])) {
-      config.no_title = true;
-    } else {
-      switch (args[0]) {
-        case `a`:
-        case `alltime`:
-        case `o`:
-        case `overall`:
-          config.period.text = `all-time`;
-          config.period.value = `overall`;
-          break;
-        case `w`:
-        case `weekly`:
-          config.period.text = `weekly`;
-          config.period.value = `7day`;
-          break;
-        case `monthly`:
-        case `m`:
-          config.period.text = `monthly`;
-          config.period.value = `1month`;
-          break;
-        case `yearly`:
-        case `y`:
-          config.period.text = `yearly`;
-          config.period.value = `12month`;
-          break;
-        case undefined:
-          config.period.text = `weekly`;
-          config.period.value = `7day`;
-          break;
-        default:
-          config.period.value = undefined;
-      }
-    }
-
-    if (no_title_aliases.includes(args[1])) {
-      config.no_title = true;
-    }
-    if (no_title_aliases.includes(args[2])) {
-      config.no_title = true;
-    }
     const parse_size = async function (arg: string) {
       const numbers = arg.split("x");
       const x = parseInt(numbers[0]);
@@ -119,73 +104,136 @@ class ChartCommand extends Command {
       }
       return { x, y };
     };
-    let size: { x: number; y: number } | undefined = { x: 5, y: 5 };
-    if (args[1] && args[1].split("x").length === 2) {
-      size = await parse_size(args[1]);
-    } else if (args[2] && args[2].split("x").length === 2) {
-      size = await parse_size(args[2]);
-    }
 
-    if (!size) return;
-    config.limit = size.x * size.y;
-    if (!config.period.value) {
-      response.text = `Invalid time-period provided; see ${cb(
-        "help chart",
-        server_prefix
-      )} for help.`;
-      await response.send();
-      return;
-    }
-
-    const query = await lastfm_user.get_top_albums({
-      limit: config.limit,
-      period: config.period.value,
-    });
-    if (!query.topalbums || !query.topalbums.album) {
-      response.text = new Template(client, message).get("lastfm_error");
-      await response.send();
-      return;
-    }
-    const albums: TopAlbumInterface[] = query.topalbums.album;
-    if (!albums.length) {
-      response.text = "You haven't listened to any album in the time-period.";
-      await response.send();
-      return;
-    }
-    let cached_noalbumcover: any;
-    const promises = albums.map((album) => {
-      let album_cover;
-      if (album.image) {
-        const last_item = album.image[2];
-        if (last_item) {
-          album_cover = last_item["#text"];
-        }
+    for await (const arg of args) {
+      if (no_title_aliases.includes(arg)) {
+        config.no_title = true;
       }
-      if (album_cover) {
-        return loadImage(album_cover);
+
+      if (arg.split("x").length === 2) {
+        const size = await parse_size(arg);
+        if (!size) return;
+        config.size.x = size.x;
+        config.size.y = size.y;
+      }
+
+      switch (arg) {
+        case "artists":
+        case "artist":
+        case "ar":
+        case "art":
+          config.type = "artist";
+          break;
+
+        case "tracks":
+        case "track":
+        case "t":
+          config.type = "track";
+          break;
+      }
+
+      switch (arg) {
+        case "a":
+        case "alltime":
+        case "o":
+        case "overall":
+          config.period.text = "all-time";
+          config.period.value = "overall";
+          break;
+        case "w":
+        case "weekly":
+          config.period.text = "weekly";
+          config.period.value = "7day";
+          break;
+        case "monthly":
+        case "m":
+          config.period.text = "monthly";
+          config.period.value = "1month";
+          break;
+        case "yearly":
+        case "y":
+          config.period.text = "yearly";
+          config.period.value = "12month";
+          break;
+      }
+    }
+    config.limit = config.size.x * config.size.y;
+    lastfm_user.configs.limit = config.limit;
+
+    let data: Data[] | undefined;
+
+    if (config.type === "album") {
+      const query = await lastfm_user.get_top_albums({
+        period: config.period.value,
+      });
+      if (query.lastfm_errorcode || !query.success) {
+        response.error("lastfm_error", query.lastfm_errormessage);
+        return;
+      }
+      const albums = query.data.topalbums.album;
+      data = this.format_albums(albums);
+    } else if (config.type === "artist") {
+      const query = await lastfm_user.get_top_artists({
+        period: config.period.value,
+      });
+      if (query.lastfm_errorcode || !query.success) {
+        response.error("lastfm_error", query.lastfm_errormessage);
+        return;
+      }
+      const artists = query.data.topartists.artist;
+      const temp_data = this.format_artists(artists);
+
+      data = await spotify.attach_artist_images(temp_data);
+    } else if (config.type === "track") {
+      const query = await lastfm_user.get_top_tracks({
+        period: config.period.value,
+      });
+      if (query.lastfm_errorcode || !query.success) {
+        response.error("lastfm_error", query.lastfm_errormessage);
+        return;
+      }
+      const tracks = query.data.toptracks.track;
+      data = this.format_tracks(tracks);
+    }
+    if (!data) return;
+
+    /* generate chart */
+    const chart = await this.generate_chart(data, config);
+    message.reply(
+      `here's your ${config.period.text} ${config.size.x}x${config.size.y} ${config.type} chart.`,
+      chart
+    );
+  }
+
+  async generate_chart(data: Data[], config: Config) {
+    const no_album_cover = "https://i.imgur.com/N5xps21.png";
+    registerFont("./src/fonts/Roboto-Regular.ttf", { family: "Roboto" });
+    const font = "15px Roboto";
+
+    const cached_noalbumcover = loadImage(no_album_cover);
+
+    const promises = data.map((elem) => {
+      if (elem.image_url) {
+        return loadImage(elem.image_url);
       } else {
-        if (!cached_noalbumcover) {
-          cached_noalbumcover = loadImage(no_album_cover);
-        }
         return cached_noalbumcover;
       }
     });
-    const loaded_images = await Promise.all(promises);
 
-    const album_images = loaded_images.map((x) =>
+    const loaded_images = (await Promise.all(promises)).map((x) =>
       x ? x : cached_noalbumcover
     );
 
     // anything that follows is mostly taken from https://github.com/kometh0616/fmcord/blob/master/src/commands/chart.ts.
-    const canv = createCanvas(size.x * 100, size.y * 100);
+    const canv = createCanvas(config.size.x * 100, config.size.y * 100);
     const ctx = canv.getContext(`2d`);
     ctx.font = font;
     let iter = 0;
-    for (let yAxis = 0; yAxis < size.y * 100; yAxis += 100) {
-      if (album_images[iter]) {
-        for (let xAxis = 0; xAxis < size.x * 100; xAxis += 100) {
-          if (album_images[iter]) {
-            ctx.drawImage(album_images[iter], xAxis, yAxis, 100, 100);
+    for (let yAxis = 0; yAxis < config.size.y * 100; yAxis += 100) {
+      if (loaded_images[iter]) {
+        for (let xAxis = 0; xAxis < config.size.x * 100; xAxis += 100) {
+          if (loaded_images[iter]) {
+            ctx.drawImage(loaded_images[iter], xAxis, yAxis, 100, 100);
             iter++;
           } else break;
         }
@@ -200,10 +248,12 @@ class ChartCommand extends Command {
     if (config.no_title) {
       attachment = new MessageAttachment(canv.toBuffer(), "chart.png");
     } else {
-      const album_elements = albums.map((x) => {
-        const text = `${truncate(x.artist.name, 20)} — ${truncate(x.name, 30)}`;
+      const data_element = data.map((x) => {
+        const text = `${
+          x.artist_name ? truncate(x.artist_name, 20) + " — " : ""
+        }${truncate(x.name, 30)}`;
         const playcount = `${x.playcount} ${
-          parseInt(x.playcount) > 1 ? "plays" : "play"
+          x.playcount > 1 ? "plays" : "play"
         } · `;
         return {
           text,
@@ -213,13 +263,14 @@ class ChartCommand extends Command {
         };
       });
       const max_name_length = Math.max(
-        ...album_elements.map((elem) => elem.length.width)
+        ...data_element.map((elem) => elem.length.width)
       );
       const max_playcount_length = Math.max(
-        ...album_elements.map((elem) => elem.playcount_length.width)
+        ...data_element.map((elem) => elem.playcount_length.width)
       );
-      const xAxis = size.x * 100 + 75 + max_name_length + max_playcount_length;
-      const yAxis = size.y * 100 + 50;
+      const xAxis =
+        config.size.x * 100 + 75 + max_name_length + max_playcount_length;
+      const yAxis = config.size.y * 100 + 50;
       const finalCanvas = createCanvas(xAxis, yAxis);
       const fctx = finalCanvas.getContext(`2d`);
       fctx.fillStyle = `black`;
@@ -228,18 +279,26 @@ class ChartCommand extends Command {
       fctx.font = font;
       let i = 0;
       let spacing = 0;
-      for (let byChart = 25; byChart < 100 * size.y + 25; byChart += 100) {
-        for (let inChart = 15; inChart <= 15 * size.x; inChart += 15) {
+      for (
+        let byChart = 25;
+        byChart < 100 * config.size.y + 25;
+        byChart += 100
+      ) {
+        for (let inChart = 15; inChart <= 15 * config.size.x; inChart += 15) {
           const yAxis = byChart + inChart;
-          const album = album_elements[i];
+          const album = data_element[i];
           if (album) {
             fctx.fillStyle = `#858585`;
-            fctx.fillText(album.playcount, size.x * 100 + 40, yAxis + spacing);
+            fctx.fillText(
+              album.playcount,
+              config.size.x * 100 + 40,
+              yAxis + spacing
+            );
 
             fctx.fillStyle = `white`;
             fctx.fillText(
               album.text,
-              size.x * 100 + 40 + max_playcount_length,
+              config.size.x * 100 + 40 + max_playcount_length,
               yAxis + spacing
             );
           }
@@ -250,11 +309,42 @@ class ChartCommand extends Command {
       }
       attachment = new MessageAttachment(finalCanvas.toBuffer(), "chart.png");
     }
+    return attachment;
+  }
 
-    message.reply(
-      `here's your ${config.period.text} ${size.x}x${size.y} chart.`,
-      attachment
-    );
+  format_albums(albums: UserTopAlbum["topalbums"]["album"]) {
+    return albums.map((album) => {
+      let image;
+      if (album.image?.length) {
+        image = [...album.image].pop()?.["#text"];
+      }
+
+      return {
+        name: album.name,
+        artist_name: album.artist.name,
+        image_url: image,
+        playcount: parseInt(album.playcount),
+      };
+    });
+  }
+
+  format_artists(artists: UserTopArtist["topartists"]["artist"]) {
+    return artists.map((artist) => {
+      return {
+        name: artist.name,
+        playcount: parseInt(artist.playcount),
+      };
+    });
+  }
+
+  format_tracks(tracks: UserTopTrack["toptracks"]["track"]) {
+    return tracks.map((track) => {
+      return {
+        artist_name: track.artist.name,
+        name: track.name,
+        playcount: parseInt(track.playcount),
+      };
+    });
   }
 }
 

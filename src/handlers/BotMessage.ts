@@ -102,16 +102,23 @@ class BotMessage {
   }
 
   async error(id: string, lastfm_message?: string) {
+    this.text = "";
+
+    if (id == "blank") {
+      this.text = lastfm_message; /* this is custom message so we don't escape markdown chars here */
+      return this.send();
+    }
+
     const template = this.templates.find((t) => t.id === id);
     if (!template) {
       throw "No template with the ID found: " + id;
     }
     this.text = template.text;
+
     if (lastfm_message) {
       this.text += "\n\n>>> " + esm(lastfm_message);
     }
     return this.send();
   }
 }
-
 export default BotMessage;

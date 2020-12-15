@@ -5,7 +5,7 @@ import { Template } from "../../classes/Template";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
-import LastFMUser from "../../handlers/LastFMUser";
+import User from "../../handlers/LastFM_components/User";
 
 class StatsCommand extends Command {
   constructor() {
@@ -29,18 +29,17 @@ class StatsCommand extends Command {
     const db = new DB(client.models);
     const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
-    const lastfm_user = new LastFMUser({
-      discord_ID: message.author.id,
+    const lastfm_user = new User({
       username: user.username,
     });
     const user_details = await lastfm_user.get_info();
-    if (!user_details) {
-      response.text = new Template(client, message).get("lastfm_error");
-      await response.send();
+    if (user_details.lastfm_errorcode || !user_details.success) {
+      await response.error("lastfm_error", user_details.lastfm_errormessage);
       return;
     }
+
     const user_registered_date = moment
-      .unix(user_details.user.registered["#text"])
+      .unix(user_details.data.user.registered["#text"])
       .format("MMMM DD, YYYY");
 
     const requests = [

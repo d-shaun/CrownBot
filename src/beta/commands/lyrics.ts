@@ -7,8 +7,8 @@ import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
 import { LastFM } from "../../handlers/LastFM";
-import LastFMUser from "../../handlers/LastFMUser";
-import { TrackInterface } from "../../interfaces/TrackInterface";
+import Track from "../../handlers/LastFM_components/Track";
+import User from "../../handlers/LastFM_components/User";
 import cb from "../../misc/codeblock";
 import esm from "../../misc/escapemarkdown";
 import { LyricsLogInterface } from "../../stable/models/LyricsLog";
@@ -36,8 +36,7 @@ class LyricsCommand extends Command {
     if (!user) return;
 
     const response = new BotMessage({ client, message, text: "", reply: true });
-    const lastfm_user = new LastFMUser({
-      discord_ID: message.author.id,
+    const lastfm_user = new User({
       username: user.username,
     });
 
@@ -52,15 +51,16 @@ class LyricsCommand extends Command {
       const str = args.join(" ");
       const str_array = str.split("||");
       if (str_array.length !== 2) {
-        const { data } = await new LastFM().search_track(
-          str_array.join().trim()
-        );
-        if (data.error) {
-          response.text = new Template(client, message).get("lastfm_error");
-          await response.send();
+        const query = await new Track({
+          name: str_array.join().trim(),
+          limit: 1,
+        }).search();
+        if (query.lastfm_errorcode || !query.success) {
+          response.error("lastfm_error", query.lastfm_errormessage);
           return;
         }
-        const track = data.results.trackmatches.track[0];
+
+        const track = query.data.results.trackmatches.track.shift();
 
         if (!track) {
           response.text = `Couldn't find the track; try providing artist name—see ${cb(
@@ -77,23 +77,18 @@ class LyricsCommand extends Command {
         artist_name = str_array[1].trim();
       }
     }
-    const { data } = <AxiosResponse>await new LastFM().query({
-      method: "track.getinfo",
-      params: {
-        track: track_name,
-        artist: artist_name,
-        username: user.username,
-        autocorrect: 1,
-      },
-    });
 
-    if (data.error || !data.track) {
-      response.text = new Template(client, message).get("lastfm_error");
-      await response.send();
+    const query = await new Track({
+      name: track_name,
+      artist_name,
+      username: user.username,
+    }).user_get_info();
+    if (query.lastfm_errorcode || !query.success) {
+      response.error("lastfm_error", query.lastfm_errormessage);
       return;
     }
 
-    const track: TrackInterface = data.track;
+    const track = query.data.track;
 
     const lyricist = new Lyricist(client.genius_api);
     const song = (

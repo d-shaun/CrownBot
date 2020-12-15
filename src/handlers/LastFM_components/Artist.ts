@@ -1,7 +1,4 @@
-import {
-  ArtistInterface,
-  UserArtistInterface,
-} from "../../interfaces/ArtistInterface";
+import { Artist, UserArtist } from "../../interfaces/ArtistInterface";
 import { LastFMResponse } from "../../interfaces/LastFMResponseInterface";
 import { LastFM } from "../LastFM";
 
@@ -10,18 +7,16 @@ export default class extends LastFM {
   configs = {
     autocorrect: 1,
   };
-  name?: string;
+  name: string;
   username?: string;
 
-  constructor({ name, username }: { name?: string; username?: string }) {
+  constructor({ name, username }: { name: string; username?: string }) {
     super();
     this.name = name;
     this.username = username;
   }
 
-  custom_check(
-    response: LastFMResponse<{ artist: UserArtistInterface }>
-  ): boolean {
+  custom_check(response: LastFMResponse<UserArtist>): boolean {
     if (this.username && !response.data.artist.stats.userplaycount) {
       return false;
     }
@@ -29,32 +24,17 @@ export default class extends LastFM {
     return true;
   }
 
-  async get_info({ name }: { name?: string } = { name: undefined }) {
-    let artist_name = this.name;
-    if (name) artist_name = name;
-
-    if (!artist_name) throw "No artist name specified.";
-
-    return this.query<{ artist: ArtistInterface }>({
+  async get_info() {
+    return this.query<Artist>({
       method: this.prefix + "getInfo",
-      artist: artist_name,
+      artist: this.name,
       user: this.username,
       ...this.configs,
     });
   }
 
   // with username
-  async user_get_info({ name }: { name?: string } = { name: undefined }) {
-    let artist_name = this.name;
-    if (name) artist_name = name;
-
-    if (!artist_name) throw "No artist name specified.";
-
-    return this.query<{ artist: UserArtistInterface }>({
-      method: this.prefix + "getInfo",
-      artist: artist_name,
-      user: this.username,
-      ...this.configs,
-    });
+  async user_get_info() {
+    return <LastFMResponse<UserArtist>>await this.get_info();
   }
 }

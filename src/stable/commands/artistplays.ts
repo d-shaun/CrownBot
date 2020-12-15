@@ -6,9 +6,9 @@ import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
-import LastFMUser from "../../handlers/LastFMUser";
 import Artist from "../../handlers/LastFM_components/Artist";
-import { UserArtistInterface } from "../../interfaces/ArtistInterface";
+import User from "../../handlers/LastFM_components/User";
+import { UserArtist } from "../../interfaces/ArtistInterface";
 import esm from "../../misc/escapemarkdown";
 import time_difference from "../../misc/time_difference";
 import { ArtistLogInterface } from "../models/ArtistLog";
@@ -32,8 +32,7 @@ class ArtistPlaysCommand extends Command {
     const response = new BotMessage({ client, message, reply: true });
 
     if (!user) return;
-    const lastfm_user = new LastFMUser({
-      discord_ID: message.author.id,
+    const lastfm_user = new User({
       username: user.username,
     });
 
@@ -102,7 +101,7 @@ class ArtistPlaysCommand extends Command {
   async update_log(
     client: CrownBot,
     message: GuildMessage,
-    artist: UserArtistInterface
+    artist: UserArtist["artist"]
   ) {
     const timestamp = moment.utc().valueOf();
 

@@ -1,4 +1,31 @@
-interface AlbumTrackInterface {
+interface AlbumComponent {
+  artist: string;
+  image: {
+    "#text": string;
+    size: string;
+  }[];
+  listeners: string;
+  mbid: string;
+  name: string;
+  playcount: string;
+  tags: { tag: { name: string; url: string }[] };
+  tracks: {
+    track: AlbumTrack[];
+  };
+  url: string;
+}
+
+export interface Album {
+  album: AlbumComponent;
+}
+
+export interface UserAlbum {
+  album: AlbumComponent & {
+    userplaycount: string;
+  };
+}
+
+interface AlbumTrack {
   "@attr": { rank: string };
   artist: {
     name: string;
@@ -14,44 +41,30 @@ interface AlbumTrackInterface {
   url: string;
 }
 
-export interface AlbumInterface {
-  artist: string;
-  image: {
-    "#text": string;
-    size: string;
-  }[];
-  listeners: string;
-  mbid: string;
-  name: string;
-  playcount: string;
-  tags: { tag: { name: string; url: string }[] };
-  tracks: {
-    track: AlbumTrackInterface[];
-  };
-  url: string;
-  userplaycount: string;
-}
-
-export interface SearchAlbumInterface {
-  status: number;
-  data: {
-    error?: number;
-    results: { albummatches: { album: AlbumInterface[] } };
+export interface SearchAlbum {
+  results: {
+    albummatches: {
+      album: AlbumComponent[];
+    };
   };
 }
 
-export interface TopAlbumInterface {
-  name: string;
-  playcount: string;
-  mbid: string;
-  url: string;
-  artist: {
-    name: string;
-    url: string;
-    mbid: string;
+export interface UserTopAlbum {
+  topalbums: {
+    album: {
+      name: string;
+      playcount: string;
+      mbid: string;
+      url: string;
+      artist: {
+        name: string;
+        url: string;
+        mbid: string;
+      };
+      image: {
+        "#text": string;
+        size: string;
+      }[];
+    }[];
   };
-  image: {
-    "#text": string;
-    size: string;
-  }[];
 }

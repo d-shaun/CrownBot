@@ -5,9 +5,8 @@ import { Template } from "../../classes/Template";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
-import { LastFM, ResponseInterface } from "../../handlers/LastFM";
-import LastFMUser from "../../handlers/LastFMUser";
-import { ArtistInterface } from "../../interfaces/ArtistInterface";
+import Artist from "../../handlers/LastFM_components/Artist";
+import User from "../../handlers/LastFM_components/User";
 import { LeaderboardInterface } from "../../interfaces/LeaderboardInterface";
 import cb from "../../misc/codeblock";
 import esm from "../../misc/escapemarkdown";
@@ -41,8 +40,7 @@ class WhoKnowsCommand extends Command {
     if (!user) return;
 
     const response = new BotMessage({ client, message, text: "", reply: true });
-    const lastfm_user = new LastFMUser({
-      discord_ID: message.author.id,
+    const lastfm_user = new User({
       username: user.username,
     });
 
@@ -59,26 +57,18 @@ class WhoKnowsCommand extends Command {
     } else {
       artist_name = args.join(" ");
     }
-    const { status, data } = await new LastFM().query({
-      method: "artist.getinfo",
-      params: {
-        artist: artist_name,
-        username: user.username,
-        autocorrect: 1,
-      },
-    });
 
-    if (data.error === 6) {
-      response.text = "Artist not found.";
-      response.send();
-      return;
-    } else if (status !== 200 || !data.artist) {
-      response.text = new Template(client, message).get("lastfm_error");
-      await response.send();
+    const query = await new Artist({
+      name: artist_name,
+      username: user.username,
+    }).user_get_info();
+
+    if (query.lastfm_errorcode || !query.success) {
+      response.error("lastfm_error", query.lastfm_errormessage);
       return;
     }
 
-    const artist: ArtistInterface = data.artist;
+    const artist = query.data.artist;
     const users = (await get_registered_users(client, message))?.users;
     if (!users || users.length <= 0) {
       response.text = `No user in this guild has registered their Last.fm username; see ${cb(
@@ -100,52 +90,37 @@ class WhoKnowsCommand extends Command {
         lastfm_username: user.database.username,
       };
       lastfm_requests.push(
-        new LastFM()
-          .query({
-            method: "artist.getinfo",
-            params: {
-              artist: artist_name,
-              username: user.database.username,
-              autocorrect: 1,
-            },
-          })
+        new Artist({
+          name: artist_name,
+          username: user.database.username,
+        })
+          .user_get_info()
           .then((res) => {
-            // check if response is an object because Last.fm has now started serving empty string
-            if (res && typeof res.data === "object") res.data.context = context;
-            return res;
+            const response_with_context = {
+              wrapper: res,
+              context: context,
+            };
+            return response_with_context;
           })
       );
     }
-    let responses: ResponseInterface[] = [];
-    await Promise.all(lastfm_requests).then((res) => (responses = res));
-
+    let responses = await Promise.all(lastfm_requests);
     if (
       !responses.length ||
-      responses.some((response) => !response?.data?.artist?.stats?.playcount)
+      responses.some(
+        (response) => !response?.wrapper.data?.artist?.stats?.playcount // sanity check
+      )
     ) {
-      response.text = new Template(client, message).get("lastfm_error");
-      await response.send();
+      await response.error("lastfm_error");
       return;
     }
 
-    responses = responses
-      .filter((response) => response.status !== 404)
-      .filter((response) => {
-        // filter out users who have deleted their Last.fm account
-        const artist: ArtistInterface = response.data.artist;
-        return !(artist && !artist.stats.userplaycount);
-      });
-
+    responses = responses.filter((response) => response.wrapper.success);
     let leaderboard: LeaderboardInterface[] = [];
 
-    interface ContextInterface {
-      discord_user: GuildMember;
-      lastfm_username: string;
-    }
-
-    responses.forEach(({ data }) => {
-      const artist: ArtistInterface = data.artist;
-      const context: ContextInterface = data.context;
+    responses.forEach((response) => {
+      const artist = response.wrapper.data.artist;
+      const context = response.context;
       if (!context || !context.discord_user) return;
       if (!artist.stats.userplaycount) return;
       if (parseInt(artist.stats.userplaycount) <= 0) return;
@@ -215,7 +190,7 @@ class WhoKnowsCommand extends Command {
         }
       }
     }
-    const fields_embed = new FieldsEmbed()
+    const fields_embed = new FieldsEmbed<typeof leaderboard[0]>()
       .setArray(leaderboard)
       .setAuthorizedUsers([])
       .setChannel(<TextChannel>message.channel)
@@ -224,8 +199,7 @@ class WhoKnowsCommand extends Command {
       .setDisabledNavigationEmojis(["delete"])
       .formatField(
         `${total_scrobbles} plays ― ${leaderboard.length} listener(s)\n`,
-        (el: any) => {
-          const elem: LeaderboardInterface = el;
+        (elem) => {
           let count_diff;
           let diff_str = "";
           if (elem.last_count) {
@@ -250,11 +224,11 @@ class WhoKnowsCommand extends Command {
           const indicator = `${
             index === 1 &&
             !disallow_crown &&
-            el.userplaycount >= min_plays_for_crown
+            parseInt(elem.userplaycount) >= min_plays_for_crown
               ? ":crown:"
               : index + "."
           }`;
-          return `${indicator} ${el.discord_username} — **${el.userplaycount} play(s)** ${diff_str}`;
+          return `${indicator} ${elem.discord_username} — **${elem.userplaycount} play(s)** ${diff_str}`;
         }
       );
     if (min_count_text) {

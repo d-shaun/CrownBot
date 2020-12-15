@@ -4,9 +4,10 @@ import { Template } from "../../classes/Template";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
-import LastFMUser from "../../handlers/LastFMUser";
-import { TopArtistInterface } from "../../interfaces/ArtistInterface";
-import { TopTrackInterface } from "../../interfaces/TrackInterface";
+import User from "../../handlers/LastFM_components/User";
+import { UserTopArtist } from "../../interfaces/ArtistInterface";
+import { Period } from "../../interfaces/LastFMQueryInterface";
+
 import cb from "../../misc/codeblock";
 import esm from "../../misc/escapemarkdown";
 import time_difference from "../../misc/time_difference";
@@ -43,8 +44,7 @@ class ListCommand extends Command {
     const db = new DB(client.models);
     const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
-    const lastfm_user = new LastFMUser({
-      discord_ID: message.author.id,
+    const lastfm_user = new User({
       username: user.username,
     });
 
@@ -52,7 +52,7 @@ class ListCommand extends Command {
       type: <undefined | string>undefined,
       period: {
         text: "",
-        value: <string | undefined>"",
+        value: <Period | undefined>"",
       },
       limit: 10,
     };
@@ -124,6 +124,7 @@ class ListCommand extends Command {
     } else {
       config.limit = 10;
     }
+    lastfm_user.configs.limit = config.limit;
 
     if (!config.type || !config.period.value) {
       response.text = `Invalid arguments passed; see ${cb(
@@ -136,15 +137,13 @@ class ListCommand extends Command {
 
     if (config.type === "artist") {
       const query = await lastfm_user.get_top_artists({
-        limit: config.limit,
         period: config.period.value,
       });
-      if (!query.topartists || !query.topartists.artist) {
-        response.text = new Template(client, message).get("lastfm_error");
-        await response.send();
+      if (query.lastfm_errorcode || !query.success) {
+        response.error("lastfm_error", query.lastfm_errormessage);
         return;
       }
-      let top_artists: TopArtistInterface[] = query.topartists.artist;
+      let top_artists = query.data.topartists.artist;
 
       let last_log: any | null = null;
       if (config.period.value === "overall") {
@@ -154,7 +153,7 @@ class ListCommand extends Command {
         });
       }
 
-      let cached_log: TopArtistInterface[];
+      let cached_log: UserTopArtist["topartists"]["artist"];
       if (last_log && last_log.stat.length) {
         cached_log = last_log.stat;
       } else {
@@ -200,9 +199,6 @@ class ListCommand extends Command {
             })`;
           }
 
-          // if (artist.is_new) {
-          //   diff_str = " ― :new:";
-          // }
           return `${artist["@attr"].rank}. **${esm(artist.name)}** — **${
             artist.playcount
           }** plays ${diff_str}`;
@@ -229,15 +225,13 @@ class ListCommand extends Command {
       await message.channel.send(embed);
     } else if (config.type === "song") {
       const query = await lastfm_user.get_top_tracks({
-        limit: config.limit,
         period: config.period.value,
       });
-      if (!query.toptracks || !query.toptracks.track) {
-        response.text = new Template(client, message).get("lastfm_error");
-        await response.send();
+      if (query.lastfm_errorcode || !query.success) {
+        response.error("lastfm_error", query.lastfm_errormessage);
         return;
       }
-      const top_tracks: TopTrackInterface[] = query.toptracks.track;
+      const top_tracks = query.data.toptracks.track;
       const embed_list = top_tracks
         .map((track) => {
           return `${track["@attr"].rank}. **${esm(track.name)}** by **${esm(

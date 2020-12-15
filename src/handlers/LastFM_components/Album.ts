@@ -1,0 +1,75 @@
+import { Album, SearchAlbum, UserAlbum } from "../../interfaces/AlbumInterface";
+import { Artist, UserArtist } from "../../interfaces/ArtistInterface";
+import { LastFMResponse } from "../../interfaces/LastFMResponseInterface";
+import { LastFM } from "../LastFM";
+
+export default class extends LastFM {
+  prefix = "album.";
+  configs = {
+    autocorrect: 1,
+    limit: 10,
+  };
+  name?: string;
+  artist_name?: string;
+  username?: string;
+
+  constructor({
+    name,
+    artist_name,
+    username,
+    limit,
+  }: {
+    name: string;
+    artist_name?: string;
+    username?: string;
+    limit?: number;
+  }) {
+    super();
+    this.name = name;
+    this.artist_name = artist_name;
+    this.username = username;
+    if (limit) this.configs.limit = limit;
+  }
+
+  custom_check(response: LastFMResponse<UserAlbum>): boolean {
+    if (this.username && !response.data.album.userplaycount) {
+      return false;
+    }
+
+    return true;
+  }
+
+  async get_info() {
+    if (!this.name || !this.artist_name)
+      throw "Album and artist names are required.";
+
+    return this.query<Album>({
+      method: this.prefix + "getInfo",
+      album: this.name,
+      artist: this.artist_name,
+      user: this.username,
+      ...this.configs,
+    });
+  }
+
+  // with username
+  async user_get_info() {
+    if (!this.name || !this.artist_name)
+      throw "Album and artist names are required.";
+    const query = <LastFMResponse<UserAlbum>>await this.get_info();
+    if (this.username && !query.data.album.userplaycount) {
+      query.success = false;
+    }
+    return query;
+  }
+
+  async search() {
+    if (!this.name) throw "Album name is required to search.";
+    return this.query<SearchAlbum>({
+      method: this.prefix + "search",
+      album: this.name,
+      user: this.username,
+      ...this.configs,
+    });
+  }
+}
