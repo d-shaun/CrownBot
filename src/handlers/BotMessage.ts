@@ -104,7 +104,7 @@ class BotMessage {
   async error(id: string, lastfm_message?: string) {
     this.text = "";
 
-    if (id == "blank") {
+    if (id === "blank") {
       this.text = lastfm_message; /* this is custom message so we don't escape markdown chars here */
       return this.send();
     }

@@ -153,7 +153,7 @@ class GraphCommand extends Command {
       height,
       (ChartJS) => {
         ChartJS.plugins.register({
-          afterDraw: function (chartInstance) {
+          afterDraw: (chartInstance) => {
             const ctx = chartInstance.ctx;
             if (!ctx) return;
             ctx.font = ChartJS.helpers.fontString(

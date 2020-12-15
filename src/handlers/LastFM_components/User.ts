@@ -48,7 +48,7 @@ export default class extends LastFM {
       method: this.prefix + "getTopArtists",
       user: this.username,
 
-      period: period,
+      period,
       ...this.configs,
     });
   }
@@ -57,7 +57,7 @@ export default class extends LastFM {
     return this.query<UserTopTrack>({
       method: this.prefix + "getTopTracks",
       user: this.username,
-      period: period,
+      period,
       ...this.configs,
     });
   }

@@ -98,7 +98,7 @@ class WhoKnowsCommand extends Command {
           .then((res) => {
             const response_with_context = {
               wrapper: res,
-              context: context,
+              context,
             };
             return response_with_context;
           })

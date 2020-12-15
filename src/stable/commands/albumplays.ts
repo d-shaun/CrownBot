@@ -89,7 +89,7 @@ class AlbumPlaysCommand extends Command {
 
     const query_album = await new Album({
       name: album_name,
-      artist_name: artist_name,
+      artist_name,
       username: user.username,
     }).user_get_info();
 
