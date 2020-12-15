@@ -47,7 +47,6 @@ export class Spotify {
     track_name: string,
     id?: number
   ): Promise<{ images: SpotifyApi.ImageObject[]; id?: number } | undefined> {
-    console.log(artist_name, track_name);
     const query = await this.#spotify_api.searchTracks(
       `artist:${artist_name} track:${track_name}`,
       {
