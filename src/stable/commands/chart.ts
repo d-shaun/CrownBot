@@ -1,9 +1,11 @@
 import { createCanvas, loadImage, registerFont } from "canvas";
 import { MessageAttachment } from "discord.js";
+import { stringify } from "querystring";
 import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
+import Album from "../../handlers/LastFM_components/Album";
 import User from "../../handlers/LastFM_components/User";
 import { Spotify } from "../../handlers/Spotify";
 import { UserTopAlbum } from "../../interfaces/AlbumInterface";
@@ -16,6 +18,7 @@ export interface Data {
   id?: number;
   name: string;
   artist_name?: string;
+  album_name?: string;
   image_url?: string;
   playcount: number;
 }
@@ -58,7 +61,6 @@ class ChartCommand extends Command {
       client,
       message,
       reply: true,
-      text: "",
     });
     const db = new DB(client.models);
     const user = await db.fetch_user(message.guild.id, message.author.id);
@@ -192,7 +194,8 @@ class ChartCommand extends Command {
         return;
       }
       const tracks = query.data.toptracks.track;
-      data = this.format_tracks(tracks);
+      const temp_data = this.format_tracks(tracks);
+      data = await spotify.attach_track_images(<any>temp_data);
     }
     if (!data) return;
 
@@ -311,7 +314,7 @@ class ChartCommand extends Command {
     return attachment;
   }
 
-  format_albums(albums: UserTopAlbum["topalbums"]["album"]) {
+  format_albums(albums: UserTopAlbum["topalbums"]["album"]): Data[] {
     return albums.map((album) => {
       let image;
       if (album.image?.length) {
@@ -327,7 +330,7 @@ class ChartCommand extends Command {
     });
   }
 
-  format_artists(artists: UserTopArtist["topartists"]["artist"]) {
+  format_artists(artists: UserTopArtist["topartists"]["artist"]): Data[] {
     return artists.map((artist) => {
       return {
         name: artist.name,
@@ -336,10 +339,11 @@ class ChartCommand extends Command {
     });
   }
 
-  format_tracks(tracks: UserTopTrack["toptracks"]["track"]) {
+  format_tracks(tracks: UserTopTrack["toptracks"]["track"]): Data[] {
     return tracks.map((track) => {
       return {
         artist_name: track.artist.name,
+        album_name: track.name,
         name: track.name,
         playcount: parseInt(track.playcount),
       };

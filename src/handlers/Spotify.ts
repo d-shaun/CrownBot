@@ -2,6 +2,10 @@ import SpotifyWebApi from "spotify-web-api-node";
 import { Data } from "../stable/commands/chart";
 const { SPOTIFY_CLIENTID, SPOTIFY_CLIENTSECRET } = process.env;
 
+interface CustomData extends Data {
+  artist_name: string;
+}
+
 export class Spotify {
   #clientid = SPOTIFY_CLIENTID;
   #clientsecret = SPOTIFY_CLIENTSECRET;
@@ -38,9 +42,26 @@ export class Spotify {
     return { images: artist.images, id };
   }
 
+  async get_track_images(
+    artist_name: string,
+    track_name: string,
+    id?: number
+  ): Promise<{ images: SpotifyApi.ImageObject[]; id?: number } | undefined> {
+    console.log(artist_name, track_name);
+    const query = await this.#spotify_api.searchTracks(
+      `artist:${artist_name} track:${track_name}`,
+      {
+        limit: 1,
+      }
+    );
+    const track = query.body.tracks?.items[0];
+    if (query.statusCode !== 200 || !track) return;
+    return { images: track.album.images, id };
+  }
+
   async attach_artist_images(data: Data[]) {
     // assign ids
-    const artists = data.map((d, i) => {
+    let artists = data.map((d, i) => {
       d.id = i;
       return d;
     });
@@ -51,7 +72,7 @@ export class Spotify {
 
     const responses = (await Promise.all(promises)).filter((res) => res);
 
-    artists.map((artist) => {
+    artists = artists.map((artist) => {
       const spotify_data = responses.find((res) => res?.id === artist.id);
       if (spotify_data) {
         artist.image_url = [...spotify_data.images].shift()?.url;
@@ -60,5 +81,29 @@ export class Spotify {
     });
 
     return artists;
+  }
+
+  async attach_track_images(data: CustomData[]) {
+    // assign ids
+    let tracks = data.map((d, i) => {
+      d.id = i;
+      return d;
+    });
+
+    const promises = tracks.map((track) => {
+      return this.get_track_images(track.artist_name, track.name, track.id);
+    });
+
+    const responses = (await Promise.all(promises)).filter((res) => res);
+
+    tracks = tracks.map((track) => {
+      const spotify_data = responses.find((res) => res?.id === track.id);
+      if (spotify_data) {
+        track.image_url = [...spotify_data.images].shift()?.url;
+      }
+      return track;
+    });
+
+    return tracks;
   }
 }
