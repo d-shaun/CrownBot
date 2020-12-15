@@ -66,7 +66,7 @@ export default class extends LastFM {
     return this.query<UserTopAlbum>({
       method: this.prefix + "getTopAlbums",
       user: this.username,
-      period: period,
+      period,
       ...this.configs,
     });
   }

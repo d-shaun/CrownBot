@@ -3,7 +3,7 @@ import moment from "moment";
 import { Model } from "mongoose";
 import { GuildMessage } from "../classes/Command";
 import { UserTopArtist } from "../interfaces/ArtistInterface";
-import DBUser from "../interfaces/DBUserInterface";
+import { DBUser } from "../interfaces/DBUserInterface";
 import { LeaderboardInterface } from "../interfaces/LeaderboardInterface";
 import { ServerConfigInterface } from "../stable/models/ServerConfig";
 
