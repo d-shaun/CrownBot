@@ -1,12 +1,9 @@
-import { AxiosResponse } from "axios";
 import Lyricist from "lyricist";
 import moment from "moment";
 import Command, { GuildMessage } from "../../classes/Command";
-import { Template } from "../../classes/Template";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
-import { LastFM } from "../../handlers/LastFM";
 import Track from "../../handlers/LastFM_components/Track";
 import User from "../../handlers/LastFM_components/User";
 import cb from "../../misc/codeblock";

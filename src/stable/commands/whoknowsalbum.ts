@@ -1,5 +1,5 @@
 import { FieldsEmbed } from "discord-paginationembed";
-import { GuildMember, TextChannel } from "discord.js";
+import { TextChannel } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import { Template } from "../../classes/Template";
 import BotMessage from "../../handlers/BotMessage";
@@ -137,11 +137,6 @@ class WhoKnowsAlbum extends Command {
 
     responses = responses.filter((response) => response.wrapper.success);
     let leaderboard: LeaderboardInterface[] = [];
-
-    interface ContextInterface {
-      discord_user: GuildMember;
-      lastfm_username: string;
-    }
 
     responses.forEach((response) => {
       const album = response.wrapper.data.album;

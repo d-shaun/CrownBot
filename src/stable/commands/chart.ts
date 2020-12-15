@@ -1,13 +1,12 @@
-import { registerFont, loadImage, createCanvas } from "canvas";
+import { createCanvas, loadImage, registerFont } from "canvas";
 import { MessageAttachment } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
-import { Template } from "../../classes/Template";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
 import User from "../../handlers/LastFM_components/User";
 import { Spotify } from "../../handlers/Spotify";
-import { UserAlbum, UserTopAlbum } from "../../interfaces/AlbumInterface";
+import { UserTopAlbum } from "../../interfaces/AlbumInterface";
 import { UserTopArtist } from "../../interfaces/ArtistInterface";
 import { Period } from "../../interfaces/LastFMQueryInterface";
 import { UserTopTrack } from "../../interfaces/TrackInterface";

@@ -5,7 +5,6 @@ import { Template } from "../../classes/Template";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
-import { LastFM } from "../../handlers/LastFM";
 import Artist from "../../handlers/LastFM_components/Artist";
 import User from "../../handlers/LastFM_components/User";
 import cb from "../../misc/codeblock";

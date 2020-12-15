@@ -4,7 +4,6 @@ import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import User from "../../handlers/LastFM_components/User";
-import { UserRecentTrack } from "../../interfaces/TrackInterface";
 import cb from "../../misc/codeblock";
 import esm from "../../misc/escapemarkdown";
 import get_registered_users from "../../misc/get_registered_users";

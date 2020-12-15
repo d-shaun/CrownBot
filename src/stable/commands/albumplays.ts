@@ -1,14 +1,11 @@
-import { AxiosResponse } from "axios";
 import { MessageEmbed } from "discord.js";
 import moment from "moment";
 // @ts-ignore
 import abbreviate from "number-abbreviate";
 import Command, { GuildMessage } from "../../classes/Command";
-import { Template } from "../../classes/Template";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
-import { LastFM } from "../../handlers/LastFM";
 import Album from "../../handlers/LastFM_components/Album";
 import Artist from "../../handlers/LastFM_components/Artist";
 import User from "../../handlers/LastFM_components/User";

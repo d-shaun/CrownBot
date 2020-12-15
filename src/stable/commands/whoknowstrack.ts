@@ -1,5 +1,5 @@
 import { FieldsEmbed } from "discord-paginationembed";
-import { GuildMember, TextChannel } from "discord.js";
+import { TextChannel } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import { Template } from "../../classes/Template";
 import BotMessage from "../../handlers/BotMessage";

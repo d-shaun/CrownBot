@@ -1,5 +1,4 @@
 import { Album, SearchAlbum, UserAlbum } from "../../interfaces/AlbumInterface";
-import { Artist, UserArtist } from "../../interfaces/ArtistInterface";
 import { LastFMResponse } from "../../interfaces/LastFMResponseInterface";
 import { LastFM } from "../LastFM";
 

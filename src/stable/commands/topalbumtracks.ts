@@ -1,4 +1,3 @@
-import { AxiosResponse } from "axios";
 import { FieldsEmbed } from "discord-paginationembed";
 import { TextChannel } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
