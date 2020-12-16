@@ -130,7 +130,7 @@ class TopAlbumTracks extends Command {
           album.name
         )}`
       )
-      .setFooter(`${album.name}—${album.artist}`);
+      .setFooter(`"${album.name}" by ${album.artist}`);
 
     fields_embed.on("start", () => {
       message.channel.stopTyping(true);
