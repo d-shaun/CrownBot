@@ -9,11 +9,13 @@ export default async (client: CrownBot, message: GuildMessage) => {
   if (!message.guild) return;
   if (!client.user)
     throw "'client.user' is not defined; how are we even here?!";
+
   if (!client.cache.prefix.check()) {
     throw "Prefixes were not cached. Please execute `[client].cache.prefix.init()` before event handlers.";
   }
-  if (!client.server_configs) {
-    await client.cache_configs();
+
+  if (!client.cache.config.check()) {
+    throw "Server configs were not cached. Please execute `[client].cache.config.init()` before event handlers.";
   }
 
   const response = new BotMessage({ client, message, text: "", reply: true });
