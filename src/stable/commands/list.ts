@@ -16,14 +16,14 @@ class ListCommand extends Command {
       name: "list",
       description:
         "Lists user's weekly, monthly, or yearly top artists or songs.",
-      usage: ["list <type> <period>"],
+      usage: ["list <artist/album/song> <weekly/monthly/yearly/alltime>"],
       examples: [
         "list artist weekly",
-        "list song weekly",
-        "list artist alltime",
+        "list song yearly",
+        "list album alltime",
         "l a w",
-        "l s w",
-        "l a a",
+        "l s y",
+        "l al a",
       ],
       aliases: ["l"],
       require_login: true,
@@ -67,8 +67,14 @@ class ListCommand extends Command {
         config.type = "song";
         break;
 
+      case "al":
+      case "album":
+      case "albums":
+        config.type = "album";
+        break;
+
       case undefined:
-        config.type = `artist`;
+        config.type = "artist";
         break;
 
       default:
@@ -76,31 +82,31 @@ class ListCommand extends Command {
         break;
     }
     switch (args[1]) {
-      case `a`:
-      case `alltime`:
-      case `o`:
-      case `overall`:
-        config.period.text = `all-time`;
-        config.period.value = `overall`;
+      case "a":
+      case "alltime":
+      case "o":
+      case "overall":
+        config.period.text = "all-time";
+        config.period.value = "overall";
         break;
-      case `w`:
-      case `weekly`:
-        config.period.text = `weekly`;
-        config.period.value = `7day`;
+      case "w":
+      case "weekly":
+        config.period.text = "weekly";
+        config.period.value = "7day";
         break;
-      case `monthly`:
-      case `m`:
-        config.period.text = `monthly`;
-        config.period.value = `1month`;
+      case "monthly":
+      case "m":
+        config.period.text = "monthly";
+        config.period.value = "1month";
         break;
-      case `yearly`:
-      case `y`:
-        config.period.text = `yearly`;
-        config.period.value = `12month`;
+      case "yearly":
+      case "y":
+        config.period.text = "yearly";
+        config.period.value = "12month";
         break;
       case undefined:
-        config.period.text = `weekly`;
-        config.period.value = `7day`;
+        config.period.text = "weekly";
+        config.period.value = "7day";
         break;
       default:
         config.period.value = undefined;
@@ -197,9 +203,9 @@ class ListCommand extends Command {
             })`;
           }
 
-          return `${artist["@attr"].rank}. **${esm(artist.name)}** — **${
-            artist.playcount
-          }** plays ${diff_str}`;
+          return `${artist["@attr"].rank}. **[${esm(artist.name)}](${
+            artist.url
+          })** — **${artist.playcount}** plays ${diff_str}`;
         })
         .join("\n");
 
@@ -232,9 +238,33 @@ class ListCommand extends Command {
       const top_tracks = query.data.toptracks.track;
       const embed_list = top_tracks
         .map((track) => {
-          return `${track["@attr"].rank}. **${esm(track.name)}** by **${esm(
-            track.artist.name
-          )}**— **${track.playcount}** plays`;
+          return `${track["@attr"].rank}. **[${esm(track.name)}](${
+            track.url
+          })** by **${esm(track.artist.name)}**— **${track.playcount}** plays`;
+        })
+        .join("\n");
+
+      const embed = new MessageEmbed()
+        .setTitle(
+          `${message.author.username}'s ${config.period.text}-top ${config.type}s`
+        )
+        .setDescription(embed_list);
+      await message.channel.send(embed);
+    } else if (config.type === "album") {
+      const query = await lastfm_user.get_top_albums({
+        period: config.period.value,
+      });
+      if (query.lastfm_errorcode || !query.success) {
+        response.error("lastfm_error", query.lastfm_errormessage);
+        return;
+      }
+      const top_albums = query.data.topalbums.album;
+
+      const embed_list = top_albums
+        .map((album, i) => {
+          return `${i + 1}. **[${esm(album.name)}](${album.url})** by **${esm(
+            album.artist.name
+          )}**— **${album.playcount}** plays`;
         })
         .join("\n");
 
