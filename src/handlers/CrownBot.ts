@@ -11,7 +11,8 @@ class CrownBot extends CrownBotClass {
   async init() {
     await super.load_db();
     this.load_commands().load_events().load_models();
-    await this.cache.prefix.init(); /* cache prefixes for the session */
+    await this.cache.prefix.init(); /* cache server prefixes for the session */
+    await this.cache.config.init(); /* cache server configs for the session */
     await super.log_in();
     return this;
   }
@@ -64,19 +65,19 @@ class CrownBot extends CrownBotClass {
     });
   }
 
-  async cache_configs() {
-    const configs: ServerConfigInterface[] = await this.models.serverconfig.find();
-    this.server_configs = configs;
-    console.log(`initialized ${configs.length} server config(s)`);
-  }
+  // async cache_configs() {
+  //   const configs: ServerConfigInterface[] = await this.models.serverconfig.find();
+  //   this.server_configs = configs;
+  //   console.log(`initialized ${configs.length} server config(s)`);
+  // }
 
-  get_cached_config(message: GuildMessage): ServerConfigInterface | undefined {
-    const config = this.server_configs?.find(
-      (config) => config.guild_ID === message.guild.id
-    );
-    if (config) return config;
-    return undefined;
-  }
+  // get_cached_config(message: GuildMessage): ServerConfigInterface | undefined {
+  //   const config = this.server_configs?.find(
+  //     (config) => config.guild_ID === message.guild.id
+  //   );
+  //   if (config) return config;
+  //   return undefined;
+  // }
 }
 
 export default CrownBot;
