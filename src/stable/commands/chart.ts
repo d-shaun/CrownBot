@@ -1,11 +1,9 @@
 import { createCanvas, loadImage, registerFont } from "canvas";
 import { MessageAttachment } from "discord.js";
-import { stringify } from "querystring";
 import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
-import Album from "../../handlers/LastFM_components/Album";
 import User from "../../handlers/LastFM_components/User";
 import { Spotify } from "../../handlers/Spotify";
 import { UserTopAlbum } from "../../interfaces/AlbumInterface";
