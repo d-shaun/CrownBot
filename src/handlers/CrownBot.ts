@@ -1,9 +1,7 @@
 import fs from "fs";
 import { model } from "mongoose";
 import path from "path";
-import { GuildMessage } from "../classes/Command";
 import CrownBotClass from "../classes/CrownBot";
-import { ServerConfigInterface } from "../stable/models/ServerConfig";
 import CacheHandler from "./Cache";
 class CrownBot extends CrownBotClass {
   cache = new CacheHandler(this);

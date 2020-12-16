@@ -1,5 +1,4 @@
 import { MessageReaction, User } from "discord.js";
-import { config } from "process";
 import { GuildMessage } from "../../../classes/Command";
 import BotMessage from "../../../handlers/BotMessage";
 import CrownBot from "../../../handlers/CrownBot";
