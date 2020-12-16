@@ -1,4 +1,5 @@
 import { MessageReaction, User } from "discord.js";
+import { config } from "process";
 import { GuildMessage } from "../../../classes/Command";
 import BotMessage from "../../../handlers/BotMessage";
 import CrownBot from "../../../handlers/CrownBot";
@@ -14,7 +15,7 @@ export default class MinPlaysForCrown {
   async run(client: CrownBot, message: GuildMessage, args: string[]) {
     const db = new DB(client.models);
     let current_val = 1;
-    const server_config = client.get_cached_config(message);
+    const server_config = client.cache.config.get(message.guild);
     if (server_config) current_val = server_config.min_plays_for_crown;
     const response = new BotMessage({ client, message, text: "", reply: true });
     if (args.length !== 1) {
@@ -37,6 +38,9 @@ export default class MinPlaysForCrown {
         $lt: number,
       },
     });
+
+    const config = await db.server_config(message);
+
     if (existing_crowns.length) {
       const msg = await new BotMessage({
         client,
@@ -60,7 +64,6 @@ export default class MinPlaysForCrown {
       msg.delete();
 
       if (reactions.size > 0) {
-        const config = await db.server_config(message);
         config.min_plays_for_crown = number;
         await config.save();
         await client.models.crowns.deleteMany({
@@ -79,12 +82,24 @@ export default class MinPlaysForCrown {
         await response.send();
       }
     } else {
-      const config = await db.server_config(message);
       config.min_plays_for_crown = number;
       await config.save();
       response.text = `Minimum required plays for a crown in this server has been set to **${number}**.`;
       await response.send();
     }
-    client.server_configs = undefined;
+    if (
+      !client.cache.config.set(
+        {
+          guild_ID: message.guild.id,
+          min_plays_for_crown: config.min_plays_for_crown,
+        },
+        message.guild
+      )
+    ) {
+      response.text =
+        `New configuration for this server has been set but the cache couldn't be updated; the bot will continue using the previous config until it restarts. ` +
+        `Please contact the bot maintainer (see [&]about).`;
+      await response.send();
+    }
   }
 }

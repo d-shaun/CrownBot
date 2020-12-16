@@ -45,7 +45,7 @@ class WhoKnowsCommand extends Command {
 
     // set minimum plays required to get a crown
     let min_plays_for_crown = 1;
-    const server_config = client.get_cached_config(message);
+    const server_config = client.cache.config.get(message.guild);
     if (server_config) min_plays_for_crown = server_config.min_plays_for_crown;
 
     let artist_name;
