@@ -1,4 +1,4 @@
-import { Message, PermissionString } from "discord.js";
+import { Guild, Message, PermissionString } from "discord.js";
 import BotMessage from "../handlers/BotMessage";
 import CrownBot from "../handlers/CrownBot";
 import DB from "../handlers/DB";
@@ -21,6 +21,10 @@ interface CommandInterface {
   required_permissions?: string[];
   beta?: boolean;
   category?: string;
+}
+
+export interface GuildMessage extends Message {
+  guild: Guild;
 }
 
 export default class Command {
@@ -53,12 +57,7 @@ export default class Command {
     this.category = options.category;
   }
 
-  async execute(
-    client: CrownBot,
-    message: Message,
-    args: string[],
-    override_beta = false
-  ) {
+  async execute(client: CrownBot, message: GuildMessage, args: string[]) {
     const db = new DB(client.models);
     const response = new BotMessage({ client, message, text: "", reply: true });
     if (!message.guild || !message.guild.me) return;
@@ -82,7 +81,7 @@ export default class Command {
     }
 
     if (this.require_login) {
-      const user = await db.fetch_user(message.guild?.id, message.author.id);
+      const user = await db.fetch_user(message.guild.id, message.author.id);
       if (!user) {
         response.text = new Template(client, message).get("not_logged");
         await response.send();
@@ -122,9 +121,8 @@ export default class Command {
     }
   }
 
-  async log_command(client: CrownBot, message: Message) {
-    if (!message.guild) return;
-    var expire_date = new Date();
+  async log_command(client: CrownBot, message: GuildMessage) {
+    const expire_date = new Date();
     expire_date.setDate(expire_date.getDate() + 28); // add 28 days to current date
     const data = {
       expireAt: expire_date,
@@ -138,12 +136,11 @@ export default class Command {
     await new client.models.logs({ ...data }).save();
   }
 
-  async log_error(client: CrownBot, message: Message, stack?: string) {
+  async log_error(client: CrownBot, message: GuildMessage, stack?: string) {
     const response = new BotMessage({ client, message, text: "", reply: true });
-    const server_prefix = client.get_cached_prefix(message);
+    const server_prefix = client.cache.prefix.get(message.guild);
 
-    if (!message.guild) return;
-    var expire_date = new Date();
+    const expire_date = new Date();
     expire_date.setDate(expire_date.getDate() + 28); // add 28 days to current date
     const incident_id = generate_random_strings(8);
     const data = {
@@ -169,7 +166,11 @@ export default class Command {
 
   async run(
     client: CrownBot,
-    message: Message,
+    message: GuildMessage,
     args: string[]
-  ): Promise<void> {}
+  ): Promise<void> {
+    // placeholder
+    console.log(client, message, args);
+    return;
+  }
 }

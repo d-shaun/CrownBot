@@ -1,10 +1,10 @@
 import { Mongoose } from "mongoose";
-import { TopArtistInterface } from "../../interfaces/ArtistInterface";
+import { UserTopArtist } from "../../interfaces/ArtistInterface";
 
 export interface ListArtistLogInterface {
   user_id: string;
   guild_id: string;
-  stat: TopArtistInterface[];
+  stat: UserTopArtist[];
   timestamp: number;
 }
 export default (mongoose: Mongoose) => {

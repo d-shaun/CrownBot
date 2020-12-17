@@ -1,0 +1,22 @@
+name: CI
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install Node.js v12
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - name: Install packages
+        run: yarn install
+      - name: Build project
+        run: yarn run build
+      - name: Lint
+        run: yarn run lint

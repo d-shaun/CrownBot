@@ -1,10 +1,10 @@
-import { Message, MessageEmbed } from "discord.js";
-import Command from "../../classes/Command";
+import { MessageEmbed } from "discord.js";
+import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
-import LastFMUser from "../../handlers/LastFMUser";
-import { TopArtistInterface } from "../../interfaces/ArtistInterface";
+import User from "../../handlers/LastFM_components/User";
+import { UserTopArtist } from "../../interfaces/ArtistInterface";
 import esm from "../../misc/escapemarkdown";
 import search_user from "../../misc/search_user";
 
@@ -20,8 +20,7 @@ class TasteCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: string[]) {
-    const server_prefix = client.get_cached_prefix(message);
+  async run(client: CrownBot, message: GuildMessage, args: string[]) {
     const response = new BotMessage({
       client,
       message,
@@ -29,7 +28,7 @@ class TasteCommand extends Command {
       text: "",
     });
     const db = new DB(client.models);
-    let mentioned = message.mentions.members?.first();
+    const mentioned = message.mentions.members?.first();
     let user_two = mentioned ? mentioned.user : undefined;
 
     if (!user_two && args.length !== 0) {
@@ -42,8 +41,8 @@ class TasteCommand extends Command {
       return;
     }
 
-    const u1 = await db.fetch_user(message.guild?.id, message.author.id);
-    const u2 = await db.fetch_user(message.guild?.id, user_two.id);
+    const u1 = await db.fetch_user(message.guild.id, message.author.id);
+    const u2 = await db.fetch_user(message.guild.id, user_two.id);
     if (!(u1 && u2)) {
       response.text =
         "The user hasn't registered their Last.fm username on the bot.";
@@ -51,18 +50,21 @@ class TasteCommand extends Command {
       return;
     }
 
-    const responses: TopArtistInterface[][] = [];
+    const responses: UserTopArtist["topartists"]["artist"][] = [];
 
     for (const user of [u1, u2]) {
-      const lastfm_user = new LastFMUser({
-        discord_ID: message.author.id,
+      const lastfm_user = new User({
         username: user.username,
+        limit: 200,
       });
       const query = await lastfm_user.get_top_artists({
-        limit: 200,
         period: "overall",
       });
-      responses.push(query.topartists.artist);
+      if (query.lastfm_errorcode || !query.success) {
+        response.error("lastfm_error", query.lastfm_errormessage);
+        return;
+      }
+      responses.push(query.data.topartists.artist);
     }
 
     let plays: {
@@ -84,8 +86,8 @@ class TasteCommand extends Command {
     });
 
     plays = plays.sort((a, b) => {
-      let cur_diff = Math.abs(b.userone_plays - b.usertwo_plays);
-      let then_diff = Math.abs(a.userone_plays - a.usertwo_plays);
+      const cur_diff = Math.abs(b.userone_plays - b.usertwo_plays);
+      const then_diff = Math.abs(a.userone_plays - a.usertwo_plays);
       return then_diff - cur_diff;
     });
     if (plays.length > 25) plays.length = 25;

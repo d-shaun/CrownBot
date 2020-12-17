@@ -1,14 +1,13 @@
 import { FieldsEmbed } from "discord-paginationembed";
-import { GuildMember, Message, TextChannel } from "discord.js";
-import Command from "../../classes/Command";
+import { TextChannel } from "discord.js";
+import Command, { GuildMessage } from "../../classes/Command";
 import { Template } from "../../classes/Template";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
-import { LastFM, ResponseInterface } from "../../handlers/LastFM";
-import LastFMUser from "../../handlers/LastFMUser";
+import Track from "../../handlers/LastFM_components/Track";
+import User from "../../handlers/LastFM_components/User";
 import { LeaderboardInterface } from "../../interfaces/LeaderboardInterface";
-import { TrackInterface } from "../../interfaces/TrackInterface";
 import cb from "../../misc/codeblock";
 import get_registered_users from "../../misc/get_registered_users";
 import time_difference from "../../misc/time_difference";
@@ -32,16 +31,14 @@ class WhoKnowsTrack extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: string[]) {
-    const server_prefix = client.get_cached_prefix(message);
+  async run(client: CrownBot, message: GuildMessage, args: string[]) {
+    const server_prefix = client.cache.prefix.get(message.guild);
     const db = new DB(client.models);
-    const user = await db.fetch_user(message.guild?.id, message.author.id);
+    const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
-    if (!message.guild) return;
 
     const response = new BotMessage({ client, message, text: "", reply: true });
-    const lastfm_user = new LastFMUser({
-      discord_ID: message.author.id,
+    const lastfm_user = new User({
       username: user.username,
     });
 
@@ -53,18 +50,18 @@ class WhoKnowsTrack extends Command {
       artist_name = now_playing.artist["#text"];
       track_name = now_playing.name;
     } else {
-      let str = args.join(" ");
-      let str_array = str.split("||");
+      const str = args.join(" ");
+      const str_array = str.split("||");
       if (str_array.length !== 2) {
-        const { data } = await new LastFM().search_track(
-          str_array.join().trim()
-        );
-        if (data.error) {
-          response.text = new Template(client, message).get("lastfm_error");
-          await response.send();
+        const query = await new Track({
+          name: str_array.join().trim(),
+          limit: 1,
+        }).search();
+        if (query.lastfm_errorcode || !query.success) {
+          response.error("lastfm_error", query.lastfm_errormessage);
           return;
         }
-        const track = data.results.trackmatches.track[0];
+        const track = query.data.results.trackmatches.track.shift();
 
         if (!track) {
           response.text = `Couldn't find the track; try providing artist name—see ${cb(
@@ -82,26 +79,18 @@ class WhoKnowsTrack extends Command {
       }
     }
 
-    const { status, data } = await new LastFM().query({
-      method: "track.getinfo",
-      params: {
-        artist: artist_name,
-        track: track_name,
-        username: user.username,
-        autocorrect: 1,
-      },
-    });
-    if (data.error === 6) {
-      response.text = "Track not found.";
-      response.send();
-      return;
-    } else if (status !== 200 || !data.track) {
-      response.text = new Template(client, message).get("lastfm_error");
-      await response.send();
+    const query = await new Track({
+      name: track_name,
+      artist_name,
+      username: user.username,
+    }).user_get_info();
+    if (query.lastfm_errorcode || !query.success) {
+      response.error("lastfm_error", query.lastfm_errormessage);
       return;
     }
-    const track: TrackInterface = data.track;
-    let users = (await get_registered_users(client, message))?.users;
+
+    const track = query.data.track;
+    const users = (await get_registered_users(client, message))?.users;
     if (!users || users.length <= 0) {
       response.text = `No user in this guild has registered their Last.fm username; see ${cb(
         "help login",
@@ -122,53 +111,39 @@ class WhoKnowsTrack extends Command {
         lastfm_username: user.database.username,
       };
       lastfm_requests.push(
-        new LastFM()
-          .query({
-            method: "track.getinfo",
-            params: {
-              artist: artist_name,
-              track: track_name,
-              username: user.database.username,
-              autocorrect: 1,
-            },
-          })
+        new Track({
+          name: track_name,
+          artist_name,
+          username: user.database.username,
+        })
+          .user_get_info()
           .then((res) => {
-            // check if response is an object because Last.fm has now started serving empty string
-            if (res && typeof res.data === "object") res.data.context = context;
-            return res;
+            const response_with_context = {
+              wrapper: res,
+              context,
+            };
+            return response_with_context;
           })
       );
     }
-    let responses: ResponseInterface[] = [];
-    await Promise.all(lastfm_requests).then((res) => (responses = res));
+    let responses = await Promise.all(lastfm_requests);
 
     if (
       !responses.length ||
-      responses.some((response) => !response?.data?.track?.playcount)
+      responses.some((response) => !response?.wrapper.data?.track?.playcount)
     ) {
       response.text = new Template(client, message).get("lastfm_error");
       await response.send();
       return;
     }
 
-    responses = responses
-      .filter((response) => response.status !== 404)
-      .filter((response) => {
-        // filter out users who have deleted their Last.fm account
-        const track: TrackInterface = response.data.track;
-        return !(track && !track.userplaycount);
-      });
+    responses = responses.filter((response) => response.wrapper.success);
 
     let leaderboard: LeaderboardInterface[] = [];
 
-    interface ContextInterface {
-      discord_user: GuildMember;
-      lastfm_username: string;
-    }
-
-    responses.forEach(({ data }) => {
-      const track: TrackInterface = data.track;
-      const context: ContextInterface = data.context;
+    responses.forEach((response) => {
+      const track = response.wrapper.data.track;
+      const context = response.context;
       if (!context || !context.discord_user) return;
       if (!track.userplaycount) return;
       if (parseInt(track.userplaycount) <= 0) return;
@@ -180,9 +155,10 @@ class WhoKnowsTrack extends Command {
         userplaycount: track.userplaycount,
         user_id: context.discord_user.user.id,
         user_tag: context.discord_user.user.tag,
-        guild_id: message.guild?.id,
+        guild_id: message.guild.id,
       });
     });
+
     if (leaderboard.length <= 0) {
       response.text = `No one here has played ${cb(track.name)} by ${cb(
         track.artist.name
@@ -219,7 +195,7 @@ class WhoKnowsTrack extends Command {
       0
     );
 
-    const fields_embed = new FieldsEmbed()
+    const fields_embed = new FieldsEmbed<typeof leaderboard[0]>()
       .setArray(leaderboard)
       .setAuthorizedUsers([])
       .setChannel(<TextChannel>message.channel)
@@ -228,8 +204,7 @@ class WhoKnowsTrack extends Command {
       .setDisabledNavigationEmojis(["delete"])
       .formatField(
         `${total_scrobbles} plays ― ${leaderboard.length} listener(s)\n`,
-        (el: any) => {
-          const elem: LeaderboardInterface = el;
+        (elem) => {
           let count_diff;
           let diff_str = "";
           if (elem.last_count) {
@@ -248,8 +223,8 @@ class WhoKnowsTrack extends Command {
           const index =
             leaderboard.findIndex((e) => e.user_id === elem.user_id) + 1;
 
-          return `${index + "."} ${el.discord_username} — **${
-            el.userplaycount
+          return `${index + "."} ${elem.discord_username} — **${
+            elem.userplaycount
           } play(s)** ${diff_str}`;
         }
       );

@@ -1,5 +1,4 @@
-import { Message } from "discord.js";
-import Command from "../../classes/Command";
+import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
@@ -17,7 +16,7 @@ class MyLoginCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: string[]) {
+  async run(client: CrownBot, message: GuildMessage) {
     const response = new BotMessage({
       client,
       message,
@@ -25,7 +24,7 @@ class MyLoginCommand extends Command {
       text: "",
     });
     const db = new DB(client.models);
-    const user = await db.fetch_user(message.guild?.id, message.author.id);
+    const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
     response.text = `your Last.fm username is ${esm(
       user.username

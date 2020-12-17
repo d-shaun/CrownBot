@@ -1,12 +1,11 @@
-import { Message, MessageEmbed, MessageReaction, User } from "discord.js";
-
-import { CrownInterface } from "../models/Crowns";
-import Command from "../../classes/Command";
+import { MessageReaction, User } from "discord.js";
+import Command, { GuildMessage } from "../../classes/Command";
+import { Template } from "../../classes/Template";
+import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
-import BotMessage from "../../handlers/BotMessage";
 import cb from "../../misc/codeblock";
-import { Template } from "../../classes/Template";
+import { CrownInterface } from "../models/Crowns";
 
 class DeleteCrownCommand extends Command {
   constructor() {
@@ -19,12 +18,11 @@ class DeleteCrownCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: string[]) {
-    const server_prefix = client.get_cached_prefix(message);
+  async run(client: CrownBot, message: GuildMessage, args: string[]) {
+    const server_prefix = client.cache.prefix.get(message.guild);
     const db = new DB(client.models);
-    const user = await db.fetch_user(message.guild?.id, message.author.id);
+    const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
-    if (!message.guild) return;
 
     const response = new BotMessage({
       client,
@@ -70,7 +68,7 @@ class DeleteCrownCommand extends Command {
       await response.send();
       return;
     }
-    let msg = await new BotMessage({
+    const msg = await new BotMessage({
       client,
       message,
       text,

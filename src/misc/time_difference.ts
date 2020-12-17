@@ -1,12 +1,12 @@
 import moment from "moment";
 
 export default function time_difference(timestamp: number): string {
-  var then = moment.utc(timestamp);
-  var now = moment();
+  const then = moment.utc(timestamp);
+  const now = moment();
 
-  let days = now.diff(then, "days");
-  let hours = now.subtract(days, "days").diff(then, "hours");
-  let minutes = now.subtract(hours, "hours").diff(then, "minutes");
+  const days = now.diff(then, "days");
+  const hours = now.subtract(days, "days").diff(then, "hours");
+  const minutes = now.subtract(hours, "hours").diff(then, "minutes");
 
   const string = `${days > 0 ? days + " day(s)" : ""} ${
     hours > 0 ? hours + " hour(s)" : ""

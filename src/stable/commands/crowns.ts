@@ -1,6 +1,6 @@
 import { FieldsEmbed } from "discord-paginationembed";
-import { Message, TextChannel, User } from "discord.js";
-import Command from "../../classes/Command";
+import { TextChannel, User } from "discord.js";
+import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import esm from "../../misc/escapemarkdown";
@@ -20,8 +20,7 @@ class CrownsCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: string[]) {
-    if (!message.guild) return;
+  async run(client: CrownBot, message: GuildMessage, args: string[]) {
     const response = new BotMessage({ client, message, text: "", reply: true });
     let user: User | undefined;
     let not_op = false;
@@ -38,12 +37,12 @@ class CrownsCommand extends Command {
       return;
     }
 
-    const crowns: CrownInterface[] = await client.models.crowns
-      .find(<CrownInterface>{
-        guildID: message.guild.id,
-        userID: user.id,
-      })
-      .lean();
+    const crowns: CrownInterface[] = await client.models.crowns.find(<
+      CrownInterface
+    >{
+      guildID: message.guild.id,
+      userID: user.id,
+    });
 
     if (crowns.length <= 0) {
       if (!not_op) {

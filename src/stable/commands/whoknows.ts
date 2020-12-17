@@ -1,14 +1,11 @@
-import { AxiosResponse } from "axios";
 import { FieldsEmbed } from "discord-paginationembed";
-import { GuildMember, Message, TextChannel } from "discord.js";
-import Command from "../../classes/Command";
-import { Template } from "../../classes/Template";
+import { TextChannel } from "discord.js";
+import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
-import { LastFM, ResponseInterface } from "../../handlers/LastFM";
-import LastFMUser from "../../handlers/LastFMUser";
-import { ArtistInterface } from "../../interfaces/ArtistInterface";
+import Artist from "../../handlers/LastFM_components/Artist";
+import User from "../../handlers/LastFM_components/User";
 import { LeaderboardInterface } from "../../interfaces/LeaderboardInterface";
 import cb from "../../misc/codeblock";
 import esm from "../../misc/escapemarkdown";
@@ -35,22 +32,20 @@ class WhoKnowsCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: string[]) {
-    const server_prefix = client.get_cached_prefix(message);
+  async run(client: CrownBot, message: GuildMessage, args: string[]) {
+    const server_prefix = client.cache.prefix.get(message.guild);
     const db = new DB(client.models);
-    const user = await db.fetch_user(message.guild?.id, message.author.id);
+    const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
-    if (!message.guild) return;
 
     const response = new BotMessage({ client, message, text: "", reply: true });
-    const lastfm_user = new LastFMUser({
-      discord_ID: message.author.id,
+    const lastfm_user = new User({
       username: user.username,
     });
 
     // set minimum plays required to get a crown
     let min_plays_for_crown = 1;
-    const server_config = client.get_cached_config(message);
+    const server_config = client.cache.config.get(message.guild);
     if (server_config) min_plays_for_crown = server_config.min_plays_for_crown;
 
     let artist_name;
@@ -61,26 +56,18 @@ class WhoKnowsCommand extends Command {
     } else {
       artist_name = args.join(" ");
     }
-    const { status, data } = await new LastFM().query({
-      method: "artist.getinfo",
-      params: {
-        artist: artist_name,
-        username: user.username,
-        autocorrect: 1,
-      },
-    });
 
-    if (data.error === 6) {
-      response.text = "Artist not found.";
-      response.send();
-      return;
-    } else if (status !== 200 || !data.artist) {
-      response.text = new Template(client, message).get("lastfm_error");
-      await response.send();
+    const query = await new Artist({
+      name: artist_name,
+      username: user.username,
+    }).user_get_info();
+
+    if (query.lastfm_errorcode || !query.success) {
+      response.error("lastfm_error", query.lastfm_errormessage);
       return;
     }
 
-    const artist: ArtistInterface = data.artist;
+    const artist = query.data.artist;
     const users = (await get_registered_users(client, message))?.users;
     if (!users || users.length <= 0) {
       response.text = `No user in this guild has registered their Last.fm username; see ${cb(
@@ -102,52 +89,37 @@ class WhoKnowsCommand extends Command {
         lastfm_username: user.database.username,
       };
       lastfm_requests.push(
-        new LastFM()
-          .query({
-            method: "artist.getinfo",
-            params: {
-              artist: artist_name,
-              username: user.database.username,
-              autocorrect: 1,
-            },
-          })
+        new Artist({
+          name: artist_name,
+          username: user.database.username,
+        })
+          .user_get_info()
           .then((res) => {
-            // check if response is an object because Last.fm has now started serving empty string
-            if (res && typeof res.data === "object") res.data.context = context;
-            return res;
+            const response_with_context = {
+              wrapper: res,
+              context,
+            };
+            return response_with_context;
           })
       );
     }
-    let responses: ResponseInterface[] = [];
-    await Promise.all(lastfm_requests).then((res) => (responses = res));
-
+    let responses = await Promise.all(lastfm_requests);
     if (
       !responses.length ||
-      responses.some((response) => !response?.data?.artist?.stats?.playcount)
+      responses.some(
+        (response) => !response?.wrapper.data?.artist?.stats?.playcount // sanity check
+      )
     ) {
-      response.text = new Template(client, message).get("lastfm_error");
-      await response.send();
+      await response.error("lastfm_error");
       return;
     }
 
-    responses = responses
-      .filter((response) => response.status !== 404)
-      .filter((response) => {
-        // filter out users who have deleted their Last.fm account
-        const artist: ArtistInterface = response.data.artist;
-        return !(artist && !artist.stats.userplaycount);
-      });
-
+    responses = responses.filter((response) => response.wrapper.success);
     let leaderboard: LeaderboardInterface[] = [];
 
-    interface ContextInterface {
-      discord_user: GuildMember;
-      lastfm_username: string;
-    }
-
-    responses.forEach(({ data }) => {
-      const artist: ArtistInterface = data.artist;
-      const context: ContextInterface = data.context;
+    responses.forEach((response) => {
+      const artist = response.wrapper.data.artist;
+      const context = response.context;
       if (!context || !context.discord_user) return;
       if (!artist.stats.userplaycount) return;
       if (parseInt(artist.stats.userplaycount) <= 0) return;
@@ -159,7 +131,7 @@ class WhoKnowsCommand extends Command {
         userplaycount: artist.stats.userplaycount,
         user_id: context.discord_user.user.id,
         user_tag: context.discord_user.user.tag,
-        guild_id: message.guild?.id,
+        guild_id: message.guild.id,
       });
     });
     if (leaderboard.length <= 0) {
@@ -217,7 +189,7 @@ class WhoKnowsCommand extends Command {
         }
       }
     }
-    const fields_embed = new FieldsEmbed()
+    const fields_embed = new FieldsEmbed<typeof leaderboard[0]>()
       .setArray(leaderboard)
       .setAuthorizedUsers([])
       .setChannel(<TextChannel>message.channel)
@@ -226,8 +198,7 @@ class WhoKnowsCommand extends Command {
       .setDisabledNavigationEmojis(["delete"])
       .formatField(
         `${total_scrobbles} plays ― ${leaderboard.length} listener(s)\n`,
-        (el: any) => {
-          const elem: LeaderboardInterface = el;
+        (elem) => {
           let count_diff;
           let diff_str = "";
           if (elem.last_count) {
@@ -252,11 +223,11 @@ class WhoKnowsCommand extends Command {
           const indicator = `${
             index === 1 &&
             !disallow_crown &&
-            el.userplaycount >= min_plays_for_crown
+            parseInt(elem.userplaycount) >= min_plays_for_crown
               ? ":crown:"
               : index + "."
           }`;
-          return `${indicator} ${el.discord_username} — **${el.userplaycount} play(s)** ${diff_str}`;
+          return `${indicator} ${elem.discord_username} — **${elem.userplaycount} play(s)** ${diff_str}`;
         }
       );
     if (min_count_text) {
@@ -280,7 +251,6 @@ class WhoKnowsCommand extends Command {
     ) {
       fields_embed.on("start", () => {
         message.channel.stopTyping(true);
-        if (!message.guild) throw "won't happen, TS.";
         if (last_crown) {
           const last_user = message.guild.members.cache.find(
             (user) => user.id === last_crown.userID

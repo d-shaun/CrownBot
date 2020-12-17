@@ -1,5 +1,5 @@
-import { Message, MessageEmbed, TextChannel } from "discord.js";
-import Command from "../../classes/Command";
+import { MessageEmbed, TextChannel } from "discord.js";
+import Command, { GuildMessage } from "../../classes/Command";
 import CrownBot from "../../handlers/CrownBot";
 
 class PermissionsCommand extends Command {
@@ -13,8 +13,8 @@ class PermissionsCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: string[]) {
-    if (!message.guild || !message.guild.me) return;
+  async run(client: CrownBot, message: GuildMessage) {
+    if (!message.guild.me) return;
     const bot_permissions = (<TextChannel>message.channel).permissionsFor(
       message.guild.me
     );
@@ -42,7 +42,7 @@ class PermissionsCommand extends Command {
       },
     ];
 
-    let reply = permissions.map((permission) => {
+    const reply = permissions.map((permission) => {
       return `\`${permission.name}\`: ${permission.detail}`;
     });
 

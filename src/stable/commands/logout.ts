@@ -1,10 +1,10 @@
-import { Message, MessageReaction, User } from "discord.js";
-import Command from "../../classes/Command";
+import { MessageReaction, User } from "discord.js";
+import Command, { GuildMessage } from "../../classes/Command";
+import { Template } from "../../classes/Template";
+import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
-import BotMessage from "../../handlers/BotMessage";
 import cb from "../../misc/codeblock";
-import { Template } from "../../classes/Template";
 
 class LogoutCommand extends Command {
   constructor() {
@@ -18,8 +18,8 @@ class LogoutCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: string[]) {
-    const prefix = client.get_cached_prefix(message);
+  async run(client: CrownBot, message: GuildMessage, args: string[]) {
+    const prefix = client.cache.prefix.get(message.guild);
     const db = new DB(client.models);
 
     const response = new BotMessage({
@@ -56,7 +56,7 @@ class LogoutCommand extends Command {
       return;
     }
 
-    const user = await db.fetch_user(message.guild?.id, message.author.id);
+    const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) {
       response.text = `You aren't logged in; use the ${cb(
         "login",
@@ -86,7 +86,7 @@ class LogoutCommand extends Command {
     );
     msg.delete();
     if (reactions.size > 0) {
-      if (await db.remove_user(message.guild?.id, message.author.id)) {
+      if (await db.remove_user(message.guild.id, message.author.id)) {
         response.text = `You have been logged out from the bot in this server; run ${cb(
           "logout global",
           prefix

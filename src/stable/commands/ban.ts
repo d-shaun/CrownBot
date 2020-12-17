@@ -1,5 +1,5 @@
-import { Message, MessageReaction, User } from "discord.js";
-import Command from "../../classes/Command";
+import { MessageReaction, User } from "discord.js";
+import Command, { GuildMessage } from "../../classes/Command";
 import { Template } from "../../classes/Template";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
@@ -20,11 +20,10 @@ class BanCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: string[]) {
-    const server_prefix = client.get_cached_prefix(message);
+  async run(client: CrownBot, message: GuildMessage, args: string[]) {
+    const server_prefix = client.cache.prefix.get(message.guild);
     const db = new DB(client.models);
 
-    if (!message.guild) return;
     const response = new BotMessage({
       client,
       message,
@@ -39,7 +38,7 @@ class BanCommand extends Command {
 
       return;
     }
-    let mentioned = message.mentions.members?.first();
+    const mentioned = message.mentions.members?.first();
     let user = mentioned ? mentioned.user : undefined;
 
     if (!user && args.length !== 0) {

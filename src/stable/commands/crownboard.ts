@@ -1,6 +1,5 @@
-import { Message, MessageEmbed } from "discord.js";
-import Command from "../../classes/Command";
-import BotMessage from "../../handlers/BotMessage";
+import { MessageEmbed } from "discord.js";
+import Command, { GuildMessage } from "../../classes/Command";
 import CrownBot from "../../handlers/CrownBot";
 import esm from "../../misc/escapemarkdown";
 import get_registered_users from "../../misc/get_registered_users";
@@ -16,9 +15,7 @@ class CrownboardCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: string[]) {
-    if (!message.guild) return;
-    const response = new BotMessage({ client, message, text: "", reply: true });
+  async run(client: CrownBot, message: GuildMessage) {
     const server_users = (await get_registered_users(client, message))?.users;
     if (!server_users) return;
 
@@ -43,8 +40,7 @@ class CrownboardCommand extends Command {
     const entries = [...amounts.entries()];
 
     const description_text = entries
-
-      .sort(([_, a], [__, b]) => b - a)
+      .sort(([, a], [, b]) => b - a)
       .map(([userID, amount]) => {
         // yes, this monstrosity fetches GuildMember from the server.
         const discord_username = server_users.find(

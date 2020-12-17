@@ -1,4 +1,4 @@
-export interface TrackInterface {
+interface TrackComponent {
   album: {
     artist: string;
     image: {
@@ -18,38 +18,51 @@ export interface TrackInterface {
   name: string;
   playcount: string;
   url: string;
-  userloved?: string;
-  userplaycount?: string;
 }
 
-export interface RecentTrackInterface {
-  id?: number;
-  "@attr"?: {
-    nowplaying: boolean;
-  };
-  album: {
-    "#text": string;
-    mbid: string;
-  };
-  artist: {
-    "#text": string;
-    mbid: string;
-  };
-  image: {
-    size: string;
-    "#text": string;
-  }[];
-  mbid: string;
-  name: string;
-  streamable: string;
-  url: string;
-  date: {
-    uts: string;
-    "#text": string;
+export interface Track {
+  track: TrackComponent;
+}
+
+export interface UserTrack {
+  track: TrackComponent & {
+    userloved: string;
+    userplaycount: string;
   };
 }
 
-export interface ShortenedTrackInterface {
+export interface UserRecentTrack {
+  recenttracks: {
+    track: {
+      id?: number;
+      "@attr"?: {
+        nowplaying: boolean;
+      };
+      album: {
+        "#text": string;
+        mbid: string;
+      };
+      artist: {
+        "#text": string;
+        mbid: string;
+      };
+      image: {
+        size: string;
+        "#text": string;
+      }[];
+      mbid: string;
+      name: string;
+      streamable: string;
+      url: string;
+      date: {
+        uts: string;
+        "#text": string;
+      };
+    }[];
+  };
+}
+
+export interface ShortenedTrack {
   artist: string;
   image: {
     size: string;
@@ -62,28 +75,28 @@ export interface ShortenedTrackInterface {
   url: string;
 }
 
-export interface SearchTrackInterface {
-  status: number;
-  data: {
-    error?: number;
-    results: { trackmatches: { track: ShortenedTrackInterface[] } };
-  };
+export interface SearchTrack {
+  results: { trackmatches: { track: ShortenedTrack[] } };
 }
 
-export interface TopTrackInterface {
-  "@attr": { rank: string };
-  artist: {
-    url: string;
-    name: string;
-    mbid: string;
+export interface UserTopTrack {
+  toptracks: {
+    track: {
+      "@attr": { rank: string };
+      artist: {
+        url: string;
+        name: string;
+        mbid: string;
+      };
+      duration: string;
+      image: {
+        "#text": string;
+        size: string;
+      }[];
+      mbid: string;
+      name: string;
+      playcount: string;
+      url: string;
+    }[];
   };
-  duration: string;
-  image: {
-    "#text": string;
-    size: string;
-  }[];
-  mbid: string;
-  name: string;
-  playcount: string;
-  url: string;
 }

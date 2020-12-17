@@ -1,12 +1,11 @@
-import { Message, MessageEmbed } from "discord.js";
-import Command from "../../classes/Command";
-import { Template } from "../../classes/Template";
+import { MessageEmbed } from "discord.js";
+import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
-import LastFMUser from "../../handlers/LastFMUser";
-import { TopArtistInterface } from "../../interfaces/ArtistInterface";
-import { TopTrackInterface } from "../../interfaces/TrackInterface";
+import User from "../../handlers/LastFM_components/User";
+import { UserTopArtist } from "../../interfaces/ArtistInterface";
+import { Period } from "../../interfaces/LastFMQueryInterface";
 import cb from "../../misc/codeblock";
 import esm from "../../misc/escapemarkdown";
 import time_difference from "../../misc/time_difference";
@@ -17,14 +16,14 @@ class ListCommand extends Command {
       name: "list",
       description:
         "Lists user's weekly, monthly, or yearly top artists or songs.",
-      usage: ["list <type> <period>"],
+      usage: ["list <artist/album/song> <weekly/monthly/yearly/alltime>"],
       examples: [
         "list artist weekly",
-        "list song weekly",
-        "list artist alltime",
+        "list song yearly",
+        "list album alltime",
         "l a w",
-        "l s w",
-        "l a a",
+        "l s y",
+        "l al a",
       ],
       aliases: ["l"],
       require_login: true,
@@ -32,8 +31,8 @@ class ListCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: string[]) {
-    const server_prefix = client.get_cached_prefix(message);
+  async run(client: CrownBot, message: GuildMessage, args: string[]) {
+    const server_prefix = client.cache.prefix.get(message.guild);
     const response = new BotMessage({
       client,
       message,
@@ -41,10 +40,9 @@ class ListCommand extends Command {
       text: "",
     });
     const db = new DB(client.models);
-    const user = await db.fetch_user(message.guild?.id, message.author.id);
+    const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
-    const lastfm_user = new LastFMUser({
-      discord_ID: message.author.id,
+    const lastfm_user = new User({
       username: user.username,
     });
 
@@ -52,7 +50,7 @@ class ListCommand extends Command {
       type: <undefined | string>undefined,
       period: {
         text: "",
-        value: <string | undefined>"",
+        value: <Period | undefined>"",
       },
       limit: 10,
     };
@@ -69,8 +67,14 @@ class ListCommand extends Command {
         config.type = "song";
         break;
 
+      case "al":
+      case "album":
+      case "albums":
+        config.type = "album";
+        break;
+
       case undefined:
-        config.type = `artist`;
+        config.type = "artist";
         break;
 
       default:
@@ -78,38 +82,38 @@ class ListCommand extends Command {
         break;
     }
     switch (args[1]) {
-      case `a`:
-      case `alltime`:
-      case `o`:
-      case `overall`:
-        config.period.text = `all-time`;
-        config.period.value = `overall`;
+      case "a":
+      case "alltime":
+      case "o":
+      case "overall":
+        config.period.text = "all-time";
+        config.period.value = "overall";
         break;
-      case `w`:
-      case `weekly`:
-        config.period.text = `weekly`;
-        config.period.value = `7day`;
+      case "w":
+      case "weekly":
+        config.period.text = "weekly";
+        config.period.value = "7day";
         break;
-      case `monthly`:
-      case `m`:
-        config.period.text = `monthly`;
-        config.period.value = `1month`;
+      case "monthly":
+      case "m":
+        config.period.text = "monthly";
+        config.period.value = "1month";
         break;
-      case `yearly`:
-      case `y`:
-        config.period.text = `yearly`;
-        config.period.value = `12month`;
+      case "yearly":
+      case "y":
+        config.period.text = "yearly";
+        config.period.value = "12month";
         break;
       case undefined:
-        config.period.text = `weekly`;
-        config.period.value = `7day`;
+        config.period.text = "weekly";
+        config.period.value = "7day";
         break;
       default:
         config.period.value = undefined;
     }
 
     if (args[2]) {
-      let length = parseInt(args[2]);
+      const length = parseInt(args[2]);
       if (isNaN(length)) {
         message.reply(
           "invalid size argument; see `" + server_prefix + "help list`."
@@ -124,6 +128,7 @@ class ListCommand extends Command {
     } else {
       config.limit = 10;
     }
+    lastfm_user.configs.limit = config.limit;
 
     if (!config.type || !config.period.value) {
       response.text = `Invalid arguments passed; see ${cb(
@@ -135,26 +140,24 @@ class ListCommand extends Command {
     }
 
     if (config.type === "artist") {
-      let query = await lastfm_user.get_top_artists({
-        limit: config.limit,
+      const query = await lastfm_user.get_top_artists({
         period: config.period.value,
       });
-      if (!query.topartists || !query.topartists.artist) {
-        response.text = new Template(client, message).get("lastfm_error");
-        await response.send();
+      if (query.lastfm_errorcode || !query.success) {
+        response.error("lastfm_error", query.lastfm_errormessage);
         return;
       }
-      let top_artists: TopArtistInterface[] = query.topartists.artist;
+      let top_artists = query.data.topartists.artist;
 
       let last_log: any | null = null;
       if (config.period.value === "overall") {
         last_log = await client.models.listartistlog.findOne({
           user_id: message.author.id,
-          guild_id: message.guild?.id,
+          guild_id: message.guild.id,
         });
       }
 
-      let cached_log: TopArtistInterface[];
+      let cached_log: UserTopArtist["topartists"]["artist"];
       if (last_log && last_log.stat.length) {
         cached_log = last_log.stat;
       } else {
@@ -200,12 +203,9 @@ class ListCommand extends Command {
             })`;
           }
 
-          // if (artist.is_new) {
-          //   diff_str = " ― :new:";
-          // }
-          return `${artist["@attr"].rank}. **${esm(artist.name)}** — **${
-            artist.playcount
-          }** plays ${diff_str}`;
+          return `${artist["@attr"].rank}. **[${esm(artist.name)}](${
+            artist.url
+          })** — **${artist.playcount}** plays ${diff_str}`;
         })
         .join("\n");
 
@@ -228,21 +228,43 @@ class ListCommand extends Command {
       }
       await message.channel.send(embed);
     } else if (config.type === "song") {
-      let query = await lastfm_user.get_top_tracks({
-        limit: config.limit,
+      const query = await lastfm_user.get_top_tracks({
         period: config.period.value,
       });
-      if (!query.toptracks || !query.toptracks.track) {
-        response.text = new Template(client, message).get("lastfm_error");
-        await response.send();
+      if (query.lastfm_errorcode || !query.success) {
+        response.error("lastfm_error", query.lastfm_errormessage);
         return;
       }
-      const top_tracks: TopTrackInterface[] = query.toptracks.track;
+      const top_tracks = query.data.toptracks.track;
       const embed_list = top_tracks
         .map((track) => {
-          return `${track["@attr"].rank}. **${esm(track.name)}** by **${esm(
-            track.artist.name
-          )}**— **${track.playcount}** plays`;
+          return `${track["@attr"].rank}. **[${esm(track.name)}](${
+            track.url
+          })** by **${esm(track.artist.name)}**— **${track.playcount}** plays`;
+        })
+        .join("\n");
+
+      const embed = new MessageEmbed()
+        .setTitle(
+          `${message.author.username}'s ${config.period.text}-top ${config.type}s`
+        )
+        .setDescription(embed_list);
+      await message.channel.send(embed);
+    } else if (config.type === "album") {
+      const query = await lastfm_user.get_top_albums({
+        period: config.period.value,
+      });
+      if (query.lastfm_errorcode || !query.success) {
+        response.error("lastfm_error", query.lastfm_errormessage);
+        return;
+      }
+      const top_albums = query.data.topalbums.album;
+
+      const embed_list = top_albums
+        .map((album, i) => {
+          return `${i + 1}. **[${esm(album.name)}](${album.url})** by **${esm(
+            album.artist.name
+          )}**— **${album.playcount}** plays`;
         })
         .join("\n");
 

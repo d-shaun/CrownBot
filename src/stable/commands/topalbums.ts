@@ -1,19 +1,12 @@
-import axios from "axios";
 import { FieldsEmbed } from "discord-paginationembed";
-import { Message, TextChannel } from "discord.js";
-import Command from "../../classes/Command";
+import { TextChannel } from "discord.js";
+import Command, { GuildMessage } from "../../classes/Command";
 import { Template } from "../../classes/Template";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
-import { LastFM } from "../../handlers/LastFM";
-import LastFMUser from "../../handlers/LastFMUser";
-import {
-  AlbumInterface,
-  TopAlbumInterface,
-} from "../../interfaces/AlbumInterface";
-import { ArtistInterface } from "../../interfaces/ArtistInterface";
-import { DeezerAlbumInterface } from "../../interfaces/DeezerAlbumInterface";
+import Artist from "../../handlers/LastFM_components/Artist";
+import User from "../../handlers/LastFM_components/User";
 import cb from "../../misc/codeblock";
 
 class TopAlbumsCommand extends Command {
@@ -29,8 +22,8 @@ class TopAlbumsCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: string[]) {
-    const server_prefix = client.get_cached_prefix(message);
+  async run(client: CrownBot, message: GuildMessage, args: string[]) {
+    const server_prefix = client.cache.prefix.get(message.guild);
     const response = new BotMessage({
       client,
       message,
@@ -38,11 +31,10 @@ class TopAlbumsCommand extends Command {
       text: "",
     });
     const db = new DB(client.models);
-    const user = await db.fetch_user(message.guild?.id, message.author.id);
+    const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
 
-    const lastfm_user = new LastFMUser({
-      discord_ID: message.author.id,
+    const lastfm_user = new User({
       username: user.username,
     });
 
@@ -54,20 +46,15 @@ class TopAlbumsCommand extends Command {
     } else {
       artist_name = args.join(" ");
     }
-    const { status, data } = await new LastFM().query({
-      method: "artist.getinfo",
-      params: {
-        artist: artist_name,
-        username: user.username,
-        autocorrect: 1,
-      },
-    });
-    if (status !== 200 || data.error) {
-      response.text = new Template(client, message).get("lastfm_error");
-      await response.send();
+    const query = await new Artist({
+      name: artist_name,
+      username: user.username,
+    }).user_get_info();
+    if (query.lastfm_errorcode || !query.success) {
+      response.error("lastfm_error", query.lastfm_errormessage);
       return;
     }
-    const artist: ArtistInterface = data.artist;
+    const artist = query.data.artist;
     if (
       !artist.stats.userplaycount ||
       parseInt(artist.stats.userplaycount) <= 0
@@ -83,11 +70,11 @@ class TopAlbumsCommand extends Command {
       return;
     }
     if (!albums.length) {
-      response.text = "Couldn't find any album that you *may* have scrobbled.";
+      response.text =
+        "Couldn't find any album that you *may* have scrobbled from this artist.";
       await response.send();
       return;
     }
-    const total_scrobbles = albums.reduce((a, b) => a + b.plays, 0);
 
     const fields_embed = new FieldsEmbed()
       .setArray(albums)
@@ -117,8 +104,9 @@ class TopAlbumsCommand extends Command {
   }
 
   // Uses the Last.fm API instead of scraping their pages
-  async run_alternate(client: CrownBot, message: Message, args: string[]) {
-    const server_prefix = client.get_cached_prefix(message);
+  /*
+  async run_alternate(client: CrownBot, message: GuildMessage, args: string[]) {
+    const server_prefix = client.cache.prefix.get(message.guild);
     const response = new BotMessage({
       client,
       message,
@@ -126,7 +114,7 @@ class TopAlbumsCommand extends Command {
       text: "",
     });
     const db = new DB(client.models);
-    const user = await db.fetch_user(message.guild?.id, message.author.id);
+    const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
 
     const lastfm_user = new LastFMUser({
@@ -165,7 +153,7 @@ class TopAlbumsCommand extends Command {
       return;
     }
 
-    let albums = await this.getLastfmAlbums(client, artist.name);
+    const albums = await this.getLastfmAlbums(client, artist.name);
     if (!albums) return;
     const lastfm_requests: any = [];
     const breaking_album_names = ["null", "(null)", "undefined"];
@@ -253,7 +241,7 @@ class TopAlbumsCommand extends Command {
     );
     if (!data || !data.data || !data.data.length) return undefined; // ikr...
     const artist = data.data[0];
-    let albums = (
+    const albums = (
       await axios.get(
         `https://api.deezer.com/artist/${artist.id}/albums?limit=50&access_token=${client.access_token}`
       )
@@ -276,6 +264,7 @@ class TopAlbumsCommand extends Command {
     if (data.error || !data.topalbums?.album) return undefined;
     return data.topalbums.album;
   }
+  */
 }
 
 export default TopAlbumsCommand;

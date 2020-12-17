@@ -1,4 +1,4 @@
-import { Message } from "discord.js";
+import { GuildMessage } from "../classes/Command";
 import CrownBot from "../handlers/CrownBot";
 
 interface Response {
@@ -7,14 +7,13 @@ interface Response {
 }
 
 export default async function check_ban(
-  message: Message,
+  message: GuildMessage,
   client: CrownBot
 ): Promise<Response> {
   const response = {
     banned: false,
     type: <undefined | string>undefined,
   };
-  if (!message.guild) return response;
   const bans = await client.models.bans
     .find({
       userID: message.author.id,

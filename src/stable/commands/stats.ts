@@ -1,11 +1,11 @@
-import { Message, MessageEmbed } from "discord.js";
+import { MessageEmbed } from "discord.js";
 import moment from "moment";
-import Command from "../../classes/Command";
-import CrownBot from "../../handlers/CrownBot";
-import BotMessage from "../../handlers/BotMessage";
-import DB from "../../handlers/DB";
-import LastFMUser from "../../handlers/LastFMUser";
+import Command, { GuildMessage } from "../../classes/Command";
 import { Template } from "../../classes/Template";
+import BotMessage from "../../handlers/BotMessage";
+import CrownBot from "../../handlers/CrownBot";
+import DB from "../../handlers/DB";
+import User from "../../handlers/LastFM_components/User";
 
 class StatsCommand extends Command {
   constructor() {
@@ -19,7 +19,7 @@ class StatsCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: string[]) {
+  async run(client: CrownBot, message: GuildMessage) {
     const response = new BotMessage({
       client,
       message,
@@ -27,20 +27,19 @@ class StatsCommand extends Command {
       text: "",
     });
     const db = new DB(client.models);
-    const user = await db.fetch_user(message.guild?.id, message.author.id);
+    const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
-    const lastfm_user = new LastFMUser({
-      discord_ID: message.author.id,
+    const lastfm_user = new User({
       username: user.username,
     });
     const user_details = await lastfm_user.get_info();
-    if (!user_details) {
-      response.text = new Template(client, message).get("lastfm_error");
-      await response.send();
+    if (user_details.lastfm_errorcode || !user_details.success) {
+      await response.error("lastfm_error", user_details.lastfm_errormessage);
       return;
     }
+
     const user_registered_date = moment
-      .unix(user_details.user.registered["#text"])
+      .unix(user_details.data.user.registered["#text"])
       .format("MMMM DD, YYYY");
 
     const requests = [

@@ -1,8 +1,7 @@
-import { Message } from "discord.js";
-
 import { inspect } from "util";
-import Command from "../../classes/Command";
+import Command, { GuildMessage } from "../../classes/Command";
 import CrownBot from "../../handlers/CrownBot";
+
 class EvalCommand extends Command {
   constructor() {
     super({
@@ -15,7 +14,7 @@ class EvalCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: string[]) {
+  async run(client: CrownBot, message: GuildMessage, args: string[]) {
     if (message.author.id !== client.owner_ID) return; // just to be safe
     let trimmed_string;
     try {

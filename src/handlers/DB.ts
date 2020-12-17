@@ -1,8 +1,9 @@
-import { Message, User as DiscordUser } from "discord.js";
+import { User as DiscordUser } from "discord.js";
 import moment from "moment";
 import { Model } from "mongoose";
-import User from "../classes/User";
-import { TopArtistInterface } from "../interfaces/ArtistInterface";
+import { GuildMessage } from "../classes/Command";
+import { UserTopArtist } from "../interfaces/ArtistInterface";
+import { DBUser } from "../interfaces/DBUserInterface";
 import { LeaderboardInterface } from "../interfaces/LeaderboardInterface";
 import { ServerConfigInterface } from "../stable/models/ServerConfig";
 
@@ -16,7 +17,7 @@ export default class DB {
     guild_ID: string | undefined,
     user_ID: string,
     username: string
-  ): Promise<User> {
+  ): Promise<DBUser> {
     if (!guild_ID) throw "Guild ID not specified";
     return await this.#models.serverusers.create({
       guildID: guild_ID,
@@ -29,7 +30,7 @@ export default class DB {
     guild_ID: string | undefined,
     user_ID: string,
     global = false
-  ): Promise<User | undefined> {
+  ): Promise<DBUser | undefined> {
     let user;
     if (global) {
       user = await this.#models.serverusers.findOne({
@@ -44,7 +45,7 @@ export default class DB {
     return user;
   }
 
-  async legacy_fetch_user(user_ID: string): Promise<User | undefined> {
+  async legacy_fetch_user(user_ID: string): Promise<DBUser | undefined> {
     const user = await this.#models.users.findOne({
       userID: user_ID,
     });
@@ -71,8 +72,7 @@ export default class DB {
     }
   }
 
-  async ban_user(message: Message, user: DiscordUser): Promise<boolean> {
-    if (!message.guild) return false;
+  async ban_user(message: GuildMessage, user: DiscordUser): Promise<boolean> {
     return this.#models.bans.create({
       guildID: message.guild.id,
       guildName: message.guild.name,
@@ -106,7 +106,6 @@ export default class DB {
       },
       {
         upsert: true,
-        // @ts-ignore
         useFindAndModify: false,
       }
     );
@@ -135,7 +134,6 @@ export default class DB {
       },
       {
         upsert: true,
-        // @ts-ignore
         useFindAndModify: false,
       }
     );
@@ -162,7 +160,6 @@ export default class DB {
       },
       {
         upsert: true,
-        // @ts-ignore
         useFindAndModify: false,
       }
     );
@@ -170,12 +167,11 @@ export default class DB {
 
   // log `&list artist alltime`
   async log_list_artist(
-    stat: TopArtistInterface[],
+    stat: UserTopArtist["topartists"]["artist"],
     user_id: string,
     guild_id: string
   ) {
     const timestamp = moment.utc().valueOf();
-
     return this.#models.listartistlog.findOneAndUpdate(
       {
         user_id,
@@ -189,27 +185,23 @@ export default class DB {
       },
       {
         upsert: true,
-        // @ts-ignore
         useFindAndModify: false,
       }
     );
   }
 
-  async opt_out(message: Message): Promise<void> {
-    if (!message.guild) throw "Shut up, TypeScript.";
+  async opt_out(message: GuildMessage): Promise<void> {
     await this.#models.optins.findOneAndRemove(
       {
         type: "beta",
         guild_ID: message.guild.id,
       },
       {
-        // @ts-ignore
         useFindAndModify: false,
       }
     );
   }
-  async opt_in(message: Message): Promise<void> {
-    if (!message.guild) throw "Shut up, TypeScript.";
+  async opt_in(message: GuildMessage): Promise<void> {
     await this.#models.optins.findOneAndUpdate(
       {
         type: "beta",
@@ -225,13 +217,11 @@ export default class DB {
       },
       {
         upsert: true,
-        // @ts-ignore
         useFindAndModify: false,
       }
     );
   }
-  async check_optin(message: Message): Promise<boolean> {
-    if (!message.guild) throw "Shut up, TypeScript.";
+  async check_optin(message: GuildMessage): Promise<boolean> {
     const beta_log = await this.#models.optins
       .findOne({
         type: "beta",
@@ -241,8 +231,7 @@ export default class DB {
     return !!beta_log;
   }
 
-  async server_config(message: Message) {
-    if (!message.guild) throw "Shut up, TypeScript.";
+  async server_config(message: GuildMessage) {
     const server_config: ServerConfigInterface = await this.#models.serverconfig.findOne(
       {
         guild_ID: message.guild.id,

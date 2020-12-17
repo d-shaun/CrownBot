@@ -1,6 +1,7 @@
-import { Message, User } from "discord.js";
+import { User } from "discord.js";
+import { GuildMessage } from "../classes/Command";
 export default async function search_user(
-  message: Message,
+  message: GuildMessage,
   args: string[]
 ): Promise<User | undefined> {
   if (args.length === 0) {

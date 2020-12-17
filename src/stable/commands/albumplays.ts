@@ -1,17 +1,15 @@
-import { AxiosResponse } from "axios";
-import { Message, MessageEmbed } from "discord.js";
+import { MessageEmbed } from "discord.js";
 import moment from "moment";
 // @ts-ignore
 import abbreviate from "number-abbreviate";
-import Command from "../../classes/Command";
-import { Template } from "../../classes/Template";
+import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
-import { LastFM } from "../../handlers/LastFM";
-import LastFMUser from "../../handlers/LastFMUser";
-import { AlbumInterface } from "../../interfaces/AlbumInterface";
-import { ArtistInterface } from "../../interfaces/ArtistInterface";
+import Album from "../../handlers/LastFM_components/Album";
+import Artist from "../../handlers/LastFM_components/Artist";
+import User from "../../handlers/LastFM_components/User";
+import { UserAlbum } from "../../interfaces/AlbumInterface";
 import cb from "../../misc/codeblock";
 import esm from "../../misc/escapemarkdown";
 import time_difference from "../../misc/time_difference";
@@ -32,8 +30,8 @@ class AlbumPlaysCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: string[]) {
-    const server_prefix = client.get_cached_prefix(message);
+  async run(client: CrownBot, message: GuildMessage, args: string[]) {
+    const server_prefix = client.cache.prefix.get(message.guild);
     const response = new BotMessage({
       client,
       message,
@@ -41,11 +39,10 @@ class AlbumPlaysCommand extends Command {
       text: "",
     });
     const db = new DB(client.models);
-    const user = await db.fetch_user(message.guild?.id, message.author.id);
+    const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
 
-    const lastfm_user = new LastFMUser({
-      discord_ID: message.author.id,
+    const lastfm_user = new User({
       username: user.username,
     });
 
@@ -57,25 +54,26 @@ class AlbumPlaysCommand extends Command {
       artist_name = now_playing.artist["#text"];
       album_name = now_playing.album["#text"];
     } else {
-      let str = args.join(" ");
-      let str_array = str.split("||");
+      const str = args.join(" ");
+      const str_array = str.split("||");
       if (str_array.length !== 2) {
-        const { data } = await new LastFM().search_album(
-          str_array.join().trim()
-        );
-        if (data.error) {
-          response.text = new Template(client, message).get("lastfm_error");
-          await response.send();
+        const query = await new Album({
+          name: str_array.join().trim(),
+        }).search();
+
+        if (query.lastfm_errorcode || !query.success) {
+          response.error("lastfm_error", query.lastfm_errormessage);
           return;
         }
-        let album = data.results.albummatches.album[0];
 
+        const album = query.data.results.albummatches.album.shift();
         if (!album) {
-          response.text = `Couldn't find the album; try providing artist name—see ${cb(
-            "alp",
-            server_prefix
-          )}.`;
-          await response.send();
+          response.error(
+            "blank",
+            "Couldn't find the album—try providing artist name; see " +
+              cb("help alp", server_prefix) +
+              "."
+          );
           return;
         }
         artist_name = album.artist;
@@ -85,39 +83,31 @@ class AlbumPlaysCommand extends Command {
         artist_name = str_array[1].trim();
       }
     }
-    const { status, data } = <AxiosResponse>await new LastFM().query({
-      method: "album.getinfo",
-      params: {
-        album: album_name,
-        artist: artist_name,
-        username: user.username,
-        autocorrect: 1,
-      },
-    });
 
-    let axios_response = <AxiosResponse>await new LastFM().query({
-      method: "artist.getinfo",
-      params: {
-        artist: artist_name,
-        username: user.username,
-        autocorrect: 1,
-      },
-    });
+    const query_album = await new Album({
+      name: album_name,
+      artist_name,
+      username: user.username,
+    }).user_get_info();
 
-    if (
-      data.error ||
-      axios_response.data.error ||
-      !data.album ||
-      !axios_response.data.artist
-    ) {
-      response.text = new Template(client, message).get("lastfm_error");
-      await response.send();
+    const query_artist = await new Artist({
+      name: artist_name,
+      username: user.username,
+    }).user_get_info();
+
+    if (query_album.lastfm_errorcode || !query_album.success) {
+      response.error("lastfm_error", query_album.lastfm_errormessage);
       return;
     }
 
-    const artist_info: ArtistInterface = axios_response.data.artist;
+    if (query_artist.lastfm_errorcode || !query_artist.success) {
+      response.error("lastfm_error", query_artist.lastfm_errormessage);
+      return;
+    }
 
-    const album: AlbumInterface = data.album;
+    const artist = query_artist.data.artist;
+    const album = query_album.data.album;
+
     if (!album.userplaycount) return;
     let last_count = 0;
     let album_cover: boolean | string = false;
@@ -127,7 +117,7 @@ class AlbumPlaysCommand extends Command {
       album_cover = last_item ? last_item["#text"] : false;
     }
 
-    let strs = {
+    const strs = {
       count: "No change",
       time: <boolean | string>false,
     };
@@ -152,8 +142,8 @@ class AlbumPlaysCommand extends Command {
       ? `**${strs.count}** since last checked ${strs.time} ago.`
       : "";
     let artist_plays = "";
-    if (artist_info.stats && artist_info.stats.userplaycount) {
-      artist_plays = artist_info.stats.userplaycount;
+    if (artist.stats && artist.stats.userplaycount) {
+      artist_plays = artist.stats.userplaycount;
     }
 
     const percentage = {
@@ -192,12 +182,16 @@ class AlbumPlaysCommand extends Command {
           `${percentage_text.album}\n\n` +
           `${aggr_str}`
       );
-
+    if (album_cover) embed.setThumbnail(album_cover);
     await this.update_log(client, message, album);
     await message.channel.send(embed);
   }
 
-  async update_log(client: CrownBot, message: Message, album: AlbumInterface) {
+  async update_log(
+    client: CrownBot,
+    message: GuildMessage,
+    album: UserAlbum["album"]
+  ) {
     const timestamp = moment.utc().valueOf();
 
     await client.models.albumlog.findOneAndUpdate(
@@ -215,7 +209,6 @@ class AlbumPlaysCommand extends Command {
       },
       {
         upsert: true,
-        // @ts-ignore
         useFindAndModify: false,
       }
     );

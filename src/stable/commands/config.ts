@@ -1,10 +1,8 @@
-import { Message } from "discord.js";
-import path from "path";
-
 import fs from "fs";
-import Command from "../../classes/Command";
-import CrownBot from "../../handlers/CrownBot";
+import path from "path";
+import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
+import CrownBot from "../../handlers/CrownBot";
 
 class ConfigCommand extends Command {
   constructor() {
@@ -18,8 +16,7 @@ class ConfigCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: string[]) {
-    const server_prefix = client.get_cached_prefix(message);
+  async run(client: CrownBot, message: GuildMessage, args: string[]) {
     const response = new BotMessage({ client, message, text: "", reply: true });
     if (!message.member?.hasPermission("MANAGE_GUILD")) {
       response.text =
@@ -29,7 +26,7 @@ class ConfigCommand extends Command {
     }
     interface ConfigCommandInterface {
       name: string;
-      run: (client: CrownBot, message: Message, args: string[]) => void;
+      run: (client: CrownBot, message: GuildMessage, args: string[]) => void;
     }
 
     const command_name = args[0];

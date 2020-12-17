@@ -1,8 +1,6 @@
-import { Message } from "discord.js";
-import Command from "../../classes/Command";
-import CrownBot from "../../handlers/CrownBot";
-import DB from "../../handlers/DB";
+import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
+import CrownBot from "../../handlers/CrownBot";
 
 class GlobalBanCommand extends Command {
   constructor() {
@@ -17,11 +15,7 @@ class GlobalBanCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: string[]) {
-    const server_prefix = client.get_cached_prefix(message);
-    const db = new DB(client.models);
-
-    if (!message.guild) return;
+  async run(client: CrownBot, message: GuildMessage, args: string[]) {
     const response = new BotMessage({
       client,
       message,
@@ -30,7 +24,7 @@ class GlobalBanCommand extends Command {
     });
 
     let userID;
-    let mentioned = message.mentions.members?.first()?.user;
+    const mentioned = message.mentions.members?.first()?.user;
     if (!mentioned) {
       if (args.length === 0) {
         response.text = "No user ID provided.";
@@ -69,7 +63,6 @@ class GlobalBanCommand extends Command {
       },
       {
         upsert: true,
-        // @ts-ignore
         useFindAndModify: false,
       }
     );

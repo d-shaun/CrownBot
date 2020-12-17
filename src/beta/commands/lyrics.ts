@@ -1,15 +1,11 @@
-import { AxiosResponse } from "axios";
-import { Message } from "discord.js";
 import Lyricist from "lyricist";
 import moment from "moment";
-import Command from "../../classes/Command";
-import { Template } from "../../classes/Template";
+import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
-import { LastFM } from "../../handlers/LastFM";
-import LastFMUser from "../../handlers/LastFMUser";
-import { TrackInterface } from "../../interfaces/TrackInterface";
+import Track from "../../handlers/LastFM_components/Track";
+import User from "../../handlers/LastFM_components/User";
 import cb from "../../misc/codeblock";
 import esm from "../../misc/escapemarkdown";
 import { LyricsLogInterface } from "../../stable/models/LyricsLog";
@@ -27,19 +23,17 @@ class LyricsCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: string[]) {
+  async run(client: CrownBot, message: GuildMessage, args: string[]) {
     if (!client.genius_api) {
       throw "You must set the `GENIUS_API` in the environment variable for this command to work.";
     }
-    const server_prefix = client.get_cached_prefix(message);
+    const server_prefix = client.cache.prefix.get(message.guild);
     const db = new DB(client.models);
-    const user = await db.fetch_user(message.guild?.id, message.author.id);
+    const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
-    if (!message.guild) return;
 
     const response = new BotMessage({ client, message, text: "", reply: true });
-    const lastfm_user = new LastFMUser({
-      discord_ID: message.author.id,
+    const lastfm_user = new User({
       username: user.username,
     });
 
@@ -51,18 +45,19 @@ class LyricsCommand extends Command {
       artist_name = now_playing.artist["#text"];
       track_name = now_playing.name;
     } else {
-      let str = args.join(" ");
-      let str_array = str.split("||");
+      const str = args.join(" ");
+      const str_array = str.split("||");
       if (str_array.length !== 2) {
-        const { data } = await new LastFM().search_track(
-          str_array.join().trim()
-        );
-        if (data.error) {
-          response.text = new Template(client, message).get("lastfm_error");
-          await response.send();
+        const query = await new Track({
+          name: str_array.join().trim(),
+          limit: 1,
+        }).search();
+        if (query.lastfm_errorcode || !query.success) {
+          response.error("lastfm_error", query.lastfm_errormessage);
           return;
         }
-        const track = data.results.trackmatches.track[0];
+
+        const track = query.data.results.trackmatches.track.shift();
 
         if (!track) {
           response.text = `Couldn't find the track; try providing artist name—see ${cb(
@@ -79,30 +74,25 @@ class LyricsCommand extends Command {
         artist_name = str_array[1].trim();
       }
     }
-    const { status, data } = <AxiosResponse>await new LastFM().query({
-      method: "track.getinfo",
-      params: {
-        track: track_name,
-        artist: artist_name,
-        username: user.username,
-        autocorrect: 1,
-      },
-    });
 
-    if (data.error || !data.track) {
-      response.text = new Template(client, message).get("lastfm_error");
-      await response.send();
+    const query = await new Track({
+      name: track_name,
+      artist_name,
+      username: user.username,
+    }).user_get_info();
+    if (query.lastfm_errorcode || !query.success) {
+      response.error("lastfm_error", query.lastfm_errormessage);
       return;
     }
 
-    const track: TrackInterface = data.track;
+    const track = query.data.track;
 
     const lyricist = new Lyricist(client.genius_api);
     const song = (
       await lyricist.search(`${track.name} ${track.artist.name}`)
     )[0];
     if (!song) {
-      response.text = "Couldn't find the song on Genius.";
+      response.text = "Couldn't find the song.";
       await response.send();
       return;
     }
@@ -115,19 +105,15 @@ class LyricsCommand extends Command {
       id: song.id,
     });
     if (db_entry) {
-      const lyrics_chunks = toChunks(db_entry.lyrics);
-      if (lyrics_chunks && lyrics_chunks.length) {
-        response.reply = false;
-        let i = 1;
-        for (const lyric of lyrics_chunks) {
-          if (i === lyrics_chunks.length) {
-            response.footer = "Lyrics scraped from Genius · cached";
-          }
-          let lyrics = `**${db_entry.track_name}** by **${db_entry.artist_name}**\n\n${lyric}`;
+      let lyrics_chunks = toChunks(db_entry.lyrics);
+      const title = `**${db_entry.track_name}** by **${db_entry.artist_name}**\n\n`;
 
-          response.text = lyrics;
+      if (lyrics_chunks && lyrics_chunks.length) {
+        lyrics_chunks = [title, ...lyrics_chunks];
+        response.reply = false;
+        for (const lyric of lyrics_chunks) {
+          response.text = lyric;
           await response.send();
-          i++;
         }
         return;
       }
@@ -140,7 +126,7 @@ class LyricsCommand extends Command {
       await response.send();
       return;
     }
-    let lyrics = `**${esm(song.title)}** by **${esm(
+    const lyrics = `**${esm(song.title)}** by **${esm(
       song.primary_artist.name
     )}**\n\n${original_lyrics}`;
     if (lyrics.length > 6000) {
@@ -153,14 +139,9 @@ class LyricsCommand extends Command {
       throw "toChunks() failed.";
     }
     response.reply = false;
-    let i = 1;
     for (const lyric of lyrics_chunks) {
-      if (i === lyrics_chunks.length) {
-        response.footer = "Lyrics scraped from Genius";
-      }
       response.text = lyric;
       await response.send();
-      i++;
     }
     const timestamp = moment.utc().valueOf();
 
@@ -177,7 +158,6 @@ class LyricsCommand extends Command {
       },
       {
         upsert: true,
-        // @ts-ignore
         useFindAndModify: false,
       }
     );

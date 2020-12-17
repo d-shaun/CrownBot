@@ -1,24 +1,26 @@
-import { Message, PermissionString, TextChannel } from "discord.js";
-import Command from "../classes/Command";
+import { PermissionString, TextChannel } from "discord.js";
+import Command, { GuildMessage } from "../classes/Command";
 import BotMessage from "../handlers/BotMessage";
 import CrownBot from "../handlers/CrownBot";
 import DB from "../handlers/DB";
 import cb from "../misc/codeblock";
-export default async (client: CrownBot, message: Message) => {
+export default async (client: CrownBot, message: GuildMessage) => {
   const db = new DB(client.models);
   if (!message.guild) return;
   if (!client.user)
     throw "'client.user' is not defined; how are we even here?!";
-  if (!client.prefixes) {
-    await client.cache_prefixes();
+
+  if (!client.cache.prefix.check()) {
+    throw "Prefixes were not cached. Please execute `[client].cache.prefix.init()` before event handlers.";
   }
-  if (!client.server_configs) {
-    await client.cache_configs();
+
+  if (!client.cache.config.check()) {
+    throw "Server configs were not cached. Please execute `[client].cache.config.init()` before event handlers.";
   }
 
   const response = new BotMessage({ client, message, text: "", reply: true });
 
-  const server_prefix = client.get_cached_prefix(message);
+  const server_prefix = client.cache.prefix.get(message.guild);
   if (
     message.mentions.has(client.user, {
       ignoreEveryone: true,
@@ -51,7 +53,6 @@ export default async (client: CrownBot, message: Message) => {
 
   const args = message.content.slice(server_prefix.length).split(/ +/gi);
   const command_name = args.shift()?.toLowerCase();
-  let override_beta = false;
   if (!command_name) return;
 
   const get_command = function (name: string, beta = false) {
@@ -72,17 +73,15 @@ export default async (client: CrownBot, message: Message) => {
 
   const override = command_name.split(":");
   let command = get_command(command_name);
-  let beta_command = get_command(command_name, true);
+  const beta_command = get_command(command_name, true);
   if (override.length === 2 && override[0] === "b") {
-    let beta_command = get_command(override[1], true);
+    const beta_command = get_command(override[1], true);
     if (beta_command) {
       command = beta_command;
-      override_beta = true;
     } else {
       command = get_command(override[1]);
     }
   } else if (beta_command && (await db.check_optin(message))) {
-    override_beta = true;
     command = beta_command;
   }
 
@@ -98,11 +97,11 @@ export default async (client: CrownBot, message: Message) => {
 
 function check_permissions(
   client: CrownBot,
-  message: Message,
+  message: GuildMessage,
   command: Command
 ): boolean {
   const response = new BotMessage({ client, message, text: "", reply: true });
-  const server_prefix = client.get_cached_prefix(message);
+  const server_prefix = client.cache.prefix.get(message.guild);
 
   if (!message.guild?.me) throw "!?!";
   const bot_permissions = (<TextChannel>message.channel).permissionsFor(

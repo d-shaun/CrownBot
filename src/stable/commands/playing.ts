@@ -1,11 +1,9 @@
 import { FieldsEmbed } from "discord-paginationembed";
-import { GuildMember, Message, TextChannel } from "discord.js";
-import Command from "../../classes/Command";
+import { GuildMember, TextChannel } from "discord.js";
+import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
-import DB from "../../handlers/DB";
-import { LastFM, ResponseInterface } from "../../handlers/LastFM";
-import { RecentTrackInterface } from "../../interfaces/TrackInterface";
+import User from "../../handlers/LastFM_components/User";
 import cb from "../../misc/codeblock";
 import esm from "../../misc/escapemarkdown";
 import get_registered_users from "../../misc/get_registered_users";
@@ -21,17 +19,15 @@ class PlayingCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: string[]) {
-    const server_prefix = client.get_cached_prefix(message);
+  async run(client: CrownBot, message: GuildMessage) {
+    const server_prefix = client.cache.prefix.get(message.guild);
     const response = new BotMessage({
       client,
       message,
       reply: true,
-      text: "",
     });
-    const db = new DB(client.models);
 
-    let users = (await get_registered_users(client, message))?.users;
+    const users = (await get_registered_users(client, message))?.users;
     if (!users || users.length <= 0) {
       response.text = `No user in this guild has registered their Last.fm username; see ${cb(
         "help login",
@@ -51,29 +47,29 @@ class PlayingCommand extends Command {
         lastfm_username: user.database.username,
       };
       lastfm_requests.push(
-        new LastFM()
-          .query({
-            method: "user.getrecenttracks",
-            params: {
-              user: user.database.username,
-              limit: 1,
-            },
-          })
+        new User({ username: user.database.username, limit: 1 })
+          .get_recenttracks()
           .then((res) => {
-            res.data.context = context;
-            return res;
+            const response_with_context = {
+              wrapper: res,
+              context,
+            };
+            return response_with_context;
           })
       );
     }
-    let responses: ResponseInterface[] = [];
-    await Promise.all(lastfm_requests).then((res) => (responses = res));
+    let responses = await Promise.all(lastfm_requests);
+    if (!responses) {
+      await response.error("lastfm_error");
+      return;
+    }
     responses = responses
-      .filter((response) => response.status === 200)
+      .filter((response) => response.wrapper.success)
       .filter((response) => {
-        let last_track = response.data.recenttracks.track[0];
-        return (
-          last_track && last_track[`@attr`] && last_track[`@attr`].nowplaying
-        );
+        const last_track = [
+          ...response.wrapper.data.recenttracks.track,
+        ].shift();
+        return last_track && last_track[`@attr`]?.nowplaying;
       });
 
     if (!responses.length) {
@@ -83,26 +79,24 @@ class PlayingCommand extends Command {
       return;
     }
     const stats = responses.map((response) => {
-      let last_track = response.data.recenttracks.track[0];
+      const last_track = [...response.wrapper.data.recenttracks.track].shift();
 
       return {
         track: last_track,
-        context: response.data.context,
+        context: response.context,
       };
     });
-    const fields_embed = new FieldsEmbed()
+    const fields_embed = new FieldsEmbed<typeof stats[0]>()
       .setArray(stats)
       .setAuthorizedUsers([])
       .setChannel(<TextChannel>message.channel)
       .setElementsPerPage(5)
       .setPageIndicator(true, "hybrid")
       .setDisabledNavigationEmojis(["delete"])
-      .formatField(`${stats.length} user(s)`, (el: any) => {
-        const track: RecentTrackInterface = el.track;
-        const user: GuildMember = el.context.discord_user;
-        const artist_url =
-          "https://www.last.fm/music/" +
-          encodeURIComponent(track.artist["#text"]);
+      .formatField(`${stats.length} user(s)`, (res) => {
+        const track = res.track;
+        const user: GuildMember = res.context.discord_user;
+        if (!track || !user) return;
         const str = `**${esm(user.user.username)}**\n[${esm(track.name)}](${
           track.url
         }) · ${esm(track.album["#text"])} — **${esm(

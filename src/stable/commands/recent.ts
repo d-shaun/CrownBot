@@ -1,12 +1,10 @@
-import { Message, MessageEmbed, User } from "discord.js";
+import { MessageEmbed, User as DiscordUser } from "discord.js";
 import moment from "moment";
-import Command from "../../classes/Command";
-import { Template } from "../../classes/Template";
+import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
-import { LastFM } from "../../handlers/LastFM";
-import { RecentTrackInterface } from "../../interfaces/TrackInterface";
+import User from "../../handlers/LastFM_components/User";
 import cb from "../../misc/codeblock";
 import esm from "../../misc/escapemarkdown";
 import search_user from "../../misc/search_user";
@@ -25,8 +23,7 @@ class RecentCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: string[]) {
-    const server_prefix = client.get_cached_prefix(message);
+  async run(client: CrownBot, message: GuildMessage, args: string[]) {
     const response = new BotMessage({
       client,
       message,
@@ -34,7 +31,8 @@ class RecentCommand extends Command {
       text: "",
     });
     const db = new DB(client.models);
-    let discord_user: User | undefined;
+    let discord_user: DiscordUser | undefined;
+    const server_prefix = client.cache.prefix.get(message.guild);
 
     if (args.length > 0) {
       const mention = message.mentions.members?.first();
@@ -47,31 +45,27 @@ class RecentCommand extends Command {
       await response.send();
       return;
     }
-    const user = await db.fetch_user(message.guild?.id, discord_user.id);
+    const user = await db.fetch_user(message.guild.id, discord_user.id);
     if (!user) return;
 
-    const { data } = await new LastFM().query({
-      method: "user.getrecenttracks",
-      params: {
-        user: user.username,
-        limit: 10,
-      },
-    });
-    if (!data || !data.recenttracks) {
-      response.text = new Template(client, message).get("lastfm_error");
-      await response.send();
+    const query = await new User({
+      username: user.username,
+      limit: 10,
+    }).get_recenttracks();
+
+    if (query.lastfm_errorcode || !query.success) {
+      await response.error("lastfm_error", query.lastfm_errormessage);
       return;
     }
+    const recent_tracks = query.data.recenttracks.track.map((track, i) => {
+      track.id = i;
+      return track;
+    });
 
-    const recent_tracks: RecentTrackInterface[] = data.recenttracks.track.map(
-      (track: RecentTrackInterface, i: number) => {
-        track.id = i;
-        return track;
-      }
-    );
     if (!recent_tracks || !recent_tracks.length) {
       response.text = `Couldn't find any scrobble on this account; check if your username is mispelled: ${cb(
-        "mylogin"
+        "mylogin",
+        server_prefix
       )}.`;
       await response.send();
       return;

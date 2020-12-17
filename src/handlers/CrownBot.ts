@@ -1,20 +1,22 @@
-import { Message } from "discord.js";
 import fs from "fs";
 import { model } from "mongoose";
 import path from "path";
 import CrownBotClass from "../classes/CrownBot";
-import { ServerConfigInterface } from "../stable/models/ServerConfig";
+import CacheHandler from "./Cache";
 class CrownBot extends CrownBotClass {
+  cache = new CacheHandler(this);
+
   async init() {
     await super.load_db();
     this.load_commands().load_events().load_models();
+    await this.cache.prefix.init(); /* cache server prefixes for the session */
+    await this.cache.config.init(); /* cache server configs for the session */
     await super.log_in();
     return this;
   }
 
   load_commands() {
-    const that = this;
-    const register_commands = function (location: string, beta = false) {
+    const register_commands = (location: string, beta = false) => {
       const dir: string = path.join(__dirname, location);
       if (!fs.existsSync(dir)) {
         return;
@@ -22,13 +24,13 @@ class CrownBot extends CrownBotClass {
       const commands: string[] = fs.readdirSync(dir);
       commands.forEach((file: string) => {
         if (file.endsWith(".js")) {
-          const Command: any = require(path.join(dir, file)).default;
+          const Command = require(path.join(dir, file)).default;
           const command = new Command();
           if (beta) {
             command.beta = true;
-            that.beta_commands.push(command);
+            this.beta_commands.push(command);
           } else {
-            that.commands.push(command);
+            this.commands.push(command);
           }
         }
       });
@@ -37,7 +39,7 @@ class CrownBot extends CrownBotClass {
     register_commands("../stable/commands");
     register_commands("../beta/commands", true);
 
-    return that;
+    return this;
   }
 
   load_events() {
@@ -46,7 +48,6 @@ class CrownBot extends CrownBotClass {
     events.forEach((file: string) => {
       const [eventName]: string[] = file.split(".");
       const props = require(path.join(dir, file));
-      // @ts-ignore
       this.on(eventName, props.default.bind(null, this));
     });
     return this;
@@ -62,47 +63,19 @@ class CrownBot extends CrownBotClass {
     });
   }
 
-  async cache_prefixes() {
-    interface PrefixInterface {
-      _id: string;
-      guildID: string;
-      guildName: string;
-      prefix: string;
-    }
-    const prefixes = await this.models.prefixes.find();
-    this.prefixes = {};
-    prefixes.forEach((prefix: PrefixInterface) => {
-      if (this.prefixes) {
-        this.prefixes[prefix.guildID] = prefix.prefix;
-      }
-    });
-    console.log(`initialized ${prefixes.length} prefix(es)`);
-  }
+  // async cache_configs() {
+  //   const configs: ServerConfigInterface[] = await this.models.serverconfig.find();
+  //   this.server_configs = configs;
+  //   console.log(`initialized ${configs.length} server config(s)`);
+  // }
 
-  get_cached_prefix(message: Message): string {
-    if (message.guild?.id) {
-      if (this.prefixes && this.prefixes[message.guild.id]) {
-        return this.prefixes[message.guild.id];
-      } else {
-        return "&";
-      }
-    }
-    throw "No guild ID found to fetch prefixes of; probably running in DM?";
-  }
-
-  async cache_configs() {
-    const configs: ServerConfigInterface[] = await this.models.serverconfig.find();
-    this.server_configs = configs;
-    console.log(`initialized ${configs.length} server config(s)`);
-  }
-
-  get_cached_config(message: Message): ServerConfigInterface | undefined {
-    const config = this.server_configs?.find(
-      (config) => config.guild_ID === message.guild?.id
-    );
-    if (config) return config;
-    return undefined;
-  }
+  // get_cached_config(message: GuildMessage): ServerConfigInterface | undefined {
+  //   const config = this.server_configs?.find(
+  //     (config) => config.guild_ID === message.guild.id
+  //   );
+  //   if (config) return config;
+  //   return undefined;
+  // }
 }
 
 export default CrownBot;

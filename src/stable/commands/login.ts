@@ -1,11 +1,10 @@
-import { Message } from "discord.js";
-import Command from "../../classes/Command";
-import CrownBot from "../../handlers/CrownBot";
-import BotMessage from "../../handlers/BotMessage";
-import DB from "../../handlers/DB";
-import cb from "../../misc/codeblock";
+import Command, { GuildMessage } from "../../classes/Command";
 import { Template } from "../../classes/Template";
-import { LastFM } from "../../handlers/LastFM";
+import BotMessage from "../../handlers/BotMessage";
+import CrownBot from "../../handlers/CrownBot";
+import DB from "../../handlers/DB";
+import User from "../../handlers/LastFM_components/User";
+import cb from "../../misc/codeblock";
 
 class LoginCommand extends Command {
   constructor() {
@@ -19,8 +18,8 @@ class LoginCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: string[]) {
-    const prefix = client.get_cached_prefix(message);
+  async run(client: CrownBot, message: GuildMessage, args: string[]) {
+    const prefix = client.cache.prefix.get(message.guild);
     const response = new BotMessage({
       client,
       message,
@@ -28,14 +27,14 @@ class LoginCommand extends Command {
       text: "",
     });
     const db = new DB(client.models);
-    const user = await db.fetch_user(message.guild?.id, message.author.id);
+    const user = await db.fetch_user(message.guild.id, message.author.id);
 
     if (args.length === 0) {
       const legacy_user = await db.legacy_fetch_user(message.author.id);
       if (legacy_user && !user) {
         if (
           await db.add_user(
-            message.guild?.id,
+            message.guild.id,
             message.author.id,
             legacy_user.username
           )
@@ -63,32 +62,25 @@ class LoginCommand extends Command {
     }
 
     if (user) {
-      await db.remove_user(message.guild?.id, message.author.id);
+      await db.remove_user(message.guild.id, message.author.id);
     }
 
     const username = args.join();
-    const { status, data } = await new LastFM().query({
-      method: "user.getinfo",
-      params: {
-        user: username,
-      },
-    });
-    if (status === 404) {
-      response.text = `Username not found on Last.fm―please check for any misspellings.`;
-      await response.send();
-    } else if (status === 200 && data.user) {
-      if (await db.add_user(message.guild?.id, message.author.id, username)) {
-        response.text = `Username ${cb(
-          username
-        )} has been associated to your Discord account.`;
-      } else {
-        response.text = new Template(client, message).get("exception");
-      }
-      await response.send();
-    } else {
-      response.text = new Template(client, message).get("lastfm_error");
-      await response.send();
+
+    const lastfm_user = await new User({ username }).get_info();
+    if (lastfm_user.lastfm_errorcode || !lastfm_user.success) {
+      response.error("lastfm_error", lastfm_user.lastfm_errormessage);
+      return;
     }
+
+    if (await db.add_user(message.guild.id, message.author.id, username)) {
+      response.text = `Username ${cb(
+        username
+      )} has been associated to your Discord account.`;
+    } else {
+      response.text = new Template(client, message).get("exception");
+    }
+    await response.send();
   }
 }
 

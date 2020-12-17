@@ -1,13 +1,12 @@
 import { CanvasRenderService } from "chartjs-node-canvas";
-import { Message, MessageAttachment } from "discord.js";
-import Command from "../../classes/Command";
+import { MessageAttachment } from "discord.js";
+import Command, { GuildMessage } from "../../classes/Command";
 import { Template } from "../../classes/Template";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
-import { LastFM } from "../../handlers/LastFM";
-import LastFMUser from "../../handlers/LastFMUser";
-import { ArtistInterface } from "../../interfaces/ArtistInterface";
+import Artist from "../../handlers/LastFM_components/Artist";
+import User from "../../handlers/LastFM_components/User";
 import cb from "../../misc/codeblock";
 interface GraphStat {
   date: string;
@@ -19,7 +18,7 @@ class GraphCommand extends Command {
       name: "graph",
       description:
         "Graphs user's last week, month, or year's, or all-time playing stats; defaults to week.",
-      usage: ["graph <time_period> [<artist_name> or np]"],
+      usage: ["graph <week/month/year/alltime> [<artist_name> or np]"],
       aliases: ["gp", "grp"],
       examples: [
         "graph week",
@@ -32,14 +31,13 @@ class GraphCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: string[]) {
-    const server_prefix = client.get_cached_prefix(message);
+  async run(client: CrownBot, message: GuildMessage, args: string[]) {
+    const server_prefix = client.cache.prefix.get(message.guild);
     const response = new BotMessage({ client, message, text: "", reply: true });
     const db = new DB(client.models);
-    const user = await db.fetch_user(message.guild?.id, message.author.id);
+    const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
-    const lastfm_user = new LastFMUser({
-      discord_ID: message.author.id,
+    const lastfm_user = new User({
       username: user.username,
     });
 
@@ -94,20 +92,13 @@ class GraphCommand extends Command {
         artist_name = now_playing.artist["#text"];
       } else {
         const raw_artist_name = args.slice(1).join(" ");
-        const { status, data } = await new LastFM().query({
-          method: "artist.getinfo",
-          params: {
-            artist: raw_artist_name,
-            autocorrect: 1,
-          },
-        });
 
-        if (data.error || !data.artist) {
-          response.text = new Template(client, message).get("lastfm_error");
-          await response.send();
+        const query = await new Artist({ name: raw_artist_name }).get_info();
+        if (query.lastfm_errorcode || !query.success) {
+          response.error("lastfm_error", query.lastfm_errormessage);
           return;
         }
-        const artist: ArtistInterface = data.artist;
+        const artist = query.data.artist;
         artist_name = artist.name;
       }
       config.artist_name = artist_name;
@@ -161,8 +152,9 @@ class GraphCommand extends Command {
       height,
       (ChartJS) => {
         ChartJS.plugins.register({
-          afterDraw: function (chartInstance: any) {
-            var ctx = chartInstance.chart.ctx;
+          afterDraw: (chartInstance) => {
+            const ctx = chartInstance.ctx;
+            if (!ctx) return;
             ctx.font = ChartJS.helpers.fontString(
               ChartJS.defaults.global.defaultFontSize,
               "normal",
@@ -172,9 +164,11 @@ class GraphCommand extends Command {
             ctx.textBaseline = "bottom";
             ctx.fillStyle = `white`;
 
-            chartInstance.data.datasets.forEach(function (dataset: any) {
-              for (var i = 0; i < dataset.data.length; i++) {
-                var model =
+            chartInstance.data.datasets?.forEach(function (dataset) {
+              if (!dataset.data?.length) return;
+              for (let i = 0; i < dataset.data.length; i++) {
+                const model =
+                  // @ts-ignore
                   dataset._meta[Object.keys(dataset._meta)[0]].data[i]._model;
                 ctx.fillText(dataset.data[i] + " plays", model.x, model.y - 2);
               }

@@ -1,8 +1,8 @@
-import { Message, MessageEmbed } from "discord.js";
-import Command from "../../classes/Command";
+import { MessageEmbed } from "discord.js";
+import Command, { GuildMessage } from "../../classes/Command";
+import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
-import BotMessage from "../../handlers/BotMessage";
 import cb from "../../misc/codeblock";
 
 class HelpCommand extends Command {
@@ -16,8 +16,8 @@ class HelpCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: string[]) {
-    const server_prefix = client.get_cached_prefix(message);
+  async run(client: CrownBot, message: GuildMessage, args: string[]) {
+    const server_prefix = client.cache.prefix.get(message.guild);
     const db = new DB(client.models);
     const response = new BotMessage({
       client,
@@ -84,10 +84,6 @@ class HelpCommand extends Command {
     }
 
     /* if no specific command is requested */
-    let description = `This is a list of the commands this bot offers. The prefix is \`${server_prefix}\`.`;
-    if (args[0] === "beta") {
-      description = `This is a list of the __beta__ commands this bot offers that are not in the stable version. The prefix is \`${server_prefix}\`.`;
-    }
 
     const embed = new MessageEmbed()
       .setTitle("Commands")
@@ -150,22 +146,21 @@ class HelpCommand extends Command {
       }
     });
 
-    const that = this;
     const setup_str: string = setup
-      .map((command) => that.format_command(command, server_prefix))
+      .map((command) => this.format_command(command, server_prefix))
       .join("\n\n");
     const userstat_str: string[] = userstat.map((command) =>
-      that.format_command(command, server_prefix)
+      this.format_command(command, server_prefix)
     );
 
     const serverstat_str: string = serverstat
-      .map((command) => that.format_command(command, server_prefix))
+      .map((command) => this.format_command(command, server_prefix))
       .join("\n\n");
     const configure_str: string = configure
-      .map((command) => that.format_command(command, server_prefix))
+      .map((command) => this.format_command(command, server_prefix))
       .join("\n\n");
     const other_str: string = other
-      .map((command) => that.format_command(command, server_prefix))
+      .map((command) => this.format_command(command, server_prefix))
       .join("\n\n");
 
     // https://stackoverflow.com/questions/9181188
@@ -190,10 +185,6 @@ class HelpCommand extends Command {
   }
 
   format_command(command: Command, server_prefix: string) {
-    const usage = Array.isArray(command.usage)
-      ? command.usage[0]
-      : command.usage;
-
     const aliases = command.aliases;
     const all_shortcuts = [command.name, ...aliases]
       .map((e) => cb(e, server_prefix))

@@ -1,17 +1,15 @@
-import { AxiosResponse } from "axios";
-import { Message, MessageEmbed } from "discord.js";
+import { MessageEmbed } from "discord.js";
 import moment from "moment";
 // @ts-ignore
 import abbreviate from "number-abbreviate";
-import Command from "../../classes/Command";
-import { Template } from "../../classes/Template";
+import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
-import { LastFM } from "../../handlers/LastFM";
-import LastFMUser from "../../handlers/LastFMUser";
-import { ArtistInterface } from "../../interfaces/ArtistInterface";
-import { TrackInterface } from "../../interfaces/TrackInterface";
+import Artist from "../../handlers/LastFM_components/Artist";
+import Track from "../../handlers/LastFM_components/Track";
+import User from "../../handlers/LastFM_components/User";
+import { UserTrack } from "../../interfaces/TrackInterface";
 import cb from "../../misc/codeblock";
 import esm from "../../misc/escapemarkdown";
 import time_difference from "../../misc/time_difference";
@@ -40,8 +38,8 @@ class TrackPlaysCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: string[]) {
-    const server_prefix = client.get_cached_prefix(message);
+  async run(client: CrownBot, message: GuildMessage, args: string[]) {
+    const server_prefix = client.cache.prefix.get(message.guild);
     const response = new BotMessage({
       client,
       message,
@@ -49,11 +47,10 @@ class TrackPlaysCommand extends Command {
       text: "",
     });
     const db = new DB(client.models);
-    const user = await db.fetch_user(message.guild?.id, message.author.id);
+    const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
 
-    const lastfm_user = new LastFMUser({
-      discord_ID: message.author.id,
+    const lastfm_user = new User({
       username: user.username,
     });
 
@@ -65,18 +62,20 @@ class TrackPlaysCommand extends Command {
       artist_name = now_playing.artist["#text"];
       track_name = now_playing.name;
     } else {
-      let str = args.join(" ");
-      let str_array = str.split("||");
+      const str = args.join(" ");
+      const str_array = str.split("||");
       if (str_array.length !== 2) {
-        const { data } = await new LastFM().search_track(
-          str_array.join().trim()
-        );
-        if (data.error) {
-          response.text = new Template(client, message).get("lastfm_error");
-          await response.send();
+        const query = await new Track({
+          name: str_array.join().trim(),
+          username: user.username,
+          limit: 1,
+        }).search();
+
+        if (query.lastfm_errorcode || !query.success) {
+          response.error("lastfm_error", query.lastfm_errormessage);
           return;
         }
-        const track = data.results.trackmatches.track[0];
+        const track = query.data.results.trackmatches.track.shift();
 
         if (!track) {
           response.text = `Couldn't find the track; try providing artist name—see ${cb(
@@ -93,43 +92,33 @@ class TrackPlaysCommand extends Command {
         artist_name = str_array[1].trim();
       }
     }
-    const { status, data } = <AxiosResponse>await new LastFM().query({
-      method: "track.getinfo",
-      params: {
-        track: track_name,
-        artist: artist_name,
-        username: user.username,
-        autocorrect: 1,
-      },
-    });
+    const track_query = await new Track({
+      name: track_name,
+      artist_name,
+      username: user.username,
+    }).user_get_info();
 
-    let axios_response = <AxiosResponse>await new LastFM().query({
-      method: "artist.getinfo",
-      params: {
-        artist: artist_name,
-        username: user.username,
-        autocorrect: 1,
-      },
-    });
+    const artist_query = await new Artist({
+      name: artist_name,
+      username: user.username,
+    }).user_get_info();
 
     if (
-      data.error ||
-      axios_response.data.error ||
-      !data.track ||
-      !axios_response.data.artist
+      artist_query.lastfm_errorcode ||
+      track_query.lastfm_errorcode ||
+      !(artist_query.success && track_query.success)
     ) {
-      response.text = new Template(client, message).get("lastfm_error");
-      await response.send();
+      await response.error("lastfm_error", artist_query.lastfm_errormessage);
       return;
     }
-    const artist_info: ArtistInterface = axios_response.data.artist;
+    const artist = artist_query.data.artist;
 
-    const track: TrackInterface = data.track;
+    const track = track_query.data.track;
 
     if (!track.userplaycount) return;
     let last_count = 0;
 
-    let strs = {
+    const strs = {
       count: "No change",
       time: <boolean | string>false,
     };
@@ -154,8 +143,8 @@ class TrackPlaysCommand extends Command {
       ? `**${strs.count}** since last checked ${strs.time} ago.`
       : "";
     let artist_plays = "";
-    if (artist_info.stats && artist_info.stats.userplaycount) {
-      artist_plays = artist_info.stats.userplaycount;
+    if (artist.stats && artist.stats.userplaycount) {
+      artist_plays = artist.stats.userplaycount;
     }
 
     const percentage = {
@@ -199,7 +188,11 @@ class TrackPlaysCommand extends Command {
     await message.channel.send(embed);
   }
 
-  async update_log(client: CrownBot, message: Message, track: TrackInterface) {
+  async update_log(
+    client: CrownBot,
+    message: GuildMessage,
+    track: UserTrack["track"]
+  ) {
     const timestamp = moment.utc().valueOf();
 
     await client.models.tracklog.findOneAndUpdate(
@@ -217,7 +210,6 @@ class TrackPlaysCommand extends Command {
       },
       {
         upsert: true,
-        // @ts-ignore
         useFindAndModify: false,
       }
     );

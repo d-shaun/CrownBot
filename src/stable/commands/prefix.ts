@@ -1,7 +1,6 @@
-import { Message } from "discord.js";
-import Command from "../../classes/Command";
-import CrownBot from "../../handlers/CrownBot";
+import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
+import CrownBot from "../../handlers/CrownBot";
 import cb from "../../misc/codeblock";
 
 class PrefixCommand extends Command {
@@ -16,10 +15,9 @@ class PrefixCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: Message, args: string[]) {
-    const server_prefix = client.get_cached_prefix(message);
+  async run(client: CrownBot, message: GuildMessage, args: string[]) {
+    const server_prefix = client.cache.prefix.get(message.guild);
     const response = new BotMessage({ client, message, text: "", reply: true });
-    if (!message.guild) return;
     if (args.length === 0) {
       response.text =
         `The prefix for this server is \`${server_prefix}\`; ` +
@@ -27,7 +25,6 @@ class PrefixCommand extends Command {
       await response.send();
       return;
     }
-
     if (!message.member?.hasPermission("MANAGE_GUILD")) {
       response.text =
         "You do not have the permission (``MANAGE_GUILD``) to execute this command.";
@@ -40,7 +37,6 @@ class PrefixCommand extends Command {
       await response.send();
       return;
     }
-
     await client.models.prefixes.findOneAndUpdate(
       {
         guildID: message.guild.id,
@@ -52,12 +48,18 @@ class PrefixCommand extends Command {
       },
       {
         upsert: true,
-        // @ts-ignore
         useFindAndModify: false,
       }
     );
-    client.prefixes = undefined;
-    response.text = `The prefix for this server is now set to ${cb(prefix)}.`;
+    if (client.cache.prefix.set(prefix, message.guild)) {
+      response.text = `The prefix for this server is now set to ${cb(prefix)}.`;
+    } else {
+      response.text =
+        `The prefix for this server is now set to ${cb(
+          prefix
+        )} but the cache couldn't be updated; the bot will continue using the previous prefix until it restarts. ` +
+        `Please contact the bot maintainer (see [&]about).`;
+    }
     response.send();
   }
 }
