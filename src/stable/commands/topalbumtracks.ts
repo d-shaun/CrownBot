@@ -56,6 +56,7 @@ class TopAlbumTracks extends Command {
       if (str_array.length !== 2) {
         const query = await new Album({
           name: str_array.join().trim(),
+          limit: 1,
         }).search();
         if (query.lastfm_errorcode || !query.success) {
           response.error("lastfm_error", query.lastfm_errormessage);
