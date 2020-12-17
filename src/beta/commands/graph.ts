@@ -18,7 +18,7 @@ class GraphCommand extends Command {
       name: "graph",
       description:
         "Graphs user's last week, month, or year's, or all-time playing stats; defaults to week.",
-      usage: ["graph <time_period> [<artist_name> or np]"],
+      usage: ["graph <week/month/year/alltime> [<artist_name> or np]"],
       aliases: ["gp", "grp"],
       examples: [
         "graph week",
