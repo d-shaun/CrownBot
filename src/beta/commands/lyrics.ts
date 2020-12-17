@@ -92,7 +92,7 @@ class LyricsCommand extends Command {
       await lyricist.search(`${track.name} ${track.artist.name}`)
     )[0];
     if (!song) {
-      response.text = "Couldn't find the song on Genius.";
+      response.text = "Couldn't find the song.";
       await response.send();
       return;
     }
@@ -108,16 +108,11 @@ class LyricsCommand extends Command {
       const lyrics_chunks = toChunks(db_entry.lyrics);
       if (lyrics_chunks && lyrics_chunks.length) {
         response.reply = false;
-        let i = 1;
         for (const lyric of lyrics_chunks) {
-          if (i === lyrics_chunks.length) {
-            response.footer = "Lyrics scraped from Genius · cached";
-          }
           const lyrics = `**${db_entry.track_name}** by **${db_entry.artist_name}**\n\n${lyric}`;
 
           response.text = lyrics;
           await response.send();
-          i++;
         }
         return;
       }
@@ -143,14 +138,9 @@ class LyricsCommand extends Command {
       throw "toChunks() failed.";
     }
     response.reply = false;
-    let i = 1;
     for (const lyric of lyrics_chunks) {
-      if (i === lyrics_chunks.length) {
-        response.footer = "Lyrics scraped from Genius";
-      }
       response.text = lyric;
       await response.send();
-      i++;
     }
     const timestamp = moment.utc().valueOf();
 
