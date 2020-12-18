@@ -62,20 +62,6 @@ class CrownBot extends CrownBotClass {
       this.models[model_name.toLowerCase()] = model(model_name, schema);
     });
   }
-
-  // async cache_configs() {
-  //   const configs: ServerConfigInterface[] = await this.models.serverconfig.find();
-  //   this.server_configs = configs;
-  //   console.log(`initialized ${configs.length} server config(s)`);
-  // }
-
-  // get_cached_config(message: GuildMessage): ServerConfigInterface | undefined {
-  //   const config = this.server_configs?.find(
-  //     (config) => config.guild_ID === message.guild.id
-  //   );
-  //   if (config) return config;
-  //   return undefined;
-  // }
 }
 
 export default CrownBot;
