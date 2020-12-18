@@ -203,9 +203,9 @@ class ListCommand extends Command {
             })`;
           }
 
-          return `${artist["@attr"].rank}. **[${esm(artist.name)}](${
-            artist.url
-          })** — **${artist.playcount}** plays ${diff_str}`;
+          return `${artist["@attr"].rank}. **${esm(artist.name)}** — **${
+            artist.playcount
+          }** plays ${diff_str}`;
         })
         .join("\n");
 
@@ -238,9 +238,9 @@ class ListCommand extends Command {
       const top_tracks = query.data.toptracks.track;
       const embed_list = top_tracks
         .map((track) => {
-          return `${track["@attr"].rank}. **[${esm(track.name)}](${
-            track.url
-          })** by **${esm(track.artist.name)}**— **${track.playcount}** plays`;
+          return `${track["@attr"].rank}. **${esm(track.name)}** by **${esm(
+            track.artist.name
+          )}**— **${track.playcount}** plays`;
         })
         .join("\n");
 
@@ -262,7 +262,7 @@ class ListCommand extends Command {
 
       const embed_list = top_albums
         .map((album, i) => {
-          return `${i + 1}. **[${esm(album.name)}](${album.url})** by **${esm(
+          return `${i + 1}. **${esm(album.name)}** by **${esm(
             album.artist.name
           )}**— **${album.playcount}** plays`;
         })
