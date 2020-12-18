@@ -160,7 +160,7 @@ export default class Command {
         `please consider reporting this incident (id: ${cb(
           incident_id
         )}) to the bot's support server—see ${cb("about", server_prefix)}.`;
-      // await response.send();
+      await response.send();
     }
   }
 
