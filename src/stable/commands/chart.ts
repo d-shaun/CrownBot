@@ -214,7 +214,11 @@ class ChartCommand extends Command {
 
     const promises = data.map((elem) => {
       if (elem.image_url) {
-        return loadImage(elem.image_url);
+        try {
+          return loadImage(elem.image_url);
+        } catch (_) {
+          return cached_noalbumcover;
+        }
       } else {
         return cached_noalbumcover;
       }
