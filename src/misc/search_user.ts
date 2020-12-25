@@ -8,8 +8,11 @@ export default async function search_user(
     return undefined;
   }
   const username = args.join(" ").trim().toLowerCase();
-  const user = (
-    await message.guild?.members.fetch({ query: username })
-  )?.first(); // find similar username
+  let user = message.guild.members.resolve(username) || undefined;
+  if (!user) {
+    user = (
+      await message.guild.members.fetch({ query: username, limit: 1 })
+    )?.first(); // find similar username
+  }
   return user ? user.user : undefined;
 }
