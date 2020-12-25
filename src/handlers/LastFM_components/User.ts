@@ -139,14 +139,18 @@ export default class extends LastFM {
     const URL = `https://www.last.fm/user/${encodeURIComponent(
       this.username
     )}/library/music/${encodeURIComponent(artist_name)}/+albums`;
-    const response = await Axios.get(URL, this.timeout).catch(() => {
-      return undefined;
-    });
-    if (response?.status !== 200 || !response.data) {
+    try {
+      const response = await Axios.get(URL, this.timeout).catch(() => {
+        return undefined;
+      });
+      if (response?.status !== 200 || !response.data) {
+        return undefined;
+      }
+      const stat = this.parse_chartpage(response.data);
+      return stat;
+    } catch (_) {
       return undefined;
     }
-    const stat = this.parse_chartpage(response.data);
-    return stat;
   }
 
   async get_tracks(artist_name: string) {
@@ -154,32 +158,38 @@ export default class extends LastFM {
       this.username
     )}/library/music/${encodeURIComponent(artist_name)}/+tracks`;
 
-    const response = await Axios.get(URL, this.timeout).catch(() => {
-      return undefined;
-    });
-    if (response?.status !== 200 || !response.data) {
+    try {
+      const response = await Axios.get(URL, this.timeout).catch(() => {
+        return undefined;
+      });
+      if (response?.status !== 200 || !response.data) {
+        return undefined;
+      }
+      const stat = this.parse_chartpage(response.data);
+      return stat;
+    } catch (_) {
       return undefined;
     }
-    const stat = this.parse_chartpage(response.data);
-    return stat;
   }
 
   async get_album_tracks(artist_name: string, album_name: string) {
-    const response = await Axios.get(
-      `https://www.last.fm/user/${encodeURIComponent(
-        this.username
-      )}/library/music/${encodeURIComponent(artist_name)}/${encodeURIComponent(
-        album_name
-      )}`,
-      this.timeout
-    ).catch(() => {
-      return undefined;
-    });
-    if (response?.status !== 200) {
+    try {
+      const response = await Axios.get(
+        `https://www.last.fm/user/${encodeURIComponent(
+          this.username
+        )}/library/music/${encodeURIComponent(
+          artist_name
+        )}/${encodeURIComponent(album_name)}`,
+        this.timeout
+      );
+      if (response?.status !== 200) {
+        return undefined;
+      }
+      const stat = this.parse_chartpage(response.data);
+      return stat;
+    } catch (_) {
       return undefined;
     }
-    const stat = this.parse_chartpage(response.data);
-    return stat;
   }
 
   parse_library_scrobbles(data: string) {
@@ -305,20 +315,24 @@ export default class extends LastFM {
     if (artist_name) {
       artist_specific = "/music/" + encodeURIComponent(artist_name);
     }
-    const response = await Axios.get(
-      `https://www.last.fm/user/${encodeURIComponent(
-        this.username
-      )}/library${artist_specific}?date_preset=${date_preset}`,
-      this.timeout
-    ).catch(() => {
-      return undefined;
-    });
+    try {
+      const response = await Axios.get(
+        `https://www.last.fm/user/${encodeURIComponent(
+          this.username
+        )}/library${artist_specific}?date_preset=${date_preset}`,
+        this.timeout
+      ).catch(() => {
+        return undefined;
+      });
 
-    if (response?.status !== 200) {
+      if (response?.status !== 200) {
+        return undefined;
+      }
+      const stat = this.parse_listening_history(response.data);
+      return stat;
+    } catch (_) {
       return undefined;
     }
-    const stat = this.parse_listening_history(response.data);
-    return stat;
   }
 
   //
