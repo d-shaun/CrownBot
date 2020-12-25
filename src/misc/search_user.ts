@@ -1,4 +1,4 @@
-import { User } from "discord.js";
+import { GuildMember, User } from "discord.js";
 import { GuildMessage } from "../classes/Command";
 export default async function search_user(
   message: GuildMessage,
@@ -8,7 +8,9 @@ export default async function search_user(
     return undefined;
   }
   const username = args.join(" ").trim().toLowerCase();
-  let user = message.guild.members.resolve(username) || undefined;
+  let user = <GuildMember | undefined>(
+    await message.guild.members.fetch({ user: username, force: true })
+  );
   if (!user) {
     user = (
       await message.guild.members.fetch({ query: username, limit: 1 })
