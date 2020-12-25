@@ -96,7 +96,6 @@ class HelpCommand extends Command {
 
     const stable_commands = client.commands;
     const beta_commands = client.beta_commands;
-
     const unique_beta_commands = beta_commands
       .filter(
         (command) => !stable_commands.find((c) => c.name === command.name)
@@ -170,18 +169,24 @@ class HelpCommand extends Command {
       .slice(halfwayThrough, userstat_str.length)
       .join("\n\n");
 
-    embed.addField("__Setting up__", setup_str, true);
-    embed.addField("__User-related stats__", userstat_one, true);
-    embed.addField("__More user-related stats__", userstat_two, true);
-    embed.addField("__Server-related stats__", serverstat_str, true);
-    embed.addField("__Preferences__", configure_str, true);
-    embed.addField("__Other__", other_str, true);
+    if (setup_str) embed.addField("__Setting up__", setup_str, true);
+    if (userstat_one)
+      embed.addField("__User-related stats__", userstat_one, true);
+    if (userstat_two)
+      embed.addField("__More user-related stats__", userstat_two, true);
+    if (serverstat_str)
+      embed.addField("__Server-related stats__", serverstat_str, true);
+    if (configure_str) embed.addField("__Preferences__", configure_str, true);
+    if (other_str) embed.addField("__Other__", other_str, true);
 
     response.text =
       "FAQs and commands' descriptions can be found here: <https://d-shaun.github.io/cbdocs/>.";
 
     await message.channel.send(embed);
-    await response.send();
+    if (args[0] !== "beta") {
+      // only send "FAQs and commands..." if it's not &help beta
+      await response.send();
+    }
   }
 
   format_command(command: Command, server_prefix: string) {
