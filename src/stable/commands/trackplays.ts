@@ -67,7 +67,6 @@ class TrackPlaysCommand extends Command {
       if (str_array.length !== 2) {
         const query = await new Track({
           name: str_array.join().trim(),
-          username: user.username,
           limit: 1,
         }).search();
 
