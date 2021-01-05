@@ -66,8 +66,8 @@ class ChartCommand extends Command {
     const lastfm_user = new User({
       username: user.username,
     });
+
     const spotify = new Spotify();
-    await spotify.attach_access_token();
 
     const no_title_aliases = ["notitle", "nt", "notitles"];
     const config: Config = {
@@ -158,6 +158,17 @@ class ChartCommand extends Command {
     }
     config.limit = config.size.x * config.size.y;
     lastfm_user.configs.limit = config.limit;
+
+    if (config.type === "track" || config.type === "artist") {
+      try {
+        await spotify.attach_access_token();
+      } catch (e) {
+        response.text =
+          "Something went wrong while authenticating the Spotify API; the API is required to show the artists' images.";
+        await response.send();
+        return;
+      }
+    }
 
     let data: Data[] | undefined;
 
