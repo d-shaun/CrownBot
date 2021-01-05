@@ -31,7 +31,7 @@ export default class extends LastFM {
   }
 
   custom_check(response: LastFMResponse<UserAlbum>): boolean {
-    if (this.username && !response.data.album.userplaycount) {
+    if (this.username && !response.data.album?.userplaycount) {
       return false;
     }
 
@@ -55,11 +55,7 @@ export default class extends LastFM {
   async user_get_info() {
     if (!this.name || !this.artist_name)
       throw "Album and artist names are required.";
-    const query = <LastFMResponse<UserAlbum>>await this.get_info();
-    if (this.username && !query.data.album.userplaycount) {
-      query.success = false;
-    }
-    return query;
+    return <LastFMResponse<UserAlbum>>await this.get_info();
   }
 
   async search() {
