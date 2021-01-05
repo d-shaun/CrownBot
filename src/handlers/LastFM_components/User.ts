@@ -61,31 +61,62 @@ export default class extends LastFM {
   }
 
   async get_top_artists({ period }: { period: Period }) {
-    return this.query<UserTopArtist>({
+    const query = await this.query<UserTopArtist>({
       method: this.prefix + "getTopArtists",
       user: this.username,
 
       period,
       ...this.configs,
     });
+    if (query.success) {
+      // only check the following conditions if query is a success.
+      // it could be undefined otherwise.
+
+      if (
+        !query.data.topartists?.artist ||
+        !query.data.topartists?.artist.length
+      ) {
+        query.success = false;
+      }
+    }
+
+    return query;
   }
 
   async get_top_tracks({ period }: { period: Period }) {
-    return this.query<UserTopTrack>({
+    const query = await this.query<UserTopTrack>({
       method: this.prefix + "getTopTracks",
       user: this.username,
       period,
       ...this.configs,
     });
+    if (query.success) {
+      // only check the following conditions if query is a success.
+      // it could be undefined otherwise.
+
+      if (!query.data.toptracks?.track || !query.data.toptracks?.track.length) {
+        query.success = false;
+      }
+    }
+    return query;
   }
 
   async get_top_albums({ period }: { period: Period }) {
-    return this.query<UserTopAlbum>({
+    const query = await this.query<UserTopAlbum>({
       method: this.prefix + "getTopAlbums",
       user: this.username,
       period,
       ...this.configs,
     });
+    if (query.success) {
+      // only check the following conditions if query is a success.
+      // it could be undefined otherwise.
+
+      if (!query.data.topalbums?.album || !query.data.topalbums?.album.length) {
+        query.success = false;
+      }
+    }
+    return query;
   }
 
   //
