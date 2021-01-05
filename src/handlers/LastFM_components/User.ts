@@ -31,16 +31,33 @@ export default class extends LastFM {
       user: this.username,
       ...this.configs,
     });
-    if (query.success && !query.data.user) query.success = false;
+    if (query.success) {
+      // only check the following conditions if query is a success.
+      // it could be undefined otherwise.
+
+      if (!query.data.user) query.success = false;
+    }
     return query;
   }
 
   async get_recenttracks() {
-    return this.query<UserRecentTrack>({
+    const query = await this.query<UserRecentTrack>({
       method: this.prefix + "getRecentTracks",
       user: this.username,
       ...this.configs,
     });
+    if (query.success) {
+      // only check the following conditions if query is a success.
+      // it could be undefined otherwise.
+
+      if (
+        !query.data.recenttracks?.track ||
+        !query.data.recenttracks?.track.length
+      ) {
+        query.success = false;
+      }
+    }
+    return query;
   }
 
   async get_top_artists({ period }: { period: Period }) {
@@ -92,7 +109,10 @@ export default class extends LastFM {
       );
       return;
     }
-    if (!query.success) return;
+    if (!query.success || query.lastfm_errorcode) {
+      await response.error("lastfm_error", query.lastfm_errormessage);
+      return;
+    }
 
     const last_track = [...query.data.recenttracks.track].shift();
 
