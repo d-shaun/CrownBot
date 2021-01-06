@@ -1,4 +1,10 @@
-import { Guild, Message, PermissionString } from "discord.js";
+import {
+  Guild,
+  Message,
+  MessageEmbed,
+  PermissionString,
+  TextChannel,
+} from "discord.js";
 import BotMessage from "../handlers/BotMessage";
 import CrownBot from "../handlers/CrownBot";
 import DB from "../handlers/DB";
@@ -162,6 +168,53 @@ export default class Command {
         )}) to the bot's support server—see ${cb("about", server_prefix)}.`;
       await response.send();
     }
+
+    // attempt to send logs to the channel specified in "exception_log_channel" (/src/models/BotConfig.ts)
+    try {
+      await this.send_exception_log(client, incident_id, stack);
+    } catch (e) {
+      // supress any error to avoid infinite error loop
+
+      console.error(
+        "Supressed an exception to prevent a throw-catch loop; please check the relevant log below."
+      );
+
+      console.log(e);
+    }
+  }
+
+  async send_exception_log(
+    client: CrownBot,
+    incident_id: string,
+    stack?: string
+  ) {
+    // check if exception_log_channel is set
+    const config = await client.models.botconfig.findOne();
+    if (!config || !config.exception_log_channel) return;
+
+    const channel = <TextChannel | undefined>(
+      client.channels.cache.get(config.exception_log_channel)
+    );
+
+    if (!channel) {
+      console.log(
+        "Cannot find the channel `" +
+          config.exception_log_channel +
+          "` set in exception_log_channel."
+      );
+      return;
+    }
+
+    const embed = new MessageEmbed()
+      .setTitle("Uncaught exception")
+      .addField("Incident ID", incident_id, false)
+      .addField("Command name", this.name, true)
+      .addField("Timestamp", new Date().toUTCString(), true);
+
+    if (stack) {
+      embed.addField("Error", "```JS\n" + stack.split("\n").shift() + "\n```");
+    }
+    await channel.send(embed);
   }
 
   async run(
