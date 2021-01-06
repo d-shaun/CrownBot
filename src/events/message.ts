@@ -130,7 +130,7 @@ function check_permissions(
       `${lacking_permissions.join(", ")}; see ${cb(
         "permissions",
         server_prefix
-      )} for explanations of every permissions the bot requires.`;
+      )} for explanations of every permission the bot requires.`;
     response.send();
     return false;
   }
