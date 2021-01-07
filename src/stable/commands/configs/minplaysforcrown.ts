@@ -60,7 +60,9 @@ export default class MinPlaysForCrown {
           time: 30000,
         }
       );
-      msg.delete();
+      const message_exists = message.channel.messages.cache.get(msg.id);
+
+      if (message_exists) msg.delete();
 
       if (reactions.size > 0) {
         config.min_plays_for_crown = number;

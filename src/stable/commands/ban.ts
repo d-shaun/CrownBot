@@ -80,20 +80,27 @@ class BanCommand extends Command {
       }
     );
 
+    let response_text;
     if (reactions.size > 0) {
       if (await db.ban_user(message, user)) {
-        await msg.edit(
-          `${cb(
-            user.tag
-          )} has been banned from accessing the bot and showing up on the 'whoknows' list.`
-        );
+        response_text = `${cb(
+          user.tag
+        )} has been banned from accessing the bot and showing up on the 'whoknows' list.`;
       } else {
-        await msg.edit(new Template(client, message).get("exception"));
+        response_text = new Template(client, message).get("exception");
       }
     } else {
-      await msg.edit("Reaction wasn't clicked; no changes are made.");
+      response_text = "Reaction wasn't clicked; no changes are made.";
     }
-    await msg.reactions.removeAll();
+    // check if message still exists
+    const message_exists = message.channel.messages.cache.get(msg.id);
+    if (message_exists) {
+      await msg.reactions.removeAll();
+      await msg.edit(response_text);
+    } else {
+      response.text = response_text;
+      await response.send();
+    }
   }
 }
 

@@ -84,7 +84,8 @@ class LogoutCommand extends Command {
         time: 30000,
       }
     );
-    msg.delete();
+    const message_exists = message.channel.messages.cache.get(msg.id);
+    if (message_exists) msg.delete();
     if (reactions.size > 0) {
       if (await db.remove_user(message.guild.id, message.author.id)) {
         response.text = `You have been logged out from the bot in this server; run ${cb(
