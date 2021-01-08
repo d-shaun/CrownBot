@@ -167,6 +167,7 @@ export default class extends LastFM {
   //
 
   parse_chartpage(data: string) {
+    if (typeof data !== "string") return undefined;
     const $ = cheerio.load(data);
     const chart_list = $(".chartlist").find(".chartlist-row");
     const stats: { name: string; plays: number }[] = [];
@@ -244,6 +245,7 @@ export default class extends LastFM {
   }
 
   parse_library_scrobbles(data: string) {
+    if (typeof data !== "string") return undefined;
     const $ = cheerio.load(data);
     const items = $(".page-content")
       .find("ul.metadata-list")
@@ -259,6 +261,7 @@ export default class extends LastFM {
   }
 
   find_library_scrobbles(data: string) {
+    if (typeof data !== "string") return undefined;
     const $ = cheerio.load(data);
     return parseInt(
       $(".page-content")
@@ -336,6 +339,7 @@ export default class extends LastFM {
   }
 
   parse_listening_history(data: string) {
+    if (typeof data !== "string") return undefined;
     const $ = cheerio.load(data);
     const data_points = $(".scrobble-table")
       .find(".table")
