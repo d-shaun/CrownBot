@@ -3,9 +3,18 @@ import { model } from "mongoose";
 import path from "path";
 import CrownBotClass from "../classes/CrownBot";
 import CacheHandler from "./Cache";
-class CrownBot extends CrownBotClass {
+export default class CrownBot extends CrownBotClass {
   cache = new CacheHandler(this);
 
+  /**
+   * - Connects to MongoDB.
+   * - Loads commands.
+   * - Adds event hooks.
+   * - Registers models.
+   * - Initializes prefixes.
+   * - Initializes server-specific configurations.
+   * - Finally, logs the bot in.
+   */
   async init() {
     await super.load_db();
     this.load_commands().load_events().load_models();
@@ -15,6 +24,10 @@ class CrownBot extends CrownBotClass {
     return this;
   }
 
+  /**
+   * Registers all commands from `../stable/commands/` and `../beta/commands/`
+   * to `client.commands` and `client.beta_commands` respectively.
+   */
   load_commands() {
     const register_commands = (location: string, beta = false) => {
       const dir: string = path.join(__dirname, location);
@@ -42,6 +55,10 @@ class CrownBot extends CrownBotClass {
     return this;
   }
 
+  /**
+   * Hooks up all the events in `../events/` to the `client` object.
+   * Generally, the `message` event which is triggered when a message is received.
+   */
   load_events() {
     const dir: string = path.join(__dirname, "../events");
     const events: string[] = fs.readdirSync(dir);
@@ -53,6 +70,9 @@ class CrownBot extends CrownBotClass {
     return this;
   }
 
+  /**
+   * Loads mongoose models from `../stable/models` to `client.models[modelname]`.
+   */
   load_models() {
     const dir: string = path.join(__dirname, "../stable/models");
     const models: string[] = fs.readdirSync(dir);
@@ -63,5 +83,3 @@ class CrownBot extends CrownBotClass {
     });
   }
 }
-
-export default CrownBot;

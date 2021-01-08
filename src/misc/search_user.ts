@@ -1,5 +1,12 @@
 import { GuildMember, User } from "discord.js";
 import { GuildMessage } from "../classes/Command";
+
+/**
+ * Searches for a user in a server either by ID or username.
+ *
+ * @param message
+ * @param args
+ */
 export default async function search_user(
   message: GuildMessage,
   args: string[]

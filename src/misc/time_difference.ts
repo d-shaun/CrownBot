@@ -1,5 +1,11 @@
 import moment from "moment";
 
+/**
+ * Calculates the time difference between specified time and now.
+ *
+ * TODO: Improve this function to be more flexible.
+ * @param timestamp
+ */
 export default function time_difference(timestamp: number): string {
   const then = moment.utc(timestamp);
   const now = moment();

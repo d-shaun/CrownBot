@@ -9,10 +9,26 @@ import { ServerConfigInterface } from "../stable/models/ServerConfig";
 
 export default class DB {
   #models: { [key: string]: Model<any> };
+
+  /**
+   *
+   * @param models
+   * The object made of mongoose models.
+   * In this setup, it is `client.models`.
+   */
   constructor(models: { [key: string]: Model<any> }) {
     this.#models = models;
   }
 
+  /**
+   * Adds a new user to the database.
+   * @param guild_ID
+   * @param user_ID
+   * Discord user ID.
+   *
+   * @param username
+   * Last.fm username.
+   */
   async add_user(
     guild_ID: string | undefined,
     user_ID: string,
@@ -26,6 +42,15 @@ export default class DB {
     });
   }
 
+  /**
+   * Fetches a user from the database.
+   * @param guild_ID
+   * @param user_ID
+   * Discord user ID
+   * @param global
+   * If set to `true`, the user is searched globally instead of searching by the
+   * provided `guild_ID`. (Default: `false`)
+   */
   async fetch_user(
     guild_ID: string | undefined,
     user_ID: string,
@@ -45,6 +70,14 @@ export default class DB {
     return user;
   }
 
+  /**
+   * Legacy method of fetching user. This is similar to `fetch_user` with `global` set to `true`.
+   *
+   * - THIS WILL BE SOON REMOVED. REFER TO <https://discord.com/channels/657915913567469588/663355060058718228/747164031248367731>.
+   *
+   * @param user_ID
+   * Discord user ID.
+   */
   async legacy_fetch_user(user_ID: string): Promise<DBUser | undefined> {
     const user = await this.#models.users.findOne({
       userID: user_ID,
@@ -52,6 +85,13 @@ export default class DB {
     return user;
   }
 
+  /**
+   * Removes a user from the database.
+   * @param guild_ID
+   * @param user_ID
+   * @param global
+   * If set to `true`, the user is removed globally instead of from the specified `guild_ID`.
+   */
   async remove_user(
     guild_ID: string | undefined,
     user_ID: string,
@@ -72,6 +112,15 @@ export default class DB {
     }
   }
 
+  /**
+   * Adds a ban entry for a user.
+   * @param message
+   * The discord.js `message` object.
+   *
+   * @param user
+   * The `DiscordUser` object.
+   *
+   */
   async ban_user(message: GuildMessage, user: DiscordUser): Promise<boolean> {
     return this.#models.bans.create({
       guildID: message.guild.id,
@@ -82,6 +131,11 @@ export default class DB {
     });
   }
 
+  /**
+   * Delete a crown of a user
+   * @param artistName
+   * @param guildID
+   */
   async delete_crown(artistName: string, guildID?: string) {
     if (!guildID) return;
     return this.#models.crowns.deleteOne({
@@ -90,6 +144,10 @@ export default class DB {
     });
   }
 
+  /**
+   * Updates crown for an artist in a server.
+   * @param top
+   */
   async update_crown(top: LeaderboardInterface) {
     return this.#models.crowns.findOneAndUpdate(
       {
@@ -111,6 +169,13 @@ export default class DB {
     );
   }
 
+  /**
+   * Logs &whoplays stats of a server
+   * @param track_name
+   * @param artist_name
+   * @param leaderboard
+   * @param guild_id
+   */
   async log_whoplays(
     track_name: string,
     artist_name: string,
@@ -139,6 +204,12 @@ export default class DB {
     );
   }
 
+  /**
+   * Logs &whoknows stats of a server.
+   * @param artist_name
+   * @param leaderboard
+   * @param guild_id
+   */
   async log_whoknows(
     artist_name: string,
     leaderboard: LeaderboardInterface[],
@@ -165,7 +236,12 @@ export default class DB {
     );
   }
 
-  // log `&list artist alltime`
+  /**
+   * Logs `&list artist alltime` stats of a user in a server.
+   * @param stat
+   * @param user_id
+   * @param guild_id
+   */
   async log_list_artist(
     stat: UserTopArtist["topartists"]["artist"],
     user_id: string,
@@ -190,6 +266,10 @@ export default class DB {
     );
   }
 
+  /**
+   * Opts a server out of beta features.
+   * @param message
+   */
   async opt_out(message: GuildMessage): Promise<void> {
     await this.#models.optins.findOneAndRemove(
       {
@@ -201,6 +281,11 @@ export default class DB {
       }
     );
   }
+
+  /**
+   * Opts a server in to beta features.
+   * @param message
+   */
   async opt_in(message: GuildMessage): Promise<void> {
     await this.#models.optins.findOneAndUpdate(
       {
@@ -221,6 +306,11 @@ export default class DB {
       }
     );
   }
+
+  /**
+   * Checks current opt-in status of a server.
+   * @param message
+   */
   async check_optin(message: GuildMessage): Promise<boolean> {
     const beta_log = await this.#models.optins
       .findOne({
@@ -231,6 +321,11 @@ export default class DB {
     return !!beta_log;
   }
 
+  /**
+   * Fetches configurations of a server.
+   * - Returns an object with `min_plays_for_crowns` set to 1 if no config is found.
+   * @param message
+   */
   async server_config(message: GuildMessage) {
     const server_config: ServerConfigInterface = await this.#models.serverconfig.findOne(
       {

@@ -1,5 +1,8 @@
+/**
+ * Escapes Discord's markdown characters.
+ * @param text
+ */
 export default function esm(text: string) {
-  // escape Discord subset of markdown characters
   // https://stackoverflow.com/questions/39542872/escaping-discord-subset-of-markdown
 
   /* replace backticks (`) with single-quotes (') */

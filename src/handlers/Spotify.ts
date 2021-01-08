@@ -23,6 +23,9 @@ export class Spotify {
     return this;
   }
 
+  /**
+   * Attaches Spotify access token to the instance of this class.
+   */
   async attach_access_token() {
     const temporary_access = await this.#spotify_api.clientCredentialsGrant();
     if (temporary_access.statusCode !== 200) return false;
@@ -30,6 +33,13 @@ export class Spotify {
     return this;
   }
 
+  /**
+   * Gets artist's images from Spotify.
+   * @param artist_name
+   * Name of the artist to search for on Spotify.
+   * @param id
+   * This ID, if specified, is sent back along with the artist's images. This useful for `Promises.all()`.
+   */
   async get_artist_images(
     artist_name: string,
     id?: number
@@ -41,6 +51,18 @@ export class Spotify {
     if (query.statusCode !== 200 || !artist) return;
     return { images: artist.images, id };
   }
+
+  /**
+   * Gets artist's images from Spotify.
+   * @param artist_name
+   *
+   * @param track_name
+   * Name of the track to search for on Spotify.
+   *
+   *
+   * @param id
+   * This ID, if specified, is sent back along with the track's images. This useful for `Promises.all()`.
+   */
 
   async get_track_images(
     artist_name: string,
@@ -57,6 +79,14 @@ export class Spotify {
     if (query.statusCode !== 200 || !track) return;
     return { images: track.album.images, id };
   }
+
+  /**
+   * Outputs the input data with artists' images attached.
+   *
+   * @param data
+   * The data formatted with `chart.ts`'s `format_artists()` method.
+   *
+   */
 
   async attach_artist_images(data: Data[]) {
     // assign ids
@@ -81,6 +111,14 @@ export class Spotify {
 
     return artists;
   }
+
+  /**
+   * Outputs the input data with tracks' images attached.
+   *
+   * @param data
+   * The data formatted with `chart.ts`'s `format_tracks()` method.
+   *
+   */
 
   async attach_track_images(data: CustomData[]) {
     // assign ids

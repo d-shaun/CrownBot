@@ -11,6 +11,10 @@ export class LastFM {
   #apikey = API_KEY;
   url = "https://ws.audioscrobbler.com/2.0/?";
 
+  /**
+   * Centralized method to make queries to the Last.fm API.
+   * @param params
+   */
   async query<T>(params: LastFMParams): Promise<LastFMResponse<T>> {
     if (!this.#apikey)
       throw "Last.fm API is not set in the environment variable.";
@@ -47,6 +51,10 @@ export class LastFM {
     return reply;
   }
 
+  /**
+   * Placeholder method to be replaced by the LastFM components.
+   * @param data
+   */
   custom_check(data: any): boolean {
     return !!data;
   }

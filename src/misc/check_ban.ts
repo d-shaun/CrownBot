@@ -6,6 +6,14 @@ interface Response {
   type?: string;
 }
 
+/**
+ * Checks if a user is banned (both locally or globally).
+ * - Both local and global bans will result in `<response>.banned` being `true`
+ * - The type of the ban (if banned) is specified in `<response>.type`.
+ *
+ * @param message
+ * @param client
+ */
 export default async function check_ban(
   message: GuildMessage,
   client: CrownBot

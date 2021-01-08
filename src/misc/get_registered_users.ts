@@ -11,6 +11,12 @@ interface UserFetchInterface {
   }[];
 }
 
+/**
+ * Returns users registered to the bot in a server.
+ * - Filters out locally and/or globally banned users.
+ * @param client
+ * @param message
+ */
 export default async function get_registered_users(
   client: CrownBot,
   message: GuildMessage

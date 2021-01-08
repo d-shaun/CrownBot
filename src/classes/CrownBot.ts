@@ -38,14 +38,19 @@ class CrownBotClass extends Client {
     this.genius_api = options.genius_api;
   }
 
+  /**
+   * Logs the bot user into Discord.
+   */
   async log_in() {
     this.login(this.#token).then(() => {
       console.log(`Logged in as ${this.user?.tag}`);
     });
   }
 
+  /**
+   * Connects to MongoDB.
+   */
   async load_db() {
-    // mongoose db
     this.mongoose = await connect(this.#mongo, {
       useNewUrlParser: true,
       useUnifiedTopology: true,

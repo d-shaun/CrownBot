@@ -63,6 +63,16 @@ export default class Command {
     this.category = options.category;
   }
 
+  /**
+   * Runs a specific command with `client`, `message`, and `args` as arguments if
+   * the following checks pass:
+   * - if user is not banned (globally or locally)
+   * - if user is logged in if `require_login` is set to true
+   * - if bot has the essential permissions
+   * @param client
+   * @param message
+   * @param args
+   */
   async execute(client: CrownBot, message: GuildMessage, args: string[]) {
     const db = new DB(client.models);
     const response = new BotMessage({ client, message, text: "", reply: true });
@@ -183,6 +193,13 @@ export default class Command {
     }
   }
 
+  /**
+   * Sends exception log to the channel specified in `config.exception_log_channel` along with
+   * the incident ID and error stack.
+   * @param client
+   * @param incident_id
+   * @param stack
+   */
   async send_exception_log(
     client: CrownBot,
     incident_id: string,
