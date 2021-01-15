@@ -36,7 +36,7 @@ class ReportCommand extends Command {
       },
     };
     let screenshot;
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({ args: ["--no-sandbox"] });
     const page = await browser.newPage();
     page.setViewport({ width: 1900, height: 1080 });
 
