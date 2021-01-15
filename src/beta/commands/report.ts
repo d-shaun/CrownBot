@@ -15,6 +15,8 @@ class ReportCommand extends Command {
       aliases: ["r", "rp"],
       examples: ["report week"],
       require_login: true,
+      owner_only: true,
+      hidden: true,
     });
   }
 
