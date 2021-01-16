@@ -363,10 +363,16 @@ export default class extends LastFM {
   }
 
   async get_listening_history(
-    date_preset = "LAST_7_DAYS",
-    artist_name?: string
+    date_preset?: string,
+    artist_name?: string,
+    from?: string
   ) {
     let artist_specific = "";
+    let url_param = `date_preset=${date_preset || "LAST_7_DAYS"}`;
+    if (from) {
+      // listening history of an specified year
+      url_param = `from=${from}-01-01&rangetype=year`;
+    }
     if (artist_name) {
       artist_specific = "/music/" + encodeURIComponent(artist_name);
     }
@@ -374,7 +380,7 @@ export default class extends LastFM {
       const response = await Axios.get(
         `https://www.last.fm/user/${encodeURIComponent(
           this.username
-        )}/library${artist_specific}?date_preset=${date_preset}`,
+        )}/library${artist_specific}?${url_param}`,
         this.timeout
       ).catch(() => {
         return undefined;
