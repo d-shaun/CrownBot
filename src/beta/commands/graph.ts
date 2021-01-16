@@ -45,12 +45,15 @@ class GraphCommand extends Command {
       period: {
         value: <undefined | string>"LAST_7_DAYS",
         text: "last 7 days",
+        year: <undefined | string>undefined,
       },
       artist_name: <undefined | string>undefined,
     };
 
-    if (args[0]) {
-      switch (args[0]) {
+    const user_specified_period = args[0];
+
+    if (user_specified_period) {
+      switch (user_specified_period) {
         case `a`:
         case `all`:
         case `alltime`:
@@ -83,6 +86,13 @@ class GraphCommand extends Command {
       }
     }
 
+    const is_year =
+      Number(user_specified_period) && user_specified_period.length === 4;
+
+    if (is_year) {
+      config.period.year = user_specified_period;
+    }
+
     if (args[1]) {
       /* artist name */
       let artist_name: string;
@@ -104,7 +114,7 @@ class GraphCommand extends Command {
       config.artist_name = artist_name;
     }
 
-    if (!config.period.value) {
+    if (!config.period.value && !config.period.year) {
       response.text = `Invalid time-period provided; see ${cb(
         "help graph",
         server_prefix
@@ -115,7 +125,8 @@ class GraphCommand extends Command {
 
     const stats = await lastfm_user.get_listening_history(
       config.period.value,
-      config.artist_name
+      config.artist_name,
+      config.period.year
     );
     if (!stats) {
       response.text = new Template(client, message).get("lastfm_error");
@@ -135,6 +146,9 @@ class GraphCommand extends Command {
       artist_text = `(Artist: \`${config.artist_name}\`)`;
     }
     let reply_message = `here's your scrobble graph for the **${config.period.text}**. ${artist_text}`;
+    if (config.period.year) {
+      reply_message = `here's your scrobble graph for the year **${config.period.year}**. ${artist_text}`;
+    }
     if (config.period.value === "ALL") {
       reply_message = `here's your all-time scrobble graph. ${artist_text}`;
     }
