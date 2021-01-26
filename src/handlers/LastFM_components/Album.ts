@@ -39,9 +39,6 @@ export default class extends LastFM {
   }
 
   async get_info() {
-    if (!this.name || !this.artist_name)
-      throw "Album and artist names are required.";
-
     return this.query<Album>({
       method: this.prefix + "getInfo",
       album: this.name,
@@ -53,8 +50,6 @@ export default class extends LastFM {
 
   // with username
   async user_get_info() {
-    if (!this.name || !this.artist_name)
-      throw "Album and artist names are required.";
     return <LastFMResponse<UserAlbum>>await this.get_info();
   }
 
