@@ -12,7 +12,7 @@ class ReportCommand extends Command {
       description:
         "Shows user's listening report captured from the Reports section on Last.fm.",
       usage: ["report <week/year>"],
-      aliases: ["r", "rp"],
+      aliases: ["rp"],
       examples: ["report week"],
       require_login: true,
       owner_only: true,
