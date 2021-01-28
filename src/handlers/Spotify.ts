@@ -34,6 +34,18 @@ export class Spotify {
   }
 
   /**
+   * Searches for a track on Spotify
+   */
+  async search_track(search_query: string) {
+    const query = await this.#spotify_api.searchTracks(search_query, {
+      limit: 1,
+    });
+    const track = query.body.tracks?.items[0];
+    if (query.statusCode !== 200 || !track) return;
+    return track;
+  }
+
+  /**
    * Gets artist's images from Spotify.
    * @param artist_name
    * Name of the artist to search for on Spotify.
