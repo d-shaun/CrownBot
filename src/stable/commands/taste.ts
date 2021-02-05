@@ -93,7 +93,7 @@ class TasteCommand extends Command {
     if (plays.length > 25) plays.length = 25;
 
     const embed = new MessageEmbed().setTitle(
-      `\`\`${message.author.username}\`\`'s and \`\`${user_two.username}\`\`'s taste comparision `
+      `\`\`${message.author.username}\`\`'s and \`\`${user_two.username}\`\`'s taste comparison `
     );
     plays.forEach((stat) => {
       const { name, userone_plays, usertwo_plays } = stat;
