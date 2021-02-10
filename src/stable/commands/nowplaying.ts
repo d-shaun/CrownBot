@@ -1,4 +1,5 @@
-import { MessageEmbed } from "discord.js";
+import { MessageEmbed, User as DiscordUser } from "discord.js";
+
 import moment from "moment";
 import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
@@ -6,6 +7,7 @@ import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
 import User from "../../handlers/LastFM_components/User";
 import esm from "../../misc/escapemarkdown";
+import search_user from "../../misc/search_user";
 import time_difference from "../../misc/time_difference";
 
 class NowPlayingCommand extends Command {
@@ -20,14 +22,29 @@ class NowPlayingCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage) {
+  async run(client: CrownBot, message: GuildMessage, args: string[]) {
     const response = new BotMessage({
       client,
       message,
       reply: true,
     });
     const db = new DB(client.models);
-    const user = await db.fetch_user(message.guild.id, message.author.id);
+
+    let discord_user: DiscordUser | undefined;
+
+    if (args.length > 0) {
+      const mention = message.mentions.members?.first();
+      discord_user = mention ? mention.user : await search_user(message, args);
+    } else {
+      discord_user = message.member ? message.member.user : undefined;
+    }
+    if (!discord_user) {
+      response.text = "User not found.";
+      await response.send();
+      return;
+    }
+
+    const user = await db.fetch_user(message.guild.id, discord_user.id);
     if (!user) return;
 
     const lastfm_user = new User({ username: user.username, limit: 2 });
@@ -52,7 +69,7 @@ class NowPlayingCommand extends Command {
     }
     const cover = last_song.image.pop();
     const embed = new MessageEmbed()
-      .setTitle("Now playing")
+      .setTitle("Now playing · " + discord_user.username)
       .setDescription(
         `**${esm(last_song.name)}** by **${esm(
           last_song.artist["#text"]
