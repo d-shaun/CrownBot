@@ -15,7 +15,8 @@ class NowPlayingCommand extends Command {
     super({
       name: "nowplaying",
       description: "Displays user's 'now-playing' or the last scrobbled track.",
-      usage: ["nowplaying"],
+      usage: ["nowplaying [<@user>|<Discord_username>]"],
+      examples: ["nowplaying", "nowplaying @datboi"],
       aliases: ["np", "fm"],
       require_login: true,
       category: "userstat",
