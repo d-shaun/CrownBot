@@ -61,7 +61,7 @@ class LyricsCommand extends Command {
 
         if (!track) {
           response.text = `Couldn't find the track; try providing artist name—see ${cb(
-            "help spl",
+            "help lyrics",
             server_prefix
           )}.`;
           await response.send();
