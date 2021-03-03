@@ -28,11 +28,6 @@ class CrownBotClass extends Client {
   mongoose: Mongoose | undefined;
   genius_api?: string;
 
-  options = {
-    messageCacheMaxSize: 20,
-    messageEditHistoryMaxSize: 0,
-  };
-
   constructor(options: OptionInterface) {
     super();
     this.prefix = options.prefix;
@@ -41,6 +36,12 @@ class CrownBotClass extends Client {
     this.access_token = options.access_token;
     this.#mongo = options.mongo;
     this.genius_api = options.genius_api;
+
+    this.options = {
+      ...this.options,
+      messageCacheMaxSize: 20,
+      messageEditHistoryMaxSize: 0,
+    };
   }
 
   /**
