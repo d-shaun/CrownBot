@@ -78,8 +78,8 @@ class WhoKnowsCommand extends Command {
       return;
     }
 
-    if (users.length > 100) {
-      users.length = 100; // 100 user limit
+    if (users.length > 160) {
+      users.length = 160; // 160 user limit
     }
     const lastfm_requests = [];
 
