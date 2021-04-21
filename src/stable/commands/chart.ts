@@ -221,12 +221,17 @@ class ChartCommand extends Command {
     registerFont("./src/fonts/Roboto-Regular.ttf", { family: "Roboto" });
     const font = "15px Roboto";
 
-    const cached_noalbumcover = loadImage(no_album_cover);
+    let cached_noalbumcover: any;
+    try {
+      cached_noalbumcover = await loadImage(no_album_cover);
+    } catch {
+      cached_noalbumcover = "";
+    }
 
-    const promises = data.map((elem) => {
+    const promises = data.map(async (elem) => {
       if (elem.image_url) {
         try {
-          return loadImage(elem.image_url);
+          return await loadImage(elem.image_url);
         } catch (_) {
           return cached_noalbumcover;
         }
