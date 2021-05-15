@@ -7,6 +7,7 @@ import User from "../../handlers/LastFM_components/User";
 import cb from "../../misc/codeblock";
 import esm from "../../misc/escapemarkdown";
 import get_registered_users from "../../misc/get_registered_users";
+import truncate_str from "../../misc/truncate";
 class PlayingCommand extends Command {
   constructor() {
     super({
@@ -97,11 +98,13 @@ class PlayingCommand extends Command {
         const track = res.track;
         const user: GuildMember = res.context.discord_user;
         if (!track || !user) return;
-        const str = `**${esm(user.user.username)}**\n[${esm(track.name)}](${
-          track.url
-        }) · ${esm(track.album["#text"])} — **${esm(
-          track.artist["#text"]
-        )}**\n`;
+        const str = `**${esm(user.user.username)}**\n[${esm(
+          track.name,
+          true
+        )}](${truncate_str(track.url, 40)}) · ${esm(
+          track.album["#text"],
+          true
+        )} — **${esm(track.artist["#text"], true)}**\n`;
         return str.substring(0, 1020);
       });
 
