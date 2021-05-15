@@ -9,6 +9,7 @@ import cb from "../../misc/codeblock";
 import esm from "../../misc/escapemarkdown";
 import search_user from "../../misc/search_user";
 import time_difference from "../../misc/time_difference";
+import truncate_str from "../../misc/truncate";
 
 class RecentCommand extends Command {
   constructor() {
@@ -86,9 +87,13 @@ class RecentCommand extends Command {
       }
       embed.addField(
         time_str,
-        `**${esm(track.artist["#text"])}** — [${esm(track.name)}](${
-          track.url
-        }) · ${esm(track.album["#text"])}`
+        `**${esm(track.artist["#text"], true)}** — [${esm(
+          track.name,
+          true
+        )}](${truncate_str(track.url, 40)}) · ${esm(
+          track.album["#text"],
+          true
+        )}`
       );
     }
     message.channel.send(embed);
