@@ -126,7 +126,8 @@ export default class Command {
     if (!this.run) throw `${this.name} doesn't have a run function.`;
     message.channel.startTyping();
     try {
-      await this.run(client, message, args);
+      const lowercase_args = args.map((arg) => arg.toLowerCase());
+      await this.run(client, message, lowercase_args);
       message.channel.stopTyping(true);
 
       await this.log_command(client, message);
