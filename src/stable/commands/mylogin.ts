@@ -10,7 +10,7 @@ class MyLoginCommand extends Command {
       name: "mylogin",
       description: "Displays user's Last.fm username.",
       usage: ["mylogin"],
-      aliases: ["me"],
+      aliases: ["me", "lastfm", "username"],
       require_login: true,
       category: "setup",
     });
