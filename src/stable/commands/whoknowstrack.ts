@@ -100,8 +100,8 @@ class WhoKnowsTrack extends Command {
       return;
     }
 
-    if (users.length > 160) {
-      users.length = 160; // 160 user limit
+    if (users.length > 250) {
+      users.length = 250;
     }
     const lastfm_requests = [];
 
@@ -167,13 +167,12 @@ class WhoKnowsTrack extends Command {
       return;
     }
 
-    const last_log:
-      | LogInterface
-      | undefined = await client.models.whoplayslog.findOne({
-      track_name: track.name,
-      artist_name: track.artist.name,
-      guild_id: message.guild.id,
-    });
+    const last_log: LogInterface | undefined =
+      await client.models.whoplayslog.findOne({
+        track_name: track.name,
+        artist_name: track.artist.name,
+        guild_id: message.guild.id,
+      });
     if (last_log && last_log.stat) {
       const { stat } = last_log;
       leaderboard = leaderboard.map((entry) => {

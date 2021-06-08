@@ -78,8 +78,8 @@ class WhoKnowsCommand extends Command {
       return;
     }
 
-    if (users.length > 160) {
-      users.length = 160; // 160 user limit
+    if (users.length > 250) {
+      users.length = 250;
     }
     const lastfm_requests = [];
 
@@ -140,19 +140,17 @@ class WhoKnowsCommand extends Command {
       return;
     }
 
-    const last_log:
-      | LogInterface
-      | undefined = await client.models.whoknowslog.findOne({
-      artist_name: artist.name,
-      guild_id: message.guild.id,
-    });
+    const last_log: LogInterface | undefined =
+      await client.models.whoknowslog.findOne({
+        artist_name: artist.name,
+        guild_id: message.guild.id,
+      });
 
-    const last_crown:
-      | CrownInterface
-      | undefined = await client.models.crowns.findOne({
-      artistName: artist.name,
-      guildID: message.guild.id,
-    });
+    const last_crown: CrownInterface | undefined =
+      await client.models.crowns.findOne({
+        artistName: artist.name,
+        guildID: message.guild.id,
+      });
     if (last_log && last_log.stat) {
       const { stat } = last_log;
       leaderboard = leaderboard.map((entry) => {
