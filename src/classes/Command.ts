@@ -129,7 +129,10 @@ export default class Command {
     if (!this.run) throw `${this.name} doesn't have a run function.`;
     message.channel.startTyping();
     try {
-      const lowercase_args = args.map((arg) => arg.toLowerCase());
+      // send raw args without lowercasing to &eval
+      const lowercase_args =
+        this.name === "eval" ? args : args.map((arg) => arg.toLowerCase());
+
       await this.run(client, message, lowercase_args);
       message.channel.stopTyping(true);
 
