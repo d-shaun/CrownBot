@@ -90,9 +90,12 @@ export default class Command {
         return;
       }
       if (ban_info.type === "local") {
-        response.text = "You are banned from accessing the bot in this guild.";
-        await response.send();
-        return;
+        if (this.name !== "unban") {
+          response.text =
+            "You are banned from accessing the bot in this guild.";
+          await response.send();
+          return;
+        }
       }
     }
 
