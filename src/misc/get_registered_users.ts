@@ -33,6 +33,7 @@ export default async function get_registered_users(
     ...(
       await message.guild.members.fetch({
         user: database_users.map((user) => user.userID),
+        force: true,
       })
     ).entries(),
   ].filter((user) => !banned_ids.includes(user[0]));
