@@ -72,7 +72,7 @@ class PurgeLyricsCommand extends Command {
     } else {
       response.text = `Couldn't find cached lyrics for **${esm(
         song.title
-      )}** by **${esm(song.primary_artist.name)}*.`;
+      )}** by **${esm(song.primary_artist.name)}**.`;
       await response.send();
     }
   }
