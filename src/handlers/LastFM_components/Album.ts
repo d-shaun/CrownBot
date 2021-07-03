@@ -31,7 +31,7 @@ export default class extends LastFM {
   }
 
   custom_check(response: LastFMResponse<UserAlbum>): boolean {
-    if (this.username && !response.data.album?.userplaycount) {
+    if (this.username && response.data.album?.userplaycount === undefined) {
       return false;
     }
 
