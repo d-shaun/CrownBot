@@ -17,7 +17,6 @@ export default class extends LastFM {
   }
 
   custom_check(response: LastFMResponse<UserArtist>): boolean {
-    console.log(response.data.artist.stats.userplaycount);
     if (
       this.username &&
       response.data.artist.stats.userplaycount === undefined
