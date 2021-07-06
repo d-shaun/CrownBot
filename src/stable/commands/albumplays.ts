@@ -109,7 +109,7 @@ class AlbumPlaysCommand extends Command {
     const artist = query_artist.data.artist;
     const album = query_album.data.album;
 
-    if (!album.userplaycount) return;
+    if (album.userplaycount === undefined) return;
     let last_count = 0;
     let album_cover: boolean | string = false;
 

@@ -88,8 +88,7 @@ class OverviewCommand extends Command {
     }
 
     const artist = query.data.artist;
-
-    if (!artist.stats.userplaycount) return;
+    if (artist.stats.userplaycount === undefined) return;
     if (parseInt(artist.stats.userplaycount) <= 0) {
       response.text = `${discord_user.username} hasn't scrobbled ${cb(
         artist.name

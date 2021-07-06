@@ -145,7 +145,7 @@ class WhoKnowsTrack extends Command {
       const track = response.wrapper.data.track;
       const context = response.context;
       if (!context || !context.discord_user) return;
-      if (!track.userplaycount) return;
+      if (track.userplaycount === undefined) return;
       if (parseInt(track.userplaycount) <= 0) return;
       leaderboard.push({
         track_name: track.name,

@@ -121,7 +121,7 @@ class WhoKnowsCommand extends Command {
       const artist = response.wrapper.data.artist;
       const context = response.context;
       if (!context || !context.discord_user) return;
-      if (!artist.stats.userplaycount) return;
+      if (artist.stats.userplaycount === undefined) return;
       if (parseInt(artist.stats.userplaycount) <= 0) return;
 
       leaderboard.push({

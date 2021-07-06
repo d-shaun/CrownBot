@@ -273,7 +273,7 @@ class TopAlbumTracks extends Command {
       .setDisabledNavigationEmojis(["delete"])
       .formatField(`Track plays — Total: ${total_scrobbles}`, (el: any) => {
         const elem: TrackInterface = el;
-        if (!elem.userplaycount) return;
+        if (elem.userplaycount === undefined) return;
         const index = tracks.findIndex((e) => e.name === elem.name) + 1;
         const user_percentage = (
           (parseInt(elem.userplaycount) / total_scrobbles) *

@@ -114,7 +114,7 @@ class TrackPlaysCommand extends Command {
 
     const track = track_query.data.track;
 
-    if (!track.userplaycount) return;
+    if (track.userplaycount === undefined) return;
     let last_count = 0;
 
     const strs = {

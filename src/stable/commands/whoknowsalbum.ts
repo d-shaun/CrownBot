@@ -143,7 +143,7 @@ class WhoKnowsAlbum extends Command {
       const album = response.wrapper.data.album;
       const context = response.context;
       if (!context || !context.discord_user) return;
-      if (!album.userplaycount) return;
+      if (album.userplaycount === undefined) return;
       if (parseInt(album.userplaycount) <= 0) return;
       leaderboard.push({
         album_name: album.name,
