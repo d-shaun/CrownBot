@@ -676,6 +676,11 @@ dir-glob@^3.0.1:
   dependencies:
     path-type "^4.0.0"
 
+discord-buttons@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/discord-buttons/-/discord-buttons-4.0.0.tgz#0068ae5cc18cdd30112fca19b4b4c453ccc2ac73"
+  integrity sha512-E/eQX4Ktj7nKwNDsTfCezBNCu73FtPWJfQcpKohfl0jct/ucMUO+7uhL2MhGsZr4SCfojk7OzccAznuntB564w==
+
 discord-paginationembed@^2.0.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/discord-paginationembed/-/discord-paginationembed-2.1.0.tgz#76fde11650645262301cb5cf0ce080e76cd8d989"

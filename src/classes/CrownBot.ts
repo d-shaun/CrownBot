@@ -27,6 +27,7 @@ class CrownBotClass extends Client {
   models: { [key: string]: Model<any> } = {};
   mongoose: Mongoose | undefined;
   genius_api?: string;
+  disbut = require("discord-buttons");
 
   constructor(options: OptionInterface) {
     super();
@@ -36,7 +37,7 @@ class CrownBotClass extends Client {
     this.access_token = options.access_token;
     this.#mongo = options.mongo;
     this.genius_api = options.genius_api;
-
+    this.disbut(this);
     this.options = {
       ...this.options,
       messageCacheMaxSize: 20,
