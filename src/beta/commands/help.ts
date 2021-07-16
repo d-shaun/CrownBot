@@ -49,7 +49,7 @@ class HelpCommand extends Command {
       .setDescription("Commands that do not fit the existing categories.");
 
     const select = new client.disbut.MessageMenu()
-      .setID("help_menu")
+      .setID("help_menu" + client.buttons_version)
       .setPlaceholder("Change category")
       .setMaxValues(1)
       .setMinValues(1)
