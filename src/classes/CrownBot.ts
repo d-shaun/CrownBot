@@ -15,6 +15,8 @@ interface OptionInterface {
 }
 
 class CrownBotClass extends Client {
+  version = "9.4.0";
+  buttons_version = "001"; // update this to invalidate existing buttons
   prefix: string;
   server_configs: ServerConfigInterface[] | undefined = undefined;
   owner_ID: string;
