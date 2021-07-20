@@ -17,6 +17,13 @@ class HelpCommand extends Command {
     if (args) {
       // Todo: add suport for `&help command_name`
     }
+    const top = new client.disbut.MessageMenuOption()
+      .setLabel("Top commands")
+      .setEmoji("👑")
+      .setValue("top")
+      .setDescription("Top essential and most-used commands")
+      .setDefault();
+
     const setup = new client.disbut.MessageMenuOption()
       .setLabel("Setting up")
       .setEmoji("🦋")
@@ -42,6 +49,12 @@ class HelpCommand extends Command {
       .setValue("configure")
       .setDescription("Commands to configure bot's preferences.");
 
+    const beta = new client.disbut.MessageMenuOption()
+      .setLabel("Beta commands")
+      .setEmoji("✨")
+      .setValue("beta")
+      .setDescription("Experimental commands");
+
     const other = new client.disbut.MessageMenuOption()
       .setLabel("Other")
       .setEmoji("🪄")
@@ -53,11 +66,11 @@ class HelpCommand extends Command {
       .setPlaceholder("Change category")
       .setMaxValues(1)
       .setMinValues(1)
-      .addOptions([setup, userstats, serverstats, configure, other]);
+      .addOptions([top, setup, userstats, serverstats, configure, beta, other]);
 
     const row = new client.disbut.MessageActionRow().addComponent(select);
 
-    const default_embed = generate_embed(client, "setup");
+    const default_embed = generate_embed(client, "top");
     if (!default_embed) throw "Couldn't generate 'setup' embed";
     await message.channel.send(default_embed, row);
   }
@@ -68,6 +81,14 @@ function generate_embed(
   category: string
 ): false | MessageEmbed {
   const server_prefix = "&";
+  const top_commands = [
+    "about",
+    "login",
+    "whoknows",
+    "whoknowstrack",
+    "chart",
+    "list",
+  ];
 
   const format_command = (command: Command) => {
     let aliases = command.aliases
@@ -76,7 +97,7 @@ function generate_embed(
 
     if (aliases) aliases = " — " + aliases;
 
-    const beta_str = command.beta ? "(:warning: beta)" : "";
+    const beta_str = command.beta ? "(✨ beta)" : "";
 
     return `**${server_prefix}${command.name}** ${aliases} ${beta_str}\n└ ${command.description}\n`;
   };
@@ -90,21 +111,42 @@ function generate_embed(
       return e;
     });
 
-  const commands = [...stable_commands, ...unique_beta_commands]
-    .filter((e) => !e.hidden)
-    .filter((command) => {
+  const public_commands = [...stable_commands, ...unique_beta_commands].filter(
+    (e) => !e.hidden
+  );
+
+  let commands: Command[] = [];
+  if (category === "top") {
+    // top commands based on the array
+    // TODO: dynamically pull this from db?
+    top_commands.forEach((top_command) => {
+      const command = public_commands.find(
+        (command) => command.name === top_command
+      );
+      if (command) commands.push(command);
+    });
+  } else {
+    commands = public_commands.filter((command) => {
       // keep uncategorized commands in "other"
       if (category === "other")
         return command.category === category || !command.category;
 
+      // return beta commands for the non-existent category "beta"
+      if (category === "beta") return command.beta === true;
+
       return command.category === category;
     });
+  }
 
   if (!commands.length) return false;
 
   let title = "Commands";
 
-  switch (commands[0].category) {
+  switch (category) {
+    case "top":
+      title = "Top essential CrownBot commands";
+      break;
+
     case "setup":
       title = "Setting up";
       break;
@@ -118,10 +160,27 @@ function generate_embed(
       break;
 
     case "configure":
-      title = "Command to configure bot's preferences";
+      title = "Commands to configure bot's preferences";
+      break;
+
+    case "beta":
+      title = "Beta commands";
+      break;
+
+    case "other":
+      title = "Other commands";
       break;
   }
   const embed = new MessageEmbed().setTitle(title);
+
+  if (category === "beta") {
+    // workaround for categorizing beta commands
+
+    embed.setDescription(
+      "Beta commands are generally unstable and are disabled by default; if you wish **to enable them**, use the `&beta` command."
+    );
+  }
+
   if (commands.length > 8) {
     // https://stackoverflow.com/questions/9181188
     const halfwayThrough = Math.floor(commands.length / 2);
