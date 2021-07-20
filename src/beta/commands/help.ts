@@ -1,6 +1,9 @@
 import { MessageEmbed } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
+import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
+import DB from "../../handlers/DB";
+import cb from "../../misc/codeblock";
 
 class HelpCommand extends Command {
   constructor() {
@@ -14,9 +17,78 @@ class HelpCommand extends Command {
   }
 
   async run(client: CrownBot, message: GuildMessage, args: string[]) {
-    if (args) {
-      // Todo: add suport for `&help command_name`
+    const server_prefix = client.cache.prefix.get(message.guild);
+    const db = new DB(client.models);
+    const response = new BotMessage({
+      client,
+      message,
+      reply: true,
+      text: "",
+    });
+
+    // if `&help <command_name>` excluding `&help beta`
+    if (args[0] && args[0] !== "beta") {
+      const is_beta = await db.check_optin(message);
+
+      const beta_version = client.beta_commands
+        .filter((e) => !e.hidden)
+        .find((x) => x.name === args[0] || x.aliases.includes(args[0]));
+
+      const stable_version = client.commands
+        .filter((e) => !e.hidden)
+        .find((x) => x.name === args[0] || x.aliases.includes(args[0]));
+
+      let command;
+
+      // get beta version's info if server is opted-in
+      if (beta_version && is_beta) {
+        command = beta_version;
+      } else if (stable_version) {
+        command = stable_version;
+      } else {
+        command = beta_version;
+      }
+
+      if (!command || command.hidden) {
+        response.text = "Command not found.";
+        await response.send();
+        return;
+      }
+
+      let usage = Array.isArray(command.usage)
+        ? command.usage
+        : [command.usage];
+      usage = usage.map((e) => cb(server_prefix + e));
+
+      const aliases = !(command.aliases && command.aliases.length)
+        ? false
+        : command.aliases.map((e) => cb(server_prefix + e));
+
+      const extra_aliases = command.extra_aliases
+        ?.map((e) => cb(server_prefix + e))
+        .join(", ");
+
+      const examples = !command.examples
+        ? false
+        : command.examples
+            .map((example) => {
+              return cb(server_prefix + example);
+            })
+            .join("\n");
+
+      const embed = new MessageEmbed()
+        .setTitle(command.name)
+        .setDescription(command.description);
+
+      if (aliases) embed.addField("Aliases", aliases);
+      if (extra_aliases) embed.addField("Extra aliases", extra_aliases);
+      if (examples) embed.addField("Examples", examples);
+      if (usage.length) embed.addField("Usage", usage);
+
+      message.channel.send(embed);
+      return;
     }
+
     const top = new client.disbut.MessageMenuOption()
       .setLabel("Top commands")
       .setEmoji("👑")
@@ -70,7 +142,11 @@ class HelpCommand extends Command {
 
     const row = new client.disbut.MessageActionRow().addComponent(select);
 
-    const default_embed = generate_embed(client, "top");
+    const default_embed = generate_embed(
+      client,
+      args[0] || "top", // either beta or top
+      server_prefix
+    );
     if (!default_embed) throw "Couldn't generate 'setup' embed";
     await message.channel.send(default_embed, row);
   }
@@ -78,9 +154,9 @@ class HelpCommand extends Command {
 
 function generate_embed(
   client: CrownBot,
-  category: string
+  category: string,
+  server_prefix: string
 ): false | MessageEmbed {
-  const server_prefix = "&";
   const top_commands = [
     "about",
     "login",
@@ -200,9 +276,9 @@ function generate_embed(
 }
 
 export async function help_navigate(client: CrownBot, menu: any) {
+  const server_prefix = client.cache.prefix.get(menu.guild.id);
   await menu.reply.defer();
-
-  const embed = generate_embed(client, menu.values[0]);
+  const embed = generate_embed(client, menu.values[0], server_prefix);
   if (embed) await menu.message.edit(embed);
 }
 
