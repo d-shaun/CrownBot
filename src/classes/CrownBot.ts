@@ -15,6 +15,8 @@ interface OptionInterface {
 }
 
 class CrownBotClass extends Client {
+  version = "9.4.0";
+  buttons_version = "001"; // update this to invalidate existing buttons
   prefix: string;
   server_configs: ServerConfigInterface[] | undefined = undefined;
   owner_ID: string;
@@ -27,6 +29,7 @@ class CrownBotClass extends Client {
   models: { [key: string]: Model<any> } = {};
   mongoose: Mongoose | undefined;
   genius_api?: string;
+  disbut = require("discord-buttons");
 
   constructor(options: OptionInterface) {
     super();
@@ -36,7 +39,7 @@ class CrownBotClass extends Client {
     this.access_token = options.access_token;
     this.#mongo = options.mongo;
     this.genius_api = options.genius_api;
-
+    this.disbut(this);
     this.options = {
       ...this.options,
       messageCacheMaxSize: 20,
