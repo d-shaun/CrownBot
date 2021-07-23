@@ -1,4 +1,5 @@
 import {
+  Client,
   Guild,
   Message,
   MessageEmbed,
@@ -73,16 +74,21 @@ export default class Command {
    * @param message
    * @param args
    */
-  async execute(client: CrownBot, message: GuildMessage, args: string[]) {
-    const db = new DB(client.models);
-    const response = new BotMessage({ client, message, text: "", reply: true });
+  async execute(
+    client: Client,
+    bot: CrownBot,
+    message: GuildMessage,
+    args: string[]
+  ) {
+    const db = new DB(bot.models);
+    const response = new BotMessage({ bot, message, text: "", reply: true });
     if (!message.guild || !message.guild.me) return;
-    if (this.owner_only && message.author.id !== client.owner_ID) {
+    if (this.owner_only && message.author.id !== bot.owner_ID) {
       return;
     }
 
-    const ban_info = await check_ban(message, client);
-    if (ban_info.banned && message.author.id !== client.owner_ID) {
+    const ban_info = await check_ban(message, bot);
+    if (ban_info.banned && message.author.id !== bot.owner_ID) {
       if (ban_info.type === "global" && !this.allow_banned) {
         response.text =
           "You are globally banned from accessing the bot; try `&about` to find the support server.";
@@ -102,7 +108,7 @@ export default class Command {
     if (this.require_login) {
       const user = await db.fetch_user(message.guild.id, message.author.id);
       if (!user) {
-        response.text = new Template(client, message).get("not_logged");
+        response.text = new Template(bot, message).get("not_logged");
         await response.send();
         return;
       }
@@ -111,7 +117,7 @@ export default class Command {
     const lacking_permissions = [];
     if (this.required_permissions) {
       for (const permission of this.required_permissions) {
-        if (!message.guild.me.hasPermission(<PermissionString>permission)) {
+        if (!message.guild.me.permissions.has(<PermissionString>permission)) {
           has_permissions = false;
           lacking_permissions.push(permission);
         }
@@ -127,24 +133,24 @@ export default class Command {
     }
 
     if (!this.run) throw `${this.name} doesn't have a run function.`;
-    message.channel.startTyping();
+    message.channel.sendTyping();
     try {
       // send raw args without lowercasing to &eval
       const lowercase_args =
         this.name === "eval" ? args : args.map((arg) => arg.toLowerCase());
 
-      await this.run(client, message, lowercase_args);
-      message.channel.stopTyping(true);
+      await this.run(client, bot, message, lowercase_args);
+      // message.channel.typ(true);
 
-      await this.log_command(client, message);
+      await this.log_command(bot, message);
     } catch (e) {
-      message.channel.stopTyping(true);
+      // message.channel.stopTyping(true);
       console.error(e);
-      await this.log_error(client, message, e.stack || e);
+      await this.log_error(client, bot, message, e.stack || e);
     }
   }
 
-  async log_command(client: CrownBot, message: GuildMessage) {
+  async log_command(bot: CrownBot, message: GuildMessage) {
     const expire_date = new Date();
     expire_date.setDate(expire_date.getDate() + 28); // add 28 days to current date
     const data = {
@@ -156,12 +162,17 @@ export default class Command {
       username: message.author.tag,
       timestamp: `${new Date().toUTCString()}`,
     };
-    await new client.models.logs({ ...data }).save();
+    await new bot.models.logs({ ...data }).save();
   }
 
-  async log_error(client: CrownBot, message: GuildMessage, stack?: string) {
-    const response = new BotMessage({ client, message, text: "", reply: true });
-    const server_prefix = client.cache.prefix.get(message.guild);
+  async log_error(
+    client: Client,
+    bot: CrownBot,
+    message: GuildMessage,
+    stack?: string
+  ) {
+    const response = new BotMessage({ bot, message, text: "", reply: true });
+    const server_prefix = bot.cache.prefix.get(message.guild);
 
     const expire_date = new Date();
     expire_date.setDate(expire_date.getDate() + 28); // add 28 days to current date
@@ -177,7 +188,7 @@ export default class Command {
       stack: `${stack || `none`}`,
     };
     if (stack) {
-      await new client.models.errorlogs({ ...data }).save();
+      await new bot.models.errorlogs({ ...data }).save();
       response.text =
         `The bot has encountered an unexpected error while executing your request; ` +
         `please consider reporting this incident (id: ${cb(
@@ -188,7 +199,7 @@ export default class Command {
 
     // attempt to send logs to the channel specified in "exception_log_channel" (/src/models/BotConfig.ts)
     try {
-      await this.send_exception_log(client, incident_id, stack);
+      await this.send_exception_log(client, bot, incident_id, stack);
     } catch (e) {
       // supress any error to avoid infinite error loop
 
@@ -208,12 +219,13 @@ export default class Command {
    * @param stack
    */
   async send_exception_log(
-    client: CrownBot,
+    client: Client,
+    bot: CrownBot,
     incident_id: string,
     stack?: string
   ) {
     // check if exception_log_channel is set
-    const config = await client.models.botconfig.findOne();
+    const config = await bot.models.botconfig.findOne();
     if (!config || !config.exception_log_channel) return;
 
     const channel = <TextChannel | undefined>(
@@ -238,11 +250,12 @@ export default class Command {
     if (stack) {
       embed.addField("Error", "```JS\n" + stack.split("\n").shift() + "\n```");
     }
-    await channel.send(embed);
+    await channel.send({ embeds: [embed] });
   }
 
   async run(
-    client: CrownBot,
+    client: Client,
+    bot: CrownBot,
     message: GuildMessage,
     args: string[]
   ): Promise<void> {

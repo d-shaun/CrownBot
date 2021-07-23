@@ -5,22 +5,22 @@ import CrownBot from "../handlers/CrownBot";
 import DB from "../handlers/DB";
 import cb from "../misc/codeblock";
 export default async (bot: CrownBot, client: Client, message: GuildMessage) => {
-  const db = new DB(client.models);
+  const db = new DB(bot.models);
   if (!message.guild) return;
   if (!client.user)
     throw "'client.user' is not defined; how are we even here?!";
 
-  if (!client.cache.prefix.check()) {
+  if (!bot.cache.prefix.check()) {
     throw "Prefixes were not cached. Please execute `[client].cache.prefix.init()` before event handlers.";
   }
 
-  if (!client.cache.config.check()) {
+  if (!bot.cache.config.check()) {
     throw "Server configs were not cached. Please execute `[client].cache.config.init()` before event handlers.";
   }
 
-  const response = new BotMessage({ client, message, text: "", reply: true });
+  const response = new BotMessage({ bot, message, text: "", reply: true });
 
-  const server_prefix = client.cache.prefix.get(message.guild);
+  const server_prefix = bot.cache.prefix.get(message.guild);
   if (
     message.mentions.has(client.user, {
       ignoreEveryone: true,
@@ -35,7 +35,7 @@ export default async (bot: CrownBot, client: Client, message: GuildMessage) => {
   if (!message.content.startsWith(server_prefix)) return;
   const checks: boolean[] = [
     // check if bot has SEND_MESSAGES permission in the guild
-    !!message.guild.me?.hasPermission("SEND_MESSAGES"),
+    !!message.guild.me?.permissions.has("SEND_MESSAGES"),
 
     // check if bot has SEND_MESSAGES permission in the channel
     !!(<TextChannel>message.channel)
@@ -43,7 +43,7 @@ export default async (bot: CrownBot, client: Client, message: GuildMessage) => {
       ?.has("SEND_MESSAGES"),
 
     // check if it's a text-channel
-    message.channel.type === "text",
+    message.channel.type === "GUILD_TEXT",
 
     // check if it's not a bot
     !message.author.bot,
@@ -57,7 +57,7 @@ export default async (bot: CrownBot, client: Client, message: GuildMessage) => {
 
   const get_command = function (name: string, beta = false) {
     if (!beta) {
-      return client.commands.find((x) => {
+      return bot.commands.find((x) => {
         return (
           x.name === name ||
           x.aliases.includes(name) ||
@@ -65,7 +65,7 @@ export default async (bot: CrownBot, client: Client, message: GuildMessage) => {
         );
       });
     } else {
-      return client.beta_commands.find((x) => {
+      return bot.beta_commands.find((x) => {
         return x.name === name || x.aliases.includes(name);
       });
     }
@@ -86,22 +86,22 @@ export default async (bot: CrownBot, client: Client, message: GuildMessage) => {
   }
 
   if (!command || !command.execute) return;
-  if (!check_permissions(client, message, command)) return;
+  if (!check_permissions(bot, message, command)) return;
 
   try {
-    await command.execute(client, message, args);
+    await command.execute(client, bot, message, args);
   } catch (e) {
     console.log(e);
   }
 };
 
 function check_permissions(
-  client: CrownBot,
+  bot: CrownBot,
   message: GuildMessage,
   command: Command
 ): boolean {
-  const response = new BotMessage({ client, message, text: "", reply: true });
-  const server_prefix = client.cache.prefix.get(message.guild);
+  const response = new BotMessage({ bot, message, text: "", reply: true });
+  const server_prefix = bot.cache.prefix.get(message.guild);
 
   if (!message.guild?.me) throw "!?!";
   const bot_permissions = (<TextChannel>message.channel).permissionsFor(

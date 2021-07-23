@@ -1,17 +1,17 @@
 import { Guild } from "discord.js";
-import CrownBotClass from "../../classes/CrownBot";
 import { CacheComponent } from "../../interfaces/CacheComponentInterface";
 import { ServerConfigInterface } from "../../stable/models/ServerConfig";
+import CrownBot from "../CrownBot";
 export class Config implements CacheComponent {
-  #client: CrownBotClass;
+  #bot: CrownBot;
   #configs: ServerConfigInterface[] | undefined = [];
 
-  constructor(client: CrownBotClass) {
-    this.#client = client;
+  constructor(bot: CrownBot) {
+    this.#bot = bot;
   }
 
   async init() {
-    const configs: any = await this.#client.models.serverconfig.find().lean();
+    const configs: any = await this.#bot.models.serverconfig.find().lean();
     this.#configs = configs;
     console.log(`initialized ${configs.length} config(s)`);
 

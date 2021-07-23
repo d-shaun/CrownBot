@@ -5,7 +5,7 @@ import esm from "../misc/escapemarkdown";
 import CrownBot from "./CrownBot";
 
 interface BotMessageInterface {
-  client: CrownBot;
+  bot: CrownBot;
   text?: string;
   reply: boolean;
   message: GuildMessage;
@@ -14,7 +14,7 @@ interface BotMessageInterface {
 }
 
 class BotMessage {
-  client: CrownBot;
+  bot: CrownBot;
   message: GuildMessage;
   text?: string;
   reply: boolean;
@@ -23,7 +23,7 @@ class BotMessage {
   templates: { id: string; text: string }[];
 
   constructor({
-    client,
+    bot,
     message,
     text,
     reply,
@@ -33,8 +33,8 @@ class BotMessage {
     if (!message) {
       throw `The 'message' was not passed while trying to send the message: ${text}`;
     }
-    const server_prefix = client.cache.prefix.get(message.guild);
-    this.client = client;
+    const server_prefix = bot.cache.prefix.get(message.guild);
+    this.bot = bot;
     this.message = message;
     this.text = text;
     this.reply = reply;
@@ -65,8 +65,7 @@ class BotMessage {
       },
       {
         id: "lastfm_error",
-        text:
-          "Something went wrong while trying to fetch information from Last.fm.",
+        text: "Something went wrong while trying to fetch information from Last.fm.",
       },
       {
         id: "exception",
@@ -93,10 +92,10 @@ class BotMessage {
     if (!this.noembed && embed_permission) {
       const embed = new MessageEmbed();
       embed.setDescription(`\n${mention}${this.text}\n`);
-      embed.setColor(this.message.member?.displayColor || "000000");
+      embed.setColor(this.message.member?.displayColor || 0x0);
       if (this.footer) embed.setFooter(this.footer);
 
-      return this.message.channel.send(embed);
+      return this.message.channel.send({ embeds: [embed] });
     }
     return this.message.channel.send(`${mention}${this.text}`);
   }
@@ -105,7 +104,8 @@ class BotMessage {
     this.text = "";
 
     if (id === "blank") {
-      this.text = lastfm_message; /* this is custom message so we don't escape markdown chars here */
+      this.text =
+        lastfm_message; /* this is custom message so we don't escape markdown chars here */
       return this.send();
     }
 

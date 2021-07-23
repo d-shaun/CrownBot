@@ -156,7 +156,7 @@ class GraphCommand extends Command {
     if (config.period.value === "ALL") {
       reply_message = `here's your all-time scrobble graph. ${artist_text}`;
     }
-    message.reply(reply_message, attachment);
+    message.reply({ content: reply_message, files: [attachment] });
   }
 
   async generate_graph(

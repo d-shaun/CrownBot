@@ -1,17 +1,17 @@
 import { Guild } from "discord.js";
-import CrownBotClass from "../../classes/CrownBot";
 import { CacheComponent } from "../../interfaces/CacheComponentInterface";
 import { PrefixInterface } from "../../stable/models/Prefixes";
+import CrownBot from "../CrownBot";
 export class Prefix implements CacheComponent {
-  #client: CrownBotClass;
+  #bot: CrownBot;
   #prefixes: PrefixInterface[] | undefined = [];
 
-  constructor(client: CrownBotClass) {
-    this.#client = client;
+  constructor(bot: CrownBot) {
+    this.#bot = bot;
   }
 
   async init() {
-    const prefixes: any = await this.#client.models.prefixes.find().lean();
+    const prefixes: any = await this.#bot.models.prefixes.find().lean();
     this.#prefixes = prefixes;
     console.log(`initialized ${prefixes.length} prefix(es)`);
 
@@ -33,7 +33,7 @@ export class Prefix implements CacheComponent {
     const server_prefix = this.#prefixes.find((prefix) => {
       return prefix.guildID === guild_id;
     });
-    return server_prefix?.prefix || this.#client.prefix || "&";
+    return server_prefix?.prefix || this.#bot.prefix || "&";
   }
 
   set(new_prefix: string, guild: Guild | string) {

@@ -12,17 +12,17 @@ interface Response {
  * - The type of the ban (if banned) is specified in `<response>.type`.
  *
  * @param message
- * @param client
+ * @param bot
  */
 export default async function check_ban(
   message: GuildMessage,
-  client: CrownBot
+  bot: CrownBot
 ): Promise<Response> {
   const response = {
     banned: false,
     type: <undefined | string>undefined,
   };
-  const bans = await client.models.bans
+  const bans = await bot.models.bans
     .find({
       userID: message.author.id,
       guildID: { $in: [message.guild.id, "any"] },

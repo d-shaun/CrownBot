@@ -1,4 +1,4 @@
-import { GuildMember } from "discord.js";
+import { Client, GuildMember } from "discord.js";
 import { GuildMessage } from "../classes/Command";
 import CrownBot from "../handlers/CrownBot";
 import { BanInterface } from "../stable/models/Bans";
@@ -18,13 +18,14 @@ interface UserFetchInterface {
  * @param message
  */
 export default async function get_registered_users(
-  client: CrownBot,
+  client: Client,
+  bot: CrownBot,
   message: GuildMessage
 ): Promise<UserFetchInterface | undefined> {
-  const database_users: UserInterface[] = await client.models.serverusers.find({
+  const database_users: UserInterface[] = await bot.models.serverusers.find({
     guildID: message.guild.id,
   });
-  const banned_users: BanInterface[] = await client.models.bans.find({
+  const banned_users: BanInterface[] = await bot.models.bans.find({
     guildID: { $in: [message.guild.id, "any"] },
   });
   const banned_ids = banned_users.map((user) => user.userID);

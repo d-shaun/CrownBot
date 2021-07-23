@@ -1,4 +1,4 @@
-import { MessageEmbed } from "discord.js";
+import { Client, MessageEmbed } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import CrownBot from "../../handlers/CrownBot";
 class AboutCommand extends Command {
@@ -14,14 +14,14 @@ class AboutCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage) {
-    const server_prefix = client.cache.prefix.get(message.guild);
+  async run(client: Client, bot: CrownBot, message: GuildMessage) {
+    const server_prefix = bot.cache.prefix.get(message.guild);
     const embed = new MessageEmbed()
       .setTitle("CrownBot")
       .setDescription(
         "A Discord bot that uses the Last.fm API to track users' scrobbling-history to provide various stats and leader-boards."
       )
-      .addField("Version", client.version)
+      .addField("Version", bot.version)
       .addField("Prefix", server_prefix)
       .addField("Maintainer", "shaun#4761")
       .addField("Repository", "<https://github.com/d-shaun/CrownBot/>")
@@ -31,7 +31,7 @@ class AboutCommand extends Command {
       )
       .addField("Support server", "https://discord.gg/zzJ5zmA");
 
-    await message.channel.send(embed);
+    await message.channel.send({ embeds: [embed] });
   }
 }
 

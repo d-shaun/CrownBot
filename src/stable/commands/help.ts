@@ -62,7 +62,7 @@ class HelpCommand extends Command {
 
       const aliases = !(command.aliases && command.aliases.length)
         ? false
-        : command.aliases.map((e) => cb(server_prefix + e));
+        : command.aliases.map((e) => cb(server_prefix + e)).join("");
 
       const extra_aliases = command.extra_aliases
         ?.map((e) => cb(server_prefix + e))
@@ -83,9 +83,9 @@ class HelpCommand extends Command {
       if (aliases) embed.addField("Aliases", aliases);
       if (extra_aliases) embed.addField("Extra aliases", extra_aliases);
       if (examples) embed.addField("Examples", examples);
-      if (usage.length) embed.addField("Usage", usage);
+      if (usage.length) embed.addField("Usage", usage.join(""));
 
-      message.channel.send(embed);
+      message.channel.send({ embeds: [embed] });
       return;
     }
 
@@ -148,7 +148,7 @@ class HelpCommand extends Command {
       server_prefix
     );
     if (!default_embed) throw "Couldn't generate 'setup' embed";
-    await message.channel.send(default_embed, row);
+    await message.channel.send({ embeds: [default_embed], components: row });
   }
 }
 
@@ -261,15 +261,16 @@ function generate_embed(
     // https://stackoverflow.com/questions/9181188
     const halfwayThrough = Math.floor(commands.length / 2);
 
-    const one = commands.slice(0, halfwayThrough).map(format_command);
+    const one = commands.slice(0, halfwayThrough).map(format_command).join("");
     const two = commands
       .slice(halfwayThrough, commands.length)
-      .map(format_command);
+      .map(format_command)
+      .join("");
 
     embed.addField("\u200b‎‏‏‎", one, true);
     embed.addField("\u200b‎‏‏‎", two, true);
   } else {
-    embed.addField("\u200b‎‏‏‎", commands.map(format_command), false);
+    embed.addField("\u200b‎‏‏‎", commands.map(format_command).join(""), false);
   }
 
   return embed;
