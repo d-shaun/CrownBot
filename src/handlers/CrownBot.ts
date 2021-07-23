@@ -1,10 +1,46 @@
 import fs from "fs";
-import { model } from "mongoose";
+import { connect, model, Model, Mongoose } from "mongoose";
 import path from "path";
-import CrownBotClass from "../classes/CrownBot";
+import Command from "../classes/Command";
+import { ServerConfigInterface } from "../stable/models/ServerConfig";
 import CacheHandler from "./Cache";
-export default class CrownBot extends CrownBotClass {
+
+export default class CrownBot {
+  version: string;
+  prefix: string;
+  buttons_version: string;
+
   cache = new CacheHandler(this);
+  owner_ID: string;
+  api_key: string;
+  access_token?: string;
+  genius_api?: string;
+  mongo: string;
+  mongoose: Mongoose | undefined;
+
+  url: string;
+
+  server_configs: ServerConfigInterface[] | undefined = undefined;
+  commands: Command[] = [];
+  beta_commands: Command[] = [];
+  models: { [key: string]: Model<any> } = {};
+
+  disbut?: any;
+
+  constructor(options: any) {
+    this.version = options.version;
+    this.prefix = options.prefix;
+    this.buttons_version = options.version;
+
+    this.owner_ID = options.owner_ID;
+    this.api_key = options.api_key;
+    this.access_token = options.access_token;
+    this.genius_api = options.genius_api;
+    this.mongo = options.mongo;
+
+    this.url = options.url;
+    this.disbut = options.disbut;
+  }
 
   /**
    * - Connects to MongoDB.
@@ -16,12 +52,26 @@ export default class CrownBot extends CrownBotClass {
    * - Finally, logs the bot in.
    */
   async init() {
-    await super.load_db();
-    this.load_commands().load_events().load_models();
+    await this.load_db();
+    if (!this.mongoose) throw "welp";
+    console.log(this.mongoose);
+    this.load_commands().load_models();
     await this.cache.prefix.init(); /* cache server prefixes for the session */
     await this.cache.config.init(); /* cache server configs for the session */
-    await super.log_in();
     return this;
+  }
+
+  /**
+   * Connects to MongoDB.
+   */
+  async load_db() {
+    this.mongoose = await connect(this.mongo, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    }).catch((e) => {
+      console.log(e);
+      return e;
+    });
   }
 
   /**
@@ -52,21 +102,6 @@ export default class CrownBot extends CrownBotClass {
     register_commands("../stable/commands");
     register_commands("../beta/commands", true);
 
-    return this;
-  }
-
-  /**
-   * Hooks up all the events in `../events/` to the `client` object.
-   * Generally, the `message` event which is triggered when a message is received.
-   */
-  load_events() {
-    const dir: string = path.join(__dirname, "../events");
-    const events: string[] = fs.readdirSync(dir);
-    events.forEach((file: string) => {
-      const [eventName]: string[] = file.split(".");
-      const props = require(path.join(dir, file));
-      this.on(eventName, props.default.bind(null, this));
-    });
     return this;
   }
 
