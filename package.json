@@ -35,7 +35,7 @@
     "cheerio": "^1.0.0-rc.3",
     "discord-buttons": "^4.0.0",
     "discord-paginationembed": "^2.0.0",
-    "discord.js": "^12.5.3",
+    "discord.js": "^13.0.0-dev.c8ca7bf.1627041776",
     "lyricist": "https://github.com/d-shaun/lyricist.git",
     "moment": "^2.24.0",
     "mongoose": "^5.9.20",
