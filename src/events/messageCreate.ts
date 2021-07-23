@@ -1,10 +1,10 @@
-import { PermissionString, TextChannel } from "discord.js";
+import { Client, PermissionString, TextChannel } from "discord.js";
 import Command, { GuildMessage } from "../classes/Command";
 import BotMessage from "../handlers/BotMessage";
 import CrownBot from "../handlers/CrownBot";
 import DB from "../handlers/DB";
 import cb from "../misc/codeblock";
-export default async (client: CrownBot, message: GuildMessage) => {
+export default async (bot: CrownBot, client: Client, message: GuildMessage) => {
   const db = new DB(client.models);
   if (!message.guild) return;
   if (!client.user)
