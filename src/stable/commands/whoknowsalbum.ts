@@ -30,13 +30,13 @@ class WhoKnowsAlbum extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage, args: string[]) {
-    const server_prefix = client.cache.prefix.get(message.guild);
-    const db = new DB(client.models);
+  async run(bot: CrownBot, message: GuildMessage, args: string[]) {
+    const server_prefix = bot.cache.prefix.get(message.guild);
+    const db = new DB(bot.models);
     const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
 
-    const response = new BotMessage({ client, message, text: "", reply: true });
+    const response = new BotMessage({ bot, message, text: "", reply: true });
     const lastfm_user = new User({
       username: user.username,
     });
@@ -44,7 +44,7 @@ class WhoKnowsAlbum extends Command {
     let artist_name;
     let album_name;
     if (args.length === 0) {
-      const now_playing = await lastfm_user.get_nowplaying(client, message);
+      const now_playing = await lastfm_user.get_nowplaying(bot, message);
       if (!now_playing) return;
       artist_name = now_playing.artist["#text"];
       album_name = now_playing.album["#text"];
@@ -89,7 +89,7 @@ class WhoKnowsAlbum extends Command {
       return;
     }
     const album = query.data.album;
-    const users = (await get_registered_users(client, message))?.users;
+    const users = (await get_registered_users(bot, message))?.users;
     if (!users || users.length <= 0) {
       response.text = `No user in this guild has registered their Last.fm username; see ${cb(
         "help login",
@@ -131,7 +131,7 @@ class WhoKnowsAlbum extends Command {
       !responses.length ||
       responses.some((response) => !response.wrapper.data?.album?.playcount)
     ) {
-      response.text = new Template(client, message).get("lastfm_error");
+      response.text = new Template(bot, message).get("lastfm_error");
       await response.send();
       return;
     }
@@ -194,11 +194,11 @@ class WhoKnowsAlbum extends Command {
       );
     const footer_text = `"${esm(album.name)}" by ${esm(album.artist)}`;
     fields_embed.embed
-      .setColor(message.member?.displayColor || "000000")
+      .setColor(message.member?.displayColor || 0x0)
       .setTitle(`Who knows the album ${cb(album.name)}?`)
       .setFooter(footer_text);
     fields_embed.on("start", () => {
-      message.channel.stopTyping(true);
+      // message.channel.stopTyping(true);
     });
 
     await fields_embed.build();

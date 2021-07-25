@@ -32,25 +32,25 @@ class WhoKnowsCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage, args: string[]) {
-    const server_prefix = client.cache.prefix.get(message.guild);
-    const db = new DB(client.models);
+  async run(bot: CrownBot, message: GuildMessage, args: string[]) {
+    const server_prefix = bot.cache.prefix.get(message.guild);
+    const db = new DB(bot.models);
     const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
 
-    const response = new BotMessage({ client, message, text: "", reply: true });
+    const response = new BotMessage({ bot, message, text: "", reply: true });
     const lastfm_user = new User({
       username: user.username,
     });
 
     // set minimum plays required to get a crown
     let min_plays_for_crown = 1;
-    const server_config = client.cache.config.get(message.guild);
+    const server_config = bot.cache.config.get(message.guild);
     if (server_config) min_plays_for_crown = server_config.min_plays_for_crown;
 
     let artist_name;
     if (args.length === 0) {
-      const now_playing = await lastfm_user.get_nowplaying(client, message);
+      const now_playing = await lastfm_user.get_nowplaying(bot, message);
       if (!now_playing) return;
       artist_name = now_playing.artist["#text"];
     } else {
@@ -68,7 +68,7 @@ class WhoKnowsCommand extends Command {
     }
 
     const artist = query.data.artist;
-    const users = (await get_registered_users(client, message))?.users;
+    const users = (await get_registered_users(bot, message))?.users;
     if (!users || users.length <= 0) {
       response.text = `No user in this guild has registered their Last.fm username; see ${cb(
         "help login",
@@ -141,13 +141,13 @@ class WhoKnowsCommand extends Command {
     }
 
     const last_log: LogInterface | undefined =
-      await client.models.whoknowslog.findOne({
+      await bot.models.whoknowslog.findOne({
         artist_name: artist.name,
         guild_id: message.guild.id,
       });
 
     const last_crown: CrownInterface | undefined =
-      await client.models.crowns.findOne({
+      await bot.models.crowns.findOne({
         artistName: artist.name,
         guildID: message.guild.id,
       });
@@ -236,7 +236,7 @@ class WhoKnowsCommand extends Command {
       footer_text = `Last checked ${time_difference(last_log.timestamp)} ago.`;
     }
     fields_embed.embed
-      .setColor(message.member?.displayColor || "000000")
+      .setColor(message.member?.displayColor || 0x0)
       .setTitle(`Who knows ${esm(artist.name)}?`)
       .setFooter(footer_text);
 
@@ -248,7 +248,7 @@ class WhoKnowsCommand extends Command {
       !disallow_crown
     ) {
       fields_embed.on("start", () => {
-        message.channel.stopTyping(true);
+        // message.channel.stopTyping(true);
         if (last_crown) {
           const last_user = message.guild.members.cache.find(
             (user) => user.id === last_crown.userID
@@ -266,7 +266,7 @@ class WhoKnowsCommand extends Command {
       });
       await db.update_crown(top_user);
     } else {
-      message.channel.stopTyping(true);
+      // message.channel.stopTyping(true);
     }
     await db.log_whoknows(artist.name, leaderboard, message.guild.id);
     await fields_embed.build();

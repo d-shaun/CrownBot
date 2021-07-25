@@ -21,22 +21,22 @@ class LyricsCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage, args: string[]) {
-    if (!client.genius_api) {
+  async run(bot: CrownBot, message: GuildMessage, args: string[]) {
+    if (!bot.genius_api) {
       throw "You must set the `GENIUS_API` in the environment variable for this command to work.";
     }
-    const db = new DB(client.models);
+    const db = new DB(bot.models);
     const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
 
-    const response = new BotMessage({ client, message, text: "", reply: true });
+    const response = new BotMessage({ bot, message, text: "", reply: true });
     const lastfm_user = new User({
       username: user.username,
     });
 
     let search_query;
     if (args.length === 0) {
-      const now_playing = await lastfm_user.get_nowplaying(client, message);
+      const now_playing = await lastfm_user.get_nowplaying(bot, message);
       if (!now_playing) return;
       const {
         name: track_name,
@@ -46,7 +46,7 @@ class LyricsCommand extends Command {
       search_query = `${track_name} ${artist_name}`;
     } else search_query = args.join(" ");
 
-    const lyricist = new Lyricist(client.genius_api);
+    const lyricist = new Lyricist(bot.genius_api);
     const song = (await lyricist.search(search_query))[0];
     if (!song) {
       response.text = "Couldn't find the song.";
@@ -58,7 +58,7 @@ class LyricsCommand extends Command {
       return lyrics.match(/(.|[\r\n]){1,2000}/g);
     };
 
-    const db_entry: LyricsLogInterface = await client.models.lyricslog.findOne({
+    const db_entry: LyricsLogInterface = await bot.models.lyricslog.findOne({
       id: song.id,
     });
     if (db_entry) {
@@ -102,7 +102,7 @@ class LyricsCommand extends Command {
     }
     const timestamp = moment.utc().valueOf();
 
-    await client.models.lyricslog.findOneAndUpdate(
+    await bot.models.lyricslog.findOneAndUpdate(
       {
         id: song.id,
       },

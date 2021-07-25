@@ -140,7 +140,7 @@ export default class Command {
       const lowercase_args =
         this.name === "eval" ? args : args.map((arg) => arg.toLowerCase());
 
-      await this.run(client, bot, message, lowercase_args);
+      await this.run(bot, message, lowercase_args);
       // message.channel.typ(true);
 
       await this.log_command(bot, message);
@@ -255,13 +255,12 @@ export default class Command {
   }
 
   async run(
-    client: Client,
     bot: CrownBot,
     message: GuildMessage,
     args: string[]
   ): Promise<void> {
     // placeholder
-    console.log(client, message, args);
+    console.log(bot, message, args);
     return;
   }
 }

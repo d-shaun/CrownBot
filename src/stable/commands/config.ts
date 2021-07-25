@@ -1,4 +1,3 @@
-import { Client } from "discord.js";
 import fs from "fs";
 import path from "path";
 import Command, { GuildMessage } from "../../classes/Command";
@@ -17,12 +16,7 @@ class ConfigCommand extends Command {
     });
   }
 
-  async run(
-    client: Client,
-    bot: CrownBot,
-    message: GuildMessage,
-    args: string[]
-  ) {
+  async run(bot: CrownBot, message: GuildMessage, args: string[]) {
     const response = new BotMessage({ bot, message, text: "", reply: true });
     if (!message.member?.permissions.has("MANAGE_GUILD")) {
       response.text =

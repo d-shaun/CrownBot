@@ -20,15 +20,15 @@ class PlayingCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage) {
-    const server_prefix = client.cache.prefix.get(message.guild);
+  async run(bot: CrownBot, message: GuildMessage) {
+    const server_prefix = bot.cache.prefix.get(message.guild);
     const response = new BotMessage({
-      client,
+      bot,
       message,
       reply: true,
     });
 
-    const users = (await get_registered_users(client, message))?.users;
+    const users = (await get_registered_users(bot, message))?.users;
     if (!users || users.length <= 0) {
       response.text = `No user in this guild has registered their Last.fm username; see ${cb(
         "help login",
@@ -109,10 +109,10 @@ class PlayingCommand extends Command {
       });
 
     fields_embed.embed
-      .setColor(message.member?.displayColor || "000000")
+      .setColor(message.member?.displayColor || 0x0)
       .setTitle(`What is being played in ${message.guild?.name}?`);
     fields_embed.on("start", () => {
-      message.channel.stopTyping(true);
+      // message.channel.stopTyping(true);
     });
     await fields_embed.build();
   }

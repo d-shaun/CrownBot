@@ -16,15 +16,15 @@ class BanCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage, args: string[]) {
+  async run(bot: CrownBot, message: GuildMessage, args: string[]) {
     const response = new BotMessage({
-      client,
+      bot,
       message,
       reply: true,
       text: "",
     });
 
-    if (!message.member?.hasPermission("BAN_MEMBERS")) {
+    if (!message.member?.permissions.has("BAN_MEMBERS")) {
       response.text =
         "You do not have the permission (``BAN_MEMBERS``) to execute this command.";
       await response.send();
@@ -44,7 +44,7 @@ class BanCommand extends Command {
       await response.send();
       return;
     }
-    const banned_user = await client.models.bans.findOne({
+    const banned_user = await bot.models.bans.findOne({
       guildID: message.guild.id,
       userID: user.id,
     });
@@ -57,7 +57,7 @@ class BanCommand extends Command {
     if (await banned_user.remove()) {
       response.text = `\`${user.tag}\` has been unbanned.`;
     } else {
-      response.text = new Template(client, message).get("exception");
+      response.text = new Template(bot, message).get("exception");
     }
 
     await response.send();

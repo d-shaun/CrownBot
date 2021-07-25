@@ -1,4 +1,4 @@
-import { Client, MessageReaction, User } from "discord.js";
+import { MessageReaction, User } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import { Template } from "../../classes/Template";
 import BotMessage from "../../handlers/BotMessage";
@@ -18,12 +18,7 @@ class DeleteCrownCommand extends Command {
     });
   }
 
-  async run(
-    client: Client,
-    bot: CrownBot,
-    message: GuildMessage,
-    args: string[]
-  ) {
+  async run(bot: CrownBot, message: GuildMessage, args: string[]) {
     const server_prefix = bot.cache.prefix.get(message.guild);
     const db = new DB(bot.models);
     const user = await db.fetch_user(message.guild.id, message.author.id);

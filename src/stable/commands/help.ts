@@ -16,11 +16,11 @@ class HelpCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage, args: string[]) {
-    const server_prefix = client.cache.prefix.get(message.guild);
-    const db = new DB(client.models);
+  async run(bot: CrownBot, message: GuildMessage, args: string[]) {
+    const server_prefix = bot.cache.prefix.get(message.guild);
+    const db = new DB(bot.models);
     const response = new BotMessage({
-      client,
+      bot,
       message,
       reply: true,
       text: "",
@@ -30,11 +30,11 @@ class HelpCommand extends Command {
     if (args[0] && args[0] !== "beta") {
       const is_beta = await db.check_optin(message);
 
-      const beta_version = client.beta_commands
+      const beta_version = bot.beta_commands
         .filter((e) => !e.hidden)
         .find((x) => x.name === args[0] || x.aliases.includes(args[0]));
 
-      const stable_version = client.commands
+      const stable_version = bot.commands
         .filter((e) => !e.hidden)
         .find((x) => x.name === args[0] || x.aliases.includes(args[0]));
 
@@ -89,61 +89,61 @@ class HelpCommand extends Command {
       return;
     }
 
-    const top = new client.disbut.MessageMenuOption()
+    const top = new bot.disbut.MessageMenuOption()
       .setLabel("Top commands")
       .setEmoji("👑")
       .setValue("top")
       .setDescription("Top essential and most-used commands")
       .setDefault();
 
-    const setup = new client.disbut.MessageMenuOption()
+    const setup = new bot.disbut.MessageMenuOption()
       .setLabel("Setting up")
       .setEmoji("🦋")
       .setValue("setup")
       .setDescription("Primary commands to get you set up with the bot")
       .setDefault();
 
-    const userstats = new client.disbut.MessageMenuOption()
+    const userstats = new bot.disbut.MessageMenuOption()
       .setLabel("User-related stats")
       .setEmoji("🙇")
       .setValue("userstat")
       .setDescription("Individual user's stats—like charts, list, crowns.");
 
-    const serverstats = new client.disbut.MessageMenuOption()
+    const serverstats = new bot.disbut.MessageMenuOption()
       .setLabel("Server-related stats")
       .setEmoji("📊")
       .setValue("serverstat")
       .setDescription("Server's stats—like crownboard, 'who knows'.");
 
-    const configure = new client.disbut.MessageMenuOption()
+    const configure = new bot.disbut.MessageMenuOption()
       .setLabel("Preferences")
       .setEmoji("🛠️")
       .setValue("configure")
       .setDescription("Commands to configure bot's preferences.");
 
-    const beta = new client.disbut.MessageMenuOption()
+    const beta = new bot.disbut.MessageMenuOption()
       .setLabel("Beta commands")
       .setEmoji("✨")
       .setValue("beta")
       .setDescription("Experimental commands");
 
-    const other = new client.disbut.MessageMenuOption()
+    const other = new bot.disbut.MessageMenuOption()
       .setLabel("Other")
       .setEmoji("🪄")
       .setValue("other")
       .setDescription("Commands that do not fit the existing categories.");
 
-    const select = new client.disbut.MessageMenu()
-      .setID("help_menu" + client.buttons_version)
+    const select = new bot.disbut.MessageMenu()
+      .setID("help_menu" + bot.buttons_version)
       .setPlaceholder("Change category")
       .setMaxValues(1)
       .setMinValues(1)
       .addOptions([top, setup, userstats, serverstats, configure, beta, other]);
 
-    const row = new client.disbut.MessageActionRow().addComponent(select);
+    const row = new bot.disbut.MessageActionRow().addComponent(select);
 
     const default_embed = generate_embed(
-      client,
+      bot,
       args[0] || "top", // either beta or top
       server_prefix
     );
@@ -153,7 +153,7 @@ class HelpCommand extends Command {
 }
 
 function generate_embed(
-  client: CrownBot,
+  bot: CrownBot,
   category: string,
   server_prefix: string
 ): false | MessageEmbed {
@@ -178,8 +178,8 @@ function generate_embed(
     return `**${server_prefix}${command.name}** ${aliases} ${beta_str}\n└ ${command.description}\n`;
   };
 
-  const stable_commands = client.commands;
-  const beta_commands = client.beta_commands;
+  const stable_commands = bot.commands;
+  const beta_commands = bot.beta_commands;
   const unique_beta_commands = beta_commands
     .filter((command) => !stable_commands.find((c) => c.name === command.name))
     .map((e) => {
@@ -276,10 +276,10 @@ function generate_embed(
   return embed;
 }
 
-export async function help_navigate(client: CrownBot, menu: any) {
-  const server_prefix = client.cache.prefix.get(menu.guild.id);
+export async function help_navigate(bot: CrownBot, menu: any) {
+  const server_prefix = bot.cache.prefix.get(menu.guild.id);
   await menu.reply.defer();
-  const embed = generate_embed(client, menu.values[0], server_prefix);
+  const embed = generate_embed(bot, menu.values[0], server_prefix);
   if (embed) await menu.message.edit(embed);
 }
 

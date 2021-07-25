@@ -1,4 +1,4 @@
-import { Client, MessageEmbed } from "discord.js";
+import { MessageEmbed } from "discord.js";
 import moment from "moment";
 // @ts-ignore
 import abbreviate from "number-abbreviate";
@@ -30,12 +30,7 @@ class AlbumPlaysCommand extends Command {
     });
   }
 
-  async run(
-    client: Client,
-    bot: CrownBot,
-    message: GuildMessage,
-    args: string[]
-  ) {
+  async run(bot: CrownBot, message: GuildMessage, args: string[]) {
     const server_prefix = bot.cache.prefix.get(message.guild);
     const response = new BotMessage({
       bot,

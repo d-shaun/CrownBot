@@ -1,4 +1,3 @@
-import { Client } from "discord.js";
 import { inspect } from "util";
 import Command, { GuildMessage } from "../../classes/Command";
 import CrownBot from "../../handlers/CrownBot";
@@ -15,12 +14,7 @@ class EvalCommand extends Command {
     });
   }
 
-  async run(
-    client: Client,
-    bot: CrownBot,
-    message: GuildMessage,
-    args: string[]
-  ) {
+  async run(bot: CrownBot, message: GuildMessage, args: string[]) {
     if (message.author.id !== bot.owner_ID) return; // just to be safe
     let trimmed_string;
     try {
@@ -36,10 +30,6 @@ class EvalCommand extends Command {
 
     await message.channel.send({
       content: trimmed_string,
-      options: {
-        code: "js",
-        split: true,
-      },
     });
   }
 }

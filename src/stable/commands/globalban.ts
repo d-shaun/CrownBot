@@ -15,9 +15,9 @@ class GlobalBanCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage, args: string[]) {
+  async run(bot: CrownBot, message: GuildMessage, args: string[]) {
     const response = new BotMessage({
-      client,
+      bot,
       message,
       reply: true,
       text: "",
@@ -39,7 +39,7 @@ class GlobalBanCommand extends Command {
     if (!userID) throw "HOW!?";
 
     if (
-      await client.models.bans.findOne({
+      await bot.models.bans.findOne({
         userID,
         guildID: "any",
       })
@@ -49,7 +49,7 @@ class GlobalBanCommand extends Command {
       return;
     }
 
-    await client.models.bans.findOneAndUpdate(
+    await bot.models.bans.findOneAndUpdate(
       {
         userID,
         guildID: "any",

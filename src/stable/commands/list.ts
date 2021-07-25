@@ -31,15 +31,15 @@ class ListCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage, args: string[]) {
-    const server_prefix = client.cache.prefix.get(message.guild);
+  async run(bot: CrownBot, message: GuildMessage, args: string[]) {
+    const server_prefix = bot.cache.prefix.get(message.guild);
     const response = new BotMessage({
-      client,
+      bot,
       message,
       reply: true,
       text: "",
     });
-    const db = new DB(client.models);
+    const db = new DB(bot.models);
     const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
     const lastfm_user = new User({
@@ -151,7 +151,7 @@ class ListCommand extends Command {
 
       let last_log: any | null = null;
       if (config.period.value === "overall") {
-        last_log = await client.models.listartistlog.findOne({
+        last_log = await bot.models.listartistlog.findOne({
           user_id: message.author.id,
           guild_id: message.guild.id,
         });
@@ -226,7 +226,7 @@ class ListCommand extends Command {
           message.guild.id
         );
       }
-      await message.channel.send(embed);
+      await message.channel.send({ embeds: [embed] });
     } else if (config.type === "song") {
       const query = await lastfm_user.get_top_tracks({
         period: config.period.value,
@@ -249,7 +249,7 @@ class ListCommand extends Command {
           `${message.author.username}'s ${config.period.text}-top ${config.type}s`
         )
         .setDescription(embed_list);
-      await message.channel.send(embed);
+      await message.channel.send({ embeds: [embed] });
     } else if (config.type === "album") {
       const query = await lastfm_user.get_top_albums({
         period: config.period.value,
@@ -273,7 +273,7 @@ class ListCommand extends Command {
           `${message.author.username}'s ${config.period.text}-top ${config.type}s`
         )
         .setDescription(embed_list);
-      await message.channel.send(embed);
+      await message.channel.send({ embeds: [embed] });
     }
   }
 }

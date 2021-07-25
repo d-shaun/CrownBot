@@ -23,13 +23,13 @@ class NowPlayingCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage, args: string[]) {
+  async run(bot: CrownBot, message: GuildMessage, args: string[]) {
     const response = new BotMessage({
-      client,
+      bot,
       message,
       reply: true,
     });
-    const db = new DB(client.models);
+    const db = new DB(bot.models);
 
     let discord_user: DiscordUser | undefined;
 
@@ -78,7 +78,7 @@ class NowPlayingCommand extends Command {
       )
       .setFooter(status_text);
     if (cover) embed.setThumbnail(cover["#text"]);
-    await message.channel.send(embed);
+    await message.channel.send({ embeds: [embed] });
   }
 }
 

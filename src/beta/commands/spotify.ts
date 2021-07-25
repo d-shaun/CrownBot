@@ -21,13 +21,13 @@ class SpotifyCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage, args: string[]) {
+  async run(bot: CrownBot, message: GuildMessage, args: string[]) {
     const response = new BotMessage({
-      client,
+      bot,
       message,
       reply: true,
     });
-    const db = new DB(client.models);
+    const db = new DB(bot.models);
 
     const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
@@ -38,7 +38,7 @@ class SpotifyCommand extends Command {
 
     let search_query;
     if (args.length === 0) {
-      const now_playing = await lastfm_user.get_nowplaying(client, message);
+      const now_playing = await lastfm_user.get_nowplaying(bot, message);
       if (!now_playing) return;
       search_query = `${now_playing.name} ${now_playing.artist["#text"]}`;
     } else {
@@ -83,11 +83,14 @@ class SpotifyCommand extends Command {
           `Album: **${esm(track.album.name)}**\n` +
           `Duration: **${format_duration(track.duration_ms)}**`
       )
-      .setColor(message.member?.displayColor || "000000")
+      .setColor(message.member?.displayColor || 0x0)
       .setThumbnail(track.album.images[0].url)
       .setAuthor("Track details on Spotify");
 
-    await message.channel.send(track.external_urls.spotify, embed);
+    await message.channel.send({
+      content: track.external_urls.spotify,
+      embeds: [embed],
+    });
   }
 }
 

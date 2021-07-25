@@ -27,15 +27,15 @@ class TopAlbumTracks extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage, args: string[]) {
-    const server_prefix = client.cache.prefix.get(message.guild);
+  async run(bot: CrownBot, message: GuildMessage, args: string[]) {
+    const server_prefix = bot.cache.prefix.get(message.guild);
     const response = new BotMessage({
-      client,
+      bot,
       message,
       reply: true,
       text: "",
     });
-    const db = new DB(client.models);
+    const db = new DB(bot.models);
     const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
 
@@ -46,7 +46,7 @@ class TopAlbumTracks extends Command {
     let artist_name;
     let album_name;
     if (args.length === 0) {
-      const now_playing = await lastfm_user.get_nowplaying(client, message);
+      const now_playing = await lastfm_user.get_nowplaying(bot, message);
       if (!now_playing) return;
       artist_name = now_playing.artist["#text"];
       album_name = now_playing.album["#text"];
@@ -94,7 +94,7 @@ class TopAlbumTracks extends Command {
       album.name
     );
     if (!album_tracks) {
-      response.text = new Template(client, message).get("lastfm_error");
+      response.text = new Template(bot, message).get("lastfm_error");
       await response.send();
       return;
     }
@@ -125,7 +125,7 @@ class TopAlbumTracks extends Command {
         }
       );
     fields_embed.embed
-      .setColor(message.member?.displayColor || "000000")
+      .setColor(message.member?.displayColor || 0x0)
       .setTitle(
         `${message.author.username}'s top-played tracks from the album ${cb(
           album.name
@@ -134,22 +134,22 @@ class TopAlbumTracks extends Command {
       .setFooter(`"${album.name}" by ${album.artist}`);
 
     fields_embed.on("start", () => {
-      message.channel.stopTyping(true);
+      // message.channel.stopTyping(true);
     });
     await fields_embed.build();
   }
 
   /*
   // uses the Last.fm API instead of scraping their pages
-  async run_alternate(client: CrownBot, message: GuildMessage, args: string[]) {
-    const server_prefix = client.cache.prefix.get(message.guild);
+  async run_alternate(bot: CrownBot, message: GuildMessage, args: string[]) {
+    const server_prefix = bot.cache.prefix.get(message.guild);
     const response = new BotMessage({
-      client,
+      bot,
       message,
       reply: true,
       text: "",
     });
-    const db = new DB(client.models);
+    const db = new DB(bot.models);
     const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
 
@@ -161,7 +161,7 @@ class TopAlbumTracks extends Command {
     let artist_name;
     let album_name;
     if (args.length === 0) {
-      const now_playing = await lastfm_user.get_nowplaying(client, message);
+      const now_playing = await lastfm_user.get_nowplaying(bot, message);
       if (!now_playing) return;
       artist_name = now_playing.artist["#text"];
       album_name = now_playing.album["#text"];
@@ -173,7 +173,7 @@ class TopAlbumTracks extends Command {
           str_array.join().trim()
         );
         if (data.error) {
-          response.text = new Template(client, message).get("lastfm_error");
+          response.text = new Template(bot, message).get("lastfm_error");
           await response.send();
           return;
         }
@@ -204,7 +204,7 @@ class TopAlbumTracks extends Command {
       },
     });
     if (data.error || !data.album) {
-      response.text = new Template(client, message).get("lastfm_error");
+      response.text = new Template(bot, message).get("lastfm_error");
       await response.send();
       return;
     }
@@ -236,7 +236,7 @@ class TopAlbumTracks extends Command {
       return;
     }
     if (responses.some((response) => !response.data || !response.data.track)) {
-      response.text = new Template(client, message).get("lastfm_error");
+      response.text = new Template(bot, message).get("lastfm_error");
       await response.send();
       return;
     }

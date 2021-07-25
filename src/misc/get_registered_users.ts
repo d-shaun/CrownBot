@@ -18,7 +18,6 @@ interface UserFetchInterface {
  * @param message
  */
 export default async function get_registered_users(
-  client: Client,
   bot: CrownBot,
   message: GuildMessage
 ): Promise<UserFetchInterface | undefined> {

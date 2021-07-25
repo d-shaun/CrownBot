@@ -18,15 +18,15 @@ class LoginCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage, args: string[]) {
-    const prefix = client.cache.prefix.get(message.guild);
+  async run(bot: CrownBot, message: GuildMessage, args: string[]) {
+    const prefix = bot.cache.prefix.get(message.guild);
     const response = new BotMessage({
-      client,
+      bot,
       message,
       reply: true,
       text: "",
     });
-    const db = new DB(client.models);
+    const db = new DB(bot.models);
     const user = await db.fetch_user(message.guild.id, message.author.id);
 
     if (args.length === 0) {
@@ -48,7 +48,7 @@ class LoginCommand extends Command {
               prefix
             )}.`;
         } else {
-          response.text = new Template(client, message).get("exception");
+          response.text = new Template(bot, message).get("exception");
         }
         await response.send();
 
@@ -78,7 +78,7 @@ class LoginCommand extends Command {
         username
       )} has been associated to your Discord account.`;
     } else {
-      response.text = new Template(client, message).get("exception");
+      response.text = new Template(bot, message).get("exception");
     }
     await response.send();
   }

@@ -1,4 +1,4 @@
-import { Client, MessageEmbed } from "discord.js";
+import { MessageEmbed } from "discord.js";
 import moment from "moment";
 // @ts-ignore
 import abbreviate from "number-abbreviate";
@@ -26,12 +26,7 @@ class ArtistPlaysCommand extends Command {
     });
   }
 
-  async run(
-    client: Client,
-    bot: CrownBot,
-    message: GuildMessage,
-    args: string[]
-  ) {
+  async run(bot: CrownBot, message: GuildMessage, args: string[]) {
     const db = new DB(bot.models);
     const user = await db.fetch_user(message.guild.id, message.author.id);
     const response = new BotMessage({ bot, message, reply: true });

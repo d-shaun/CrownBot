@@ -1,5 +1,5 @@
 import { FieldsEmbed } from "discord-paginationembed";
-import { Client, TextChannel, User } from "discord.js";
+import { TextChannel, User } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
@@ -20,12 +20,7 @@ class CrownsCommand extends Command {
     });
   }
 
-  async run(
-    client: Client,
-    bot: CrownBot,
-    message: GuildMessage,
-    args: string[]
-  ) {
+  async run(bot: CrownBot, message: GuildMessage, args: string[]) {
     const response = new BotMessage({ bot, message, text: "", reply: true });
     let user: User | undefined;
     let not_op = false;

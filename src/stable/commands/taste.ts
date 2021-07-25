@@ -20,14 +20,14 @@ class TasteCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage, args: string[]) {
+  async run(bot: CrownBot, message: GuildMessage, args: string[]) {
     const response = new BotMessage({
-      client,
+      bot,
       message,
       reply: true,
       text: "",
     });
-    const db = new DB(client.models);
+    const db = new DB(bot.models);
     const mentioned = message.mentions.members?.first();
     let user_two = mentioned ? mentioned.user : undefined;
 
@@ -104,7 +104,7 @@ class TasteCommand extends Command {
       );
     });
 
-    await message.channel.send(embed);
+    await message.channel.send({ embeds: [embed] });
   }
 }
 

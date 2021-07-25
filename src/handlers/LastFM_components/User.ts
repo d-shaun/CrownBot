@@ -121,9 +121,9 @@ export default class extends LastFM {
 
   //
   //This is here only to free bunch of commands of doing these checks.
-  async get_nowplaying(client: CrownBot, message: GuildMessage) {
+  async get_nowplaying(bot: CrownBot, message: GuildMessage) {
     const response = new BotMessage({
-      client,
+      bot,
       message,
       reply: true,
     });

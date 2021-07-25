@@ -1,4 +1,4 @@
-import { Client, MessageEmbed } from "discord.js";
+import { MessageEmbed } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import CrownBot from "../../handlers/CrownBot";
 import esm from "../../misc/escapemarkdown";
@@ -15,9 +15,8 @@ class CrownboardCommand extends Command {
     });
   }
 
-  async run(client: Client, bot: CrownBot, message: GuildMessage) {
-    const server_users = (await get_registered_users(client, bot, message))
-      ?.users;
+  async run(bot: CrownBot, message: GuildMessage) {
+    const server_users = (await get_registered_users(bot, message))?.users;
     if (!server_users) return;
 
     const crowns = await bot.models.crowns

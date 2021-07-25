@@ -14,9 +14,9 @@ class GlobalUnbanCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage, args: string[]) {
+  async run(bot: CrownBot, message: GuildMessage, args: string[]) {
     const response = new BotMessage({
-      client,
+      bot,
       message,
       reply: true,
       text: "",
@@ -38,7 +38,7 @@ class GlobalUnbanCommand extends Command {
     if (!userID) throw "HOW!?";
 
     if (
-      !(await client.models.bans.findOne({
+      !(await bot.models.bans.findOne({
         userID,
         guildID: "any",
       }))
@@ -48,7 +48,7 @@ class GlobalUnbanCommand extends Command {
       return;
     }
 
-    const unbanned = await client.models.bans.deleteOne({
+    const unbanned = await bot.models.bans.deleteOne({
       userID,
       guildID: "any",
     });

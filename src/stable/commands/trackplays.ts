@@ -38,15 +38,15 @@ class TrackPlaysCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage, args: string[]) {
-    const server_prefix = client.cache.prefix.get(message.guild);
+  async run(bot: CrownBot, message: GuildMessage, args: string[]) {
+    const server_prefix = bot.cache.prefix.get(message.guild);
     const response = new BotMessage({
-      client,
+      bot,
       message,
       reply: true,
       text: "",
     });
-    const db = new DB(client.models);
+    const db = new DB(bot.models);
     const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
 
@@ -57,7 +57,7 @@ class TrackPlaysCommand extends Command {
     let artist_name;
     let track_name;
     if (args.length === 0) {
-      const now_playing = await lastfm_user.get_nowplaying(client, message);
+      const now_playing = await lastfm_user.get_nowplaying(bot, message);
       if (!now_playing) return;
       artist_name = now_playing.artist["#text"];
       track_name = now_playing.name;
@@ -122,7 +122,7 @@ class TrackPlaysCommand extends Command {
       time: <boolean | string>false,
     };
 
-    const last_log = await client.models.tracklog.findOne(<AlbumLogInterface>{
+    const last_log = await bot.models.tracklog.findOne(<AlbumLogInterface>{
       name: track.name,
       artistName: track.artist.name,
       userID: message.author.id,
@@ -183,18 +183,18 @@ class TrackPlaysCommand extends Command {
           `${aggr_str}`
       );
 
-    await this.update_log(client, message, track);
-    await message.channel.send(embed);
+    await this.update_log(bot, message, track);
+    await message.channel.send({ embeds: [embed] });
   }
 
   async update_log(
-    client: CrownBot,
+    bot: CrownBot,
     message: GuildMessage,
     track: UserTrack["track"]
   ) {
     const timestamp = moment.utc().valueOf();
 
-    await client.models.tracklog.findOneAndUpdate(
+    await bot.models.tracklog.findOneAndUpdate(
       <TrackLogInterface>{
         name: track.name,
         artistName: track.artist.name,

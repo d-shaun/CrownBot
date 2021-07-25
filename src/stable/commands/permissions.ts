@@ -13,7 +13,7 @@ class PermissionsCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage) {
+  async run(bot: CrownBot, message: GuildMessage) {
     if (!message.guild.me) return;
     const bot_permissions = (<TextChannel>message.channel).permissionsFor(
       message.guild.me
@@ -62,7 +62,7 @@ class PermissionsCommand extends Command {
         )}`
       );
 
-    await message.channel.send(embed);
+    await message.channel.send({ embeds: [embed] });
   }
 }
 

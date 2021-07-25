@@ -15,9 +15,9 @@ class PrefixCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage, args: string[]) {
-    const server_prefix = client.cache.prefix.get(message.guild);
-    const response = new BotMessage({ client, message, text: "", reply: true });
+  async run(bot: CrownBot, message: GuildMessage, args: string[]) {
+    const server_prefix = bot.cache.prefix.get(message.guild);
+    const response = new BotMessage({ bot, message, text: "", reply: true });
     if (args.length === 0) {
       response.text =
         `The prefix for this server is \`${server_prefix}\`; ` +
@@ -25,7 +25,7 @@ class PrefixCommand extends Command {
       await response.send();
       return;
     }
-    if (!message.member?.hasPermission("MANAGE_GUILD")) {
+    if (!message.member?.permissions.has("MANAGE_GUILD")) {
       response.text =
         "You do not have the permission (``MANAGE_GUILD``) to execute this command.";
       await response.send();
@@ -37,7 +37,7 @@ class PrefixCommand extends Command {
       await response.send();
       return;
     }
-    await client.models.prefixes.findOneAndUpdate(
+    await bot.models.prefixes.findOneAndUpdate(
       {
         guildID: message.guild.id,
       },
@@ -51,7 +51,7 @@ class PrefixCommand extends Command {
         useFindAndModify: false,
       }
     );
-    if (client.cache.prefix.set(prefix, message.guild)) {
+    if (bot.cache.prefix.set(prefix, message.guild)) {
       response.text = `The prefix for this server is now set to ${cb(prefix)}.`;
     } else {
       response.text =

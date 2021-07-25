@@ -35,10 +35,10 @@ class GraphCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage, args: string[]) {
-    const server_prefix = client.cache.prefix.get(message.guild);
-    const response = new BotMessage({ client, message, text: "", reply: true });
-    const db = new DB(client.models);
+  async run(bot: CrownBot, message: GuildMessage, args: string[]) {
+    const server_prefix = bot.cache.prefix.get(message.guild);
+    const response = new BotMessage({ bot, message, text: "", reply: true });
+    const db = new DB(bot.models);
     const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
     const lastfm_user = new User({
@@ -101,7 +101,7 @@ class GraphCommand extends Command {
       /* artist name */
       let artist_name: string;
       if (args[1] === "np") {
-        const now_playing = await lastfm_user.get_nowplaying(client, message);
+        const now_playing = await lastfm_user.get_nowplaying(bot, message);
         if (!now_playing) return;
         artist_name = now_playing.artist["#text"];
       } else {
@@ -133,7 +133,7 @@ class GraphCommand extends Command {
       config.period.year
     );
     if (!stats) {
-      response.text = new Template(client, message).get("lastfm_error");
+      response.text = new Template(bot, message).get("lastfm_error");
       await response.send();
       return;
     }

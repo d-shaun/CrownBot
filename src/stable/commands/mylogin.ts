@@ -16,14 +16,14 @@ class MyLoginCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage) {
+  async run(bot: CrownBot, message: GuildMessage) {
     const response = new BotMessage({
-      client,
+      bot,
       message,
       reply: true,
       text: "",
     });
-    const db = new DB(client.models);
+    const db = new DB(bot.models);
     const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
     response.text = `your Last.fm username is ${esm(

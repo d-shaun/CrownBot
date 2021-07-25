@@ -18,12 +18,12 @@ class LogoutCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage, args: string[]) {
-    const prefix = client.cache.prefix.get(message.guild);
-    const db = new DB(client.models);
+  async run(bot: CrownBot, message: GuildMessage, args: string[]) {
+    const prefix = bot.cache.prefix.get(message.guild);
+    const db = new DB(bot.models);
 
     const response = new BotMessage({
-      client,
+      bot,
       message,
       reply: true,
       text: "",
@@ -43,7 +43,7 @@ class LogoutCommand extends Command {
       if (await db.remove_user(undefined, message.author.id, true)) {
         response.text = `You have been logged out from the bot globally.`;
       } else {
-        response.text = new Template(client, message).get("exception");
+        response.text = new Template(bot, message).get("exception");
       }
       await response.send();
       return;
@@ -67,23 +67,18 @@ class LogoutCommand extends Command {
     }
 
     const msg = await new BotMessage({
-      client,
+      bot,
       message,
-      text:
-        "Are you sure you want to logout from the bot in this server? Click on the reaction to continue.",
+      text: "Are you sure you want to logout from the bot in this server? Click on the reaction to continue.",
       reply: true,
     }).send();
     await msg.react("✅");
+    const filter = (reaction: MessageReaction, user: User) => {
+      return reaction.emoji.name === "✅" && user.id === message.author.id;
+    };
 
-    const reactions = await msg.awaitReactions(
-      (reaction: MessageReaction, user: User) => {
-        return reaction.emoji.name === "✅" && user.id === message.author.id;
-      },
-      {
-        max: 1,
-        time: 30000,
-      }
-    );
+    const reactions = await msg.awaitReactions({ filter, time: 3000, max: 1 });
+
     const message_exists = message.channel.messages.cache.get(msg.id);
     if (message_exists) msg.delete();
     if (reactions.size > 0) {
@@ -93,7 +88,7 @@ class LogoutCommand extends Command {
           prefix
         )} to logout globally.`;
       } else {
-        response.text = new Template(client, message).get("exception");
+        response.text = new Template(bot, message).get("exception");
       }
       await response.send();
     } else {

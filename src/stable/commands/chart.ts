@@ -1,5 +1,5 @@
 import { createCanvas, loadImage, registerFont } from "canvas";
-import { Client, MessageAttachment } from "discord.js";
+import { MessageAttachment } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
@@ -53,12 +53,7 @@ class ChartCommand extends Command {
     });
   }
 
-  async run(
-    client: Client,
-    bot: CrownBot,
-    message: GuildMessage,
-    args: string[]
-  ) {
+  async run(bot: CrownBot, message: GuildMessage, args: string[]) {
     const server_prefix = bot.cache.prefix.get(message.guild);
     const response = new BotMessage({
       bot,

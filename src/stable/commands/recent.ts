@@ -24,16 +24,16 @@ class RecentCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage, args: string[]) {
+  async run(bot: CrownBot, message: GuildMessage, args: string[]) {
     const response = new BotMessage({
-      client,
+      bot,
       message,
       reply: true,
       text: "",
     });
-    const db = new DB(client.models);
+    const db = new DB(bot.models);
     let discord_user: DiscordUser | undefined;
-    const server_prefix = client.cache.prefix.get(message.guild);
+    const server_prefix = bot.cache.prefix.get(message.guild);
 
     if (args.length > 0) {
       const mention = message.mentions.members?.first();
@@ -76,7 +76,7 @@ class RecentCommand extends Command {
       .setFooter(
         `Displaying recent ${recent_tracks.length} tracks played by ${discord_user.username}.`
       )
-      .setColor(message.member?.displayColor || "000000");
+      .setColor(message.member?.displayColor || 0x0);
     for (const track of recent_tracks) {
       let time_str = "Unknown";
       if (track["@attr"]?.nowplaying) {
@@ -96,7 +96,7 @@ class RecentCommand extends Command {
         )}`
       );
     }
-    message.channel.send(embed);
+    message.channel.send({ embeds: [embed] });
   }
 }
 

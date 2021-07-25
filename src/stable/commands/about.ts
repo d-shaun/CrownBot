@@ -1,4 +1,4 @@
-import { Client, MessageEmbed } from "discord.js";
+import { MessageEmbed } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import CrownBot from "../../handlers/CrownBot";
 class AboutCommand extends Command {
@@ -14,7 +14,7 @@ class AboutCommand extends Command {
     });
   }
 
-  async run(client: Client, bot: CrownBot, message: GuildMessage) {
+  async run(bot: CrownBot, message: GuildMessage) {
     const server_prefix = bot.cache.prefix.get(message.guild);
     const embed = new MessageEmbed()
       .setTitle("CrownBot")

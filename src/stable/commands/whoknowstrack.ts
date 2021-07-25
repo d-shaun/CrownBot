@@ -31,13 +31,13 @@ class WhoKnowsTrack extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage, args: string[]) {
-    const server_prefix = client.cache.prefix.get(message.guild);
-    const db = new DB(client.models);
+  async run(bot: CrownBot, message: GuildMessage, args: string[]) {
+    const server_prefix = bot.cache.prefix.get(message.guild);
+    const db = new DB(bot.models);
     const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
 
-    const response = new BotMessage({ client, message, text: "", reply: true });
+    const response = new BotMessage({ bot, message, text: "", reply: true });
     const lastfm_user = new User({
       username: user.username,
     });
@@ -45,7 +45,7 @@ class WhoKnowsTrack extends Command {
     let artist_name;
     let track_name;
     if (args.length === 0) {
-      const now_playing = await lastfm_user.get_nowplaying(client, message);
+      const now_playing = await lastfm_user.get_nowplaying(bot, message);
       if (!now_playing) return;
       artist_name = now_playing.artist["#text"];
       track_name = now_playing.name;
@@ -90,7 +90,7 @@ class WhoKnowsTrack extends Command {
     }
 
     const track = query.data.track;
-    const users = (await get_registered_users(client, message))?.users;
+    const users = (await get_registered_users(bot, message))?.users;
     if (!users || users.length <= 0) {
       response.text = `No user in this guild has registered their Last.fm username; see ${cb(
         "help login",
@@ -132,7 +132,7 @@ class WhoKnowsTrack extends Command {
       !responses.length ||
       responses.some((response) => !response?.wrapper.data?.track?.playcount)
     ) {
-      response.text = new Template(client, message).get("lastfm_error");
+      response.text = new Template(bot, message).get("lastfm_error");
       await response.send();
       return;
     }
@@ -168,7 +168,7 @@ class WhoKnowsTrack extends Command {
     }
 
     const last_log: LogInterface | undefined =
-      await client.models.whoplayslog.findOne({
+      await bot.models.whoplayslog.findOne({
         track_name: track.name,
         artist_name: track.artist.name,
         guild_id: message.guild.id,
@@ -233,13 +233,13 @@ class WhoKnowsTrack extends Command {
       footer_text = `Last checked ${time_difference(last_log.timestamp)} ago.`;
     }
     fields_embed.embed
-      .setColor(message.member?.displayColor || "000000")
+      .setColor(message.member?.displayColor || 0x0)
       .setTitle(
         `Who knows the track ${cb(track.name)} by ${cb(track.artist.name)}?`
       )
       .setFooter(footer_text);
     fields_embed.on("start", () => {
-      message.channel.stopTyping(true);
+      // message.channel.stopTyping(true);
     });
     await db.log_whoplays(
       track.name,

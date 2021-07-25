@@ -26,9 +26,9 @@ class OverviewCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage, args: string[]) {
-    const db = new DB(client.models);
-    const response = new BotMessage({ client, message, text: "", reply: true });
+  async run(bot: CrownBot, message: GuildMessage, args: string[]) {
+    const db = new DB(bot.models);
+    const response = new BotMessage({ bot, message, text: "", reply: true });
     let discord_user: DiscordUser;
     let [last_item] = args.slice(-1);
     let user;
@@ -37,7 +37,8 @@ class OverviewCommand extends Command {
       if (last_item.startsWith("!")) {
         last_item = last_item.slice(1);
       }
-      const mention = message.guild?.members.cache.get(last_item);
+
+      const mention = message.guild?.members.cache.get(<any>last_item); // TODO: fix this
       if (!mention) {
         response.text = "Couldn't find the mentioned user in this server.";
         response.send();
@@ -70,7 +71,7 @@ class OverviewCommand extends Command {
 
     let artist_name: string;
     if (args.length === 0) {
-      const now_playing = await author_user.get_nowplaying(client, message);
+      const now_playing = await author_user.get_nowplaying(bot, message);
       if (!now_playing) return;
       artist_name = now_playing.artist["#text"];
     } else {
@@ -99,7 +100,7 @@ class OverviewCommand extends Command {
     const albums = await lastfm_user.get_albums(artist.name);
     const tracks = await lastfm_user.get_tracks(artist.name);
     if (!albums || !tracks) {
-      response.text = new Template(client, message).get("lastfm_error");
+      response.text = new Template(bot, message).get("lastfm_error");
       await response.send();
       return;
     }
@@ -116,7 +117,7 @@ class OverviewCommand extends Command {
       return `${i + 1}. **${esm(truncate(track.name, 25))}** (${track.plays})`;
     });
 
-    const has_crown = await client.models.crowns.findOne({
+    const has_crown = await bot.models.crowns.findOne({
       artistName: artist.name,
       guildID: message.guild.id,
     });
@@ -138,7 +139,7 @@ class OverviewCommand extends Command {
       embed.addField("Top tracks", track_str.join("\n"), true);
     }
 
-    await message.channel.send(embed);
+    await message.channel.send({ embeds: [embed] });
   }
 }
 

@@ -11,12 +11,12 @@ export default class MinPlaysForCrown {
     "For example, running `&config minplaysforcrown 10` would then require users to " +
     "have at least 10 plays on an artist before they get the crown.\n\n" +
     "Examples: \n`&config minplaysforcrown 30` \n `&config minplaysforcrown 20`";
-  async run(client: CrownBot, message: GuildMessage, args: string[]) {
-    const db = new DB(client.models);
+  async run(bot: CrownBot, message: GuildMessage, args: string[]) {
+    const db = new DB(bot.models);
     let current_val = 1;
-    const server_config = client.cache.config.get(message.guild);
+    const server_config = bot.cache.config.get(message.guild);
     if (server_config) current_val = server_config.min_plays_for_crown;
-    const response = new BotMessage({ client, message, text: "", reply: true });
+    const response = new BotMessage({ bot, message, text: "", reply: true });
     if (args.length !== 1) {
       response.reply = false;
       response.text =
@@ -31,7 +31,7 @@ export default class MinPlaysForCrown {
       await response.send();
       return;
     }
-    const existing_crowns: Document[] = await client.models.crowns.find({
+    const existing_crowns: Document[] = await bot.models.crowns.find({
       guildID: message.guild.id,
       artistPlays: {
         $lt: number,
@@ -42,7 +42,7 @@ export default class MinPlaysForCrown {
 
     if (existing_crowns.length) {
       const msg = await new BotMessage({
-        client,
+        bot,
         message,
         text:
           `You are setting the minimum plays required to gain a crown in this server to **${number}**.\n` +
@@ -51,15 +51,15 @@ export default class MinPlaysForCrown {
         reply: true,
       }).send();
       await msg.react("✅");
-      const reactions = await msg.awaitReactions(
-        (reaction: MessageReaction, user: User) => {
-          return reaction.emoji.name === "✅" && user.id === message.author.id;
-        },
-        {
-          max: 1,
-          time: 30000,
-        }
-      );
+      const filter = (reaction: MessageReaction, user: User) => {
+        return reaction.emoji.name === "✅" && user.id === message.author.id;
+      };
+
+      const reactions = await msg.awaitReactions({
+        filter,
+        time: 3000,
+        max: 1,
+      });
       const message_exists = message.channel.messages.cache.get(msg.id);
 
       if (message_exists) msg.delete();
@@ -67,7 +67,7 @@ export default class MinPlaysForCrown {
       if (reactions.size > 0) {
         config.min_plays_for_crown = number;
         await config.save();
-        await client.models.crowns.deleteMany({
+        await bot.models.crowns.deleteMany({
           guildID: message.guild.id,
           artistPlays: {
             $lt: number,
@@ -89,7 +89,7 @@ export default class MinPlaysForCrown {
       await response.send();
     }
     if (
-      !client.cache.config.set(
+      !bot.cache.config.set(
         {
           guild_ID: message.guild.id,
           min_plays_for_crown: config.min_plays_for_crown,

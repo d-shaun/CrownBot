@@ -1,4 +1,3 @@
-import { Client } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
@@ -16,7 +15,7 @@ class BetaCommand extends Command {
     });
   }
 
-  async run(client: Client, bot: CrownBot, message: GuildMessage) {
+  async run(bot: CrownBot, message: GuildMessage) {
     const server_prefix = bot.cache.prefix.get(message.guild);
     const db = new DB(bot.models);
     const response = new BotMessage({
