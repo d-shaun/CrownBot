@@ -1,3 +1,4 @@
+import { Client } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
@@ -15,17 +16,17 @@ class BetaCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage) {
-    const server_prefix = client.cache.prefix.get(message.guild);
-    const db = new DB(client.models);
+  async run(client: Client, bot: CrownBot, message: GuildMessage) {
+    const server_prefix = bot.cache.prefix.get(message.guild);
+    const db = new DB(bot.models);
     const response = new BotMessage({
-      client,
+      bot,
       message,
       reply: true,
       text: "",
     });
 
-    if (!message.member?.hasPermission("MANAGE_GUILD")) {
+    if (!message.member?.permissions.has("MANAGE_GUILD")) {
       response.text =
         "You do not have the permission (``MANAGE_GUILD``) to execute this command.";
       await response.send();

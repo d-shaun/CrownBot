@@ -1,5 +1,5 @@
 import { FieldsEmbed } from "discord-paginationembed";
-import { TextChannel, User } from "discord.js";
+import { Client, TextChannel, User } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
@@ -20,8 +20,13 @@ class CrownsCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage, args: string[]) {
-    const response = new BotMessage({ client, message, text: "", reply: true });
+  async run(
+    client: Client,
+    bot: CrownBot,
+    message: GuildMessage,
+    args: string[]
+  ) {
+    const response = new BotMessage({ bot, message, text: "", reply: true });
     let user: User | undefined;
     let not_op = false;
     if (args.length > 0) {
@@ -37,7 +42,7 @@ class CrownsCommand extends Command {
       return;
     }
 
-    const crowns: CrownInterface[] = await client.models.crowns.find(<
+    const crowns: CrownInterface[] = await bot.models.crowns.find(<
       CrownInterface
     >{
       guildID: message.guild.id,
@@ -73,10 +78,10 @@ class CrownsCommand extends Command {
       });
 
     fields_embed.embed
-      .setColor(message.member?.displayColor || "000000")
+      .setColor(message.member?.displayColor || 0x0)
       .setTitle(`Crowns of ${user.username} in ${message.guild.name}`);
     fields_embed.on("start", () => {
-      message.channel.stopTyping(true);
+      // message.channel.sendTyping(true);
     });
     const avatar = user.avatarURL();
     if (avatar) {

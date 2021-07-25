@@ -1,3 +1,4 @@
+import { Client } from "discord.js";
 import fs from "fs";
 import path from "path";
 import Command, { GuildMessage } from "../../classes/Command";
@@ -16,9 +17,14 @@ class ConfigCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage, args: string[]) {
-    const response = new BotMessage({ client, message, text: "", reply: true });
-    if (!message.member?.hasPermission("MANAGE_GUILD")) {
+  async run(
+    client: Client,
+    bot: CrownBot,
+    message: GuildMessage,
+    args: string[]
+  ) {
+    const response = new BotMessage({ bot, message, text: "", reply: true });
+    if (!message.member?.permissions.has("MANAGE_GUILD")) {
       response.text =
         "You do not have the permission (``MANAGE_GUILD``) to execute this command.";
       await response.send();
@@ -26,7 +32,7 @@ class ConfigCommand extends Command {
     }
     interface ConfigCommandInterface {
       name: string;
-      run: (client: CrownBot, message: GuildMessage, args: string[]) => void;
+      run: (bot: CrownBot, message: GuildMessage, args: string[]) => void;
     }
 
     const command_name = args[0];
@@ -66,7 +72,7 @@ class ConfigCommand extends Command {
       await response.send();
       return;
     }
-    command.run(client, message, secondary_args);
+    command.run(bot, message, secondary_args);
   }
 }
 

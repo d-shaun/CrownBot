@@ -1,4 +1,4 @@
-import { MessageEmbed } from "discord.js";
+import { Client, MessageEmbed } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import CrownBot from "../../handlers/CrownBot";
 import esm from "../../misc/escapemarkdown";
@@ -15,11 +15,12 @@ class CrownboardCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage) {
-    const server_users = (await get_registered_users(client, message))?.users;
+  async run(client: Client, bot: CrownBot, message: GuildMessage) {
+    const server_users = (await get_registered_users(client, bot, message))
+      ?.users;
     if (!server_users) return;
 
-    const crowns = await client.models.crowns
+    const crowns = await bot.models.crowns
       .find({
         guildID: message.guild.id,
         userID: {
@@ -59,7 +60,7 @@ class CrownboardCommand extends Command {
     if (guild_icon) {
       embed.setThumbnail(guild_icon);
     }
-    await message.channel.send(embed);
+    await message.channel.send({ embeds: [embed] });
   }
 }
 

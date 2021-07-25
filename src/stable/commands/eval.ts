@@ -1,3 +1,4 @@
+import { Client } from "discord.js";
 import { inspect } from "util";
 import Command, { GuildMessage } from "../../classes/Command";
 import CrownBot from "../../handlers/CrownBot";
@@ -14,8 +15,13 @@ class EvalCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage, args: string[]) {
-    if (message.author.id !== client.owner_ID) return; // just to be safe
+  async run(
+    client: Client,
+    bot: CrownBot,
+    message: GuildMessage,
+    args: string[]
+  ) {
+    if (message.author.id !== bot.owner_ID) return; // just to be safe
     let trimmed_string;
     try {
       const code = args.join(" ");
@@ -28,9 +34,12 @@ class EvalCommand extends Command {
       trimmed_string = (e.message ? e.message : e).substring(0, 2000);
     }
 
-    await message.channel.send(trimmed_string, {
-      code: "js",
-      split: true,
+    await message.channel.send({
+      content: trimmed_string,
+      options: {
+        code: "js",
+        split: true,
+      },
     });
   }
 }

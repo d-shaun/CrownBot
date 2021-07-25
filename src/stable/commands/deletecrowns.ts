@@ -1,4 +1,4 @@
-import { MessageReaction, User } from "discord.js";
+import { Client, MessageReaction, User } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import { Template } from "../../classes/Template";
 import BotMessage from "../../handlers/BotMessage";
@@ -18,14 +18,19 @@ class DeleteCrownCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage, args: string[]) {
-    const server_prefix = client.cache.prefix.get(message.guild);
-    const db = new DB(client.models);
+  async run(
+    client: Client,
+    bot: CrownBot,
+    message: GuildMessage,
+    args: string[]
+  ) {
+    const server_prefix = bot.cache.prefix.get(message.guild);
+    const db = new DB(bot.models);
     const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
 
     const response = new BotMessage({
-      client,
+      bot,
       message,
       reply: true,
       text: "",
@@ -48,12 +53,12 @@ class DeleteCrownCommand extends Command {
     let text;
     let crowns;
     if (global) {
-      crowns = await client.models.crowns.find(<CrownInterface>{
+      crowns = await bot.models.crowns.find(<CrownInterface>{
         userID: message.author.id,
       });
       text = `Are you sure you want to delete all your **${crowns.length}** crowns **globally**? This will delete your crowns from every server you own crown(s) in. Click on the reaction to continue.`;
     } else {
-      crowns = await client.models.crowns.find(<CrownInterface>{
+      crowns = await bot.models.crowns.find(<CrownInterface>{
         userID: message.author.id,
         guildID: message.guild.id,
       });
@@ -69,40 +74,36 @@ class DeleteCrownCommand extends Command {
       return;
     }
     const msg = await new BotMessage({
-      client,
+      bot,
       message,
       text,
       reply: true,
     }).send();
 
-    await msg.react("✅");
-    const reactions = await msg.awaitReactions(
-      (reaction: MessageReaction, user: User) => {
-        return reaction.emoji.name === "✅" && user.id === message.author.id;
-      },
-      {
-        max: 1,
-        time: 30000,
-      }
-    );
+    const filter = (reaction: MessageReaction, user: User) => {
+      return reaction.emoji.name === "✅" && user.id === message.author.id;
+    };
+
+    const reactions = await msg.awaitReactions({ filter, time: 3000, max: 1 });
+
     const message_exists = message.channel.messages.cache.get(msg.id);
     if (message_exists) msg.delete();
     if (reactions.size > 0) {
       let delete_stats;
       if (global) {
-        delete_stats = await client.models.crowns.deleteMany(<CrownInterface>{
+        delete_stats = await bot.models.crowns.deleteMany(<CrownInterface>{
           userID: message.author.id,
         });
         response.text = `Your **${delete_stats.deletedCount}** crowns have been deleted.`;
       } else {
-        delete_stats = await client.models.crowns.deleteMany(<CrownInterface>{
+        delete_stats = await bot.models.crowns.deleteMany(<CrownInterface>{
           userID: message.author.id,
           guildID: message.guild.id,
         });
         response.text = `Your **${delete_stats.deletedCount}** crowns in this server have been deleted.`;
       }
       if (!delete_stats) {
-        response.text = new Template(client, message).get("exception");
+        response.text = new Template(bot, message).get("exception");
         await response.send();
         return;
       }

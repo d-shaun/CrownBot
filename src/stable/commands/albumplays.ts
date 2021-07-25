@@ -1,4 +1,4 @@
-import { MessageEmbed } from "discord.js";
+import { Client, MessageEmbed } from "discord.js";
 import moment from "moment";
 // @ts-ignore
 import abbreviate from "number-abbreviate";
@@ -30,15 +30,20 @@ class AlbumPlaysCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage, args: string[]) {
-    const server_prefix = client.cache.prefix.get(message.guild);
+  async run(
+    client: Client,
+    bot: CrownBot,
+    message: GuildMessage,
+    args: string[]
+  ) {
+    const server_prefix = bot.cache.prefix.get(message.guild);
     const response = new BotMessage({
-      client,
+      bot,
       message,
       reply: true,
       text: "",
     });
-    const db = new DB(client.models);
+    const db = new DB(bot.models);
     const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
 
@@ -49,7 +54,7 @@ class AlbumPlaysCommand extends Command {
     let artist_name;
     let album_name;
     if (args.length === 0) {
-      const now_playing = await lastfm_user.get_nowplaying(client, message);
+      const now_playing = await lastfm_user.get_nowplaying(bot, message);
       if (!now_playing) return;
       artist_name = now_playing.artist["#text"];
       album_name = now_playing.album["#text"];
@@ -123,7 +128,7 @@ class AlbumPlaysCommand extends Command {
       time: <boolean | string>false,
     };
 
-    const last_log = await client.models.albumlog.findOne(<AlbumLogInterface>{
+    const last_log = await bot.models.albumlog.findOne(<AlbumLogInterface>{
       name: album.name,
       artistName: album.artist,
       userID: message.author.id,
@@ -184,8 +189,8 @@ class AlbumPlaysCommand extends Command {
           `${aggr_str}`
       );
     if (album_cover) embed.setThumbnail(album_cover);
-    await this.update_log(client, message, album);
-    await message.channel.send(embed);
+    await this.update_log(bot, message, album);
+    await message.channel.send({ embeds: [embed] });
   }
 
   async update_log(

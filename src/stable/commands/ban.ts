@@ -1,4 +1,4 @@
-import { MessageReaction, User } from "discord.js";
+import { Client, MessageReaction, User } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import { Template } from "../../classes/Template";
 import BotMessage from "../../handlers/BotMessage";
@@ -20,18 +20,23 @@ class BanCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage, args: string[]) {
-    const server_prefix = client.cache.prefix.get(message.guild);
-    const db = new DB(client.models);
+  async run(
+    client: Client,
+    bot: CrownBot,
+    message: GuildMessage,
+    args: string[]
+  ) {
+    const server_prefix = bot.cache.prefix.get(message.guild);
+    const db = new DB(bot.models);
 
     const response = new BotMessage({
-      client,
+      bot,
       message,
       reply: true,
       text: "",
     });
 
-    if (!message.member?.hasPermission("BAN_MEMBERS")) {
+    if (!message.member?.permissions.has("BAN_MEMBERS")) {
       response.text =
         "You do not have the permission (``BAN_MEMBERS``) to execute this command.";
       await response.send();
@@ -50,7 +55,7 @@ class BanCommand extends Command {
       await response.send();
       return;
     }
-    const banned_user = await client.models.bans.findOne({
+    const banned_user = await bot.models.bans.findOne({
       guildID: message.guild.id,
       userID: user.id,
     });
@@ -70,15 +75,11 @@ class BanCommand extends Command {
 
     await msg.react("✅");
 
-    const reactions = await msg.awaitReactions(
-      (reaction: MessageReaction, user: User) => {
-        return reaction.emoji.name === "✅" && user.id === message.author.id;
-      },
-      {
-        max: 1,
-        time: 30000,
-      }
-    );
+    const filter = (reaction: MessageReaction, user: User) => {
+      return reaction.emoji.name === "✅" && user.id === message.author.id;
+    };
+
+    const reactions = await msg.awaitReactions({ filter, time: 3000, max: 1 });
 
     let response_text;
     if (reactions.size > 0) {
@@ -87,7 +88,7 @@ class BanCommand extends Command {
           user.tag
         )} has been banned from accessing the bot and showing up on the 'whoknows' list.`;
       } else {
-        response_text = new Template(client, message).get("exception");
+        response_text = new Template(bot, message).get("exception");
       }
     } else {
       response_text = "Reaction wasn't clicked; no changes are made.";

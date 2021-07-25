@@ -1,4 +1,4 @@
-import { MessageEmbed } from "discord.js";
+import { Client, MessageEmbed } from "discord.js";
 import moment from "moment";
 // @ts-ignore
 import abbreviate from "number-abbreviate";
@@ -26,10 +26,15 @@ class ArtistPlaysCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage, args: string[]) {
-    const db = new DB(client.models);
+  async run(
+    client: Client,
+    bot: CrownBot,
+    message: GuildMessage,
+    args: string[]
+  ) {
+    const db = new DB(bot.models);
     const user = await db.fetch_user(message.guild.id, message.author.id);
-    const response = new BotMessage({ client, message, reply: true });
+    const response = new BotMessage({ bot, message, reply: true });
 
     if (!user) return;
     const lastfm_user = new User({
@@ -38,7 +43,7 @@ class ArtistPlaysCommand extends Command {
 
     let artist_name;
     if (args.length === 0) {
-      const now_playing = await lastfm_user.get_nowplaying(client, message);
+      const now_playing = await lastfm_user.get_nowplaying(bot, message);
       if (!now_playing) return;
       artist_name = now_playing.artist["#text"];
     } else {
@@ -62,7 +67,7 @@ class ArtistPlaysCommand extends Command {
       count: "No change",
       time: <boolean | string>false,
     };
-    const last_log = await client.models.artistlog.findOne(<ArtistLogInterface>{
+    const last_log = await bot.models.artistlog.findOne(<ArtistLogInterface>{
       name: artist.name,
       userID: message.author.id,
     });
@@ -94,8 +99,8 @@ class ArtistPlaysCommand extends Command {
           1
         )} plays) \n\n ${aggr_str}`
       );
-    await this.update_log(client, message, artist);
-    await message.channel.send(embed);
+    await this.update_log(bot, message, artist);
+    await message.channel.send({ embeds: [embed] });
   }
 
   async update_log(

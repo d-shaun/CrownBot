@@ -32,6 +32,7 @@ interface CommandInterface {
 
 export interface GuildMessage extends Message {
   guild: Guild;
+  channel: TextChannel;
 }
 
 export default class Command {

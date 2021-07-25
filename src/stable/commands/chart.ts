@@ -1,5 +1,5 @@
 import { createCanvas, loadImage, registerFont } from "canvas";
-import { MessageAttachment } from "discord.js";
+import { Client, MessageAttachment } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
@@ -53,14 +53,19 @@ class ChartCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage, args: string[]) {
-    const server_prefix = client.cache.prefix.get(message.guild);
+  async run(
+    client: Client,
+    bot: CrownBot,
+    message: GuildMessage,
+    args: string[]
+  ) {
+    const server_prefix = bot.cache.prefix.get(message.guild);
     const response = new BotMessage({
-      client,
+      bot,
       message,
       reply: true,
     });
-    const db = new DB(client.models);
+    const db = new DB(bot.models);
     const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
     const lastfm_user = new User({
@@ -210,10 +215,10 @@ class ChartCommand extends Command {
 
     /* generate chart */
     const chart = await this.generate_chart(data, config);
-    message.reply(
-      `here's your ${config.period.text} ${config.size.x}x${config.size.y} ${config.type} chart.`,
-      chart
-    );
+    await message.reply({
+      content: `here's your ${config.period.text} ${config.size.x}x${config.size.y} ${config.type} chart.`,
+      files: [chart],
+    });
   }
 
   async generate_chart(data: Data[], config: Config) {
