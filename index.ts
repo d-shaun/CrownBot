@@ -1,7 +1,7 @@
-import { Client, Intents } from "discord.js";
+import { Client } from "discord.js";
+import fs from "fs";
 import path from "path";
 import CrownBot from "./src/handlers/CrownBot";
-import fs from "fs";
 /*
 # REQUIRED
 ======================================================================================================
@@ -27,7 +27,7 @@ SPOTIFY_SECRETID: Spotify client ID for the &chart command to show artist images
     }
 
     const bot = await new CrownBot({
-      version: "9.4.0",
+      version: "10.0.0-alpha",
       prefix: "&",
       buttons_version: "001", // update this to invalidate existing buttons
 

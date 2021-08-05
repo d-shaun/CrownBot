@@ -1,4 +1,4 @@
-import { GuildMember, User } from "discord.js";
+import { GuildMember, User, UserResolvable } from "discord.js";
 import { GuildMessage } from "../classes/Command";
 
 /**
@@ -18,15 +18,21 @@ export default async function search_user(
   let user: GuildMember | undefined;
   // workaround to support resolving user ID and searching username
   try {
-    user = await message.guild.members.fetch({ user: username, force: true });
+    user = await message.guild.members.fetch({
+      user: <UserResolvable>username,
+      force: true,
+    });
   } catch (_) {
     user = undefined;
   }
+
+  console.log(user);
 
   if (!user) {
     user = (
       await message.guild.members.fetch({ query: username, limit: 1 })
     )?.first(); // find similar username
   }
+  console.log(user);
   return user ? user.user : undefined;
 }

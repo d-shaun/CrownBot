@@ -1,4 +1,4 @@
-import { Client, GuildMember } from "discord.js";
+import { GuildMember, UserResolvable } from "discord.js";
 import { GuildMessage } from "../classes/Command";
 import CrownBot from "../handlers/CrownBot";
 import { BanInterface } from "../stable/models/Bans";
@@ -32,7 +32,7 @@ export default async function get_registered_users(
   const relevant_users = [
     ...(
       await message.guild.members.fetch({
-        user: database_users.map((user) => user.userID),
+        user: <UserResolvable[]>database_users.map((user) => user.userID),
         force: true,
       })
     ).entries(),
@@ -41,7 +41,9 @@ export default async function get_registered_users(
   const relevant_users_id = relevant_users.map((user) => user[0]);
 
   const users = database_users
-    .filter((database_user) => relevant_users_id.includes(database_user.userID))
+    .filter((database_user) =>
+      relevant_users_id.includes(<any>database_user.userID)
+    )
     .map((database_user) => {
       const t_2 = relevant_users.find(
         ([user_id]) => user_id === database_user.userID

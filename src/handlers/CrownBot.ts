@@ -25,8 +25,6 @@ export default class CrownBot {
   beta_commands: Command[] = [];
   models: { [key: string]: Model<any> } = {};
 
-  disbut?: any;
-
   constructor(options: any) {
     this.version = options.version;
     this.prefix = options.prefix;
@@ -39,7 +37,6 @@ export default class CrownBot {
     this.mongo = options.mongo;
 
     this.url = options.url;
-    this.disbut = options.disbut;
   }
 
   /**
@@ -54,7 +51,6 @@ export default class CrownBot {
   async init() {
     await this.load_db();
     if (!this.mongoose) throw "welp";
-    console.log(this.mongoose);
     this.load_commands().load_models();
     await this.cache.prefix.init(); /* cache server prefixes for the session */
     await this.cache.config.init(); /* cache server configs for the session */
