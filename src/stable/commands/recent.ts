@@ -90,7 +90,7 @@ class RecentCommand extends Command {
         `**${esm(track.artist["#text"], true)}** — [${esm(
           track.name,
           true
-        )}](${truncate_str(track.url, 40)}) · ${esm(
+        )}](${truncate_str(track.url, 200)}) · ${esm(
           track.album["#text"],
           true
         )}`
