@@ -5,6 +5,16 @@ import { LastFMResponse } from "../interfaces/LastFMResponseInterface";
 
 const { API_KEY } = process.env;
 
+// custom overrides for vague or unfitting Last.fm error messages
+const error_overrides = [
+  {
+    code: "17",
+    message:
+      "Please disable the 'Hide recent listening' option on your Last.fm account for this function to work.\
+\n(Last.fm -> Settings -> Privacy -> Recent listening -> uncheck Hide recent listening information)",
+  },
+];
+
 export class LastFM {
   timeout = { timeout: 30 * 1000 };
   format = "json";
@@ -32,9 +42,14 @@ export class LastFM {
       .then((res) => res)
       .catch((error) => error.response || error);
 
+    const error_message = error_overrides.find(
+      (e) => e.code == response.data?.error
+    );
     const reply = {
       lastfm_errorcode: response.data?.error,
-      lastfm_errormessage: response.data?.message,
+      lastfm_errormessage: error_message
+        ? error_message.message
+        : response.data?.message,
       axios_status: response.status,
       data: response.data,
       success: false,
