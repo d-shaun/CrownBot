@@ -1,4 +1,4 @@
-import { Client } from "discord.js";
+import { Client, Options } from "discord.js";
 import fs from "fs";
 import path from "path";
 import CrownBot from "./src/handlers/CrownBot";
