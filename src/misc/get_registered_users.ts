@@ -1,4 +1,4 @@
-import { GuildMember } from "discord.js";
+import { GuildMember, UserResolvable } from "discord.js";
 import { GuildMessage } from "../classes/Command";
 import CrownBot from "../handlers/CrownBot";
 import { BanInterface } from "../stable/models/Bans";
@@ -21,38 +21,29 @@ export default async function get_registered_users(
   client: CrownBot,
   message: GuildMessage
 ): Promise<UserFetchInterface | undefined> {
-  const database_users: UserInterface[] = await client.models.serverusers.find({
-    guildID: message.guild.id,
-  });
   const banned_users: BanInterface[] = await client.models.bans.find({
     guildID: { $in: [message.guild.id, "any"] },
   });
   const banned_ids = banned_users.map((user) => user.userID);
 
-  const relevant_users = [
-    ...(
-      await message.guild.members.fetch({
-        user: database_users.map((user) => user.userID),
-        force: true,
-      })
-    ).entries(),
-  ].filter((user) => !banned_ids.includes(user[0]));
+  const server_db = (<UserInterface[]>await client.models.serverusers.find({
+    guildID: message.guild.id,
+  })).filter((user) => !banned_ids.includes(user.userID));
 
-  const relevant_users_id = relevant_users.map((user) => user[0]);
+  const entries = [];
 
-  const users = database_users
-    .filter((database_user) => relevant_users_id.includes(database_user.userID))
-    .map((database_user) => {
-      const t_2 = relevant_users.find(
-        ([user_id]) => user_id === database_user.userID
-      );
-      if (!t_2) throw "not possible";
-      const discord = t_2[1];
-      return {
-        discord,
-        database: database_user,
-      };
-    });
+  const discord = await message.guild.members.fetch({
+    user: <UserResolvable[]>server_db.map((user) => user.userID),
+    force: true,
+  });
 
-  return { users };
+  for await (const user of discord) {
+    const djsuser = discord.last();
+    if (!djsuser) continue;
+    const dbuser = server_db.find((user) => user.userID === djsuser.id);
+    if (!dbuser) continue;
+    entries.push({ discord: djsuser, database: dbuser });
+  }
+
+  return { users: entries };
 }
