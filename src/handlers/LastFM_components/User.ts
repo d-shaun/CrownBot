@@ -10,6 +10,7 @@ import { LastFM } from "../LastFM";
 import cheerio from "cheerio";
 import cb from "../../misc/codeblock";
 import Axios from "axios";
+import { LastFMResponse } from "../../interfaces/LastFMResponseInterface";
 
 export default class extends LastFM {
   prefix = "user.";
@@ -23,6 +24,15 @@ export default class extends LastFM {
     super();
     this.username = username;
     if (limit) this.configs.limit = limit;
+  }
+
+  /**
+   * Checks if Last.fm User has at least one scrobble
+   */
+  private validate_user(length: number, query: LastFMResponse<any>) {
+    if (length <= 0)
+      query.lastfm_errormessage =
+        "The user you are logged in as hasn't scrobbled anything; please check if you have misspelled your username.";
   }
 
   async get_info() {
@@ -56,6 +66,8 @@ export default class extends LastFM {
       ) {
         query.success = false;
       }
+
+      this.validate_user(query.data.recenttracks?.track.length, query);
     }
     return query;
   }
@@ -78,6 +90,7 @@ export default class extends LastFM {
       ) {
         query.success = false;
       }
+      this.validate_user(query.data.topartists?.artist.length, query);
     }
 
     return query;
@@ -97,6 +110,7 @@ export default class extends LastFM {
       if (!query.data.toptracks?.track || !query.data.toptracks?.track.length) {
         query.success = false;
       }
+      this.validate_user(query.data.toptracks?.track.length, query);
     }
     return query;
   }
@@ -115,6 +129,7 @@ export default class extends LastFM {
       if (!query.data.topalbums?.album || !query.data.topalbums?.album.length) {
         query.success = false;
       }
+      this.validate_user(query.data.topalbums?.album.length, query);
     }
     return query;
   }
