@@ -12,8 +12,13 @@ export default function esm(text: string, truncate = false) {
   /* replace backticks (`) with single-quotes (') */
   const unescaped = text.replace(/[`]/g, "'");
 
-  // .replace(/\\(\*|_|`|~|\\)/g, "$1"); // unescape any "backslashed" character
-  const escaped = unescaped.replace(/(\*|_|`|~|\\)/g, "\\$1").trim(); // escape *, _, `, ~, \
+  const escaped = unescaped
+    .replace(/(\*|_|`|~|\\)/g, "\\$1") // escape *, _, `, ~, \
+
+    .replace(/[\[]/g, "⦋") // replace [ with ⦋ 'cause Discord embed can't handle it
+    .replace(/[\]]/g, "⦌") // ditto ] with ⦌
+
+    .trim();
 
   return truncate ? truncate_str(escaped, 25) : escaped;
 }
