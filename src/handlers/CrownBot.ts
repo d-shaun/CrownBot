@@ -9,6 +9,7 @@ export default class CrownBot {
   version: string;
   prefix: string;
   buttons_version: string;
+  max_users: number;
 
   cache = new CacheHandler(this);
   owner_ID: string;
@@ -29,6 +30,7 @@ export default class CrownBot {
     this.version = options.version;
     this.prefix = options.prefix;
     this.buttons_version = options.version;
+    this.max_users = options.max_users || 200;
 
     this.owner_ID = options.owner_ID;
     this.api_key = options.api_key;

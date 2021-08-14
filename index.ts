@@ -30,6 +30,7 @@ SPOTIFY_SECRETID: Spotify client ID for the &chart command to show artist images
       version: "10.0.0-alpha",
       prefix: "&",
       buttons_version: "001", // update this to invalidate existing buttons
+      max_users: 250, // max user-support per server
 
       owner_ID: OWNER_ID,
       api_key: API_KEY,

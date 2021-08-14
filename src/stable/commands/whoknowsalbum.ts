@@ -99,8 +99,8 @@ class WhoKnowsAlbum extends Command {
       return;
     }
 
-    if (users.length > 250) {
-      users.length = 250;
+    if (users.length > bot.max_users) {
+      users.length = bot.max_users;
     }
     const lastfm_requests = [];
 
