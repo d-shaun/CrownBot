@@ -107,19 +107,19 @@ class HelpCommand extends Command {
       .setLabel("User-related stats")
       .setEmoji("🙇")
       .setValue("userstat")
-      .setDescription("Individual user's stats—like charts, list, crowns.");
+      .setDescription("Individual user's stats—like charts, list, crowns");
 
     const serverstats = new client.disbut.MessageMenuOption()
       .setLabel("Server-related stats")
       .setEmoji("📊")
       .setValue("serverstat")
-      .setDescription("Server's stats—like crownboard, 'who knows'.");
+      .setDescription("Server's stats—like crownboard, 'who knows'");
 
     const configure = new client.disbut.MessageMenuOption()
       .setLabel("Preferences")
       .setEmoji("🛠️")
       .setValue("configure")
-      .setDescription("Commands to configure bot's preferences.");
+      .setDescription("Commands to configure bot's preferences");
 
     const beta = new client.disbut.MessageMenuOption()
       .setLabel("Beta commands")
@@ -131,7 +131,7 @@ class HelpCommand extends Command {
       .setLabel("Other")
       .setEmoji("🪄")
       .setValue("other")
-      .setDescription("Commands that do not fit the existing categories.");
+      .setDescription("Commands that do not fit the existing categories");
 
     const select = new client.disbut.MessageMenu()
       .setID("help_menu" + client.buttons_version)
