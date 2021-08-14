@@ -98,7 +98,7 @@ class PlayingCommand extends Command {
         const track = res.track;
         const user: GuildMember = res.context.discord_user;
         if (!track || !user) return;
-        const str = `**${esm(user.user.username)}**\n[${esm(
+        const str = `**${esm(user.user.username)}**\n└ [${esm(
           track.name,
           true
         )}](${truncate_str(track.url, 200)}) · ${esm(
@@ -110,7 +110,7 @@ class PlayingCommand extends Command {
 
     fields_embed.embed
       .setColor(message.member?.displayColor || "000000")
-      .setTitle(`What is being played in ${message.guild?.name}?`);
+      .setTitle(`Now playing in the server`);
     fields_embed.on("start", () => {
       message.channel.stopTyping(true);
     });
