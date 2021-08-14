@@ -15,7 +15,7 @@ export default function esm(text: string, truncate = false) {
   const escaped = unescaped
     .replace(/(\*|_|`|~|\\)/g, "\\$1") // escape *, _, `, ~, \
 
-    .replace(/[\[]/g, "⦋") // replace [ with ⦋ 'cause Discord embed can't handle it
+    .replace(/[[]/g, "⦋") // replace [ with ⦋ 'cause Discord embed can't handle it
     .replace(/[\]]/g, "⦌") // ditto ] with ⦌
 
     .trim();
