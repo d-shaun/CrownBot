@@ -40,7 +40,7 @@ export default async function get_registered_users(
   });
 
   for await (const user of discord) {
-    const djsuser = discord.last();
+    const djsuser = user[1];
     if (!djsuser) continue;
     const dbuser = server_db.find((user) => user.userID === djsuser.id);
     if (!dbuser) continue;

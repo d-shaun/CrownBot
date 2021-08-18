@@ -94,13 +94,6 @@ class HelpCommand extends Command {
       return;
     }
 
-    // const top = new MessageActionRow()
-    //   .setLabel("Top commands")
-    //   .setEmoji("👑")
-    //   .setValue("top")
-    //   .setDescription("Top essential and most-used commands")
-    //   .setDefault();
-
     const message_options = <MessageSelectOptionData[]>[
       {
         label: "Setting up",
@@ -112,58 +105,21 @@ class HelpCommand extends Command {
         label: "User-related stats",
         emoji: "🙇",
         value: "userstat",
-        description: "Individual user's stats—like charts, list, crowns.",
+        description: "Individual user's stats—like charts, list, crowns",
       },
       {
         label: "Server-related stats",
         emoji: "📊",
         value: "serverstat",
-        description: "Server's stats—like crownboard, 'who knows'.",
+        description: "Server's stats—like crownboard, 'who knows'",
       },
       {
         label: "Preferences",
         emoji: "🛠️",
         value: "configure",
-        description: "Commands to configure bot's preferences.",
+        description: "Commands to configure bot's preferences",
       },
     ];
-
-    // const setup = new MessageMenuOption()
-    //   .setLabel("Setting up")
-    //   .setEmoji("🦋")
-    //   .setValue("setup")
-    //   .setDescription("Primary commands to get you set up with the bot")
-    //   .setDefault();
-
-    // const userstats = new MessageMenuOption()
-    // .setLabel("User-related stats")
-    // .setEmoji("🙇")
-    // .setValue("userstat")
-    // .setDescription("Individual user's stats—like charts, list, crowns.");
-
-    // const serverstats = new MessageMenuOption()
-    //   .setLabel("Server-related stats")
-    //   .setEmoji("📊")
-    //   .setValue("serverstat")
-    //   .setDescription("Server's stats—like crownboard, 'who knows'.");
-
-    // const configure = new MessageMenuOption()
-    //   .setLabel("Preferences")
-    //   .setEmoji("🛠️")
-    //   .setValue("configure")
-    //   .setDescription("Commands to configure bot's preferences.");
-
-    // const beta = new MessageMenuOption()
-    //   .setLabel("Beta commands")
-    //   .setEmoji("✨")
-    //   .setValue("beta")
-    //   .setDescription("Experimental commands");
-
-    // const other = new MessageMenuOption()
-    //   .setLabel("Other")
-    //   .setEmoji("🪄")
-    //   .setValue("other")
-    //   .setDescription("Commands that do not fit the existing categories.");
 
     const select = new MessageSelectMenu()
       .setCustomId("help_menu" + bot.buttons_version)
