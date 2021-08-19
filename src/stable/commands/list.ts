@@ -150,10 +150,12 @@ class ListCommand extends Command {
       let top_artists = query.data.topartists.artist;
 
       let last_log: any | null = null;
-      last_log = await client.models.listartistlog.findOne({
-        user_id: message.author.id,
-        guild_id: message.guild.id,
-      });
+      if (config.period.value === "overall") {
+        last_log = await client.models.listartistlog.findOne({
+          user_id: message.author.id,
+          guild_id: message.guild.id,
+        });
+      }
 
       let cached_log: UserTopArtist["topartists"]["artist"];
       if (last_log && last_log.stat.length) {
@@ -217,7 +219,13 @@ class ListCommand extends Command {
           `Last checked ${time_difference(last_log.timestamp)} ago.`
         );
       }
-      await db.log_list_artist(cached_log, message.author.id, message.guild.id);
+      if (config.period.value === "overall" && message.guild) {
+        await db.log_list_artist(
+          cached_log,
+          message.author.id,
+          message.guild.id
+        );
+      }
       await message.channel.send(embed);
     } else if (config.type === "song") {
       const query = await lastfm_user.get_top_tracks({
