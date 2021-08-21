@@ -59,8 +59,15 @@ class CrownboardCommand extends Command {
     const embed = new MessageEmbed().setTitle(`Crown leaderboard`);
 
     if (!counts.length) {
+      embed.setDescription(
+        "Nobody has acquired any crown in this server; try using the `whoknows` command."
+      );
+      await message.channel.send(embed);
       return;
-      //
+    }
+
+    if (counts.length > 15) {
+      counts.length = 15;
     }
 
     let description_text = "";
