@@ -5,7 +5,7 @@ You can have multiple Discord accounts with the same Last.fm username, but not s
 
 This is to prevent one logging in as any username they want and stack crowns they don't own.
 
-Feel free to share if you have anything to say about this change.
+**Need help?** Join the support server: https://discord.gg/zzJ5zmA
 
 ```
 --&login abc
