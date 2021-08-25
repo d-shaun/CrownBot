@@ -18,6 +18,7 @@ export default class CrownBot extends CrownBotClass {
   async init() {
     await super.load_db();
     this.load_commands().load_events().load_models();
+    await this.load_botconfig();
     await this.cache.prefix.init(); /* cache server prefixes for the session */
     await this.cache.config.init(); /* cache server configs for the session */
     await super.log_in();
@@ -81,5 +82,13 @@ export default class CrownBot extends CrownBotClass {
       const schema = require(path.join(dir, file)).default(this.mongoose);
       this.models[model_name.toLowerCase()] = model(model_name, schema);
     });
+  }
+
+  /**
+   * Fetches and stores the BotConfig model
+   */
+  async load_botconfig() {
+    this.botconfig = await this.models.botconfig.findOne();
+    return this;
   }
 }

@@ -81,6 +81,13 @@ export default class Command {
       return;
     }
 
+    if (client.botconfig?.maintenance) {
+      response.text =
+        "The bot is currently under maintenance; please try again in a while.";
+      await response.send();
+      if (message.author.id !== client.owner_ID) return;
+    }
+
     const ban_info = await check_ban(message, client);
     if (ban_info.banned && message.author.id !== client.owner_ID) {
       if (ban_info.type === "global" && !this.allow_banned) {

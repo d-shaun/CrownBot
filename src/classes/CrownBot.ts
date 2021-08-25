@@ -1,5 +1,6 @@
 import { Client } from "discord.js";
 import { connect, Model, Mongoose } from "mongoose";
+import { BotConfigInterface } from "../stable/models/BotConfig";
 import { ServerConfigInterface } from "../stable/models/ServerConfig";
 import Command from "./Command";
 
@@ -30,7 +31,7 @@ class CrownBotClass extends Client {
   mongoose: Mongoose | undefined;
   genius_api?: string;
   disbut = require("discord-buttons");
-
+  botconfig: BotConfigInterface | undefined;
   constructor(options: OptionInterface) {
     super();
     this.prefix = options.prefix;
