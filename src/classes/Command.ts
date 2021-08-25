@@ -103,6 +103,14 @@ export default class Command {
       const user = await db.fetch_user(message.guild.id, message.author.id);
       if (!user) {
         response.text = new Template(client, message).get("not_logged");
+
+        // temporary message for the &snap'ed users
+        if (await db.check_snap(message.guild.id, message.author.id)) {
+          response.text =
+            "You have been logged out of the bot in this server because **you have crown(s) registered under multiple Last.fm usernames**.\n\n" +
+            "Please login again with your primary username: `&login <lastfm username>`\n\n[Click here to learn more about this change](https://github.com/d-shaun/CrownBot/blob/master/CROWN_SYSTEM_CHANGE.md). ";
+        }
+
         await response.send();
         return;
       }
