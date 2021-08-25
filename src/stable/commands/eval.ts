@@ -1,6 +1,8 @@
+import path from "path";
 import { inspect } from "util";
 import Command, { GuildMessage } from "../../classes/Command";
 import CrownBot from "../../handlers/CrownBot";
+import fs from "fs";
 
 class EvalCommand extends Command {
   constructor() {
@@ -16,22 +18,67 @@ class EvalCommand extends Command {
 
   async run(client: CrownBot, message: GuildMessage, args: string[]) {
     if (message.author.id !== client.owner_ID) return; // just to be safe
-    let trimmed_string;
-    try {
-      const code = args.join(" ");
-      let evaled = await eval(code);
-      if (typeof evaled !== "string") {
-        evaled = inspect(evaled);
+
+    if (args[0] !== "command") {
+      let trimmed_string;
+      try {
+        const code = args.join(" ");
+        let evaled = await eval(code);
+        if (typeof evaled !== "string") {
+          evaled = inspect(evaled);
+        }
+        trimmed_string = evaled.substring(0, 2000);
+      } catch (e) {
+        trimmed_string = (e.message ? e.message : e).substring(0, 2000);
       }
-      trimmed_string = evaled.substring(0, 2000);
-    } catch (e) {
-      trimmed_string = (e.message ? e.message : e).substring(0, 2000);
+
+      await message.channel.send(trimmed_string, {
+        code: "js",
+        split: true,
+      });
+      return;
     }
 
-    await message.channel.send(trimmed_string, {
-      code: "js",
-      split: true,
+    // executing commands inside ./owner_only/
+
+    interface OwnerOnlyCommandInterface {
+      name: string;
+      run: (
+        client: CrownBot,
+        message: GuildMessage,
+        args: string[]
+      ) => Promise<void>;
+    }
+
+    const command_name = args[1];
+    if (!command_name) {
+      await message.channel.send("??");
+      return;
+    }
+    const secondary_args = args.slice(2);
+    const dir: string = path.join(__dirname, "./owner_only");
+    const owner_commands: OwnerOnlyCommandInterface[] = [];
+    const owner_files: string[] = fs.readdirSync(dir);
+    owner_files.forEach((file: string) => {
+      if (file.endsWith(".js")) {
+        const Command = require(path.join(dir, file)).default;
+
+        owner_commands.push(new Command());
+      }
     });
+
+    const command = owner_commands.find(
+      (command) => command.name === command_name
+    );
+
+    if (!command) {
+      await message.channel.send("Command not found.");
+      return;
+    }
+
+    await message.channel.send("Executing owner-only command: `snap`");
+    await command.run(client, message, secondary_args);
+    await message.channel.send("Finished executing `snap`");
   }
 }
 
