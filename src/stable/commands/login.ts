@@ -1,3 +1,4 @@
+import { MessageReaction } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import { Template } from "../../classes/Template";
 import BotMessage from "../../handlers/BotMessage";
@@ -5,7 +6,8 @@ import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
 import User from "../../handlers/LastFM_components/User";
 import cb from "../../misc/codeblock";
-
+import { User as DiscordUser } from "discord.js";
+import { CrownInterface } from "../models/Crowns";
 class LoginCommand extends Command {
   constructor() {
     super({
@@ -30,30 +32,6 @@ class LoginCommand extends Command {
     const user = await db.fetch_user(message.guild.id, message.author.id);
 
     if (args.length === 0) {
-      const legacy_user = await db.legacy_fetch_user(message.author.id);
-      if (legacy_user && !user) {
-        if (
-          await db.add_user(
-            message.guild.id,
-            message.author.id,
-            legacy_user.username
-          )
-        ) {
-          response.text =
-            `You've been logged into the bot ` +
-            `with your previously set username ${cb(
-              legacy_user.username
-            )} in this server; if you wish to change it, run ${cb(
-              "login <new username>",
-              prefix
-            )}.`;
-        } else {
-          response.text = new Template(client, message).get("exception");
-        }
-        await response.send();
-
-        return;
-      }
       response.text =
         `please provide your Last.fm username along with the login command; ` +
         `see ${cb("help login", prefix)}.`;
@@ -61,11 +39,54 @@ class LoginCommand extends Command {
       return;
     }
 
+    const username = args.join();
+
+    const existing_crowns = await client.models.crowns.find({
+      guildID: message.guild.id,
+      userID: message.author.id,
+      lastfm_username: { $ne: username },
+    });
+
+    if (existing_crowns.length) {
+      const msg = await new BotMessage({
+        client,
+        message,
+        text: `You have **${existing_crowns.length}** crowns registered under another Last.fm username.\nChanging your username will **delete** those crowns in this server. Continue?`,
+        reply: true,
+      }).send();
+      await msg.react("✅");
+      console.log(existing_crowns);
+      const reactions = await msg.awaitReactions(
+        (reaction: MessageReaction, user: DiscordUser) => {
+          return reaction.emoji.name === "✅" && user.id === message.author.id;
+        },
+        {
+          max: 1,
+          time: 30000,
+        }
+      );
+      const message_exists = message.channel.messages.cache.get(msg.id);
+      if (message_exists) msg.delete();
+      if (reactions.size > 0) {
+        const delete_stats = await client.models.crowns.deleteMany(<
+          CrownInterface
+        >{
+          userID: message.author.id,
+          guildID: message.guild.id,
+        });
+        response.text = `Your **${delete_stats.deletedCount}** crowns registered under another username in this server have been deleted.`;
+        await response.send();
+      } else {
+        response.text = "Reaction wasn't clicked; no changes are made.";
+        await response.send();
+        return;
+      }
+    }
+
+    await db.unsnap(message.guild.id, message.author.id);
     if (user) {
       await db.remove_user(message.guild.id, message.author.id);
     }
-
-    const username = args.join();
 
     const lastfm_user = await new User({ username }).get_info();
     if (lastfm_user.lastfm_errorcode || !lastfm_user.success) {
