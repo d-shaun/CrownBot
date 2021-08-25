@@ -38,11 +38,11 @@ class LoginCommand extends Command {
     }
 
     const username = args.join();
-
+    const RE = new RegExp(username, "gi");
     const existing_crowns = await client.models.crowns.find({
       guildID: message.guild.id,
       userID: message.author.id,
-      lastfm_username: { $ne: username },
+      lastfm_username: { $not: RE },
     });
 
     if (existing_crowns.length) {
@@ -68,7 +68,7 @@ class LoginCommand extends Command {
         const delete_stats = await client.models.crowns.deleteMany({
           userID: message.author.id,
           guildID: message.guild.id,
-          lastfm_username: { $ne: username },
+          lastfm_username: { $not: RE },
         });
         response.text = `Your **${delete_stats.deletedCount}** crowns registered under another username in this server have been deleted.`;
         await response.send();
