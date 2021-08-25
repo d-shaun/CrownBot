@@ -108,7 +108,7 @@ export default class Command {
         if (await db.check_snap(message.guild.id, message.author.id)) {
           response.text =
             "You have been logged out of the bot in this server because **you have crown(s) registered under multiple Last.fm usernames**.\n\n" +
-            "Please login again with your primary username: `&login <lastfm username>`\n\n[Click here to learn more about this change](https://github.com/d-shaun/CrownBot/issues/40). ";
+            "Please login again with your primary username: `&login <lastfm username>`\n\n[Click here to learn more about this change](https://github.com/d-shaun/CrownBot/issues/40) ";
         }
 
         await response.send();
