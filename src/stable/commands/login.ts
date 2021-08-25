@@ -1,4 +1,4 @@
-import { MessageReaction } from "discord.js";
+import { MessageReaction, User as DiscordUser } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import { Template } from "../../classes/Template";
 import BotMessage from "../../handlers/BotMessage";
@@ -6,8 +6,6 @@ import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
 import User from "../../handlers/LastFM_components/User";
 import cb from "../../misc/codeblock";
-import { User as DiscordUser } from "discord.js";
-import { CrownInterface } from "../models/Crowns";
 class LoginCommand extends Command {
   constructor() {
     super({
@@ -55,7 +53,6 @@ class LoginCommand extends Command {
         reply: true,
       }).send();
       await msg.react("✅");
-      console.log(existing_crowns);
       const reactions = await msg.awaitReactions(
         (reaction: MessageReaction, user: DiscordUser) => {
           return reaction.emoji.name === "✅" && user.id === message.author.id;
@@ -68,11 +65,10 @@ class LoginCommand extends Command {
       const message_exists = message.channel.messages.cache.get(msg.id);
       if (message_exists) msg.delete();
       if (reactions.size > 0) {
-        const delete_stats = await client.models.crowns.deleteMany(<
-          CrownInterface
-        >{
+        const delete_stats = await client.models.crowns.deleteMany({
           userID: message.author.id,
           guildID: message.guild.id,
+          lastfm_username: { $ne: username },
         });
         response.text = `Your **${delete_stats.deletedCount}** crowns registered under another username in this server have been deleted.`;
         await response.send();
