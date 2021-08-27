@@ -38,7 +38,10 @@ class LoginCommand extends Command {
     }
 
     const username = args.join();
-    const RE = new RegExp(username, "gi");
+    const escapeRegex = (str: string) => {
+      return str.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
+    };
+    const RE = new RegExp("^" + escapeRegex(username) + "$", "i");
     const existing_crowns = await client.models.crowns.find({
       guildID: message.guild.id,
       userID: message.author.id,
