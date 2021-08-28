@@ -152,7 +152,7 @@ export default class Command {
       message.channel.stopTyping(true);
 
       await this.log_command(client, message);
-    } catch (e) {
+    } catch (e: any) {
       message.channel.stopTyping(true);
       console.error(e);
       await this.log_error(client, message, e.stack || e);

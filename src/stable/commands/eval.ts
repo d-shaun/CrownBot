@@ -28,7 +28,7 @@ class EvalCommand extends Command {
           evaled = inspect(evaled);
         }
         trimmed_string = evaled.substring(0, 2000);
-      } catch (e) {
+      } catch (e: any) {
         trimmed_string = (e.message ? e.message : e).substring(0, 2000);
       }
 
