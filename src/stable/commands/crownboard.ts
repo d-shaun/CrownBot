@@ -57,12 +57,7 @@ class CrownboardCommand extends Command {
       .sort((a, b) => b.count - a.count);
 
     const embed = new MessageEmbed().setTitle(`Crown leaderboard`);
-    counts.push({
-      lastfm_username: "heheboi",
-      count: 1,
-      username: "mlem",
-      userID: "391201",
-    });
+
     if (!counts.length) {
       embed.setDescription(
         "Nobody has acquired any crown in this server; try using the `whoknows` command."
