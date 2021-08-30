@@ -20,6 +20,9 @@ export default async (client: CrownBot, message: GuildMessage) => {
 
   const response = new BotMessage({ client, message, text: "", reply: true });
 
+  // prevent message-loop if/when bot @ itself
+  if (message.author.bot) return;
+
   const server_prefix = client.cache.prefix.get(message.guild);
   if (
     message.mentions.has(client.user, {
