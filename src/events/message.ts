@@ -28,7 +28,8 @@ export default async (client: CrownBot, message: GuildMessage) => {
     message.mentions.has(client.user, {
       ignoreEveryone: true,
       ignoreRoles: true,
-    })
+    }) &&
+    !message.reference
   ) {
     response.text = `The prefix for this server is \`${server_prefix}\`. Try \`${server_prefix}help\`.`;
     await response.send();
