@@ -76,9 +76,8 @@ class EvalCommand extends Command {
       return;
     }
 
-    await message.channel.send("Executing owner-only command: `snap`");
     await command.run(client, message, secondary_args);
-    await message.channel.send("Finished executing `snap`");
+    await message.channel.send("Finished executing `" + command.name + "`");
   }
 }
 

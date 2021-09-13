@@ -88,7 +88,7 @@ export default class CrownBot extends CrownBotClass {
    * Fetches and stores the BotConfig model
    */
   async load_botconfig() {
-    this.botconfig = await this.models.botconfig.findOne();
+    this.botconfig = await this.models.botconfig.findOne().lean();
     return this;
   }
 }
