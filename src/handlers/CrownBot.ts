@@ -2,6 +2,7 @@ import fs from "fs";
 import { connect, model, Model, Mongoose } from "mongoose";
 import path from "path";
 import Command from "../classes/Command";
+import { BotConfigInterface } from "../stable/models/BotConfig";
 import { ServerConfigInterface } from "../stable/models/ServerConfig";
 import CacheHandler from "./Cache";
 
@@ -25,6 +26,7 @@ export default class CrownBot {
   commands: Command[] = [];
   beta_commands: Command[] = [];
   models: { [key: string]: Model<any> } = {};
+  botconfig: BotConfigInterface | undefined;
 
   constructor(options: any) {
     this.version = options.version;
@@ -54,6 +56,8 @@ export default class CrownBot {
     await this.load_db();
     if (!this.mongoose) throw "welp";
     this.load_commands().load_models();
+
+    await this.load_botconfig();
     await this.cache.prefix.init(); /* cache server prefixes for the session */
     await this.cache.config.init(); /* cache server configs for the session */
     return this;
@@ -114,5 +118,13 @@ export default class CrownBot {
       const schema = require(path.join(dir, file)).default(this.mongoose);
       this.models[model_name.toLowerCase()] = model(model_name, schema);
     });
+  }
+
+  /**
+   * Fetches and stores the BotConfig model
+   */
+  async load_botconfig() {
+    this.botconfig = await this.models.botconfig.findOne().lean();
+    return this;
   }
 }

@@ -45,14 +45,27 @@ export class Prefix implements CacheComponent {
       guild_id = guild;
     }
     let changed = false;
-    this.#prefixes = this.#prefixes.map((prefix) => {
-      if (prefix.guildID === guild_id) {
-        prefix.prefix = new_prefix;
-        changed = true;
-      }
+    const existing_pref = this.#prefixes.find(
+      (prefix) => prefix.guildID === guild_id
+    );
 
-      return prefix;
-    });
+    if (existing_pref) {
+      this.#prefixes = this.#prefixes.map((prefix) => {
+        if (prefix.guildID === guild_id) {
+          prefix.prefix = new_prefix;
+          changed = true;
+        }
+
+        return prefix;
+      });
+    } else {
+      this.#prefixes.push({
+        guildID: guild_id,
+        prefix: new_prefix,
+        guildName: "NA",
+      });
+      changed = true;
+    }
     return changed;
   }
 }

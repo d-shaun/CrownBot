@@ -6,20 +6,22 @@ import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
 import User from "../../handlers/LastFM_components/User";
+import { User as DiscordUser } from "discord.js";
+import search_user from "../../misc/search_user";
 
 class StatsCommand extends Command {
   constructor() {
     super({
       name: "stats",
       description: "Displays user's scrobbling stats.",
-      usage: ["stats"],
+      usage: ["stats", "stats <username>", "stats <@user>"],
       aliases: ["stat", "st"],
       require_login: true,
       category: "userstat",
     });
   }
 
-  async run(bot: CrownBot, message: GuildMessage) {
+  async run(bot: CrownBot, message: GuildMessage, args: string[]) {
     const response = new BotMessage({
       bot,
       message,
@@ -27,8 +29,26 @@ class StatsCommand extends Command {
       text: "",
     });
     const db = new DB(bot.models);
-    const user = await db.fetch_user(message.guild.id, message.author.id);
-    if (!user) return;
+    let discord_user: DiscordUser | undefined;
+
+    if (args.length > 0) {
+      const mention = message.mentions.members?.first();
+      discord_user = mention ? mention.user : await search_user(message, args);
+    } else {
+      discord_user = message.member ? message.member.user : undefined;
+    }
+    if (!discord_user) {
+      response.text = "User not found.";
+      await response.send();
+      return;
+    }
+    const user = await db.fetch_user(message.guild.id, discord_user.id);
+    if (!user) {
+      response.text = "User is not logged into the bot.";
+      await response.send();
+      return;
+    }
+
     const lastfm_user = new User({
       username: user.username,
     });

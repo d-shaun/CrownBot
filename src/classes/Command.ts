@@ -88,6 +88,13 @@ export default class Command {
       return;
     }
 
+    if (bot.botconfig?.maintenance === "on") {
+      response.text =
+        "The bot is currently under maintenance; please try again in a while.";
+      if (message.author.id !== bot.owner_ID) return;
+      if (this.name !== "eval") await response.send();
+    }
+
     const ban_info = await check_ban(message, bot);
     if (ban_info.banned && message.author.id !== bot.owner_ID) {
       if (ban_info.type === "global" && !this.allow_banned) {
@@ -110,6 +117,14 @@ export default class Command {
       const user = await db.fetch_user(message.guild.id, message.author.id);
       if (!user) {
         response.text = new Template(bot, message).get("not_logged");
+
+        // temporary message for the &snap'ed users
+        if (await db.check_snap(message.guild.id, message.author.id)) {
+          response.text =
+            "You have been logged out of the bot in this server because **you have crown(s) registered under multiple Last.fm usernames**.\n\n" +
+            "Please login again with your primary username: `&login <lastfm username>`\n\n[Click here to learn more about this change](https://github.com/d-shaun/CrownBot/issues/40) ";
+        }
+
         await response.send();
         return;
       }
@@ -141,11 +156,9 @@ export default class Command {
         this.name === "eval" ? args : args.map((arg) => arg.toLowerCase());
 
       await this.run(bot, message, lowercase_args);
-      // message.channel.typ(true);
 
       await this.log_command(bot, message);
-    } catch (e) {
-      // message.channel.stopTyping(true);
+    } catch (e: any) {
       console.error(e);
       await this.log_error(client, bot, message, e.stack || e);
     }

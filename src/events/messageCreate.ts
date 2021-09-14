@@ -20,12 +20,16 @@ export default async (bot: CrownBot, client: Client, message: GuildMessage) => {
 
   const response = new BotMessage({ bot, message, text: "", reply: true });
 
+  // prevent message-loop if/when bot @ itself
+  if (message.author.bot) return;
+
   const server_prefix = bot.cache.prefix.get(message.guild);
   if (
     message.mentions.has(client.user, {
       ignoreEveryone: true,
       ignoreRoles: true,
-    })
+    }) &&
+    !message.reference
   ) {
     response.text = `The prefix for this server is \`${server_prefix}\`. Try \`${server_prefix}help\`.`;
     await response.send();

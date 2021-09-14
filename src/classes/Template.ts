@@ -11,7 +11,10 @@ export class Template {
         text:
           `You are not logged into the bot in this server; ` +
           `please set your Last.fm username with the ` +
-          `${cb("login", prefix)} commmand (see ${cb("help login", prefix)}).`,
+          `${cb("login", prefix)} commmand — ${cb(
+            "login <lastfm username>",
+            prefix
+          )}.`,
       },
       {
         id: "already_logged",
