@@ -182,7 +182,7 @@ function generate_embed(
   let commands: Command[] = [];
   if (category === "top") {
     // top commands based on the array
-    // TODO: dynamically pull this from db?
+    // TODO: Dynamically pull top-commands from db?
     top_commands.forEach((top_command) => {
       const command = public_commands.find(
         (command) => command.name === top_command

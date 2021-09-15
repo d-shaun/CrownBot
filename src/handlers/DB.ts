@@ -98,7 +98,6 @@ export default class DB {
     user_ID: string,
     global = false
   ): Promise<boolean> {
-    // TODO: "global" option
     if (global) {
       return !!(await this.#models.serverusers.deleteMany({ userID: user_ID }, {
         useFindAndModify: false,
