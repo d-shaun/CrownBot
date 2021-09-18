@@ -21,7 +21,6 @@ export default class CrownBot {
   mongoose: Mongoose | undefined;
 
   url: string;
-  // TODO: fix server_configs
   server_configs: ServerConfigInterface[] | undefined = undefined;
   commands: Command[] = [];
   beta_commands: Command[] = [];

@@ -38,7 +38,7 @@ class OverviewCommand extends Command {
         last_item = last_item.slice(1);
       }
 
-      const mention = message.guild?.members.cache.get(<any>last_item); // TODO: Fix typings
+      const mention = message.guild?.members.cache.get(last_item);
       if (!mention) {
         response.text = "Couldn't find the mentioned user in this server.";
         response.send();
