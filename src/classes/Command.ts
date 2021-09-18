@@ -91,8 +91,10 @@ export default class Command {
     if (bot.botconfig?.maintenance === "on") {
       response.text =
         "The bot is currently under maintenance; please try again in a while.";
-      if (message.author.id !== bot.owner_ID) return;
-      if (this.name !== "eval") await response.send();
+      if (message.author.id !== bot.owner_ID) {
+        await response.send();
+        return;
+      }
     }
 
     const ban_info = await check_ban(message, bot);
