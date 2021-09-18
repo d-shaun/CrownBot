@@ -21,7 +21,7 @@ export default class CrownBot {
   mongoose: Mongoose | undefined;
 
   url: string;
-
+  // TODO: fix server_configs
   server_configs: ServerConfigInterface[] | undefined = undefined;
   commands: Command[] = [];
   beta_commands: Command[] = [];
@@ -31,7 +31,7 @@ export default class CrownBot {
   constructor(options: any) {
     this.version = options.version;
     this.prefix = options.prefix;
-    this.buttons_version = options.version;
+    this.buttons_version = options.buttons_version;
     this.max_users = options.max_users || 200;
 
     this.owner_ID = options.owner_ID;

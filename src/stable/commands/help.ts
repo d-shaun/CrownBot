@@ -3,6 +3,7 @@ import {
   MessageEmbed,
   MessageSelectMenu,
   MessageSelectOptionData,
+  SelectMenuInteraction,
 } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
@@ -96,6 +97,12 @@ class HelpCommand extends Command {
 
     const message_options = <MessageSelectOptionData[]>[
       {
+        label: "Top commands",
+        emoji: "👑",
+        value: "top",
+        description: "Top essential and most-used commands",
+      },
+      {
         label: "Setting up",
         emoji: "🦋",
         value: "setup",
@@ -118,6 +125,18 @@ class HelpCommand extends Command {
         emoji: "🛠️",
         value: "configure",
         description: "Commands to configure bot's preferences",
+      },
+      {
+        label: "Beta commands",
+        emoji: "✨",
+        value: "beta",
+        description: "Experimental commands",
+      },
+      {
+        label: "Other",
+        emoji: "🪄",
+        value: "other",
+        description: "Commands that do not fit the existing categories",
       },
     ];
 
@@ -163,7 +182,7 @@ function generate_embed(
 
     const beta_str = command.beta ? "(✨ beta)" : "";
 
-    return `**${server_prefix}${command.name}** ${aliases} ${beta_str}\n└ ${command.description}\n`;
+    return `**${server_prefix}${command.name}** ${aliases} ${beta_str}\n└ ${command.description}\n\n`;
   };
 
   const stable_commands = bot.commands;
@@ -264,11 +283,14 @@ function generate_embed(
   return embed;
 }
 
-export async function help_navigate(bot: CrownBot, menu: any) {
-  const server_prefix = bot.cache.prefix.get(menu.guild.id);
-  await menu.reply.defer();
-  const embed = generate_embed(bot, menu.values[0], server_prefix);
-  if (embed) await menu.message.edit(embed);
+export async function help_navigate(
+  bot: CrownBot,
+  interaction: SelectMenuInteraction
+) {
+  if (!interaction.guild) return;
+  const server_prefix = bot.cache.prefix.get(interaction.guild.id);
+  const embed = generate_embed(bot, interaction.values[0], server_prefix);
+  if (embed) await interaction.update({ embeds: [embed] });
 }
 
 export default HelpCommand;
