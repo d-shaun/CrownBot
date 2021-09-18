@@ -1,5 +1,4 @@
-import { FieldsEmbed } from "discord-paginationembed";
-import { TextChannel } from "discord.js";
+import { MessageEmbed } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import { Template } from "../../classes/Template";
 import BotMessage from "../../handlers/BotMessage";
@@ -7,6 +6,7 @@ import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
 import Album from "../../handlers/LastFM_components/Album";
 import User from "../../handlers/LastFM_components/User";
+import Paginate from "../../handlers/Paginate";
 import { LeaderboardInterface } from "../../interfaces/LeaderboardInterface";
 import cb from "../../misc/codeblock";
 import esm from "../../misc/escapemarkdown";
@@ -172,36 +172,19 @@ class WhoKnowsAlbum extends Command {
       0
     );
 
-    const fields_embed = new FieldsEmbed()
-      .setArray(leaderboard)
-      .setAuthorizedUsers([])
-      .setChannel(<TextChannel>message.channel)
-      .setElementsPerPage(15)
-      .setPageIndicator(true)
-      .setDisabledNavigationEmojis(["delete"])
-      .formatField(
-        `${total_scrobbles} plays ― ${leaderboard.length} listener(s)\n`,
-        (el: any) => {
-          const elem: LeaderboardInterface = el;
-
-          const index =
-            leaderboard.findIndex((e) => e.user_id === elem.user_id) + 1;
-
-          return `${index + "."} ${el.discord_username} — **${
-            el.userplaycount
-          } play(s)**`;
-        }
-      );
-    const footer_text = `"${esm(album.name)}" by ${esm(album.artist)}`;
-    fields_embed.embed
+    const embed = new MessageEmbed()
       .setColor(message.member?.displayColor || 0x0)
       .setTitle(`Who knows the album ${cb(album.name)}?`)
-      .setFooter(footer_text);
-    fields_embed.on("start", () => {
-      // message.channel.stopTyping(true);
+      .setDescription(
+        `**${total_scrobbles}** plays ― **${leaderboard.length}** listener(s)`
+      )
+      .setFooter(`"${esm(album.name)}" by ${esm(album.artist)}`);
+    const data_list = leaderboard.map((elem) => {
+      return `${elem.discord_username} — **${elem.userplaycount} play(s)**`;
     });
 
-    await fields_embed.build();
+    const paginate = new Paginate(message, embed, data_list);
+    await paginate.send();
   }
 }
 

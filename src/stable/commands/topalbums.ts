@@ -1,5 +1,4 @@
-import { FieldsEmbed } from "discord-paginationembed";
-import { TextChannel } from "discord.js";
+import { MessageEmbed } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import { Template } from "../../classes/Template";
 import BotMessage from "../../handlers/BotMessage";
@@ -7,6 +6,7 @@ import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
 import Artist from "../../handlers/LastFM_components/Artist";
 import User from "../../handlers/LastFM_components/User";
+import Paginate from "../../handlers/Paginate";
 import cb from "../../misc/codeblock";
 
 class TopAlbumsCommand extends Command {
@@ -23,7 +23,6 @@ class TopAlbumsCommand extends Command {
   }
 
   async run(bot: CrownBot, message: GuildMessage, args: string[]) {
-    const server_prefix = bot.cache.prefix.get(message.guild);
     const response = new BotMessage({
       bot,
       message,
@@ -76,31 +75,19 @@ class TopAlbumsCommand extends Command {
       return;
     }
 
-    const fields_embed = new FieldsEmbed()
-      .setArray(albums)
-      .setAuthorizedUsers([])
-      .setChannel(<TextChannel>message.channel)
-      .setElementsPerPage(15)
-      .setPageIndicator(true, "hybrid")
-      .setDisabledNavigationEmojis(["delete"])
-      .formatField(`Album plays — ${albums.length} albums`, (el: any) => {
-        const elem: {
-          name: string;
-          plays: number;
-        } = el;
-        const index = albums.findIndex((e) => e.name === elem.name) + 1;
-        return `${index}. ${elem.name} — **${elem.plays} play(s)**`;
-      });
-    fields_embed.embed
+    const embed = new MessageEmbed()
+      .setDescription(`Album plays — **${albums.length}** albums`)
       .setColor(message.member?.displayColor || 0x0)
       .setTitle(
         `${message.author.username}'s top-played albums by ${cb(artist.name)}`
-      )
-      .setFooter(`Psst, try ${server_prefix}about to find the support server.`);
-    fields_embed.on("start", () => {
-      // message.channel.stopTyping(true);
+      );
+
+    const data_list = albums.map((elem) => {
+      return `${elem.name} — **${elem.plays} play(s)**`;
     });
-    await fields_embed.build();
+
+    const paginate = new Paginate(message, embed, data_list);
+    await paginate.send();
   }
 
   // Uses the Last.fm API instead of scraping their pages

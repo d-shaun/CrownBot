@@ -1,5 +1,4 @@
-import { FieldsEmbed } from "discord-paginationembed";
-import { TextChannel } from "discord.js";
+import { MessageEmbed } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import { Template } from "../../classes/Template";
 import BotMessage from "../../handlers/BotMessage";
@@ -7,6 +6,7 @@ import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
 import Track from "../../handlers/LastFM_components/Track";
 import User from "../../handlers/LastFM_components/User";
+import Paginate from "../../handlers/Paginate";
 import { LeaderboardInterface } from "../../interfaces/LeaderboardInterface";
 import cb from "../../misc/codeblock";
 import get_registered_users from "../../misc/get_registered_users";
@@ -194,60 +194,44 @@ class WhoKnowsTrack extends Command {
       0
     );
 
-    const fields_embed = new FieldsEmbed<typeof leaderboard[0]>()
-      .setArray(leaderboard)
-      .setAuthorizedUsers([])
-      .setChannel(<TextChannel>message.channel)
-      .setElementsPerPage(15)
-      .setPageIndicator(true)
-      .setDisabledNavigationEmojis(["delete"])
-      .formatField(
-        `${total_scrobbles} plays ― ${leaderboard.length} listener(s)\n`,
-        (elem) => {
-          let count_diff;
-          let diff_str = "";
-          if (elem.last_count) {
-            count_diff =
-              parseInt(elem.userplaycount) - parseInt(elem.last_count);
-          }
-          if (count_diff && count_diff < 0) {
-            diff_str = ` ― (:small_red_triangle_down: ${count_diff} ${
-              count_diff > 1 ? "plays" : "play"
-            })`;
-          } else if (count_diff && count_diff > 0) {
-            diff_str = ` ― (+${count_diff} ${
-              count_diff > 1 ? "plays" : "play"
-            })`;
-          }
-          const index =
-            leaderboard.findIndex((e) => e.user_id === elem.user_id) + 1;
-
-          return `${index + "."} ${elem.discord_username} — **${
-            elem.userplaycount
-          } play(s)** ${diff_str}`;
-        }
-      );
-
-    let footer_text = `Psst, try ${server_prefix}about to find the support server.`;
-    if (last_log) {
-      footer_text = `Last checked ${time_difference(last_log.timestamp)} ago.`;
-    }
-    fields_embed.embed
+    const embed = new MessageEmbed()
       .setColor(message.member?.displayColor || 0x0)
       .setTitle(
         `Who knows the track ${cb(track.name)} by ${cb(track.artist.name)}?`
       )
-      .setFooter(footer_text);
-    fields_embed.on("start", () => {
-      // message.channel.stopTyping(true);
+      .setDescription(
+        `**${total_scrobbles}** plays ― **${leaderboard.length}** listener(s)`
+      );
+
+    if (last_log)
+      embed.setFooter(
+        `Last checked ${time_difference(last_log.timestamp)} ago.`
+      );
+
+    const data_list = leaderboard.map((elem) => {
+      let count_diff;
+      let diff_str = "";
+      if (elem.last_count) {
+        count_diff = parseInt(elem.userplaycount) - parseInt(elem.last_count);
+      }
+      if (count_diff && count_diff < 0) {
+        diff_str = ` ― (:small_red_triangle_down: ${count_diff} ${
+          count_diff > 1 ? "plays" : "play"
+        })`;
+      } else if (count_diff && count_diff > 0) {
+        diff_str = ` ― (+${count_diff} ${count_diff > 1 ? "plays" : "play"})`;
+      }
+
+      return `${elem.discord_username} — **${elem.userplaycount} play(s)** ${diff_str}`;
     });
+    const paginate = new Paginate(message, embed, data_list);
+    await paginate.send();
     await db.log_whoplays(
       track.name,
       track.artist.name,
       leaderboard,
       message.guild.id
     );
-    await fields_embed.build();
   }
 }
 
