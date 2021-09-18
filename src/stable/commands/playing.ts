@@ -1,9 +1,9 @@
-import { FieldsEmbed } from "discord-paginationembed";
-import { GuildMember, TextChannel } from "discord.js";
+import { GuildMember, MessageEmbed } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import User from "../../handlers/LastFM_components/User";
+import Paginate from "../../handlers/Paginate";
 import cb from "../../misc/codeblock";
 import esm from "../../misc/escapemarkdown";
 import get_registered_users from "../../misc/get_registered_users";
@@ -38,8 +38,8 @@ class PlayingCommand extends Command {
       return;
     }
 
-    if (users.length > 160) {
-      users.length = 160; // 160 user limit
+    if (users.length > bot.max_users) {
+      users.length = bot.max_users;
     }
     const lastfm_requests = [];
     for await (const user of users) {
@@ -87,17 +87,17 @@ class PlayingCommand extends Command {
         context: response.context,
       };
     });
-    const fields_embed = new FieldsEmbed<typeof stats[0]>()
-      .setArray(stats)
-      .setAuthorizedUsers([])
-      .setChannel(<TextChannel>message.channel)
-      .setElementsPerPage(5)
-      .setPageIndicator(true, "hybrid")
-      .setDisabledNavigationEmojis(["delete"])
-      .formatField(`${stats.length} user(s)`, (res) => {
+
+    const embed = new MessageEmbed()
+      .setDescription(`**${stats.length}** user(s)`)
+      .setColor(message.member?.displayColor || 0x0)
+      .setTitle(`Now playing in the server`);
+
+    const data_list = stats
+      .map((res) => {
         const track = res.track;
         const user: GuildMember = res.context.discord_user;
-        if (!track || !user) return;
+        if (!track || !user) return false;
         const str = `**${esm(user.user.username)}**\n└ [${esm(
           track.name,
           true
@@ -106,15 +106,11 @@ class PlayingCommand extends Command {
           true
         )} — **${esm(track.artist["#text"], true)}**\n`;
         return str.substring(0, 1020);
-      });
+      })
+      .filter((x): x is string => x !== false);
 
-    fields_embed.embed
-      .setColor(message.member?.displayColor || 0x0)
-      .setTitle(`Now playing in the server`);
-    fields_embed.on("start", () => {
-      // message.channel.stopTyping(true);
-    });
-    await fields_embed.build();
+    const paginate = new Paginate(message, embed, data_list, 5, false);
+    await paginate.send();
   }
 }
 

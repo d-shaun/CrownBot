@@ -1,8 +1,8 @@
-import { FieldsEmbed } from "discord-paginationembed";
-import { TextChannel, User } from "discord.js";
+import { MessageEmbed, User } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
+import Paginate from "../../handlers/Paginate";
 import esm from "../../misc/escapemarkdown";
 import search_user from "../../misc/search_user";
 import { CrownInterface } from "../models/Crowns";
@@ -56,33 +56,16 @@ class CrownsCommand extends Command {
 
     const sorted_crowns = crowns.sort((a, b) => b.artistPlays - a.artistPlays);
 
-    const fields_embed = new FieldsEmbed()
-      .setArray(sorted_crowns)
-      .setAuthorizedUsers([])
-      .setChannel(<TextChannel>message.channel)
-      .setElementsPerPage(15)
-      .setPageIndicator(true)
-      .setDisabledNavigationEmojis(["delete"])
-      .formatField(`Total: ${sorted_crowns.length} crowns`, (el: any) => {
-        const elem: CrownInterface = el;
-        const index =
-          sorted_crowns.findIndex((e) => e.artistName === elem.artistName) + 1;
-        return `${index}. ${esm(elem.artistName)} — **${
-          elem.artistPlays
-        } play(s)**`;
-      });
-
-    fields_embed.embed
+    const embed = new MessageEmbed()
       .setColor(message.member?.displayColor || 0x0)
-      .setTitle(`Crowns of ${user.username} in ${message.guild.name}`);
-    fields_embed.on("start", () => {
-      // message.channel.sendTyping(true);
+      .setTitle(`Crowns of ${user.username} in ${message.guild.name}`)
+      .setDescription(`Total: **${sorted_crowns.length} crowns**`);
+
+    const data_list = sorted_crowns.map((elem) => {
+      return `${esm(elem.artistName)} — **${elem.artistPlays} play(s)**`;
     });
-    const avatar = user.avatarURL();
-    if (avatar) {
-      fields_embed.embed.setThumbnail(avatar);
-    }
-    await fields_embed.build();
+    const paginate = new Paginate(message, embed, data_list);
+    await paginate.send();
   }
 }
 
