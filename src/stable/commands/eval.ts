@@ -16,8 +16,8 @@ class EvalCommand extends Command {
     });
   }
 
-  async run(client: CrownBot, message: GuildMessage, args: string[]) {
-    if (message.author.id !== client.owner_ID) return; // just to be safe
+  async run(bot: CrownBot, message: GuildMessage, args: string[]) {
+    if (message.author.id !== bot.owner_ID) return; // just to be safe
 
     if (args[0] !== "command") {
       let trimmed_string;
@@ -41,7 +41,7 @@ class EvalCommand extends Command {
     interface OwnerOnlyCommandInterface {
       name: string;
       run: (
-        client: CrownBot,
+        bot: CrownBot,
         message: GuildMessage,
         args: string[]
       ) => Promise<void>;
@@ -73,7 +73,7 @@ class EvalCommand extends Command {
       return;
     }
 
-    await command.run(client, message, secondary_args);
+    await command.run(bot, message, secondary_args);
     await message.channel.send("Finished executing `" + command.name + "`");
   }
 }
