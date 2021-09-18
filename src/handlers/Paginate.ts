@@ -69,7 +69,7 @@ export default class Paginate {
     const buttonList = [button1, button2];
 
     if (chunks.length >= 2) {
-      return paginationEmbed(this.message, embeds, buttonList);
+      return paginationEmbed(this.message, embeds, buttonList, 60000);
     } else {
       return this.message.channel.send({ embeds: [embeds[0]] });
     }
