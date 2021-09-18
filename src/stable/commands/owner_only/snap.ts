@@ -30,7 +30,7 @@ export default class SnapCommand {
 
     const reactions = await msg.awaitReactions({
       filter,
-      time: 3000,
+      time: 30000,
       max: 1,
     });
     if (reactions.size <= 0) return;

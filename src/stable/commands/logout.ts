@@ -77,7 +77,7 @@ class LogoutCommand extends Command {
       return reaction.emoji.name === "✅" && user.id === message.author.id;
     };
 
-    const reactions = await msg.awaitReactions({ filter, time: 3000, max: 1 });
+    const reactions = await msg.awaitReactions({ filter, time: 30000, max: 1 });
 
     const message_exists = message.channel.messages.cache.get(msg.id);
     if (message_exists) msg.delete();

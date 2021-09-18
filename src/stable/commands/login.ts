@@ -62,7 +62,7 @@ class LoginCommand extends Command {
 
       const reactions = await msg.awaitReactions({
         filter,
-        time: 3000,
+        time: 30000,
         max: 1,
       });
       const message_exists = message.channel.messages.cache.get(msg.id);
