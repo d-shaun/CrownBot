@@ -198,10 +198,13 @@ class WhoKnowsTrack extends Command {
       .setColor(message.member?.displayColor || 0x0)
       .setTitle(
         `Who knows the track ${cb(track.name)} by ${cb(track.artist.name)}?`
-      )
-      .setDescription(
+      );
+
+    if (leaderboard.length >= 2) {
+      embed.setDescription(
         `**${total_scrobbles}** plays ― **${leaderboard.length}** listener(s)`
       );
+    }
 
     if (last_log)
       embed.setFooter(

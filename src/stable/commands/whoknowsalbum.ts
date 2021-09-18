@@ -175,10 +175,13 @@ class WhoKnowsAlbum extends Command {
     const embed = new MessageEmbed()
       .setColor(message.member?.displayColor || 0x0)
       .setTitle(`Who knows the album ${cb(album.name)}?`)
-      .setDescription(
-        `**${total_scrobbles}** plays ― **${leaderboard.length}** listener(s)`
-      )
       .setFooter(`"${esm(album.name)}" by ${esm(album.artist)}`);
+
+    if (leaderboard.length >= 2) {
+      embed.setDescription(
+        `**${total_scrobbles}** plays ― **${leaderboard.length}** listener(s)`
+      );
+    }
     const data_list = leaderboard.map((elem) => {
       return `${elem.discord_username} — **${elem.userplaycount} play(s)**`;
     });
