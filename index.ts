@@ -1,4 +1,4 @@
-import { Client, Options } from "discord.js";
+import { Client } from "discord.js";
 import fs from "fs";
 import path from "path";
 import CrownBot from "./src/handlers/CrownBot";
@@ -63,6 +63,6 @@ SPOTIFY_SECRETID: Spotify client ID for the &chart command to show artist images
     console.log(`Logged in as ${client.user?.tag}`);
   } catch (e) {
     console.log(e);
-    debugger;
+    debugger; //eslint-disable-line
   }
 })();
