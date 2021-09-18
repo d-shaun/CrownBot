@@ -24,7 +24,7 @@ export default class SetCommand {
       await response.send();
       return;
     }
-    if (Object.prototype.hasOwnProperty.call(bot, config_name)) {
+    if (Object.prototype.hasOwnProperty.call(bot.botconfig, config_name)) {
       // TODO: test this
       bot.botconfig[config_name] = <never>value; // ?? LMAO
       await bot.models.botconfig.findOneAndUpdate(
