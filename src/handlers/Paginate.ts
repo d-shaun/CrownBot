@@ -49,10 +49,11 @@ export default class Paginate {
       embeds[i] = Object.create(this.embed);
       let new_text = chunk.join("\n");
       if (this.embed.description) {
-        new_text = `${this.embed.description}\n` + new_text;
+        new_text = `${this.embed.description}\n\n` + new_text;
       }
       embeds[i].description = new_text + "\n";
       if (this.embed.footer?.text && chunks.length >= 2) {
+        // no footer text if there's only one page
         embeds[i].description += "\n" + this.embed.footer.text;
       }
     });
