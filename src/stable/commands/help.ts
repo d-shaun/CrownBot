@@ -89,7 +89,7 @@ class HelpCommand extends Command {
       if (aliases) embed.addField("Aliases", aliases);
       if (extra_aliases) embed.addField("Extra aliases", extra_aliases);
       if (examples) embed.addField("Examples", examples);
-      if (usage.length) embed.addField("Usage", usage.join(""));
+      if (usage.length) embed.addField("Usage", usage.join("\n"));
 
       message.channel.send({ embeds: [embed] });
       return;
