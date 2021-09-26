@@ -90,7 +90,7 @@ class LoginCommand extends Command {
     const lastfm_user = await new User({ username }).get_info();
     if (lastfm_user.lastfm_errorcode || !lastfm_user.success) {
       response.error("lastfm_error", lastfm_user.lastfm_errormessage);
-      // return;
+      return;
     }
 
     if (await db.add_user(message.guild.id, message.author.id, username)) {
