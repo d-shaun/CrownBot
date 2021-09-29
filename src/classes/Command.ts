@@ -14,6 +14,15 @@ import cb from "../misc/codeblock";
 import generate_random_strings from "../misc/generate_random_strings";
 import { Template } from "./Template";
 
+type Category =
+  | "top"
+  | "setup"
+  | "serverstat"
+  | "userstat"
+  | "configure"
+  | "beta"
+  | "other";
+
 interface CommandInterface {
   name: string;
   description: string;
@@ -27,7 +36,7 @@ interface CommandInterface {
   require_login?: boolean;
   required_permissions?: string[];
   beta?: boolean;
-  category?: string;
+  category?: Category;
 }
 
 export interface GuildMessage extends Message {
@@ -48,7 +57,7 @@ export default class Command {
   require_login?: boolean;
   required_permissions?: string[];
   beta?: boolean;
-  category?: string;
+  category?: Category;
 
   constructor(options: CommandInterface) {
     this.name = options.name;
