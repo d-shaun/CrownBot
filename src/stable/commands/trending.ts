@@ -44,14 +44,16 @@ class TrendingCommand extends Command {
     const query = await artist.get_info();
 
     if (query.lastfm_errorcode || !query.success) {
-      response.error("lastfm_error", query.lastfm_errormessage);
+      await response.error("lastfm_error", query.lastfm_errormessage);
       return;
     }
     artist.name = query.data.artist.name;
 
     const trending = await artist.get_trending();
+    // TODO: Try fetching album-names for the current page?
+
     if (!trending) {
-      // TODO: Error message here
+      await response.error("lastfm_error");
       return;
     }
 
@@ -63,9 +65,7 @@ class TrendingCommand extends Command {
       return `**${elem.name}** — **${elem.listeners}** listeners`;
     });
 
-    // TODO: Try fetching album names for the current page?
     const paginate = new Paginate(message, embed, data_list);
-
     await paginate.send();
   }
 }
