@@ -1,7 +1,7 @@
 import { MessageEmbed } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import CrownBot from "../../handlers/CrownBot";
-import User from "../../handlers/LastFM_components/User";
+import Paginate from "../../handlers/Paginate";
 import get_registered_users from "../../misc/get_registered_users";
 import { CrownInterface } from "../models/Crowns";
 interface CrownStat {
@@ -33,6 +33,8 @@ class CrownboardCommand extends Command {
       },
     });
 
+    // TODO: Log crownboard entries to show differences over time
+
     const counts = crowns
       .reduce((acc, cur) => {
         let stat = acc.find((cnt) => cnt.userID === cur.userID);
@@ -56,7 +58,9 @@ class CrownboardCommand extends Command {
       }, [] as CrownStat[])
       .sort((a, b) => b.count - a.count);
 
-    const embed = new MessageEmbed().setTitle(`Crown leaderboard`);
+    const embed = new MessageEmbed()
+      .setTitle(`Crown leaderboard`)
+      .setColor(message.member?.displayColor || 0x0);
 
     if (!counts.length) {
       embed.setDescription(
@@ -66,38 +70,12 @@ class CrownboardCommand extends Command {
       return;
     }
 
-    if (counts.length > 15) {
-      counts.length = 15;
-    }
+    const data_list = counts.map((user) => {
+      return `**${user.username}** — **${user.count}** crowns`;
+    });
 
-    let description_text = "";
-    let counter = 0;
-    for await (const user of counts) {
-      if (counter == 0) {
-        const lfm_user = new User({ username: user.lastfm_username });
-        const user_stat = await lfm_user.get_stats("ALL");
-        let extra_text = "";
-        if (user_stat) {
-          extra_text = `\n└ **${user_stat.artists}** artists · avg. **${user_stat.average_per_day}** scrobbles/day`;
-        }
-        embed.addField(
-          "Top user",
-          `⭐ **${user.username}** — **${user.count}** crowns ${extra_text}`
-        );
-      } else {
-        description_text += `${counter + 1}. **${user.username}** — **${
-          user.count
-        }** crowns\n`;
-      }
-
-      counter++;
-    }
-
-    if (description_text) {
-      embed.addField("\u200b", description_text);
-    }
-
-    await message.channel.send({ embeds: [embed] });
+    const paginate = new Paginate(message, embed, data_list);
+    await paginate.send();
   }
 }
 
