@@ -51,7 +51,6 @@ class TrendingCommand extends Command {
 
     const trending = await artist.get_trending();
     if (!trending) {
-      // TODD: error message here
       return;
     }
 
