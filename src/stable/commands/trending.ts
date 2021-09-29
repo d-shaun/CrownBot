@@ -51,6 +51,7 @@ class TrendingCommand extends Command {
 
     const trending = await artist.get_trending();
     if (!trending) {
+      // TODO: Error message here
       return;
     }
 
@@ -62,6 +63,7 @@ class TrendingCommand extends Command {
       return `**${elem.name}** — **${elem.listeners}** listeners`;
     });
 
+    // TODO: Try fetching album names for the current page?
     const paginate = new Paginate(message, embed, data_list);
 
     await paginate.send();
