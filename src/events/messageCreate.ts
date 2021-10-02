@@ -118,6 +118,7 @@ function check_permissions(
     "EMBED_LINKS",
     "READ_MESSAGE_HISTORY",
     "ADD_REACTIONS",
+    "ATTACH_FILES",
   ];
 
   const lacking_permissions: string[] = [];
@@ -130,11 +131,11 @@ function check_permissions(
 
   if (lacking_permissions.length && command.name !== "permissions") {
     response.text =
-      `The bot needs to have the following permissions: ` +
-      `${lacking_permissions.join(", ")}; see ${cb(
+      `The bot needs to have the following permission(s): **` +
+      `${lacking_permissions.join(", ")}**; see ${cb(
         "permissions",
         server_prefix
-      )} for explanations of every permission the bot requires.`;
+      )} for extended details.`;
     response.send();
     return false;
   }
