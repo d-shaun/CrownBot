@@ -46,6 +46,7 @@ class LyricsCommand extends Command {
       search_query = `${track_name} ${artist_name}`;
     } else search_query = args.join(" ");
 
+    // TODO: &lyrics: support for custom lyrics and use Last.fm for search
     const lyricist = new Lyricist(bot.genius_api);
     const song = (await lyricist.search(search_query))[0];
     if (!song) {

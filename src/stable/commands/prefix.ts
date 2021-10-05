@@ -16,6 +16,7 @@ class PrefixCommand extends Command {
   }
 
   async run(bot: CrownBot, message: GuildMessage, args: string[]) {
+    // TODO: Migrate prefix into &config
     const server_prefix = bot.cache.prefix.get(message.guild);
     const response = new BotMessage({ bot, message, text: "", reply: true });
     if (args.length === 0) {

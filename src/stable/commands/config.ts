@@ -17,6 +17,7 @@ class ConfigCommand extends Command {
   }
 
   async run(bot: CrownBot, message: GuildMessage, args: string[]) {
+    // TODO: Interactive &config with buttons/select-menus?
     const response = new BotMessage({ bot, message, text: "", reply: true });
     if (!message.member?.permissions.has("MANAGE_GUILD")) {
       response.text =
