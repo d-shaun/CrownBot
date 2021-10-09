@@ -60,6 +60,9 @@ class PurgeLyricsCommand extends Command {
     if (db_entry) {
       const db_response = await bot.models.lyricslog.deleteOne({
         id: song.id,
+        permanent: {
+          $ne: true,
+        },
       });
       if (db_response) {
         response.text = `Successfully purged the cached lyrics for **${esm(
