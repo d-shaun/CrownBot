@@ -4,7 +4,9 @@ import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
+import Track from "../../handlers/LastFM_components/Track";
 import User from "../../handlers/LastFM_components/User";
+import cb from "../../misc/codeblock";
 import esm from "../../misc/escapemarkdown";
 import { LyricsLogInterface } from "../../stable/models/LyricsLog";
 
@@ -25,6 +27,7 @@ class LyricsCommand extends Command {
     if (!bot.genius_api) {
       throw "You must set the `GENIUS_API` in the environment variable for this command to work.";
     }
+    const server_prefix = bot.cache.prefix.get(message.guild);
     const db = new DB(bot.models);
     const user = await db.fetch_user(message.guild.id, message.author.id);
     if (!user) return;
@@ -34,34 +37,64 @@ class LyricsCommand extends Command {
       username: user.username,
     });
 
-    let search_query;
+    let artist_name;
+    let track_name;
     if (args.length === 0) {
       const now_playing = await lastfm_user.get_nowplaying(bot, message);
       if (!now_playing) return;
-      const {
-        name: track_name,
-        artist: { "#text": artist_name },
-      } = now_playing;
+      artist_name = now_playing.artist["#text"];
+      track_name = now_playing.name;
+    } else {
+      const str = args.join(" ");
+      const str_array = str.split("||");
+      if (str_array.length !== 2) {
+        const query = await new Track({
+          name: str_array.join().trim(),
+          limit: 1,
+        }).search();
+        if (query.lastfm_errorcode || !query.success) {
+          response.error("lastfm_error", query.lastfm_errormessage);
+          return;
+        }
+        const track = query.data.results.trackmatches.track.shift();
 
-      search_query = `${track_name} ${artist_name}`;
-    } else search_query = args.join(" ");
+        if (!track) {
+          response.text = `Couldn't find the track; try providing artist name—see ${cb(
+            "help lyrics",
+            server_prefix
+          )}.`;
+          await response.send();
+          return;
+        }
+        track_name = track.name;
+        artist_name = track.artist;
+      } else {
+        track_name = str_array[0].trim();
+        artist_name = str_array[1].trim();
+      }
+    }
 
-    // TODO: &lyrics: support for custom lyrics and use Last.fm for search
-    const lyricist = new Lyricist(bot.genius_api);
-    const song = (await lyricist.search(search_query))[0];
-    if (!song) {
-      response.text = "Couldn't find the song.";
-      await response.send();
+    const query = await new Track({
+      name: track_name,
+      artist_name,
+    }).get_info();
+    if (query.lastfm_errorcode || !query.success) {
+      response.error("lastfm_error", query.lastfm_errormessage);
       return;
     }
+    const track = query.data.track;
+
+    const db_entry: LyricsLogInterface = await bot.models.lyricslog.findOne(<
+      LyricsLogInterface
+    >{
+      track_name: track.name,
+      artist_name: track.artist.name,
+    });
 
     const toChunks = (lyrics: string) => {
       return lyrics.match(/(.|[\r\n]){1,2000}/g);
     };
 
-    const db_entry: LyricsLogInterface = await bot.models.lyricslog.findOne({
-      id: song.id,
-    });
     if (db_entry) {
       let lyrics_chunks = toChunks(db_entry.lyrics);
       const title = `**${db_entry.track_name}** by **${db_entry.artist_name}**\n\n`;
@@ -75,6 +108,16 @@ class LyricsCommand extends Command {
         }
         return;
       }
+    }
+
+    const lyricist = new Lyricist(bot.genius_api);
+    const song = (
+      await lyricist.search(`${track.name} ${track.artist.name}`)
+    )[0];
+    if (!song) {
+      response.text = "Couldn't find the song.";
+      await response.send();
+      return;
     }
 
     const song_info = await lyricist.song(song.id, { fetchLyrics: true });
@@ -105,10 +148,10 @@ class LyricsCommand extends Command {
 
     await bot.models.lyricslog.findOneAndUpdate(
       {
-        id: song.id,
+        track_name: track.name,
+        artist_name: track.artist.name,
       },
       <LyricsLogInterface>{
-        id: song.id,
         track_name: song.title,
         artist_name: song.primary_artist.name,
         lyrics: original_lyrics,
