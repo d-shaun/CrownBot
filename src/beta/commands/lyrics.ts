@@ -152,8 +152,8 @@ class LyricsCommand extends Command {
         artist_name: track.artist.name,
       },
       <LyricsLogInterface>{
-        track_name: song.title,
-        artist_name: song.primary_artist.name,
+        track_name: track.name,
+        artist_name: track.artist.name,
         lyrics: original_lyrics,
         timestamp,
       },
