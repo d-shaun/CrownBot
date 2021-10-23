@@ -74,7 +74,6 @@ class EvalCommand extends Command {
     }
 
     await command.run(bot, message, secondary_args);
-    await message.channel.send("Finished executing `" + command.name + "`");
   }
 }
 
