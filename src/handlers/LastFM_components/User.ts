@@ -11,6 +11,7 @@ import cheerio from "cheerio";
 import cb from "../../misc/codeblock";
 import Axios from "axios";
 import { LastFMResponse } from "../../interfaces/LastFMResponseInterface";
+import { MessageActionRow, MessageButton, MessageEmbed } from "discord.js";
 
 export default class extends LastFM {
   prefix = "user.";
@@ -165,8 +166,18 @@ export default class extends LastFM {
     if (last_track && last_track[`@attr`] && last_track[`@attr`].nowplaying) {
       return last_track;
     } else {
-      response.text = "You aren't playing anything.";
-      await response.send();
+      const row = new MessageActionRow().addComponents(
+        new MessageButton()
+          .setLabel("Need help?")
+          .setStyle("PRIMARY")
+          .setCustomId("scrobblingfaq")
+      );
+
+      const embed = new MessageEmbed().setDescription(
+        `<@${message.author.id}>: You aren't playing anything.`
+      );
+
+      await message.channel.send({ embeds: [embed], components: [row] });
       return;
     }
   }
