@@ -48,7 +48,7 @@ class ConfigCommand extends Command {
     if (!command_name) {
       response.text =
         "This command can be used to configure preferences of CrownBot in a server. \n" +
-        "Tip: try `&config <option_name>` to get some information about an option. \n\n" +
+        "Tip: try `&config <option_name>` to get detailed information about an option. \n\n" +
         "Examples: \n`&config minplaysforcrown 30` \n `&config minplaysforcrown 20` \n \n" +
         "The available options are: " +
         commands_str;
