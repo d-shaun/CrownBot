@@ -110,7 +110,8 @@ class LyricsCommand extends Command {
       }
     }
 
-    const lyricist = new Lyricist(bot.genius_api); // TODO: Handle non-JSON response in Lyricist
+    const lyricist = new Lyricist(bot.genius_api);
+    // TODO: Handle non-JSON response in Lyricist
     const song = (
       await lyricist.search(`${track.name} ${track.artist.name}`)
     )[0];
