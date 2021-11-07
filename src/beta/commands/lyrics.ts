@@ -37,10 +37,6 @@ class LyricsCommand extends Command {
       username: user.username,
     });
 
-    response.text = "This command is currently disabled due to some technical issues."
-    await response.send();
-    return;
-    /*
     let artist_name;
     let track_name;
     if (args.length === 0) {
@@ -114,7 +110,7 @@ class LyricsCommand extends Command {
       }
     }
 
-    const lyricist = new Lyricist(bot.genius_api);
+    const lyricist = new Lyricist(bot.genius_api); // TODO: Handle non-JSON response in Lyricist
     const song = (
       await lyricist.search(`${track.name} ${track.artist.name}`)
     )[0];
@@ -166,7 +162,6 @@ class LyricsCommand extends Command {
         useFindAndModify: false,
       }
     );
-    */
   }
 }
 
