@@ -37,6 +37,10 @@ class LyricsCommand extends Command {
       username: user.username,
     });
 
+    response.text = "This command is currently disabled due to some technical issues."
+    await response.send();
+    return;
+    /*
     let artist_name;
     let track_name;
     if (args.length === 0) {
@@ -86,10 +90,10 @@ class LyricsCommand extends Command {
 
     const db_entry: LyricsLogInterface = await bot.models.lyricslog.findOne(<
       LyricsLogInterface
-    >{
-      track_name: track.name,
-      artist_name: track.artist.name,
-    });
+      >{
+        track_name: track.name,
+        artist_name: track.artist.name,
+      });
 
     const toChunks = (lyrics: string) => {
       return lyrics.match(/(.|[\r\n]){1,2000}/g);
@@ -162,6 +166,7 @@ class LyricsCommand extends Command {
         useFindAndModify: false,
       }
     );
+    */
   }
 }
 
