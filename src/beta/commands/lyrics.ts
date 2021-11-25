@@ -96,11 +96,10 @@ class LyricsCommand extends Command {
     };
 
     if (db_entry) {
-      let lyrics_chunks = toChunks(db_entry.lyrics);
-      const title = `**${db_entry.track_name}** by **${db_entry.artist_name}**\n\n`;
+      const lyrics = `**${db_entry.track_name}** by **${db_entry.artist_name}**\n\n` + db_entry.lyrics;
+      const lyrics_chunks = toChunks(lyrics);
 
       if (lyrics_chunks && lyrics_chunks.length) {
-        lyrics_chunks = [title, ...lyrics_chunks];
         response.reply = false;
         for (const lyric of lyrics_chunks) {
           response.text = lyric;
