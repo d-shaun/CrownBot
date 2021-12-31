@@ -36,7 +36,7 @@
     "chartjs-node-canvas": "^3.0.6",
     "cheerio": "^1.0.0-rc.3",
     "discord.js": "^13.0.1",
-    "discordjs-button-pagination": "^1.0.7",
+    "discordjs-button-pagination": "https://github.com/d-shaun/discordjs-button-pagination.git",
     "lyricist": "https://github.com/d-shaun/lyricist.git",
     "moment": "^2.24.0",
     "mongoose": "^5.9.20",

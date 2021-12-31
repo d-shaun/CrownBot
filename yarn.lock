@@ -796,10 +796,9 @@ discord.js@^13.0.1:
     node-fetch "^2.6.1"
     ws "^7.5.1"
 
-discordjs-button-pagination@^1.0.7:
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/discordjs-button-pagination/-/discordjs-button-pagination-1.0.7.tgz#4b63bdcaf7565470ef18e46e8db43214ab1d1522"
-  integrity sha512-xWLCC5U5GfclY9UhZgCdZnnXCezSxudIu4UpCuSV9wh2nVkrKqz6gxjbJCg3CXK6dqdrfkkC4f7aOUohnT4Y4Q==
+"discordjs-button-pagination@https://github.com/d-shaun/discordjs-button-pagination.git":
+  version "2.0.0"
+  resolved "https://github.com/d-shaun/discordjs-button-pagination.git#95a0108974f05d8d77c8cd093848fb31be655f33"
   dependencies:
     discord.js "^13.0.1"
 
