@@ -1497,7 +1497,7 @@ lru-cache@^6.0.0:
 
 "lyricist@https://github.com/d-shaun/lyricist.git":
   version "2.2.0"
-  resolved "https://github.com/d-shaun/lyricist.git#48be8b3f6a0d8aa2567fa5ed1ffbc6d044a0cbc0"
+  resolved "https://github.com/d-shaun/lyricist.git#e0cf21d19034d1c02fb71de7ea6f543a59c97a5a"
   dependencies:
     cheerio "^0.22.0"
     node-fetch "^2.6.1"
