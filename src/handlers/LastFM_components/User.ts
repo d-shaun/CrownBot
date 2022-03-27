@@ -12,6 +12,7 @@ import cb from "../../misc/codeblock";
 import Axios from "axios";
 import { LastFMResponse } from "../../interfaces/LastFMResponseInterface";
 import { MessageActionRow, MessageButton, MessageEmbed } from "discord.js";
+import moment from "moment";
 
 export default class extends LastFM {
   prefix = "user.";
@@ -156,15 +157,25 @@ export default class extends LastFM {
       );
       return;
     }
+
     if (!query.success || query.lastfm_errorcode) {
       await response.error("lastfm_error", query.lastfm_errormessage);
       return;
     }
 
     const last_track = [...query.data.recenttracks.track].shift();
+    if (last_track) {
+      const has_now_playing_tag =
+        last_track[`@attr`] && last_track[`@attr`].nowplaying;
 
-    if (last_track && last_track[`@attr`] && last_track[`@attr`].nowplaying) {
-      return last_track;
+      // consider the track scrobbled in the last 3 minutes as 'now-playing'
+      const diff = moment().diff(
+        moment.unix(parseInt(last_track.date["#text"])),
+        "minutes"
+      );
+      const is_scrobbled_recently = diff <= 3;
+
+      if (has_now_playing_tag || is_scrobbled_recently) return last_track;
     } else {
       const row = new MessageActionRow().addComponents(
         new MessageButton()
