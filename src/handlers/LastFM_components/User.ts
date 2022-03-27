@@ -164,16 +164,20 @@ export default class extends LastFM {
     }
 
     const last_track = [...query.data.recenttracks.track].shift();
-    if (last_track && last_track.date) {
+    if (last_track) {
       const has_now_playing_tag =
         last_track[`@attr`] && last_track[`@attr`].nowplaying;
 
       // consider the track scrobbled in the last 3 minutes as 'now-playing'
-      const diff = moment().diff(
-        moment.unix(parseInt(last_track.date.uts)),
-        "minutes"
-      );
-      const is_scrobbled_recently = diff <= 3;
+      let is_scrobbled_recently = false;
+      if (last_track.date) {
+        const diff = moment().diff(
+          moment.unix(parseInt(last_track.date.uts)),
+          "minutes"
+        );
+        is_scrobbled_recently = diff <= 3;
+      }
+
       if (has_now_playing_tag || is_scrobbled_recently) return last_track;
     }
     const row = new MessageActionRow().addComponents(
