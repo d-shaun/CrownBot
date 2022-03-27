@@ -164,33 +164,31 @@ export default class extends LastFM {
     }
 
     const last_track = [...query.data.recenttracks.track].shift();
-    if (last_track) {
+    if (last_track && last_track.date) {
       const has_now_playing_tag =
         last_track[`@attr`] && last_track[`@attr`].nowplaying;
 
       // consider the track scrobbled in the last 3 minutes as 'now-playing'
       const diff = moment().diff(
-        moment.unix(parseInt(last_track.date["#text"])),
+        moment.unix(parseInt(last_track.date.uts)),
         "minutes"
       );
       const is_scrobbled_recently = diff <= 3;
-
       if (has_now_playing_tag || is_scrobbled_recently) return last_track;
-    } else {
-      const row = new MessageActionRow().addComponents(
-        new MessageButton()
-          .setLabel("Need help?")
-          .setStyle("PRIMARY")
-          .setCustomId("scrobblingfaq")
-      );
-
-      const embed = new MessageEmbed().setDescription(
-        `<@${message.author.id}>: You aren't playing anything.`
-      );
-
-      await message.channel.send({ embeds: [embed], components: [row] });
-      return;
     }
+    const row = new MessageActionRow().addComponents(
+      new MessageButton()
+        .setLabel("Need help?")
+        .setStyle("PRIMARY")
+        .setCustomId("scrobblingfaq")
+    );
+
+    const embed = new MessageEmbed().setDescription(
+      `<@${message.author.id}>: You aren't playing anything.`
+    );
+
+    await message.channel.send({ embeds: [embed], components: [row] });
+    return;
   }
 
   //
