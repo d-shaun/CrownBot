@@ -2,7 +2,7 @@
 
 [![GitHub last commit](https://img.shields.io/github/last-commit/d-shaun/CrownBot?style=flat)]()
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/05249f00a07e4a1ca3f816daca6b1094)](https://app.codacy.com/manual/d-shaun/CrownBot)
-[![Discord](https://img.shields.io/discord/657915913567469588.svg?label=Discord)](https://discord.gg/zzJ5zmA)
+[![Discord](https://img.shields.io/discord/1001517710917767188.svg?label=Discord)](https://discord.gg/4vU6kGhejv)
 
 ![CrownBot profile picture](https://i.imgur.com/a6zovhE.png)
 
