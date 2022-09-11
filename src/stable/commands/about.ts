@@ -42,7 +42,10 @@ class AboutCommand extends Command {
         "Invite link",
         "<https://discordapp.com/api/oauth2/authorize?client_id=636075999154536449&permissions=288832&scope=bot>"
       )
-      .addField("Support server", "https://discord.gg/zzJ5zmA");
+      .addField(
+        "Support server  (NEW LINK TO NEW SERVER!!)",
+        "https://discord.gg/4vU6kGhejv"
+      );
 
     await message.channel.send({ embeds: [embed], components: [row] });
   }
