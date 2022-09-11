@@ -17,15 +17,15 @@ class AboutCommand extends Command {
   async run(bot: CrownBot, message: GuildMessage) {
     const row = new MessageActionRow().addComponents(
       new MessageButton()
-        .setLabel("Invite to your server")
+        .setLabel("Invite to your server (DOESNT WORK CURRENTLY)")
         .setStyle("LINK")
         .setURL(
           "https://discordapp.com/api/oauth2/authorize?client_id=636075999154536449&permissions=288832&scope=bot"
         ),
       new MessageButton()
-        .setLabel("Join support server")
+        .setLabel("Join support server (NEW LINK TO NEW SERVER!!)")
         .setStyle("LINK")
-        .setURL("https://discord.gg/zzJ5zmA")
+        .setURL("https://discord.gg/4vU6kGhejv")
     );
 
     const server_prefix = bot.cache.prefix.get(message.guild);
