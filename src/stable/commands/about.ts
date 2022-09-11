@@ -39,10 +39,10 @@ class AboutCommand extends Command {
       .addField("Maintainer", "shaun#4761")
       .addField("Repository", "<https://github.com/d-shaun/CrownBot/>")
       .addField(
-        "Invite link (DOESNT WORK CURRENTLY)",
+        "Invite link",
         "<https://discordapp.com/api/oauth2/authorize?client_id=636075999154536449&permissions=288832&scope=bot>"
       )
-      .addField("Support server", "https://discord.gg/4vU6kGhejv");
+      .addField("Support server", "https://discord.gg/zzJ5zmA");
 
     await message.channel.send({ embeds: [embed], components: [row] });
   }
