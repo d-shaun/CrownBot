@@ -34,13 +34,33 @@ export default async function get_registered_users(
 
   const entries = [];
 
-  const discord = await message.guild.members.fetch({
-    user: <UserResolvable[]>server_db.map((user) => user.userID),
-    force: true,
-  });
+  const split_to_chunks = (arr: any[], len: number) => {
+    const chunks = [],
+      n = arr.length;
+    let i = 0;
+
+    while (i < n) {
+      chunks.push(arr.slice(i, (i += len)));
+    }
+
+    return chunks;
+  };
+
+  const split_users = split_to_chunks(server_db, 80);
+  const discord: any[] = [];
+
+  for await (const chunk of split_users) {
+    const res = await message.guild.members.fetch({
+      user: <UserResolvable[]>chunk.map((user) => user.userID),
+      force: true,
+    });
+
+    const values = [...res.values()];
+    discord.push([...values]);
+  }
 
   for await (const user of discord) {
-    const djsuser = user[1];
+    const djsuser = user[0];
     if (!djsuser) continue;
     const dbuser = server_db.find((user) => user.userID === djsuser.id);
     if (!dbuser) continue;
