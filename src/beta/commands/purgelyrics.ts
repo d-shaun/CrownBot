@@ -78,13 +78,14 @@ class PurgeLyricsCommand extends Command {
     }
     const track = query.data.track;
 
-    const db_entry: LyricsLogInterface = await bot.models.lyricslog.findOne({
-      track_name: track.name,
-      artist_name: track.artist.name,
-      permanent: {
-        $ne: true,
-      },
-    });
+    const db_entry: LyricsLogInterface | null =
+      await bot.models.lyricslog.findOne({
+        track_name: track.name,
+        artist_name: track.artist.name,
+        permanent: {
+          $ne: true,
+        },
+      });
     if (db_entry) {
       const db_response = await bot.models.lyricslog.deleteOne({
         track_name: track.name,

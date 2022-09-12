@@ -67,12 +67,11 @@ export default class LyricsCommand {
     }
     const track = query.data.track;
 
-    const db_entry: LyricsLogInterface = await bot.models.lyricslog.findOne(<
-      LyricsLogInterface
-    >{
-      track_name: track.name,
-      artist_name: track.artist.name,
-    });
+    const db_entry: LyricsLogInterface | null =
+      await bot.models.lyricslog.findOne(<LyricsLogInterface>{
+        track_name: track.name,
+        artist_name: track.artist.name,
+      });
 
     if (db_entry) {
       const attachment = new MessageAttachment(

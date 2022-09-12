@@ -327,7 +327,7 @@ export default class DB {
    * @param message
    */
   async server_config(message: GuildMessage) {
-    const server_config: ServerConfigInterface =
+    const server_config: ServerConfigInterface | null =
       await this.#models.serverconfig.findOne({
         guild_ID: message.guild.id,
       });

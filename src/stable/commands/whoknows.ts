@@ -140,17 +140,15 @@ class WhoKnowsCommand extends Command {
       return;
     }
 
-    const last_log: LogInterface | undefined =
-      await bot.models.whoknowslog.findOne({
-        artist_name: artist.name,
-        guild_id: message.guild.id,
-      });
+    const last_log: LogInterface | null = await bot.models.whoknowslog.findOne({
+      artist_name: artist.name,
+      guild_id: message.guild.id,
+    });
 
-    const last_crown: CrownInterface | undefined =
-      await bot.models.crowns.findOne({
-        artistName: artist.name,
-        guildID: message.guild.id,
-      });
+    const last_crown: CrownInterface | null = await bot.models.crowns.findOne({
+      artistName: artist.name,
+      guildID: message.guild.id,
+    });
     if (last_log && last_log.stat) {
       const { stat } = last_log;
       leaderboard = leaderboard.map((entry) => {

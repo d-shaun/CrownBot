@@ -84,9 +84,8 @@ class LyricsCommand extends Command {
     }
     const track = query.data.track;
 
-    const db_entry: LyricsLogInterface = await bot.models.lyricslog.findOne(<
-      LyricsLogInterface
-      >{
+    const db_entry: LyricsLogInterface | null =
+      await bot.models.lyricslog.findOne(<LyricsLogInterface>{
         track_name: track.name,
         artist_name: track.artist.name,
       });
@@ -96,7 +95,9 @@ class LyricsCommand extends Command {
     };
 
     if (db_entry) {
-      const lyrics = `**${db_entry.track_name}** by **${db_entry.artist_name}**\n\n` + db_entry.lyrics;
+      const lyrics =
+        `**${db_entry.track_name}** by **${db_entry.artist_name}**\n\n` +
+        db_entry.lyrics;
       const lyrics_chunks = toChunks(lyrics);
 
       if (lyrics_chunks && lyrics_chunks.length) {

@@ -66,10 +66,7 @@ export default class CrownBot {
    * Connects to MongoDB.
    */
   async load_db() {
-    this.mongoose = await connect(this.mongo, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    }).catch((e) => {
+    this.mongoose = await connect(this.mongo, {}).catch((e) => {
       console.log(e);
       return e;
     });
