@@ -1,4 +1,4 @@
-import { GuildMember, MessageEmbed } from "discord.js";
+import { GuildMember, EmbedBuilder } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
@@ -88,7 +88,7 @@ class PlayingCommand extends Command {
       };
     });
 
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
       .setDescription(`**${stats.length}** user(s)`)
       .setColor(message.member?.displayColor || 0x0)
       .setTitle(`Now playing in the server`);

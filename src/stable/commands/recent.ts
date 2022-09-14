@@ -1,4 +1,4 @@
-import { MessageEmbed, User as DiscordUser } from "discord.js";
+import { EmbedBuilder, User as DiscordUser } from "discord.js";
 import moment from "moment";
 import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
@@ -71,7 +71,7 @@ class RecentCommand extends Command {
       await response.send();
       return;
     }
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
       .setTitle(`Recent tracks`)
       .setFooter(
         `Displaying recent ${recent_tracks.length} tracks played by ${discord_user.username}.`

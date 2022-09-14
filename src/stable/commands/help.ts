@@ -1,6 +1,6 @@
 import {
   MessageActionRow,
-  MessageEmbed,
+  EmbedBuilder,
   MessageSelectMenu,
   MessageSelectOptionData,
   SelectMenuInteraction,
@@ -82,7 +82,7 @@ class HelpCommand extends Command {
             })
             .join("\n");
 
-      const embed = new MessageEmbed()
+      const embed = new EmbedBuilder()
         .setTitle(command.name)
         .setDescription(command.description);
 
@@ -163,7 +163,7 @@ function generate_embed(
   bot: CrownBot,
   category: string,
   server_prefix: string
-): false | MessageEmbed {
+): false | EmbedBuilder {
   const top_commands = [
     "about",
     "login",
@@ -254,7 +254,7 @@ function generate_embed(
       title = "Other commands";
       break;
   }
-  const embed = new MessageEmbed().setTitle(title);
+  const embed = new EmbedBuilder().setTitle(title);
 
   if (category === "beta") {
     // workaround for categorizing beta commands

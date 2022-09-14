@@ -1,4 +1,4 @@
-import { MessageActionRow, MessageButton, MessageEmbed } from "discord.js";
+import { MessageActionRow, MessageButton, EmbedBuilder } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import CrownBot from "../../handlers/CrownBot";
 class AboutCommand extends Command {
@@ -29,7 +29,7 @@ class AboutCommand extends Command {
     );
 
     const server_prefix = bot.cache.prefix.get(message.guild);
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
       .setTitle("CrownBot")
       .setDescription(
         "A Discord bot that uses the Last.fm API to track users' scrobbling-history to provide various stats and leader-boards."

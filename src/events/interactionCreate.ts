@@ -1,4 +1,4 @@
-import { Client, Interaction, MessageEmbed } from "discord.js";
+import { Client, Interaction, EmbedBuilder } from "discord.js";
 import CrownBot from "../handlers/CrownBot";
 import { help_navigate } from "../stable/commands/help";
 export default async (
@@ -15,7 +15,7 @@ export default async (
     return;
   }
 
-  const embed = new MessageEmbed()
+  const embed = new EmbedBuilder()
     .addField(
       "Has the bot stopped showing your now-playing song?",
       "This almost always has nothing to do with the bot but with Last.fm—unless you misspelled your username (see `&mylogin` to ensure it's correct)."

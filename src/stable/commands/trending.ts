@@ -1,4 +1,4 @@
-import { MessageEmbed } from "discord.js";
+import { EmbedBuilder } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
@@ -57,7 +57,7 @@ class TrendingCommand extends Command {
       return;
     }
 
-    const embed = new MessageEmbed().setTitle(
+    const embed = new EmbedBuilder().setTitle(
       `${esm(artist.name)}'s trending tracks this week`
     );
 

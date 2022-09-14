@@ -1,16 +1,16 @@
-import { Message, MessageButton, MessageEmbed } from "discord.js";
+import { Message, MessageButton, EmbedBuilder } from "discord.js";
 const paginationEmbed = require("discordjs-button-pagination");
 
 export default class Paginate {
   message: Message;
-  embed: MessageEmbed;
+  embed: EmbedBuilder;
   list: string[];
   elements: number;
   numbering: boolean;
 
   constructor(
     message: Message,
-    embed: MessageEmbed,
+    embed: EmbedBuilder,
     list: string[],
     elements = 15,
     numbering = true
@@ -38,7 +38,7 @@ export default class Paginate {
   }
 
   async send() {
-    const embeds: MessageEmbed[] = [];
+    const embeds: EmbedBuilder[] = [];
 
     if (this.numbering) {
       this.list = this.list.map((item, i) => `${i + 1}. ${item}`);

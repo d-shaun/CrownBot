@@ -1,4 +1,4 @@
-import { MessageEmbed } from "discord.js";
+import { EmbedBuilder } from "discord.js";
 import moment from "moment";
 // @ts-ignore
 import abbreviate from "number-abbreviate";
@@ -84,7 +84,7 @@ class ArtistPlaysCommand extends Command {
         parseInt(artist.stats.playcount)) *
       100
     ).toFixed(2);
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
       .setTitle(`Artist plays`)
       .setDescription(
         `**${esm(artist.name)}** — **${

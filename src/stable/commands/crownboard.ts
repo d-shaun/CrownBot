@@ -1,4 +1,4 @@
-import { MessageEmbed } from "discord.js";
+import { EmbedBuilder } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import CrownBot from "../../handlers/CrownBot";
 import Paginate from "../../handlers/Paginate";
@@ -58,7 +58,7 @@ class CrownboardCommand extends Command {
       }, [] as CrownStat[])
       .sort((a, b) => b.count - a.count);
 
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
       .setTitle(`Crown leaderboard`)
       .setColor(message.member?.displayColor || 0x0);
 

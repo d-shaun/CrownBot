@@ -1,4 +1,4 @@
-import { MessageEmbed } from "discord.js";
+import { EmbedBuilder } from "discord.js";
 import moment from "moment";
 // @ts-ignore
 import abbreviate from "number-abbreviate";
@@ -173,7 +173,7 @@ class AlbumPlaysCommand extends Command {
       percentage_text.artist = "";
     }
 
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
       .setTitle(`Album plays`)
       .setDescription(
         `**${esm(album.name)}** by **${esm(album.artist)}** — ${

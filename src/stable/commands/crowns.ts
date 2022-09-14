@@ -1,4 +1,4 @@
-import { MessageEmbed, User } from "discord.js";
+import { EmbedBuilder, User } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
@@ -56,7 +56,7 @@ class CrownsCommand extends Command {
 
     const sorted_crowns = crowns.sort((a, b) => b.artistPlays - a.artistPlays);
 
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
       .setColor(message.member?.displayColor || 0x0)
       .setTitle(`Crowns of ${user.username} in ${message.guild.name}`)
       .setDescription(`Total: **${sorted_crowns.length} crowns**`);

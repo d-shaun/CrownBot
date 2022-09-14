@@ -1,4 +1,4 @@
-import { MessageEmbed, User as DiscordUser } from "discord.js";
+import { EmbedBuilder, User as DiscordUser } from "discord.js";
 
 import moment from "moment";
 import Command, { GuildMessage } from "../../classes/Command";
@@ -69,7 +69,7 @@ class NowPlayingCommand extends Command {
       status_text = "⏹️ scrobbled " + time_difference(timestamp) + " ago";
     }
     const cover = last_song.image.pop();
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
       .setTitle("Now playing · " + discord_user.username)
       .setDescription(
         `**${esm(last_song.name)}** by **${esm(

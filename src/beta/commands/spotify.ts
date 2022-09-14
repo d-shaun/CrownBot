@@ -1,4 +1,4 @@
-import { MessageEmbed } from "discord.js";
+import { EmbedBuilder } from "discord.js";
 import moment from "moment";
 import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
@@ -74,7 +74,7 @@ class SpotifyCommand extends Command {
       }
     };
 
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
       .setDescription(
         `**[${esm(track.name)}](${track.external_urls.spotify})**\n\n` +
           `Artist(s): **${esm(

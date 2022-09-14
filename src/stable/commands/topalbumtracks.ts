@@ -1,4 +1,4 @@
-import { MessageEmbed } from "discord.js";
+import { EmbedBuilder } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import { Template } from "../../classes/Template";
 import BotMessage from "../../handlers/BotMessage";
@@ -105,7 +105,7 @@ class TopAlbumTracks extends Command {
     }
 
     const total_scrobbles = album_tracks.reduce((a, b) => a + b.plays, 0);
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
       .setDescription(
         `Track plays — **${album_tracks.length}** tracks · **${total_scrobbles}** plays`
       )

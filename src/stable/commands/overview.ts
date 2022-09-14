@@ -1,4 +1,4 @@
-import { MessageEmbed, User as DiscordUser } from "discord.js";
+import { EmbedBuilder, User as DiscordUser } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import { Template } from "../../classes/Template";
 import BotMessage from "../../handlers/BotMessage";
@@ -122,7 +122,7 @@ class OverviewCommand extends Command {
       guildID: message.guild.id,
     });
 
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
       .setTitle(`${cb(artist.name)} overview for ${discord_user.username}`)
       .addField(
         "Scrobbles",

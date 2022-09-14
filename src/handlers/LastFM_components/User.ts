@@ -11,7 +11,7 @@ import cheerio from "cheerio";
 import cb from "../../misc/codeblock";
 import Axios from "axios";
 import { LastFMResponse } from "../../interfaces/LastFMResponseInterface";
-import { MessageActionRow, MessageButton, MessageEmbed } from "discord.js";
+import { MessageActionRow, MessageButton, EmbedBuilder } from "discord.js";
 import moment from "moment";
 
 export default class extends LastFM {
@@ -187,7 +187,7 @@ export default class extends LastFM {
         .setCustomId("scrobblingfaq")
     );
 
-    const embed = new MessageEmbed().setDescription(
+    const embed = new EmbedBuilder().setDescription(
       `<@${message.author.id}>: You aren't playing anything.`
     );
 

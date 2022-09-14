@@ -1,4 +1,4 @@
-import { MessageEmbed } from "discord.js";
+import { EmbedBuilder } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import { Template } from "../../classes/Template";
 import BotMessage from "../../handlers/BotMessage";
@@ -75,7 +75,7 @@ class TopAlbumsCommand extends Command {
       return;
     }
 
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
       .setDescription(`Album plays — **${albums.length}** albums`)
       .setColor(message.member?.displayColor || 0x0)
       .setTitle(

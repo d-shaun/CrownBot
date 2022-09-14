@@ -1,4 +1,4 @@
-import { MessageEmbed } from "discord.js";
+import { EmbedBuilder } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
@@ -92,7 +92,7 @@ class TasteCommand extends Command {
     });
     if (plays.length > 25) plays.length = 25;
 
-    const embed = new MessageEmbed().setTitle(
+    const embed = new EmbedBuilder().setTitle(
       `\`\`${message.author.username}\`\`'s and \`\`${user_two.username}\`\`'s taste comparison `
     );
     plays.forEach((stat) => {

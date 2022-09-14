@@ -1,4 +1,4 @@
-import { MessageEmbed, TextChannel } from "discord.js";
+import { EmbedBuilder, TextChannel } from "discord.js";
 import { GuildMessage } from "../classes/Command";
 import cb from "../misc/codeblock";
 import esm from "../misc/escapemarkdown";
@@ -90,7 +90,7 @@ class BotMessage {
 
     const embed_permission = bot_permissions?.has("EMBED_LINKS");
     if (!this.noembed && embed_permission) {
-      const embed = new MessageEmbed();
+      const embed = new EmbedBuilder();
       embed.setDescription(`\n${mention}${this.text}\n`);
       embed.setColor(this.message.member?.displayColor || 0x0);
       if (this.footer) embed.setFooter(this.footer);

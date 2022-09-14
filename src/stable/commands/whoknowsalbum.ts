@@ -1,4 +1,4 @@
-import { MessageEmbed } from "discord.js";
+import { EmbedBuilder } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import { Template } from "../../classes/Template";
 import BotMessage from "../../handlers/BotMessage";
@@ -172,7 +172,7 @@ class WhoKnowsAlbum extends Command {
       0
     );
 
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
       .setColor(message.member?.displayColor || 0x0)
       .setTitle(`Who knows the album ${cb(album.name)}?`)
       .setFooter(`"${esm(album.name)}" by ${esm(album.artist)}`);

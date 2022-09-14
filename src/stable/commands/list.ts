@@ -1,4 +1,4 @@
-import { MessageEmbed } from "discord.js";
+import { EmbedBuilder } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
@@ -209,7 +209,7 @@ class ListCommand extends Command {
         })
         .join("\n");
 
-      const embed = new MessageEmbed()
+      const embed = new EmbedBuilder()
         .setTitle(
           `${message.author.username}'s ${config.period.text}-top ${config.type}s`
         )
@@ -244,7 +244,7 @@ class ListCommand extends Command {
         })
         .join("\n");
 
-      const embed = new MessageEmbed()
+      const embed = new EmbedBuilder()
         .setTitle(
           `${message.author.username}'s ${config.period.text}-top ${config.type}s`
         )
@@ -268,7 +268,7 @@ class ListCommand extends Command {
         })
         .join("\n");
 
-      const embed = new MessageEmbed()
+      const embed = new EmbedBuilder()
         .setTitle(
           `${message.author.username}'s ${config.period.text}-top ${config.type}s`
         )

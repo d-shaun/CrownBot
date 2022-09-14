@@ -1,4 +1,4 @@
-import { MessageEmbed } from "discord.js";
+import { EmbedBuilder } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import BotMessage from "../../handlers/BotMessage";
 import CrownBot from "../../handlers/CrownBot";
@@ -187,7 +187,7 @@ class WhoKnowsCommand extends Command {
       }
     }
 
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
       .setColor(message.member?.displayColor || 0x0)
       .setTitle(`Who knows ${esm(artist.name)}?`);
 

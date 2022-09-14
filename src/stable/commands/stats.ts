@@ -1,4 +1,4 @@
-import { MessageEmbed } from "discord.js";
+import { EmbedBuilder } from "discord.js";
 import moment from "moment";
 import Command, { GuildMessage } from "../../classes/Command";
 import { Template } from "../../classes/Template";
@@ -117,7 +117,7 @@ class StatsCommand extends Command {
       { field_name: "Yearly", data: yearly },
       { field_name: "All-time", data: all_time },
     ];
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
       .setTitle(`${message.author.username}'s scrobbling stats`)
       .setColor(message.member?.displayColor || 0x0)
       .addField("Scrobbling since", user_registered_date);

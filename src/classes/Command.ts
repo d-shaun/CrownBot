@@ -2,7 +2,7 @@ import {
   Client,
   Guild,
   Message,
-  MessageEmbed,
+  EmbedBuilder,
   PermissionString,
   TextChannel,
 } from "discord.js";
@@ -266,7 +266,7 @@ export default class Command {
       return;
     }
 
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
       .setTitle("Uncaught exception")
       .addField("Incident ID", incident_id, false)
       .addField("Command name", this.name, true)

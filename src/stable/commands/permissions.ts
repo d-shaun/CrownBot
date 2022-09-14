@@ -1,4 +1,4 @@
-import { MessageEmbed, TextChannel } from "discord.js";
+import { EmbedBuilder, TextChannel } from "discord.js";
 import Command, { GuildMessage } from "../../classes/Command";
 import CrownBot from "../../handlers/CrownBot";
 
@@ -54,7 +54,7 @@ class PermissionsCommand extends Command {
       return;
     }
 
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
       .setTitle("Permissions")
       .setDescription(
         `Brief explanations of permissions required by the bot.\n\n\n ${reply.join(
