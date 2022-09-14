@@ -1,4 +1,4 @@
-import { Client } from "discord.js";
+import { Client, GatewayIntentBits } from "discord.js";
 import fs from "fs";
 import path from "path";
 import CrownBot from "./src/handlers/CrownBot";
@@ -43,10 +43,9 @@ SPOTIFY_SECRETID: Spotify client ID for the &chart command to show artist images
 
     const client = new Client({
       intents: [
-        "GUILD_MESSAGES",
-        "GUILD_MESSAGE_TYPING",
-        "GUILD_MESSAGE_REACTIONS",
-        "GUILDS",
+        GatewayIntentBits.GuildMessageTyping,
+        GatewayIntentBits.GuildMessageReactions,
+        GatewayIntentBits.Guilds,
       ],
     });
 
