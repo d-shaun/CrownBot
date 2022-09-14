@@ -56,11 +56,10 @@ export default async function get_registered_users(
     });
 
     const values = [...res.values()];
-    discord.push([...values]);
+    discord.push(...values);
   }
 
-  for await (const user of discord) {
-    const djsuser = user[0];
+  for await (const djsuser of discord) {
     if (!djsuser) continue;
     const dbuser = server_db.find((user) => user.userID === djsuser.id);
     if (!dbuser) continue;
