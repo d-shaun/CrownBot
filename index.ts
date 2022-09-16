@@ -46,6 +46,8 @@ SPOTIFY_SECRETID: Spotify client ID for the &chart command to show artist images
     // register events
     client.once("interactionCreate", (interaction: Interaction) => {
       if (!interaction.isChatInputCommand()) return;
+      if (!interaction.guild) return;
+
       const command = bot.commands.find(
         (e) => e.data.name == interaction.commandName
       );

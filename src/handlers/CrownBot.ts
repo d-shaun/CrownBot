@@ -51,10 +51,10 @@ export default class CrownBot {
 
   async init_dev() {
     await this.load_db();
+    this.load_models();
     await this.register_commands();
     await this.load_botconfig();
     await this.cache.config.init(); /* cache server configs for the session */
-
     if (!this.commands.length || !this.mongoose)
       throw "Failed initializing mongoose and/or commands. (never really happens tho)";
     return this;

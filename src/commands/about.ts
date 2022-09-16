@@ -6,7 +6,7 @@ import {
   CommandInteraction,
   EmbedBuilder,
 } from "discord.js";
-import CrownBot from "../../handlers/CrownBot";
+import CrownBot from "../handlers/CrownBot";
 
 const { SlashCommandBuilder } = require("discord.js");
 

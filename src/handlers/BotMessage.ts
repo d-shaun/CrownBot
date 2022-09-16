@@ -1,5 +1,9 @@
-import { EmbedBuilder, TextChannel } from "discord.js";
-import { GuildMessage } from "../classes/Command";
+import {
+  CommandInteraction,
+  EmbedBuilder,
+  PermissionFlagsBits,
+  TextChannel,
+} from "discord.js";
 import cb from "../misc/codeblock";
 import esm from "../misc/escapemarkdown";
 import CrownBot from "./CrownBot";
@@ -7,37 +11,29 @@ import CrownBot from "./CrownBot";
 interface BotMessageInterface {
   bot: CrownBot;
   text?: string;
-  reply: boolean;
-  message: GuildMessage;
+  interaction: CommandInteraction;
   noembed?: boolean;
   footer?: string;
 }
 
 class BotMessage {
   bot: CrownBot;
-  message: GuildMessage;
+  interaction: CommandInteraction;
   text?: string;
-  reply: boolean;
   noembed: boolean;
   footer?: string;
   templates: { id: string; text: string }[];
 
   constructor({
     bot,
-    message,
+    interaction,
     text,
-    reply,
     noembed,
     footer,
   }: BotMessageInterface) {
-    if (!message) {
-      throw `The 'message' was not passed while trying to send the message: ${text}`;
-    }
-    const server_prefix = bot.cache.prefix.get(message.guild);
     this.bot = bot;
-    this.message = message;
+    this.interaction = interaction;
     this.text = text;
-    this.reply = reply;
     this.noembed = noembed || false;
     this.footer = footer;
 
@@ -51,17 +47,13 @@ class BotMessage {
         id: "not_logged",
         text:
           `You are not logged into the bot in this server; ` +
-          `please set your Last.fm username with the ` +
-          `${cb("login", server_prefix)} commmand (see ${cb(
-            "help login",
-            server_prefix
-          )}).`,
+          `please use the ${cb("login")} command to set your username`,
       },
       {
         id: "already_logged",
         text: `You already are logged into the bot; 
-      send ${cb("me", server_prefix)} to see your username 
-      and ${cb("logout", server_prefix)} to logout.`,
+      use ${cb("me")} to see your username 
+      and ${cb("logout")} to logout.`,
       },
       {
         id: "lastfm_error",
@@ -70,8 +62,7 @@ class BotMessage {
       {
         id: "exception",
         text: `Something went wrong; please try again, and drop a note in the support server if this issue persists (see ${cb(
-          "support",
-          server_prefix
+          "support"
         )}).`,
       },
     ];
@@ -79,25 +70,24 @@ class BotMessage {
 
   async send() {
     if (!this.text) throw "No 'text' to send.";
-    const mention = this.reply ? `<@${this.message.author.id}>: ` : "";
-    if (!this.message.guild || !this.message.guild.me) {
-      return this.message.channel.send(`${mention}${this.text}`);
+
+    const me = await this.interaction.guild?.members.fetchMe();
+    let embed_permission = false;
+    if (me) {
+      const bot_permissions = (<TextChannel>(
+        this.interaction.channel
+      )).permissionsFor(me);
+
+      embed_permission = bot_permissions?.has(PermissionFlagsBits.EmbedLinks);
     }
-
-    const bot_permissions = (<TextChannel>this.message.channel).permissionsFor(
-      this.message.guild.me
-    );
-
-    const embed_permission = bot_permissions?.has("EMBED_LINKS");
     if (!this.noembed && embed_permission) {
       const embed = new EmbedBuilder();
-      embed.setDescription(`\n${mention}${this.text}\n`);
-      embed.setColor(this.message.member?.displayColor || 0x0);
-      if (this.footer) embed.setFooter(this.footer);
+      embed.setDescription(`\n${this.text}\n`);
+      if (this.footer) embed.setFooter({ text: this.footer });
 
-      return this.message.channel.send({ embeds: [embed] });
+      return this.interaction.reply({ embeds: [embed] });
     }
-    return this.message.channel.send(`${mention}${this.text}`);
+    return this.interaction.reply(`${this.text}`);
   }
 
   async error(id: string, lastfm_message?: string) {

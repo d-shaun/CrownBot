@@ -6,8 +6,8 @@
  * Optional text to be added before `text`; this is generally where you'd set a server's prefix for when wrapping
  * a command in a code-block.
  */
-export default function cb(text: string, prefix?: string) {
+export default function cb(text: string) {
   /* replace backticks (`) with single-quotes (') */
   const escaped = text.replace(/[`]/g, "'").trim();
-  return "`" + (prefix ? prefix : "") + escaped + "`";
+  return "`/" + escaped + "`";
 }
