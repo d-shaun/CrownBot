@@ -1,4 +1,4 @@
-import { Client, GatewayIntentBits } from "discord.js";
+import { Client, GatewayIntentBits, Interaction } from "discord.js";
 import fs from "fs";
 import path from "path";
 import CrownBot from "./src/handlers/CrownBot";
@@ -32,6 +32,7 @@ SPOTIFY_SECRETID: Spotify client ID for the &chart command to show artist images
       buttons_version: "001", // update this to invalidate existing buttons
       max_users: 250, // max user-support per server
 
+      token: TOKEN,
       owner_ID: OWNER_ID,
       api_key: API_KEY,
       access_token: ACCESS_TOKEN,
@@ -39,7 +40,7 @@ SPOTIFY_SECRETID: Spotify client ID for the &chart command to show artist images
       genius_api: GENIUS_API,
 
       url: "https://ws.audioscrobbler.com/2.0/?",
-    }).init();
+    }).init_dev();
 
     const client = new Client({
       intents: [
@@ -50,13 +51,25 @@ SPOTIFY_SECRETID: Spotify client ID for the &chart command to show artist images
     });
 
     // register events
-    const dir: string = path.join(__dirname, "./src/events");
-    const events: string[] = fs.readdirSync(dir);
-    events.forEach((file: string) => {
-      const [eventName]: string[] = file.split(".");
-      const props = require(path.join(dir, file));
-      client.on(eventName, props.default.bind(null, bot, client));
+    client.once("interactionCreate", (interaction: Interaction) => {
+      if (!interaction.isChatInputCommand()) return;
+      // console.log(bot);
+      const command = bot.commands.find(
+        (e) => e.name == interaction.commandName
+      );
+      console.log(command);
+      if (command) command.execute(bot, client, interaction);
     });
+    // const dir: string = path.join(__dirname, "./src/events");
+    // const events: string[] = fs.readdirSync(dir);
+    // events.forEach((file: string) => {
+    //   const [eventName]: string[] = file.split(".");
+    //   const props = require(path.join(dir, file));
+    //   console.log(bot);
+    //   console.log(client);
+
+    //   client.on(eventName, props.default.bind(null, null, null, null));
+    // });
 
     await client.login(TOKEN);
     console.log(`Logged in as ${client.user?.tag}`);
