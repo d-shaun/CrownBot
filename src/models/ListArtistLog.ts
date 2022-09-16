@@ -1,5 +1,5 @@
 import { Mongoose } from "mongoose";
-import { UserTopArtist } from "../../interfaces/ArtistInterface";
+import { UserTopArtist } from "../interfaces/ArtistInterface";
 
 export interface ListArtistLogInterface {
   user_id: string;

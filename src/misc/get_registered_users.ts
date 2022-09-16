@@ -1,8 +1,8 @@
 import { GuildMember, UserResolvable } from "discord.js";
-import { GuildMessage } from "../classes/Command";
+import GuildChatInteraction from "../classes/GuildChatInteraction";
 import CrownBot from "../handlers/CrownBot";
-import { BanInterface } from "../stable/models/Bans";
-import { UserInterface } from "../stable/models/Users";
+import { BanInterface } from "../models/Bans";
+import { UserInterface } from "../models/Users";
 
 interface UserFetchInterface {
   users: {
@@ -14,22 +14,22 @@ interface UserFetchInterface {
 /**
  * Returns users registered to the bot in a server.
  * - Filters out locally and/or globally banned users.
- * @param client
- * @param message
+ * @param bot
+ * @param interaction
  */
 
 export default async function get_registered_users(
   bot: CrownBot,
-  message: GuildMessage
+  interaction: GuildChatInteraction
 ): Promise<UserFetchInterface | undefined> {
   const banned_users: BanInterface[] = await bot.models.bans.find({
-    guildID: { $in: [message.guild.id, "any"] },
+    guildID: { $in: [interaction.guild.id, "any"] },
   });
 
   const banned_ids = banned_users.map((user) => user.userID);
 
   const server_db = (<UserInterface[]>await bot.models.serverusers.find({
-    guildID: message.guild.id,
+    guildID: interaction.guild.id,
   })).filter((user) => !banned_ids.includes(user.userID));
 
   const entries = [];
@@ -50,7 +50,7 @@ export default async function get_registered_users(
   const discord: any[] = [];
 
   for await (const chunk of split_users) {
-    const res = await message.guild.members.fetch({
+    const res = await interaction.guild.members.fetch({
       user: <UserResolvable[]>chunk.map((user) => user.userID),
       force: true,
     });

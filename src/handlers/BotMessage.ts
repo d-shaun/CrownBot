@@ -47,13 +47,13 @@ class BotMessage {
         id: "not_logged",
         text:
           `You are not logged into the bot in this server; ` +
-          `please use the ${cb("login")} command to set your username`,
+          `please use the ${cb("/login")} command to set your username`,
       },
       {
         id: "already_logged",
         text: `You already are logged into the bot; 
-      use ${cb("me")} to see your username 
-      and ${cb("logout")} to logout.`,
+      use ${cb("/me")} to see your username 
+      and ${cb("/logout")} to logout.`,
       },
       {
         id: "lastfm_error",
@@ -62,7 +62,7 @@ class BotMessage {
       {
         id: "exception",
         text: `Something went wrong; please try again, and drop a note in the support server if this issue persists (see ${cb(
-          "support"
+          "/support"
         )}).`,
       },
     ];

@@ -81,7 +81,7 @@
 //    * - if user is logged in if `require_login` is set to true
 //    * - if bot has the essential permissions
 //    * @param client
-//    * @param message
+//    * @param interaction
 //    * @param args
 //    */
 //   async execute(
@@ -92,22 +92,22 @@
 //   ) {
 //     const db = new DB(bot.models);
 //     const response = new BotMessage({ bot, message, text: "", reply: true });
-//     if (!message.guild || !message.guild.me) return;
-//     if (this.owner_only && message.author.id !== bot.owner_ID) {
+//     if (!interaction.guild || !interaction.guild.me) return;
+//     if (this.owner_only && interaction.user.id !== bot.owner_ID) {
 //       return;
 //     }
 
 //     if (bot.botconfig?.maintenance === "on") {
 //       response.text =
 //         "The bot is currently under maintenance; please try again in a while.";
-//       if (message.author.id !== bot.owner_ID) {
+//       if (interaction.user.id !== bot.owner_ID) {
 //         await response.send();
 //         return;
 //       }
 //     }
 
 //     const ban_info = await check_ban(message, bot);
-//     if (ban_info.banned && message.author.id !== bot.owner_ID) {
+//     if (ban_info.banned && interaction.user.id !== bot.owner_ID) {
 //       if (ban_info.type === "global" && !this.allow_banned) {
 //         response.text =
 //           "You are globally banned from accessing the bot; try `&about` to find the support server.";
@@ -125,12 +125,12 @@
 //     }
 
 //     if (this.require_login) {
-//       const user = await db.fetch_user(message.guild.id, message.author.id);
+//       const user = await db.fetch_user(interaction.guild.id, interaction.user.id);
 //       if (!user) {
 //         response.text = new Template(bot, message).get("not_logged");
 
 //         // temporary message for the &snap'ed users
-//         if (await db.check_snap(message.guild.id, message.author.id)) {
+//         if (await db.check_snap(interaction.guild.id, interaction.user.id)) {
 //           response.text =
 //             "You have been logged out of the bot in this server because **you have crown(s) registered under multiple Last.fm usernames**.\n\n" +
 //             "Please login again with your primary username: `&login <lastfm username>`\n\n[Click here to learn more about this change](https://github.com/d-shaun/CrownBot/issues/40) ";
@@ -144,7 +144,7 @@
 //     const lacking_permissions = [];
 //     if (this.required_permissions) {
 //       for (const permission of this.required_permissions) {
-//         if (!message.guild.me.permissions.has(<PermissionString>permission)) {
+//         if (!interaction.guild.me.permissions.has(<PermissionString>permission)) {
 //           has_permissions = false;
 //           lacking_permissions.push(permission);
 //         }
@@ -182,9 +182,9 @@
 //       expireAt: expire_date,
 //       command_name: this.name,
 //       message_content: message.content,
-//       user_ID: message.author.id,
-//       guild_ID: message.guild.id,
-//       username: message.author.tag,
+//       user_ID: interaction.user.id,
+//       guild_ID: interaction.guild.id,
+//       username: interaction.user.tag,
 //       timestamp: `${new Date().toUTCString()}`,
 //     };
 //     await new bot.models.logs({ ...data }).save();
@@ -197,7 +197,7 @@
 //     stack?: string
 //   ) {
 //     const response = new BotMessage({ bot, message, text: "", reply: true });
-//     const server_prefix = bot.cache.prefix.get(message.guild);
+//     const server_prefix = bot.cache.prefix.get(interaction.guild);
 
 //     const expire_date = new Date();
 //     expire_date.setDate(expire_date.getDate() + 28); // add 28 days to current date
@@ -207,8 +207,8 @@
 //       incident_id,
 //       command_name: this.name,
 //       message_content: message.content,
-//       user_ID: message.author.id,
-//       guild_ID: message.guild.id,
+//       user_ID: interaction.user.id,
+//       guild_ID: interaction.guild.id,
 //       timestamp: `${new Date().toUTCString()}`,
 //       stack: `${stack || `none`}`,
 //     };

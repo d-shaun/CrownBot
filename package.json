@@ -27,7 +27,7 @@
     "@types/lyricist": "^2.2.0",
     "@types/mongodb": "^4.0.7",
     "@types/mongoose": "^5.11.97",
-    "@types/node": "^14.0.14",
+    "@types/node": "^18.7.18",
     "@types/spotify-web-api-node": "^4.0.2",
     "@types/ws": "^7.2.5",
     "axios": "^0.21.1",

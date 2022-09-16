@@ -1,5 +1,5 @@
 import { Mongoose } from "mongoose";
-import { LeaderboardInterface } from "../../interfaces/LeaderboardInterface";
+import { LeaderboardInterface } from "../interfaces/LeaderboardInterface";
 
 export interface LogInterface {
   track_name: string;

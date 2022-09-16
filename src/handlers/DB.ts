@@ -1,12 +1,12 @@
 import { User as DiscordUser } from "discord.js";
 import moment from "moment";
 import { Model } from "mongoose";
-import { GuildMessage } from "../classes/Command";
+import GuildChatInteraction from "../classes/GuildChatInteraction";
 import { UserTopArtist } from "../interfaces/ArtistInterface";
 import { DBUser } from "../interfaces/DBUserInterface";
 import { LeaderboardInterface } from "../interfaces/LeaderboardInterface";
-import { ServerConfigInterface } from "../stable/models/ServerConfig";
-import { SnapLogInterface } from "../stable/models/SnapLog";
+import { ServerConfigInterface } from "../models/ServerConfig";
+import { SnapLogInterface } from "../models/SnapLog";
 
 export default class DB {
   #models: { [key: string]: Model<any> };
@@ -114,20 +114,23 @@ export default class DB {
 
   /**
    * Adds a ban entry for a user.
-   * @param message
+   * @param interaction
    * The discord.js `message` object.
    *
    * @param user
    * The `DiscordUser` object.
    *
    */
-  async ban_user(message: GuildMessage, user: DiscordUser): Promise<boolean> {
+  async ban_user(
+    interaction: GuildChatInteraction,
+    user: DiscordUser
+  ): Promise<boolean> {
     return this.#models.bans.create({
-      guildID: message.guild.id,
-      guildName: message.guild.name,
+      guildID: interaction.guild.id,
+      guildName: interaction.guild.name,
       userID: user.id,
       username: user.tag,
-      executor: `${message.author.tag} (${message.author.id})`,
+      executor: `${interaction.user.tag} (${interaction.user.id})`,
     });
   }
 
@@ -268,13 +271,13 @@ export default class DB {
 
   /**
    * Opts a server out of beta features.
-   * @param message
+   * @param interaction
    */
-  async opt_out(message: GuildMessage): Promise<void> {
+  async opt_out(interaction: GuildChatInteraction): Promise<void> {
     await this.#models.optins.findOneAndRemove(
       {
         type: "beta",
-        guild_ID: message.guild.id,
+        guild_ID: interaction.guild.id,
       },
       {
         useFindAndModify: false,
@@ -284,20 +287,20 @@ export default class DB {
 
   /**
    * Opts a server in to beta features.
-   * @param message
+   * @param interaction
    */
-  async opt_in(message: GuildMessage): Promise<void> {
+  async opt_in(interaction: GuildChatInteraction): Promise<void> {
     await this.#models.optins.findOneAndUpdate(
       {
         type: "beta",
-        guild_ID: message.guild.id,
+        guild_ID: interaction.guild.id,
       },
       {
         type: "beta",
-        guild_ID: message.guild.id,
-        guild_name: message.guild.name,
-        username: message.author.tag,
-        user_ID: message.author.id,
+        guild_ID: interaction.guild.id,
+        guild_name: interaction.guild.name,
+        username: interaction.user.tag,
+        user_ID: interaction.user.id,
         timestamp: `${new Date().toUTCString()}`,
       },
       {
@@ -309,13 +312,13 @@ export default class DB {
 
   /**
    * Checks current opt-in status of a server.
-   * @param message
+   * @param interaction
    */
-  async check_optin(message: GuildMessage): Promise<boolean> {
+  async check_optin(interaction: GuildChatInteraction): Promise<boolean> {
     const beta_log = await this.#models.optins
       .findOne({
         type: "beta",
-        guild_ID: message.guild.id,
+        guild_ID: interaction.guild.id,
       })
       .lean();
     return !!beta_log;
@@ -324,16 +327,16 @@ export default class DB {
   /**
    * Fetches configurations of a server.
    * - Returns an object with `min_plays_for_crowns` set to 1 if no config is found.
-   * @param message
+   * @param interaction
    */
-  async server_config(message: GuildMessage) {
+  async server_config(interaction: GuildChatInteraction) {
     const server_config: ServerConfigInterface | null =
       await this.#models.serverconfig.findOne({
-        guild_ID: message.guild.id,
+        guild_ID: interaction.guild.id,
       });
     if (!server_config) {
       return new this.#models.serverconfig({
-        guild_ID: message.guild.id,
+        guild_ID: interaction.guild.id,
         min_plays_for_crowns: 1,
       });
     }

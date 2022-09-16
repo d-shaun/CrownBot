@@ -1,6 +1,6 @@
 import { Guild } from "discord.js";
 import { CacheComponent } from "../../interfaces/CacheComponentInterface";
-import { ServerConfigInterface } from "../../stable/models/ServerConfig";
+import { ServerConfigInterface } from "../../models/ServerConfig";
 import CrownBot from "../CrownBot";
 export class Config implements CacheComponent {
   #bot: CrownBot;

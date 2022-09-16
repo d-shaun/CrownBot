@@ -1,4 +1,4 @@
-import { GuildMessage } from "../classes/Command";
+import GuildChatInteraction from "../classes/GuildChatInteraction";
 import CrownBot from "../handlers/CrownBot";
 
 interface Response {
@@ -11,11 +11,11 @@ interface Response {
  * - Both local and global bans will result in `<response>.banned` being `true`
  * - The type of the ban (if banned) is specified in `<response>.type`.
  *
- * @param message
+ * @param interaction
  * @param bot
  */
 export default async function check_ban(
-  message: GuildMessage,
+  interaction: GuildChatInteraction,
   bot: CrownBot
 ): Promise<Response> {
   const response = {
@@ -24,8 +24,8 @@ export default async function check_ban(
   };
   const bans = await bot.models.bans
     .find({
-      userID: message.author.id,
-      guildID: { $in: [message.guild.id, "any"] },
+      userID: interaction.user.id,
+      guildID: { $in: [interaction.guild.id, "any"] },
     })
     .lean();
   if (!bans.length) {

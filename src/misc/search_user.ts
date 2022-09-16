@@ -1,14 +1,14 @@
 import { GuildMember, User, UserResolvable } from "discord.js";
-import { GuildMessage } from "../classes/Command";
+import GuildChatInteraction from "../classes/GuildChatInteraction";
 
 /**
  * Searches for a user in a server either by ID or username.
  *
- * @param message
+ * @param interaction
  * @param args
  */
 export default async function search_user(
-  message: GuildMessage,
+  interaction: GuildChatInteraction,
   args: string[]
 ): Promise<User | undefined> {
   if (args.length === 0) {
@@ -18,7 +18,7 @@ export default async function search_user(
   let user: GuildMember | undefined;
   // workaround to support resolving user ID and searching username
   try {
-    user = await message.guild.members.fetch({
+    user = await interaction.guild.members.fetch({
       user: <UserResolvable>username,
       force: true,
     });
@@ -30,7 +30,7 @@ export default async function search_user(
 
   if (!user) {
     user = (
-      await message.guild.members.fetch({ query: username, limit: 1 })
+      await interaction.guild.members.fetch({ query: username, limit: 1 })
     )?.first(); // find similar username
   }
   console.log(user);

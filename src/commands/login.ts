@@ -1,17 +1,11 @@
 import {
   ActionRowBuilder,
   ButtonBuilder,
-  ButtonComponent,
   ButtonInteraction,
   ButtonStyle,
-  ChatInputCommandInteraction,
   Client,
-  CollectorFilter,
-  CommandInteraction,
   ComponentType,
-  MessageReaction,
   SlashCommandBuilder,
-  User as DiscordUser,
 } from "discord.js";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
 // import GuildCommandInteraction from "../classes/GuildCommandInteraction";
@@ -21,7 +15,6 @@ import CrownBot from "../handlers/CrownBot";
 import DB from "../handlers/DB";
 import User from "../handlers/LastFM_components/User";
 import cb from "../misc/codeblock";
-import simple_confirm from "../misc/simple_confirm";
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -42,7 +35,6 @@ module.exports = {
     const response = new BotMessage({
       bot,
       interaction,
-      text: "",
     });
     const db = new DB(bot.models);
     const user = await db.fetch_user(interaction.guild.id, interaction.user.id);
@@ -57,7 +49,8 @@ module.exports = {
       lastfm_username: { $not: RE },
     });
 
-    if (existing_crowns.length) {
+    let has_existing_crowns = !!existing_crowns.length;
+    if (has_existing_crowns) {
       const row = <ActionRowBuilder<ButtonBuilder>>(
         new ActionRowBuilder().addComponents(
           new ButtonBuilder()
@@ -75,6 +68,7 @@ module.exports = {
       await interaction.reply({
         content: `You have **${existing_crowns.length}** crowns registered under another Last.fm username.\nChanging your username will **delete** those crowns in this server. Continue?`,
         components: [row],
+        ephemeral: true,
       });
 
       const filter = (i: ButtonInteraction) =>
@@ -88,24 +82,30 @@ module.exports = {
           }
         );
 
-      collector.on("collect", async (i) => {
-        await i.update({ content: "The button was clicked!", components: [] });
+      collector.once("collect", async (i) => {
+        if (i.customId === "cancel") {
+          await interaction.editReply({
+            content: `Cancelled. No changes are made.`,
+            components: [],
+          });
+        } else if (i.customId === "continue") {
+          const delete_stats = await bot.models.crowns.deleteMany({
+            userID: interaction.user.id,
+            guildID: interaction.guild.id,
+            lastfm_username: { $not: RE },
+          });
 
-        // if (reactions.size > 0) {
-        //   const delete_stats = await bot.models.crowns.deleteMany({
-        //     userID: message.author.id,
-        //     guildID: message.guild.id,
-        //     lastfm_username: { $not: RE },
-        //   });
-        //   response.text = `Your **${delete_stats.deletedCount}** crowns registered under another username in this server have been deleted.`;
-        //   await response.send();
-        // } else {
-        //   response.text = "Reaction wasn't clicked; no changes are made.";
-        //   await response.send();
-        //   return;
-        // }
+          has_existing_crowns = false;
+
+          await interaction.editReply({
+            content: `Your **${delete_stats.deletedCount}** crowns registered under another username in this server have been deleted.`,
+            components: [],
+          });
+        }
       });
     }
+
+    if (has_existing_crowns) return;
 
     await db.unsnap(interaction.guild.id, interaction.user.id);
     if (user) {
@@ -118,15 +118,15 @@ module.exports = {
       return;
     }
 
-    if (await db.add_user(message.guild.id, message.author.id, username)) {
+    if (
+      await db.add_user(interaction.guild.id, interaction.user.id, username)
+    ) {
       response.text = `Username ${cb(
         username
       )} has been associated to your Discord account.`;
     } else {
-      response.text = new Template(bot, message).get("exception");
+      response.text = new Template().get("exception");
     }
     await response.send();
   },
 };
-
-export default LoginCommand;

@@ -44,14 +44,19 @@ SPOTIFY_SECRETID: Spotify client ID for the &chart command to show artist images
     });
 
     // register events
-    client.once("interactionCreate", (interaction: Interaction) => {
+    client.on("interactionCreate", async (interaction: Interaction) => {
       if (!interaction.isChatInputCommand()) return;
       if (!interaction.guild) return;
 
       const command = bot.commands.find(
         (e) => e.data.name == interaction.commandName
       );
-      if (command) command.execute(bot, client, interaction);
+
+      try {
+        if (command) await command.execute(bot, client, interaction);
+      } catch (e: any) {
+        console.error(e);
+      }
     });
 
     await client.login(TOKEN);
