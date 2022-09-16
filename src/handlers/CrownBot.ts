@@ -2,8 +2,8 @@ import { REST, Routes } from "discord.js";
 import fs from "fs";
 import { connect, model, Model, Mongoose } from "mongoose";
 import path from "path";
-import { BotConfigInterface } from "../stable/models/BotConfig";
-import { ServerConfigInterface } from "../stable/models/ServerConfig";
+import { BotConfigInterface } from "../models/BotConfig";
+import { ServerConfigInterface } from "../models/ServerConfig";
 import CacheHandler from "./Cache";
 
 export default class CrownBot {
@@ -75,7 +75,7 @@ export default class CrownBot {
    */
   async register_commands() {
     const commands = [];
-    const dir: string = path.join(__dirname, "../stable/commands");
+    const dir: string = path.join(__dirname, "../commands");
 
     const commandFiles = fs
       .readdirSync(dir)
@@ -113,10 +113,10 @@ export default class CrownBot {
   }
 
   /**
-   * Loads mongoose models from `../stable/models` to `client.models[modelname]`.
+   * Loads mongoose models from `../models` to `client.models[modelname]`.
    */
   load_models() {
-    const dir: string = path.join(__dirname, "../stable/models");
+    const dir: string = path.join(__dirname, "../models");
     const models: string[] = fs.readdirSync(dir);
     models.forEach((file) => {
       const [model_name] = file.split(".");
