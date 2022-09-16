@@ -1,6 +1,4 @@
 import { Client, GatewayIntentBits, Interaction } from "discord.js";
-import fs from "fs";
-import path from "path";
 import CrownBot from "./src/handlers/CrownBot";
 /*
 # REQUIRED
@@ -27,8 +25,7 @@ SPOTIFY_SECRETID: Spotify client ID for the &chart command to show artist images
     }
 
     const bot = await new CrownBot({
-      version: "10.0.0",
-      prefix: "&",
+      version: "11.0.0",
       buttons_version: "001", // update this to invalidate existing buttons
       max_users: 250, // max user-support per server
 
@@ -43,33 +40,17 @@ SPOTIFY_SECRETID: Spotify client ID for the &chart command to show artist images
     }).init_dev();
 
     const client = new Client({
-      intents: [
-        GatewayIntentBits.GuildMessageTyping,
-        GatewayIntentBits.GuildMessageReactions,
-        GatewayIntentBits.Guilds,
-      ],
+      intents: [GatewayIntentBits.Guilds],
     });
 
     // register events
     client.once("interactionCreate", (interaction: Interaction) => {
       if (!interaction.isChatInputCommand()) return;
-      // console.log(bot);
       const command = bot.commands.find(
-        (e) => e.name == interaction.commandName
+        (e) => e.data.name == interaction.commandName
       );
-      console.log(command);
       if (command) command.execute(bot, client, interaction);
     });
-    // const dir: string = path.join(__dirname, "./src/events");
-    // const events: string[] = fs.readdirSync(dir);
-    // events.forEach((file: string) => {
-    //   const [eventName]: string[] = file.split(".");
-    //   const props = require(path.join(dir, file));
-    //   console.log(bot);
-    //   console.log(client);
-
-    //   client.on(eventName, props.default.bind(null, null, null, null));
-    // });
 
     await client.login(TOKEN);
     console.log(`Logged in as ${client.user?.tag}`);

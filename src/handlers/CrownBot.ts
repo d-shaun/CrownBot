@@ -6,14 +6,11 @@ import { BotConfigInterface } from "../stable/models/BotConfig";
 import { ServerConfigInterface } from "../stable/models/ServerConfig";
 import CacheHandler from "./Cache";
 
-//TODO: REMOVE ABANDONDED METHODS FROM HERE 
-
 export default class CrownBot {
   version: string;
-  prefix: string;
   buttons_version: string;
   max_users: number;
-  
+
   cache = new CacheHandler(this);
   #token: string;
   owner_ID: string;
@@ -32,7 +29,6 @@ export default class CrownBot {
   constructor(options: any) {
     this.version = options.version;
     this.#token = options.token;
-    this.prefix = options.prefix;
     this.buttons_version = options.buttons_version;
     this.max_users = options.max_users || 200;
 
@@ -45,30 +41,24 @@ export default class CrownBot {
     this.url = options.url;
   }
 
-  async init_dev() {
-    await this.load_commands();
-    return this;
-  }
-
   /**
    * - Connects to MongoDB.
-   * - Loads commands.
-   * - Adds event hooks.
+   * - Registers slash commands.
    * - Registers models.
-   * - Initializes prefixes.
    * - Initializes server-specific configurations.
    * - Finally, logs the bot in.
    */
-  // async init_stable() {
-  //   await this.load_db();
-  //   if (!this.mongoose) throw "welp";
-  //   this.load_commands().load_models();
 
-  //   await this.load_botconfig();
-  //   await this.cache.prefix.init(); /* cache server prefixes for the session */
-  //   await this.cache.config.init(); /* cache server configs for the session */
-  //   return this;
-  // }
+  async init_dev() {
+    await this.load_db();
+    await this.register_commands();
+    await this.load_botconfig();
+    await this.cache.config.init(); /* cache server configs for the session */
+
+    if (!this.commands.length || !this.mongoose)
+      throw "Failed initializing mongoose and/or commands. (never really happens tho)";
+    return this;
+  }
 
   /**
    * Connects to MongoDB.
@@ -80,7 +70,10 @@ export default class CrownBot {
     });
   }
 
-  async load_commands() {
+  /**
+   * Registers slash commands
+   */
+  async register_commands() {
     const commands = [];
     const dir: string = path.join(__dirname, "../stable/commands");
 
@@ -94,7 +87,7 @@ export default class CrownBot {
 
     for (const file of commandFiles) {
       const command = require(path.join(dir, file));
-
+      this.commands.push(command);
       commands.push(command.data.toJSON());
     }
     const rest = new REST({ version: "10" }).setToken(this.#token);
@@ -109,7 +102,6 @@ export default class CrownBot {
           Routes.applicationGuildCommands(clientId, guildId),
           { body: commands }
         );
-        this.commands = commands;
 
         console.log(
           `Successfully reloaded ${data.length} application (/) commands.`
@@ -118,37 +110,6 @@ export default class CrownBot {
         console.error(error);
       }
     })();
-  }
-
-  /**
-   * Registers all commands from `../stable/commands/` and `../beta/commands/`
-   * to `client.commands` and `client.beta_commands` respectively.
-   */
-  // load_commands_old() {
-  //   const register_commands = (location: string, beta = false) => {
-  //     const dir: string = path.join(__dirname, location);
-  //     if (!fs.existsSync(dir)) {
-  //       return;
-  //     }
-  //     const commands: string[] = fs.readdirSync(dir);
-  //     commands.forEach((file: string) => {
-  //       if (file.endsWith(".js")) {
-  //         const Command = require(path.join(dir, file)).default;
-  //         const command = new Command();
-  //         if (beta) {
-  //           command.beta = true;
-  //           this.beta_commands.push(command);
-  //         } else {
-  //           this.commands.push(command);
-  //         }
-  //       }
-  //     });
-  //   };
-
-    register_commands("../stable/commands");
-    register_commands("../beta/commands", true);
-
-    return this;
   }
 
   /**
