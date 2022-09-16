@@ -65,7 +65,7 @@ module.exports = {
         )
       );
 
-      await interaction.reply({
+      await interaction.followUp({
         content: `You have **${existing_crowns.length}** crowns registered under another Last.fm username.\nChanging your username will **delete** those crowns in this server. Continue?`,
         components: [row],
         ephemeral: true,

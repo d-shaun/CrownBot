@@ -14,6 +14,12 @@ module.exports = {
     .setName("nowplaying")
     .setDescription(
       "Shows your currently playing (or the last scrobbled) track"
+    )
+    .addUserOption((option) =>
+      option
+        .setName("discord_user")
+        .setDescription("User to get now-playing song of (defaults to you)")
+        .setRequired(false)
     ),
 
   async execute(
@@ -27,7 +33,9 @@ module.exports = {
     });
 
     const db = new DB(bot.models);
-
+    const discord_user =
+      interaction.options.getUser("discord_user") || interaction.user;
+    console.log(discord_user);
     // let discord_user: DiscordUser | undefined;
 
     // if (args.length > 0) {
@@ -42,8 +50,12 @@ module.exports = {
     //   return;
     // }
 
-    const user = await db.fetch_user(interaction.guild.id, interaction.user.id);
-    if (!user) return;
+    const user = await db.fetch_user(interaction.guild.id, discord_user.id);
+    if (!user) {
+      response.text = "User is not logged in.";
+      await response.send();
+      return;
+    }
 
     const lastfm_user = new User({ username: user.username, limit: 2 });
     const query = await lastfm_user.get_recenttracks();
@@ -67,7 +79,7 @@ module.exports = {
     }
     const cover = last_song.image.pop();
     const embed = new EmbedBuilder()
-      .setTitle("Now playing · " + interaction.user.username)
+      .setTitle("Now playing · " + discord_user.username)
       .setDescription(
         `**${esm(last_song.name)}** by **${esm(
           last_song.artist["#text"]
@@ -75,6 +87,6 @@ module.exports = {
       )
       .setFooter({ text: status_text });
     if (cover) embed.setThumbnail(cover["#text"]);
-    await interaction.reply({ embeds: [embed] });
+    await interaction.editReply({ embeds: [embed] });
   },
 };

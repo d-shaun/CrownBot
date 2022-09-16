@@ -58,6 +58,6 @@ module.exports = {
         },
       ]);
 
-    await interaction.reply({ embeds: [embed], components: [row] });
+    await interaction.editReply({ embeds: [embed], components: [row] });
   },
 };

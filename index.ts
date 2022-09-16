@@ -53,6 +53,7 @@ SPOTIFY_SECRETID: Spotify client ID for the &chart command to show artist images
       );
 
       try {
+        await interaction.deferReply();
         if (command) await command.execute(bot, client, interaction);
       } catch (e: any) {
         console.error(e);

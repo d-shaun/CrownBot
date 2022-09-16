@@ -84,10 +84,17 @@ class BotMessage {
       const embed = new EmbedBuilder();
       embed.setDescription(`\n${this.text}\n`);
       if (this.footer) embed.setFooter({ text: this.footer });
-
-      return this.interaction.reply({ embeds: [embed] });
+      if (this.interaction.deferred) {
+        return this.interaction.editReply({ embeds: [embed] });
+      } else {
+        return this.interaction.reply({ embeds: [embed] });
+      }
     }
-    return this.interaction.reply(`${this.text}`);
+    if (this.interaction.deferred) {
+      return this.interaction.editReply(`${this.text}`);
+    } else {
+      return this.interaction.reply(`${this.text}`);
+    }
   }
 
   async error(id: string, lastfm_message?: string) {
