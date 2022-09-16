@@ -26,13 +26,10 @@ export default async function search_user(
     user = undefined;
   }
 
-  console.log(user);
-
   if (!user) {
     user = (
       await interaction.guild.members.fetch({ query: username, limit: 1 })
     )?.first(); // find similar username
   }
-  console.log(user);
   return user ? user.user : undefined;
 }
