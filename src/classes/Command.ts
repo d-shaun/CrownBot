@@ -67,4 +67,4 @@ export async function preflight_checks(
   }
 }
 
-//TODO: re-add seding exception logs to channel
+//TODO: re-add sending exception logs to channel
