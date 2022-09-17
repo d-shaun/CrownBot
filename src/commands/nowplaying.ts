@@ -35,20 +35,6 @@ module.exports = {
     const db = new DB(bot.models);
     const discord_user =
       interaction.options.getUser("discord_user") || interaction.user;
-    console.log(discord_user);
-    // let discord_user: DiscordUser | undefined;
-
-    // if (args.length > 0) {
-    //   const mention = message.mentions.members?.first();
-    //   discord_user = mention ? mention.user : await search_user(message, args);
-    // } else {
-    //   discord_user = message.member ? message.member.user : undefined;
-    // }
-    // if (!discord_user) {
-    //   response.text = "User not found.";
-    //   await response.send();
-    //   return;
-    // }
 
     const user = await db.fetch_user(interaction.guild.id, discord_user.id);
     if (!user) {

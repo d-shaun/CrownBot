@@ -1,21 +1,22 @@
-import { Message, EmbedBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
+import { ButtonBuilder, ButtonStyle, EmbedBuilder } from "discord.js";
+import GuildChatInteraction from "../classes/GuildChatInteraction";
 const paginationEmbed = require("discordjs-button-pagination");
 
 export default class Paginate {
-  message: Message;
+  interaction: GuildChatInteraction;
   embed: EmbedBuilder;
   list: string[];
   elements: number;
   numbering: boolean;
 
   constructor(
-    message: Message,
+    interaction: GuildChatInteraction,
     embed: EmbedBuilder,
     list: string[],
     elements = 15,
     numbering = true
   ) {
-    this.message = message;
+    this.interaction = interaction;
     this.embed = embed;
     this.list = list;
     this.elements = elements;
@@ -70,9 +71,9 @@ export default class Paginate {
     const buttonList = [button1, button2];
 
     if (chunks.length >= 2) {
-      return paginationEmbed(this.message, embeds, buttonList, 60000);
+      return paginationEmbed(this.interaction, embeds, buttonList, 60000);
     } else {
-      return this.message.channel.send({ embeds: [embeds[0]] });
+      return this.interaction.editReply({ embeds: [embeds[0]] });
     }
   }
 }

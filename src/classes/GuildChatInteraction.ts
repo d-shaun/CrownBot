@@ -1,9 +1,4 @@
-import {
-  ChatInputCommandInteraction,
-  CommandInteraction,
-  Guild,
-  TextChannel,
-} from "discord.js";
+import { ChatInputCommandInteraction, Guild, TextChannel } from "discord.js";
 
 export default interface GuildChatInteraction
   extends ChatInputCommandInteraction {

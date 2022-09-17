@@ -83,7 +83,7 @@ export default class CrownBot {
 
     // Place your client and guild ids here
     const clientId = "636794173378265089";
-    const guildId = "414155200862093312";
+    const guildId = "1001517710917767188";
 
     for (const file of commandFiles) {
       const command = require(path.join(dir, file));

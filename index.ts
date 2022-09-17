@@ -1,4 +1,6 @@
 import { Client, GatewayIntentBits, Interaction } from "discord.js";
+import { preflight_checks } from "./src/classes/Command";
+import GuildChatInteraction from "./src/classes/GuildChatInteraction";
 import CrownBot from "./src/handlers/CrownBot";
 /*
 # REQUIRED
@@ -52,9 +54,15 @@ SPOTIFY_SECRETID: Spotify client ID for the &chart command to show artist images
         (e) => e.data.name == interaction.commandName
       );
 
+      if (!command) return;
+
       try {
-        await interaction.deferReply();
-        if (command) await command.execute(bot, client, interaction);
+        await preflight_checks(
+          bot,
+          client,
+          <GuildChatInteraction>interaction,
+          command
+        );
       } catch (e: any) {
         console.error(e);
       }
