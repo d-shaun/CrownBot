@@ -12,6 +12,7 @@ export default class CrownBot {
   max_users: number;
 
   cache = new CacheHandler(this);
+  client_id: string;
   #token: string;
   owner_ID: string;
   api_key: string;
@@ -32,6 +33,7 @@ export default class CrownBot {
     this.buttons_version = options.buttons_version;
     this.max_users = options.max_users || 200;
 
+    this.client_id = options.client_id;
     this.owner_ID = options.owner_ID;
     this.api_key = options.api_key;
     this.access_token = options.access_token;
@@ -82,7 +84,7 @@ export default class CrownBot {
       .filter((file) => file.endsWith(".js"));
 
     // Place your client and guild ids here
-    const clientId = "636794173378265089";
+    const clientId = this.client_id;
     // TODO: dev env: dynamic switch to guild-based commands
     // const guildId = "1001517710917767188";
 
