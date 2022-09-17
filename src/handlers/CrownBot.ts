@@ -83,7 +83,8 @@ export default class CrownBot {
 
     // Place your client and guild ids here
     const clientId = "636794173378265089";
-    const guildId = "1001517710917767188";
+    // TODO: dev env: dynamic switch to guild-based commands
+    // const guildId = "1001517710917767188";
 
     for (const file of commandFiles) {
       const command = require(path.join(dir, file));
@@ -98,10 +99,14 @@ export default class CrownBot {
           `Started refreshing ${commands.length} application (/) commands.`
         );
 
-        const data: any = await rest.put(
-          Routes.applicationGuildCommands(clientId, guildId),
-          { body: commands }
-        );
+        const data: any = await rest.put(Routes.applicationCommands(clientId), {
+          body: commands,
+        });
+
+        // const data: any = await rest.put(
+        //   Routes.applicationGuildCommands(clientId, guildId),
+        //   { body: commands }
+        // );
 
         console.log(
           `Successfully reloaded ${data.length} application (/) commands.`
