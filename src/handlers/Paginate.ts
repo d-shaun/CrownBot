@@ -1,6 +1,6 @@
-import { ButtonBuilder, ButtonStyle, EmbedBuilder } from "discord.js";
+import { pagination } from "@devraelfreeze/discordjs-pagination";
+import { EmbedBuilder } from "discord.js";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
-const paginationEmbed = require("discordjs-button-pagination");
 
 export default class Paginate {
   interaction: GuildChatInteraction;
@@ -46,32 +46,34 @@ export default class Paginate {
     }
     const chunks = this.chunk(this.list, this.elements);
 
-    chunks.forEach((chunk, i) => {
-      embeds[i] = Object.create(this.embed);
-      let new_text = chunk.join("\n");
-      if (this.embed.data.description) {
-        new_text = `${this.embed.data.description}\n\n` + new_text;
-      }
-      embeds[i].data.description = new_text + "\n";
+    chunks.forEach((chunk) => {
+      const new_embed = new EmbedBuilder().setTitle(
+        this.embed.data.title || "Embed"
+      );
+
+      let description = chunk.join("\n");
+      if (this.embed.data.footer?.text)
+        new_embed.setFooter({ text: this.embed.data.footer.text });
+
       if (this.embed.data.footer?.text && chunks.length >= 2) {
         // no footer text if there's only one page
-        embeds[i].data.description += "\n" + this.embed.data.footer.text;
+        description += "\n\n" + this.embed.data.footer.text;
       }
+      new_embed.setDescription(description);
+
+      embeds.push(new_embed);
     });
 
-    const button1 = new ButtonBuilder()
-      .setCustomId("previousbtn")
-      .setLabel("Previous")
-      .setStyle(ButtonStyle.Success);
-
-    const button2 = new ButtonBuilder()
-      .setCustomId("nextbtn")
-      .setLabel("Next")
-      .setStyle(ButtonStyle.Success);
-    const buttonList = [button1, button2];
-
     if (chunks.length >= 2) {
-      return paginationEmbed(this.interaction, embeds, buttonList, 60000);
+      return await pagination({
+        embeds: <any>embeds, // Array of embeds objects
+        author: this.interaction.user,
+        interaction: this.interaction,
+        time: 60000, // 60 seconds
+        disableButtons: true, // Remove buttons after timeout
+        fastSkip: false,
+        pageTravel: false,
+      });
     } else {
       return this.interaction.editReply({ embeds: [embeds[0]] });
     }
