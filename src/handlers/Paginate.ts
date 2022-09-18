@@ -52,6 +52,9 @@ export default class Paginate {
       );
 
       let description = chunk.join("\n");
+      if (this.embed.data.description) {
+        description = this.embed.data.description + "\n\n" + description;
+      }
       if (this.embed.data.footer?.text)
         new_embed.setFooter({ text: this.embed.data.footer.text });
 
