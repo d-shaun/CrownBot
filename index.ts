@@ -3,10 +3,13 @@ import {
   EmbedBuilder,
   GatewayIntentBits,
   Interaction,
+  Message,
 } from "discord.js";
 import { preflight_checks } from "./src/classes/Command";
 import GuildChatInteraction from "./src/classes/GuildChatInteraction";
 import CrownBot from "./src/handlers/CrownBot";
+import handle_bugreport from "./src/misc/handle_bugreport";
+import send_temp_notice from "./src/misc/temp_notice";
 /*
 # REQUIRED
 ======================================================================================================
@@ -55,7 +58,11 @@ SPOTIFY_SECRETID: Spotify client ID for the &chart command to show artist images
     }).init_dev();
 
     const client = new Client({
-      intents: [GatewayIntentBits.Guilds],
+      intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent,
+      ],
     });
 
     // register events
@@ -94,6 +101,10 @@ SPOTIFY_SECRETID: Spotify client ID for the &chart command to show artist images
         return;
       }
 
+      if (interaction.isModalSubmit()) {
+        await handle_bugreport(bot, client, interaction);
+        return;
+      }
       if (!interaction.isChatInputCommand()) return;
       if (!interaction.guild) return;
 
@@ -113,6 +124,12 @@ SPOTIFY_SECRETID: Spotify client ID for the &chart command to show artist images
       } catch (e: any) {
         console.error(e);
       }
+    });
+
+    // TEMPORARY NOTICE OF THE BOT SWITCHING TO SLASH COMMANDS
+    // register events
+    client.on("messageCreate", async (message: Message) => {
+      await send_temp_notice(message, bot);
     });
 
     await client.login(TOKEN);
