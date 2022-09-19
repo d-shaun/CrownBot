@@ -12,7 +12,12 @@ import Axios from "axios";
 import { LastFMResponse } from "../../interfaces/LastFMResponseInterface";
 import moment from "moment";
 import GuildChatInteraction from "../../classes/GuildChatInteraction";
-import { EmbedBuilder } from "discord.js";
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  EmbedBuilder,
+} from "discord.js";
 
 export default class extends LastFM {
   prefix = "user.";
@@ -179,19 +184,23 @@ export default class extends LastFM {
 
       if (has_now_playing_tag || is_scrobbled_recently) return last_track;
     }
-    // TODO: restore help button on /nowplaying
-    // const row = new MessageActionRow().addComponents(
-    //   new MessageButton()
-    //     .setLabel("Need help?")
-    //     .setStyle("PRIMARY")
-    //     .setCustomId("scrobblingfaq")
-    // );
+    const row = <ActionRowBuilder<ButtonBuilder>>(
+      new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+          .setLabel("Need help?")
+          .setStyle(ButtonStyle.Primary)
+          .setCustomId("scrobblingfaq")
+      )
+    );
 
     const embed = new EmbedBuilder().setDescription(
       `<@${interaction.user.id}>: You aren't playing anything.`
     );
 
-    await interaction.editReply({ embeds: [embed] });
+    await interaction.editReply({
+      embeds: [embed],
+      components: [row],
+    });
     return;
   }
 
