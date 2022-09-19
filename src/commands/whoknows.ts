@@ -254,7 +254,7 @@ module.exports = {
           response.text = `**${esm(top_user.discord_username)}** took the ${cb(
             artist.name
           )} crown from **${esm(last_user.user.username)}**.`;
-          await response.send();
+          await response.send(true);
         }
       }
       await db.update_crown(top_user);

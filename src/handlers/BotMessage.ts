@@ -68,7 +68,7 @@ class BotMessage {
     ];
   }
 
-  async send() {
+  async send(force_follow_up = false) {
     if (!this.text) throw "No 'text' to send.";
 
     const me = await this.interaction.guild?.members.fetchMe();
@@ -85,9 +85,17 @@ class BotMessage {
       embed.setDescription(`\n${this.text}\n`);
       if (this.footer) embed.setFooter({ text: this.footer });
       if (this.interaction.deferred) {
-        return this.interaction.editReply({ embeds: [embed] });
+        if (force_follow_up) {
+          return this.interaction.followUp({ embeds: [embed] });
+        } else {
+          return this.interaction.editReply({ embeds: [embed] });
+        }
       } else {
-        return this.interaction.reply({ embeds: [embed] });
+        if (force_follow_up) {
+          return this.interaction.followUp({ embeds: [embed] });
+        } else {
+          return this.interaction.editReply({ embeds: [embed] });
+        }
       }
     }
     if (this.interaction.deferred) {
