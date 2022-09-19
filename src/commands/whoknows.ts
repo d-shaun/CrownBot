@@ -47,13 +47,7 @@ module.exports = {
     let artist_name = interaction.options.getString("artist_name");
     if (!artist_name) {
       const now_playing = await lastfm_user.get_nowplaying(bot, interaction);
-      if (!now_playing) {
-        const embed = new EmbedBuilder().setDescription(
-          `<@${interaction.user.id}>: You aren't playing anything.`
-        );
-        await interaction.editReply({ embeds: [embed] });
-        return;
-      }
+      if (!now_playing) return;
       artist_name = now_playing.artist["#text"];
     }
 

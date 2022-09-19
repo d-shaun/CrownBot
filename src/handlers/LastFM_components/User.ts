@@ -12,6 +12,7 @@ import Axios from "axios";
 import { LastFMResponse } from "../../interfaces/LastFMResponseInterface";
 import moment from "moment";
 import GuildChatInteraction from "../../classes/GuildChatInteraction";
+import { EmbedBuilder } from "discord.js";
 
 export default class extends LastFM {
   prefix = "user.";
@@ -186,11 +187,11 @@ export default class extends LastFM {
     //     .setCustomId("scrobblingfaq")
     // );
 
-    // const embed = new EmbedBuilder().setDescription(
-    //   `<@${interaction.user.id}>: You aren't playing anything.`
-    // );
+    const embed = new EmbedBuilder().setDescription(
+      `<@${interaction.user.id}>: You aren't playing anything.`
+    );
 
-    // await message.channel.send({ embeds: [embed], components: [row] });
+    await interaction.editReply({ embeds: [embed] });
     return;
   }
 

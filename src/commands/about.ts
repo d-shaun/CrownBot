@@ -25,7 +25,7 @@ module.exports = {
     const row = <ActionRowBuilder<ButtonBuilder>>(
       new ActionRowBuilder().addComponents(
         new ButtonBuilder()
-          .setLabel("Invite to your server (DOESNT WORK CURRENTLY)")
+          .setLabel("Invite to your server")
           .setStyle(ButtonStyle.Link)
           .setURL(
             "https://discordapp.com/api/oauth2/authorize?client_id=636075999154536449&permissions=288832&scope=bot"
