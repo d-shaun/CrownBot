@@ -39,7 +39,7 @@ SPOTIFY_SECRETID: Spotify client ID for the &chart command to show artist images
     }
 
     const bot = await new CrownBot({
-      version: "11.0.0",
+      version: "11.0.0-beta",
       buttons_version: "001", // update this to invalidate existing buttons
       max_users: 250, // max user-support per server
 
@@ -65,7 +65,7 @@ SPOTIFY_SECRETID: Spotify client ID for the &chart command to show artist images
           {
             name: "Has the bot stopped showing your now-playing song?",
             value:
-              "This almost always has nothing to do with the bot but with Last.fm—unless you misspelled your username (see `&mylogin` to ensure it's correct).",
+              "This almost always has nothing to do with the bot but with Last.fm—unless you misspelled your username (see `/mylogin` to ensure it's correct).",
           },
           {
             name: "Things you can try",
