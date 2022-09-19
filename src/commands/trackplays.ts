@@ -50,13 +50,13 @@ module.exports = {
       username: user.username,
     });
 
-    let track_name = interaction.options.getString("album_name");
+    let track_name = interaction.options.getString("track_name");
     let artist_name = interaction.options.getString("artist_name");
 
     if (!track_name) {
       const now_playing = await lastfm_user.get_nowplaying(bot, interaction);
       if (!now_playing) return;
-      track_name = now_playing.album["#text"];
+      track_name = now_playing.name;
       artist_name = now_playing.artist["#text"];
     }
 
@@ -102,7 +102,6 @@ module.exports = {
       return;
     }
     const artist = artist_query.data.artist;
-
     const track = track_query.data.track;
 
     if (track.userplaycount === undefined) return;
