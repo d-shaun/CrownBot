@@ -1,38 +1,39 @@
+import { REST, Routes } from "discord.js";
 import fs from "fs";
 import { connect, model, Model, Mongoose } from "mongoose";
 import path from "path";
-import Command from "../classes/Command";
-import { BotConfigInterface } from "../stable/models/BotConfig";
-import { ServerConfigInterface } from "../stable/models/ServerConfig";
+import { BotConfigInterface } from "../models/BotConfig";
+import { ServerConfigInterface } from "../models/ServerConfig";
 import CacheHandler from "./Cache";
 
 export default class CrownBot {
   version: string;
-  prefix: string;
   buttons_version: string;
   max_users: number;
 
   cache = new CacheHandler(this);
+  client_id: string;
+  #token: string;
   owner_ID: string;
   api_key: string;
-  access_token?: string;
+  access_token: string;
   genius_api?: string;
   mongo: string;
   mongoose: Mongoose | undefined;
 
   url: string;
   server_configs: ServerConfigInterface[] | undefined = undefined;
-  commands: Command[] = [];
-  beta_commands: Command[] = [];
+  commands: any[] = [];
   models: { [key: string]: Model<any> } = {};
   botconfig: BotConfigInterface | undefined;
 
   constructor(options: any) {
     this.version = options.version;
-    this.prefix = options.prefix;
+    this.#token = options.token;
     this.buttons_version = options.buttons_version;
     this.max_users = options.max_users || 200;
 
+    this.client_id = options.client_id;
     this.owner_ID = options.owner_ID;
     this.api_key = options.api_key;
     this.access_token = options.access_token;
@@ -44,21 +45,20 @@ export default class CrownBot {
 
   /**
    * - Connects to MongoDB.
-   * - Loads commands.
-   * - Adds event hooks.
+   * - Registers slash commands.
    * - Registers models.
-   * - Initializes prefixes.
    * - Initializes server-specific configurations.
    * - Finally, logs the bot in.
    */
-  async init() {
-    await this.load_db();
-    if (!this.mongoose) throw "welp";
-    this.load_commands().load_models();
 
+  async init_dev() {
+    await this.load_db();
+    this.load_models();
+    await this.register_commands();
     await this.load_botconfig();
-    await this.cache.prefix.init(); /* cache server prefixes for the session */
     await this.cache.config.init(); /* cache server configs for the session */
+    if (!this.commands.length || !this.mongoose)
+      throw "Failed initializing mongoose and/or commands. (never really happens tho)";
     return this;
   }
 
@@ -73,41 +73,57 @@ export default class CrownBot {
   }
 
   /**
-   * Registers all commands from `../stable/commands/` and `../beta/commands/`
-   * to `client.commands` and `client.beta_commands` respectively.
+   * Registers slash commands
    */
-  load_commands() {
-    const register_commands = (location: string, beta = false) => {
-      const dir: string = path.join(__dirname, location);
-      if (!fs.existsSync(dir)) {
-        return;
+  async register_commands() {
+    const commands = [];
+    const dir: string = path.join(__dirname, "../commands");
+
+    const commandFiles = fs
+      .readdirSync(dir)
+      .filter((file) => file.endsWith(".js"));
+
+    // Place your client and guild ids here
+    const clientId = this.client_id;
+    // TODO: dev env: dynamic switch to guild-based commands
+    // const guildId = "1001517710917767188";
+
+    for (const file of commandFiles) {
+      const command = require(path.join(dir, file));
+      this.commands.push(command);
+      commands.push(command.data.toJSON());
+    }
+    const rest = new REST({ version: "10" }).setToken(this.#token);
+
+    return (async () => {
+      try {
+        console.log(
+          `Started refreshing ${commands.length} application (/) commands.`
+        );
+
+        const data: any = await rest.put(Routes.applicationCommands(clientId), {
+          body: commands,
+        });
+
+        // const data: any = await rest.put(
+        //   Routes.applicationGuildCommands(clientId, guildId),
+        //   { body: commands }
+        // );
+
+        console.log(
+          `Successfully reloaded ${data.length} application (/) commands.`
+        );
+      } catch (error) {
+        console.error(error);
       }
-      const commands: string[] = fs.readdirSync(dir);
-      commands.forEach((file: string) => {
-        if (file.endsWith(".js")) {
-          const Command = require(path.join(dir, file)).default;
-          const command = new Command();
-          if (beta) {
-            command.beta = true;
-            this.beta_commands.push(command);
-          } else {
-            this.commands.push(command);
-          }
-        }
-      });
-    };
-
-    register_commands("../stable/commands");
-    register_commands("../beta/commands", true);
-
-    return this;
+    })();
   }
 
   /**
-   * Loads mongoose models from `../stable/models` to `client.models[modelname]`.
+   * Loads mongoose models from `../models` to `client.models[modelname]`.
    */
   load_models() {
-    const dir: string = path.join(__dirname, "../stable/models");
+    const dir: string = path.join(__dirname, "../models");
     const models: string[] = fs.readdirSync(dir);
     models.forEach((file) => {
       const [model_name] = file.split(".");

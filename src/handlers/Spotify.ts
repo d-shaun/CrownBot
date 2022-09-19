@@ -1,5 +1,5 @@
 import SpotifyWebApi from "spotify-web-api-node";
-import { Data } from "../stable/commands/chart";
+import { Data } from "../commands/chart";
 const { SPOTIFY_CLIENTID, SPOTIFY_CLIENTSECRET } = process.env;
 
 interface CustomData extends Data {

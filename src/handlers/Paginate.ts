@@ -1,21 +1,22 @@
-import { Message, MessageButton, MessageEmbed } from "discord.js";
-const paginationEmbed = require("discordjs-button-pagination");
+import { pagination } from "@devraelfreeze/discordjs-pagination";
+import { EmbedBuilder } from "discord.js";
+import GuildChatInteraction from "../classes/GuildChatInteraction";
 
 export default class Paginate {
-  message: Message;
-  embed: MessageEmbed;
+  interaction: GuildChatInteraction;
+  embed: EmbedBuilder;
   list: string[];
   elements: number;
   numbering: boolean;
 
   constructor(
-    message: Message,
-    embed: MessageEmbed,
+    interaction: GuildChatInteraction,
+    embed: EmbedBuilder,
     list: string[],
     elements = 15,
     numbering = true
   ) {
-    this.message = message;
+    this.interaction = interaction;
     this.embed = embed;
     this.list = list;
     this.elements = elements;
@@ -38,41 +39,46 @@ export default class Paginate {
   }
 
   async send() {
-    const embeds: MessageEmbed[] = [];
+    const embeds: EmbedBuilder[] = [];
 
     if (this.numbering) {
       this.list = this.list.map((item, i) => `${i + 1}. ${item}`);
     }
     const chunks = this.chunk(this.list, this.elements);
 
-    chunks.forEach((chunk, i) => {
-      embeds[i] = Object.create(this.embed);
-      let new_text = chunk.join("\n");
-      if (this.embed.description) {
-        new_text = `${this.embed.description}\n\n` + new_text;
+    chunks.forEach((chunk) => {
+      const new_embed = new EmbedBuilder().setTitle(
+        this.embed.data.title || "Embed"
+      );
+
+      let description = chunk.join("\n");
+      if (this.embed.data.description) {
+        description = this.embed.data.description + "\n\n" + description;
       }
-      embeds[i].description = new_text + "\n";
-      if (this.embed.footer?.text && chunks.length >= 2) {
+      if (this.embed.data.footer?.text)
+        new_embed.setFooter({ text: this.embed.data.footer.text });
+
+      if (this.embed.data.footer?.text && chunks.length >= 2) {
         // no footer text if there's only one page
-        embeds[i].description += "\n" + this.embed.footer.text;
+        description += "\n\n" + this.embed.data.footer.text;
       }
+      new_embed.setDescription(description);
+
+      embeds.push(new_embed);
     });
 
-    const button1 = new MessageButton()
-      .setCustomId("previousbtn")
-      .setLabel("Previous")
-      .setStyle("SUCCESS");
-
-    const button2 = new MessageButton()
-      .setCustomId("nextbtn")
-      .setLabel("Next")
-      .setStyle("SUCCESS");
-    const buttonList = [button1, button2];
-
     if (chunks.length >= 2) {
-      return paginationEmbed(this.message, embeds, buttonList, 60000);
+      return await pagination({
+        embeds: <any>embeds, // Array of embeds objects
+        author: this.interaction.user,
+        interaction: this.interaction,
+        time: 60000, // 60 seconds
+        disableButtons: true, // Remove buttons after timeout
+        fastSkip: false,
+        pageTravel: false,
+      });
     } else {
-      return this.message.channel.send({ embeds: [embeds[0]] });
+      return this.interaction.editReply({ embeds: [embeds[0]] });
     }
   }
 }

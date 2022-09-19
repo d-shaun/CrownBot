@@ -1,4 +1,3 @@
-import { GuildMessage } from "../../classes/Command";
 import { UserTopAlbum } from "../../interfaces/AlbumInterface";
 import { UserTopArtist } from "../../interfaces/ArtistInterface";
 import { Period } from "../../interfaces/LastFMQueryInterface";
@@ -11,8 +10,14 @@ import cheerio from "cheerio";
 import cb from "../../misc/codeblock";
 import Axios from "axios";
 import { LastFMResponse } from "../../interfaces/LastFMResponseInterface";
-import { MessageActionRow, MessageButton, MessageEmbed } from "discord.js";
 import moment from "moment";
+import GuildChatInteraction from "../../classes/GuildChatInteraction";
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  EmbedBuilder,
+} from "discord.js";
 
 export default class extends LastFM {
   prefix = "user.";
@@ -138,11 +143,10 @@ export default class extends LastFM {
 
   //
   //This is here only to free bunch of commands of doing these checks.
-  async get_nowplaying(bot: CrownBot, message: GuildMessage) {
+  async get_nowplaying(bot: CrownBot, interaction: GuildChatInteraction) {
     const response = new BotMessage({
       bot,
-      message,
-      reply: true,
+      interaction,
     });
     const prev_limit = this.configs.limit;
     this.configs.limit = 1;
@@ -180,18 +184,23 @@ export default class extends LastFM {
 
       if (has_now_playing_tag || is_scrobbled_recently) return last_track;
     }
-    const row = new MessageActionRow().addComponents(
-      new MessageButton()
-        .setLabel("Need help?")
-        .setStyle("PRIMARY")
-        .setCustomId("scrobblingfaq")
+    const row = <ActionRowBuilder<ButtonBuilder>>(
+      new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+          .setLabel("Need help?")
+          .setStyle(ButtonStyle.Primary)
+          .setCustomId("scrobblingfaq")
+      )
     );
 
-    const embed = new MessageEmbed().setDescription(
-      `<@${message.author.id}>: You aren't playing anything.`
+    const embed = new EmbedBuilder().setDescription(
+      `<@${interaction.user.id}>: You aren't playing anything.`
     );
 
-    await message.channel.send({ embeds: [embed], components: [row] });
+    await interaction.editReply({
+      embeds: [embed],
+      components: [row],
+    });
     return;
   }
 

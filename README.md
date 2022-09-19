@@ -8,15 +8,13 @@
 
 A Discord bot that uses the Last.fm API to track scrobbles and rank users.
 
-Commands and FAQs: <https://d-shaun.github.io/cbdocs/>.
-
 ### Invite link
 
 <https://discordapp.com/api/oauth2/authorize?client_id=636075999154536449&permissions=288832&scope=bot>
 
 ### Support server
 
-<https://discord.gg/zzJ5zmA>
+<https://discord.gg/4vU6kGhejv>
 
 ## Self-hosting instructions
 
