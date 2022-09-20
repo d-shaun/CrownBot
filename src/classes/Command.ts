@@ -15,7 +15,7 @@ export async function preflight_checks(
   command: any
 ) {
   try {
-    const exception_for_defer = ["reportbug"];
+    const exception_for_defer = ["bugreport"];
 
     if (!exception_for_defer.includes(interaction.commandName))
       await interaction.deferReply();

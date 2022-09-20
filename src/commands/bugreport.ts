@@ -12,7 +12,7 @@ const { SlashCommandBuilder } = require("discord.js");
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName("reportbug")
+    .setName("bugreport")
     .setDescription("Report a bug to the CrownBot maintainer via a form."),
 
   async execute(
