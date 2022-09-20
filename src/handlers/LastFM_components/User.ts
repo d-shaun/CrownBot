@@ -194,7 +194,7 @@ export default class extends LastFM {
     );
 
     const embed = new EmbedBuilder().setDescription(
-      `<@${interaction.user.id}>: You aren't playing anything.`
+      `You aren't playing anything.`
     );
 
     await interaction.editReply({
