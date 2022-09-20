@@ -25,6 +25,12 @@ module.exports = {
         .setName("artist_name")
         .setDescription("Artist name (defaults to now-playing)")
         .setRequired(false)
+    )
+    .addUserOption((option) =>
+      option
+        .setName("discord_user")
+        .setDescription("User to get overview stats of (defaults to you)")
+        .setRequired(false)
     ),
 
   async execute(
@@ -41,8 +47,13 @@ module.exports = {
     const discord_user =
       interaction.options.getUser("discord_user") || interaction.user;
 
-    const user = await db.fetch_user(interaction.guild.id, interaction.user.id);
-    if (!user) return;
+    const user = await db.fetch_user(interaction.guild.id, discord_user.id);
+    if (!user) {
+      response.text =
+        "User is not logged into the bot; please use the `/login` command.";
+      await response.send();
+      return;
+    }
     const lastfm_user = new User({
       username: user.username,
     });
