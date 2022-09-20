@@ -86,7 +86,6 @@ export default class CrownBot {
 
     // Place your client and guild ids here
     const clientId = this.client_id;
-    // TODO: dev env: dynamic switch to guild-based commands
     // const guildId = "1001517710917767188";
 
     for (const file of commandFiles) {
