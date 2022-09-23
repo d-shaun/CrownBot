@@ -1,4 +1,4 @@
-import { Client, EmbedBuilder, SlashCommandBuilder } from "discord.js";
+import { Client, Colors, EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import moment from "moment";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
 import BotMessage from "../handlers/BotMessage";
@@ -7,17 +7,16 @@ import DB from "../handlers/DB";
 import User from "../handlers/LastFM_components/User";
 import esm from "../misc/escapemarkdown";
 import time_difference from "../misc/time_difference";
+import truncate_str from "../misc/truncate";
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName("nowplaying")
-    .setDescription(
-      "Shows your currently playing (or the last scrobbled) track"
-    )
+    .setName("recent")
+    .setDescription("Shows your recently played tracks")
     .addUserOption((option) =>
       option
         .setName("discord_user")
-        .setDescription("User to get now-playing song of (defaults to you)")
+        .setDescription("User to get recent tracks of (defaults to you)")
         .setRequired(false)
     ),
 
@@ -42,36 +41,48 @@ module.exports = {
       return;
     }
 
-    const lastfm_user = new User({ username: user.username, limit: 2 });
+    const lastfm_user = new User({ username: user.username, limit: 10 });
     const query = await lastfm_user.get_recenttracks();
     if (!query.success || query.lastfm_errorcode) {
       response.error("lastfm_error", query.lastfm_errormessage);
       return;
     }
 
-    const last_song = [...query.data.recenttracks.track].shift();
-    if (!last_song) {
-      response.text =
-        "Couldn't find **any** scrobbled track on your Last.fm account.";
+    const recent_tracks = query.data.recenttracks.track.map((track, i) => {
+      track.id = i;
+      return track;
+    });
+
+    if (!recent_tracks || !recent_tracks.length) {
+      response.text = `Couldn't find any scrobble on this account.`;
       await response.send();
       return;
     }
-    let status_text = "🎵 playing now";
-
-    if (!last_song["@attr"]?.nowplaying) {
-      const timestamp = moment.unix(parseInt(last_song.date.uts)).valueOf();
-      status_text = "⏹️ scrobbled " + time_difference(timestamp) + " ago";
-    }
-    const cover = last_song.image.pop();
     const embed = new EmbedBuilder()
-      .setTitle("Now playing · " + discord_user.username)
-      .setDescription(
-        `**${esm(last_song.name)}** by **${esm(
-          last_song.artist["#text"]
-        )}**\n*${esm(last_song.album["#text"])}*`
-      )
-      .setFooter({ text: status_text });
-    if (cover) embed.setThumbnail(cover["#text"]);
+      .setTitle(`Recent tracks`)
+      .setFooter({
+        text: `Displaying recent ${recent_tracks.length} tracks played by ${discord_user.username}.`,
+      })
+      .setColor(Colors.DarkGreen);
+    for (const track of recent_tracks) {
+      let time_str = "Unknown";
+      if (track["@attr"]?.nowplaying) {
+        time_str = "Playing";
+      } else {
+        const timestamp = moment.unix(parseInt(track.date.uts)).valueOf();
+        time_str = time_difference(timestamp) + " ago";
+      }
+      embed.addFields({
+        name: time_str,
+        value: `**${esm(track.artist["#text"], true)}** — [${esm(
+          track.name,
+          true
+        )}](${truncate_str(track.url, 200)}) · ${esm(
+          track.album["#text"],
+          true
+        )}`,
+      });
+    }
     await interaction.editReply({ embeds: [embed] });
   },
 };

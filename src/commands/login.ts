@@ -8,7 +8,6 @@ import {
   SlashCommandBuilder,
 } from "discord.js";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
-// import GuildCommandInteraction from "../classes/GuildCommandInteraction";
 import { Template } from "../classes/Template";
 import BotMessage from "../handlers/BotMessage";
 import CrownBot from "../handlers/CrownBot";

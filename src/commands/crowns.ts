@@ -1,6 +1,5 @@
 import { Client, EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
-// import GuildCommandInteraction from "../classes/GuildCommandInteraction";
 import BotMessage from "../handlers/BotMessage";
 import CrownBot from "../handlers/CrownBot";
 import Paginate from "../handlers/Paginate";
