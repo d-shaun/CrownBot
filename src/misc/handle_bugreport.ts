@@ -11,7 +11,6 @@ export default async function handle_bugreport(
   client: Client,
   interaction: ModalSubmitInteraction
 ) {
-  if (interaction.customId !== "bugmodal") return;
   const message = interaction.fields.getTextInputValue("message");
 
   const data = {

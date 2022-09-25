@@ -7,6 +7,7 @@ import {
 } from "discord.js";
 import { preflight_checks } from "./src/classes/Command";
 import GuildChatInteraction from "./src/classes/GuildChatInteraction";
+import { handle_editlyrics } from "./src/commands/owner_commands/editlyrics";
 import CrownBot from "./src/handlers/CrownBot";
 import handle_bugreport from "./src/misc/handle_bugreport";
 import send_temp_notice from "./src/misc/temp_notice";
@@ -102,7 +103,10 @@ SPOTIFY_SECRETID: Spotify client ID for the &chart command to show artist images
       }
 
       if (interaction.isModalSubmit()) {
-        await handle_bugreport(bot, client, interaction);
+        if (interaction.customId === "bugmodal")
+          await handle_bugreport(bot, client, interaction);
+        else if (interaction.customId === "lyricsmodal")
+          await handle_editlyrics(bot, client, interaction);
         return;
       }
       if (!interaction.isChatInputCommand()) return;
