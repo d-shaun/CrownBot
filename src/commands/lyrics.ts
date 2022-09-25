@@ -56,7 +56,7 @@ module.exports = {
     if (!track_name) {
       const now_playing = await lastfm_user.get_nowplaying(bot, interaction);
       if (!now_playing) return;
-      track_name = now_playing.album["#text"];
+      track_name = now_playing.name;
       artist_name = now_playing.artist["#text"];
     }
 
