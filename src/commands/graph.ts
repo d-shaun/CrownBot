@@ -70,7 +70,7 @@ module.exports = {
 
     let artist_name = interaction.options.getString("artist_name") || undefined;
     const time_frame = interaction.options.getString("time") || "LAST_7_DAYS";
-    let time_text = "weekly";
+    let time_text = "last 7 days";
 
     switch (time_frame) {
       case "ALL":
