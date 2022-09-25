@@ -2,6 +2,7 @@ import { Client, SlashCommandBuilder } from "discord.js";
 import { inspect } from "util";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
 import CrownBot from "../handlers/CrownBot";
+import edit_lyrics from "./owner_commands/editlyrics";
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -24,6 +25,29 @@ module.exports = {
             .setDescription("Hide bot's reply")
             .setRequired(false)
         )
+    )
+    .addSubcommand((option) =>
+      option
+        .setName("editlyrics")
+        .setDescription("Edit lyrics of a song on the database")
+        .addStringOption((option) =>
+          option
+            .setName("track_name")
+            .setDescription("Track Name")
+            .setRequired(false)
+        )
+        .addStringOption((option) =>
+          option
+            .setName("artist_name")
+            .setDescription("Artist Name")
+            .setRequired(false)
+        )
+        .addBooleanOption((option) =>
+          option
+            .setName("hide_reply")
+            .setDescription("Hide bot's reply")
+            .setRequired(false)
+        )
     ),
 
   async execute(
@@ -33,7 +57,6 @@ module.exports = {
   ) {
     const hide_reply =
       interaction.options.getBoolean("hide_reply", false) || false;
-    const code = interaction.options.getString("code", true);
 
     if (interaction.user.id !== bot.owner_ID) {
       await interaction.reply({
@@ -43,21 +66,40 @@ module.exports = {
       });
       return;
     }
+
     if (hide_reply) await interaction.deferReply({ ephemeral: true });
     else await interaction.deferReply({ ephemeral: false });
 
-    let trimmed_string;
-    try {
-      let evaled = await eval(code);
-      if (typeof evaled !== "string") {
-        evaled = inspect(evaled);
+    /*
+    ***
+        EVAL COMMAND
+    ***
+    */
+    if (interaction.options.getSubcommand() === "eval") {
+      const code = interaction.options.getString("code", true);
+      let trimmed_string;
+      try {
+        let evaled = await eval(code);
+        if (typeof evaled !== "string") {
+          evaled = inspect(evaled);
+        }
+        trimmed_string = evaled.substring(0, 2000);
+      } catch (e: any) {
+        trimmed_string = (e.message ? e.message : e).substring(0, 2000);
       }
-      trimmed_string = evaled.substring(0, 2000);
-    } catch (e: any) {
-      trimmed_string = (e.message ? e.message : e).substring(0, 2000);
+
+      await interaction.editReply("```JS\n" + trimmed_string + "```");
+      return;
     }
 
-    await interaction.editReply("```JS\n" + trimmed_string + "```");
-    return;
+    /*
+    ***
+        EDITLYRICS COMMAND
+    ***
+    */
+    if (interaction.options.getSubcommand() === "editlyrics") {
+      await edit_lyrics(bot, interaction);
+      return;
+    }
   },
 };
