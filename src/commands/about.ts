@@ -3,9 +3,9 @@ import {
   ButtonBuilder,
   ButtonStyle,
   Client,
-  CommandInteraction,
   EmbedBuilder,
 } from "discord.js";
+import GuildChatInteraction from "../classes/GuildChatInteraction";
 import CrownBot from "../handlers/CrownBot";
 
 const { SlashCommandBuilder } = require("discord.js");
@@ -20,7 +20,7 @@ module.exports = {
   async execute(
     bot: CrownBot,
     client: Client,
-    interaction: CommandInteraction
+    interaction: GuildChatInteraction
   ) {
     const row = <ActionRowBuilder<ButtonBuilder>>(
       new ActionRowBuilder().addComponents(

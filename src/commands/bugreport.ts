@@ -1,11 +1,11 @@
 import {
   ActionRowBuilder,
   Client,
-  CommandInteraction,
   ModalBuilder,
   TextInputBuilder,
   TextInputStyle,
 } from "discord.js";
+import GuildChatInteraction from "../classes/GuildChatInteraction";
 import CrownBot from "../handlers/CrownBot";
 
 const { SlashCommandBuilder } = require("discord.js");
@@ -18,7 +18,7 @@ module.exports = {
   async execute(
     bot: CrownBot,
     client: Client,
-    interaction: CommandInteraction
+    interaction: GuildChatInteraction
   ) {
     const modal = new ModalBuilder()
       .setCustomId("bugmodal")
