@@ -84,10 +84,14 @@ export default async function edit_lyrics(
     });
     return;
   }
+  const random_id = (Math.random().toString(36) + "00000000000000000").slice(
+    2,
+    7 + 2
+  );
   const row = <ActionRowBuilder<ButtonBuilder>>(
     new ActionRowBuilder().addComponents(
       new ButtonBuilder()
-        .setCustomId("edit")
+        .setCustomId(random_id)
         .setLabel("Edit lyrics")
         .setStyle(ButtonStyle.Primary)
     )
@@ -98,7 +102,8 @@ export default async function edit_lyrics(
     components: [row],
   });
 
-  const filter = (i: ButtonInteraction) => i.user.id === interaction.user.id;
+  const filter = (i: ButtonInteraction) =>
+    i.user.id === interaction.user.id && i.customId === random_id;
 
   const collector =
     interaction.channel.createMessageComponentCollector<ComponentType.Button>({
