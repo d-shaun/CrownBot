@@ -10,7 +10,7 @@ A Discord bot that uses the Last.fm API to track scrobbles and rank users.
 
 ### Invite link
 
-<https://discordapp.com/api/oauth2/authorize?client_id=636075999154536449&permissions=288832&scope=bot>
+<https://discord.com/api/oauth2/authorize?client_id=636075999154536449&permissions=2048&scope=bot>
 
 ### Support server
 

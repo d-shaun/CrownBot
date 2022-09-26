@@ -28,7 +28,7 @@ module.exports = {
           .setLabel("Invite to your server")
           .setStyle(ButtonStyle.Link)
           .setURL(
-            "https://discordapp.com/api/oauth2/authorize?client_id=636075999154536449&permissions=288832&scope=bot"
+            "https://discord.com/api/oauth2/authorize?client_id=636075999154536449&permissions=2048&scope=bot"
           ),
         new ButtonBuilder()
           .setLabel("Join support server (NEW LINK TO NEW SERVER!!)")
@@ -50,7 +50,7 @@ module.exports = {
         {
           name: "Invite link",
           value:
-            "<https://discordapp.com/api/oauth2/authorize?client_id=636075999154536449&permissions=288832&scope=bot>",
+            "<https://discord.com/api/oauth2/authorize?client_id=636075999154536449&permissions=2048&scope=bot>",
         },
         {
           name: "New support server",
