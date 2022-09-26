@@ -3,14 +3,12 @@ import {
   EmbedBuilder,
   GatewayIntentBits,
   Interaction,
-  Message,
 } from "discord.js";
 import { preflight_checks } from "./src/classes/Command";
 import GuildChatInteraction from "./src/classes/GuildChatInteraction";
 import { handle_editlyrics } from "./src/commands/owner_commands/editlyrics";
 import CrownBot from "./src/handlers/CrownBot";
 import handle_bugreport from "./src/misc/handle_bugreport";
-import send_temp_notice from "./src/misc/temp_notice";
 /*
 # REQUIRED
 ======================================================================================================
@@ -59,11 +57,7 @@ SPOTIFY_SECRETID: Spotify client ID for the &chart command to show artist images
     }).init_dev();
 
     const client = new Client({
-      intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent,
-      ],
+      intents: [GatewayIntentBits.Guilds],
     });
 
     // register events
@@ -132,9 +126,9 @@ SPOTIFY_SECRETID: Spotify client ID for the &chart command to show artist images
 
     // TEMPORARY NOTICE OF THE BOT SWITCHING TO SLASH COMMANDS
     // register events
-    client.on("messageCreate", async (message: Message) => {
-      await send_temp_notice(message, bot);
-    });
+    // client.on("messageCreate", async (message: Message) => {
+    //   await send_temp_notice(message, bot);
+    // });
 
     await client.login(TOKEN);
     console.log(`Logged in as ${client.user?.tag}`);
