@@ -4,8 +4,6 @@ import BotMessage from "../handlers/BotMessage";
 import CrownBot from "../handlers/CrownBot";
 import DB from "../handlers/DB";
 import User from "../handlers/LastFM_components/User";
-
-// @ts-ignore
 import { createCanvas, loadImage, registerFont } from "canvas";
 import { Spotify } from "../handlers/Spotify";
 import { UserTopAlbum } from "../interfaces/AlbumInterface";

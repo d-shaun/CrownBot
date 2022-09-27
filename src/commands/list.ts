@@ -6,8 +6,6 @@ import DB from "../handlers/DB";
 import User from "../handlers/LastFM_components/User";
 import esm from "../misc/escapemarkdown";
 import time_difference from "../misc/time_difference";
-
-// @ts-ignore
 import { UserTopArtist } from "../interfaces/ArtistInterface";
 import { Period } from "../interfaces/LastFMQueryInterface";
 

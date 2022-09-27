@@ -5,8 +5,6 @@ import CrownBot from "../handlers/CrownBot";
 import DB from "../handlers/DB";
 import User from "../handlers/LastFM_components/User";
 import time_difference from "../misc/time_difference";
-
-// @ts-ignore
 import { Template } from "../classes/Template";
 import Track from "../handlers/LastFM_components/Track";
 import Paginate from "../handlers/Paginate";

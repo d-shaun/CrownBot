@@ -11,8 +11,6 @@ import DB from "../handlers/DB";
 import Artist from "../handlers/LastFM_components/Artist";
 import User from "../handlers/LastFM_components/User";
 import esm from "../misc/escapemarkdown";
-
-// @ts-ignore
 import { Template } from "../classes/Template";
 import cb from "../misc/codeblock";
 

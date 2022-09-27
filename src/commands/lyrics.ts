@@ -7,7 +7,6 @@ import User from "../handlers/LastFM_components/User";
 import esm from "../misc/escapemarkdown";
 
 import moment from "moment";
-// @ts-ignore
 import Lyricist from "lyricist";
 import Track from "../handlers/LastFM_components/Track";
 import { LyricsLogInterface } from "../models/LyricsLog";

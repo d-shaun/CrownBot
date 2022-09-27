@@ -7,8 +7,6 @@ import Artist from "../handlers/LastFM_components/Artist";
 import User from "../handlers/LastFM_components/User";
 import esm from "../misc/escapemarkdown";
 import time_difference from "../misc/time_difference";
-
-// @ts-ignore
 import Paginate from "../handlers/Paginate";
 import { LeaderboardInterface } from "../interfaces/LeaderboardInterface";
 import cb from "../misc/codeblock";
