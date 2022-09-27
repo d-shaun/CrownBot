@@ -54,6 +54,11 @@ export class Config implements CacheComponent {
 
       return config;
     });
+
+    if (!changed) {
+      this.#configs.push(new_config);
+      changed = true;
+    }
     return changed;
   }
 }
