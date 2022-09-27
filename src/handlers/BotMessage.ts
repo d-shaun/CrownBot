@@ -84,24 +84,28 @@ class BotMessage {
       const embed = new EmbedBuilder();
       embed.setDescription(`\n${this.text}\n`);
       if (this.footer) embed.setFooter({ text: this.footer });
-      if (this.interaction.deferred) {
-        if (force_follow_up) {
-          return this.interaction.followUp({ embeds: [embed] });
-        } else {
-          return this.interaction.editReply({ embeds: [embed] });
-        }
+
+      if (!this.interaction.deferred) {
+        // initial reply
+        return this.interaction.reply({ embeds: [embed] });
+      } else if (force_follow_up) {
+        // force follow-up to initial reply
+        return this.interaction.followUp({ embeds: [embed] });
       } else {
-        if (force_follow_up) {
-          return this.interaction.followUp({ embeds: [embed] });
-        } else {
-          return this.interaction.editReply({ embeds: [embed] });
-        }
+        // edit initial reply
+        return this.interaction.editReply({ embeds: [embed] });
       }
     }
-    if (this.interaction.deferred) {
-      return this.interaction.editReply(`${this.text}`);
-    } else {
+
+    if (!this.interaction.deferred) {
+      // initial reply
       return this.interaction.reply(`${this.text}`);
+    } else if (force_follow_up) {
+      // force follow-up to initial reply
+      return this.interaction.followUp(`${this.text}`);
+    } else {
+      // edit initial reply
+      return this.interaction.editReply(`${this.text}`);
     }
   }
 

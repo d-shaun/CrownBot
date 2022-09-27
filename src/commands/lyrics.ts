@@ -112,7 +112,7 @@ module.exports = {
       if (lyrics_chunks && lyrics_chunks.length) {
         for (const lyric of lyrics_chunks) {
           response.text = lyric;
-          await response.send();
+          await response.send(true);
         }
         return;
       }
@@ -151,7 +151,7 @@ module.exports = {
 
     for (const lyric of lyrics_chunks) {
       response.text = lyric;
-      await response.send();
+      await response.send(true);
     }
     const timestamp = moment.utc().valueOf();
 
