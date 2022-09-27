@@ -110,10 +110,7 @@ module.exports = {
       const lyrics_chunks = toChunks(lyrics);
 
       if (lyrics_chunks && lyrics_chunks.length) {
-        for (const lyric of lyrics_chunks) {
-          response.text = lyric;
-          await response.send(true);
-        }
+        await response.send_embeds(lyrics_chunks);
         return;
       }
     }
@@ -149,10 +146,8 @@ module.exports = {
       throw "toChunks() failed.";
     }
 
-    for (const lyric of lyrics_chunks) {
-      response.text = lyric;
-      await response.send(true);
-    }
+    await response.send_embeds(lyrics_chunks);
+
     const timestamp = moment.utc().valueOf();
 
     await bot.models.lyricslog.findOneAndUpdate(

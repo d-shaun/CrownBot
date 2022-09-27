@@ -68,9 +68,7 @@ class BotMessage {
     ];
   }
 
-  async send(force_follow_up = false) {
-    if (!this.text) throw "No 'text' to send.";
-
+  async check_embed_perms() {
     const me = await this.interaction.guild?.members.fetchMe();
     let embed_permission = false;
     if (me) {
@@ -80,7 +78,14 @@ class BotMessage {
 
       embed_permission = bot_permissions?.has(PermissionFlagsBits.EmbedLinks);
     }
-    if (!this.noembed && embed_permission) {
+    return embed_permission;
+  }
+
+  async send(force_follow_up = false) {
+    if (!this.text) throw "No 'text' to send.";
+    const has_embed_perms = await this.check_embed_perms();
+
+    if (!this.noembed && has_embed_perms) {
       const embed = new EmbedBuilder();
       embed.setDescription(`\n${this.text}\n`);
       if (this.footer) embed.setFooter({ text: this.footer });
@@ -106,6 +111,29 @@ class BotMessage {
     } else {
       // edit initial reply
       return this.interaction.editReply(`${this.text}`);
+    }
+  }
+
+  async send_embeds(chunks: string[]) {
+    const has_embed_perms = await this.check_embed_perms();
+    if (!has_embed_perms) {
+      await this.interaction.editReply(
+        "Please grant the bot permission to send embeds. (Contact support server for help: /about)"
+      );
+      return;
+    }
+    const embeds = [];
+
+    for (const chunk of chunks) {
+      embeds.push(new EmbedBuilder().setDescription(chunk));
+    }
+
+    if (!this.interaction.deferred) {
+      // initial reply
+      return this.interaction.reply({ embeds });
+    } else {
+      // edit initial reply
+      return this.interaction.editReply({ embeds });
     }
   }
 
