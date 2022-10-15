@@ -176,6 +176,7 @@ export async function handle_editlyrics(
   client: Client,
   interaction: ModalSubmitInteraction
 ) {
+  // TODO: fix the button not working
   const track_name = interaction.fields.getTextInputValue("new_track");
   const artist_name = interaction.fields.getTextInputValue("new_artist");
   const permanent = interaction.fields.getTextInputValue("new_permanent");
