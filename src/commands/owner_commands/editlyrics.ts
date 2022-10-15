@@ -84,10 +84,8 @@ export default async function edit_lyrics(
     });
     return;
   }
-  const random_id = (Math.random().toString(36) + "00000000000000000").slice(
-    2,
-    7 + 2
-  );
+  const random_id =
+    "edt" + (Math.random().toString(36) + "00000000000000000").slice(2, 7 + 2);
   const row = <ActionRowBuilder<ButtonBuilder>>(
     new ActionRowBuilder().addComponents(
       new ButtonBuilder()
@@ -112,7 +110,7 @@ export default async function edit_lyrics(
     });
 
   collector.on("collect", async (i) => {
-    if (i.customId === "edit") {
+    if (i.customId === random_id) {
       await show_modal(i, db_entry);
     }
   });
@@ -176,7 +174,6 @@ export async function handle_editlyrics(
   client: Client,
   interaction: ModalSubmitInteraction
 ) {
-  // TODO: fix the button not working
   const track_name = interaction.fields.getTextInputValue("new_track");
   const artist_name = interaction.fields.getTextInputValue("new_artist");
   const permanent = interaction.fields.getTextInputValue("new_permanent");
