@@ -82,9 +82,12 @@ module.exports = {
       case "LAST_30_DAYS":
         time_text = "last 30 days";
         break;
-      case "12month":
+      case "LAST_365_DAYS":
         time_text = "last 365 days";
         break;
+
+      default:
+        time_text = time_frame;
     }
 
     if (artist_name) {
