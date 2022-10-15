@@ -8,6 +8,7 @@ import { preflight_checks } from "./src/classes/Command";
 import GuildChatInteraction from "./src/classes/GuildChatInteraction";
 import { handle_editlyrics } from "./src/commands/owner_commands/editlyrics";
 import CrownBot from "./src/handlers/CrownBot";
+import handle_autocomplete from "./src/misc/handle_autocomplete";
 import handle_bugreport from "./src/misc/handle_bugreport";
 /*
 # REQUIRED
@@ -62,6 +63,10 @@ SPOTIFY_SECRETID: Spotify client ID for the &chart command to show artist images
 
     // register events
     client.on("interactionCreate", async (interaction: Interaction) => {
+      if (interaction.isAutocomplete()) {
+        await handle_autocomplete(bot, client, interaction);
+      }
+
       if (interaction.isButton()) {
         const embed = new EmbedBuilder().addFields([
           {
