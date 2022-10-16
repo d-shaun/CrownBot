@@ -4,7 +4,7 @@ import {
   GatewayIntentBits,
   Interaction,
 } from "discord.js";
-import { preflight_checks } from "./src/classes/Command";
+import { preflight_checks } from "./src/handlers/Command";
 import GuildChatInteraction from "./src/classes/GuildChatInteraction";
 import { handle_editlyrics } from "./src/commands/owner_commands/editlyrics";
 import CrownBot from "./src/handlers/CrownBot";
