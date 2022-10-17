@@ -1,16 +1,15 @@
 import { Client, EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
-import BotMessage from "../handlers/BotMessage";
+import { CommandResponse } from "../handlers/CommandResponse";
 import CrownBot from "../handlers/CrownBot";
 import DB from "../handlers/DB";
 import Artist from "../handlers/LastFM_components/Artist";
 import User from "../handlers/LastFM_components/User";
-import esm from "../misc/escapemarkdown";
-import time_difference from "../misc/time_difference";
-import Paginate from "../handlers/Paginate";
 import { LeaderboardInterface } from "../interfaces/LeaderboardInterface";
 import cb from "../misc/codeblock";
+import esm from "../misc/escapemarkdown";
 import get_registered_users from "../misc/get_registered_users";
+import time_difference from "../misc/time_difference";
 import { CrownInterface } from "../models/Crowns";
 import { LogInterface } from "../models/WhoKnowsLog";
 
@@ -29,24 +28,21 @@ module.exports = {
   async execute(
     bot: CrownBot,
     client: Client,
-    interaction: GuildChatInteraction
-  ) {
-    const response = new BotMessage({
-      bot,
-      interaction,
-    });
-
+    interaction: GuildChatInteraction,
+    response: CommandResponse
+  ): Promise<CommandResponse> {
+    response.allow_retry = true;
     const db = new DB(bot.models);
     const user = await db.fetch_user(interaction.guild.id, interaction.user.id);
-    if (!user) return;
+    if (!user) return response.fail();
     const lastfm_user = new User({
       username: user.username,
     });
 
     let artist_name = interaction.options.getString("artist_name");
     if (!artist_name) {
-      const now_playing = await lastfm_user.get_nowplaying(bot, interaction);
-      if (!now_playing) return;
+      const now_playing = await lastfm_user.new_get_nowplaying(response);
+      if (now_playing instanceof CommandResponse) return now_playing;
       artist_name = now_playing.artist["#text"];
     }
 
@@ -56,8 +52,10 @@ module.exports = {
     }).user_get_info();
 
     if (query.lastfm_errorcode || !query.success) {
-      response.error("lastfm_error", query.lastfm_errormessage);
-      return;
+      response.error_code = "lastfm_error";
+      response.error_code = query.lastfm_errormessage;
+
+      return response;
     }
 
     // set minimum plays required to get a crown
@@ -72,8 +70,7 @@ module.exports = {
       response.text = `No user on this server has registered their Last.fm username; use the ${cb(
         "/login"
       )} command.`;
-      await response.send();
-      return;
+      return response;
     }
 
     if (users.length > bot.max_users) {
@@ -108,8 +105,8 @@ module.exports = {
         (response) => !response?.wrapper.data?.artist?.stats?.playcount // sanity check
       )
     ) {
-      await response.error("lastfm_error");
-      return;
+      response.error_code = "lastfm_error";
+      return response;
     }
 
     responses = responses.filter((response) => response.wrapper.success);
@@ -134,8 +131,7 @@ module.exports = {
     });
     if (leaderboard.length <= 0) {
       response.text = `No one here listens to ${cb(artist.name)}.`;
-      await response.send();
-      return;
+      return response;
     }
 
     const last_log: LogInterface | null = await bot.models.whoknowslog.findOne({
@@ -229,15 +225,6 @@ module.exports = {
       return `${indicator} ${elem.discord_username} — **${elem.userplaycount} play(s)** ${diff_str}`;
     });
 
-    const paginate = new Paginate(
-      interaction,
-      embed,
-      data_list,
-      undefined,
-      false
-    );
-    await paginate.send();
-
     // delete if there's an existing crown for the artist in the server
     await db.delete_crown(top_user.artist_name, top_user.guild_id);
 
@@ -250,14 +237,20 @@ module.exports = {
           (user) => user.id === last_crown.userID
         );
         if (last_user && last_user.user.id !== top_user.user_id) {
-          response.text = `**${esm(top_user.discord_username)}** took the ${cb(
-            artist.name
-          )} crown from **${esm(last_user.user.username)}**.`;
-          await response.send(true);
+          response.follow_up = `**${esm(
+            top_user.discord_username
+          )}** took the ${cb(artist.name)} crown from **${esm(
+            last_user.user.username
+          )}**.`;
         }
       }
       await db.update_crown(top_user);
     }
     await db.log_whoknows(artist.name, leaderboard, interaction.guild.id);
+
+    response.paginate = true;
+    response.embed = embed;
+    response.data = data_list;
+    return response;
   },
 };

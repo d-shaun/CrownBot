@@ -35,8 +35,7 @@ module.exports = {
       bot,
       interaction,
     });
-    const db = new DB(bot.models);
-    const user = await db.fetch_user(interaction.guild.id, interaction.user.id);
+
     const username = interaction.options.getString("username", true);
     const escapeRegex = (str: string) => {
       return str.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
@@ -49,6 +48,47 @@ module.exports = {
     });
 
     let has_existing_crowns = !!existing_crowns.length;
+
+    /*
+          Might need to run this after the timeout
+    */
+    const update_db = async () => {
+      const db = new DB(bot.models);
+      const user = await db.fetch_user(
+        interaction.guild.id,
+        interaction.user.id
+      );
+      if (user) {
+        await db.remove_user(interaction.guild.id, interaction.user.id);
+      }
+
+      const lastfm_user = await new User({ username }).get_info();
+      if (lastfm_user.lastfm_errorcode || !lastfm_user.success) {
+        response.error("lastfm_error", lastfm_user.lastfm_errormessage);
+        return;
+      }
+
+      if (
+        await db.add_user(interaction.guild.id, interaction.user.id, username)
+      ) {
+        response.text = `Username ${cb(
+          username
+        )} has been associated to your Discord account.`;
+      } else {
+        response.text = new Template().get("exception");
+      }
+      await response.send();
+    };
+
+    /*
+          ^^^^^ Might need to run this after the timeout
+    */
+
+    if (!has_existing_crowns) {
+      await update_db();
+      return;
+    }
+
     if (has_existing_crowns) {
       const row = <ActionRowBuilder<ButtonBuilder>>(
         new ActionRowBuilder().addComponents(
@@ -100,32 +140,9 @@ module.exports = {
             content: `Your **${delete_stats.deletedCount}** crowns registered under another username in this server have been deleted.`,
             components: [],
           });
+          await update_db();
         }
       });
     }
-
-    if (has_existing_crowns) return;
-
-    await db.unsnap(interaction.guild.id, interaction.user.id);
-    if (user) {
-      await db.remove_user(interaction.guild.id, interaction.user.id);
-    }
-
-    const lastfm_user = await new User({ username }).get_info();
-    if (lastfm_user.lastfm_errorcode || !lastfm_user.success) {
-      response.error("lastfm_error", lastfm_user.lastfm_errormessage);
-      return;
-    }
-
-    if (
-      await db.add_user(interaction.guild.id, interaction.user.id, username)
-    ) {
-      response.text = `Username ${cb(
-        username
-      )} has been associated to your Discord account.`;
-    } else {
-      response.text = new Template().get("exception");
-    }
-    await response.send();
   },
 };

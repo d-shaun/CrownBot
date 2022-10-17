@@ -4,21 +4,28 @@ export class Template {
   constructor() {
     this.templates = [
       {
+        id: "not_playing",
+        text: "You aren't playing anything; to check if your scrobbles are being recorded, use the `/recent` command.",
+      },
+      {
+        id: "404_artist",
+        text: "The bot was unable to find the artist.",
+      },
+      {
         id: "not_logged",
         text:
-          `You are not logged into the bot on this server; ` +
-          `please set your Last.fm username with the ` +
-          `${cb("/login")} commmand.`,
+          `You are not logged into the bot in this server; ` +
+          `please use the ${cb("/login")} command to set your username`,
       },
       {
         id: "already_logged",
         text: `You already are logged into the bot; 
-        send ${cb("/me")} to see your username 
-        and ${cb("/logout")} to logout.`,
+      use ${cb("/me")} to see your username 
+      and ${cb("/logout")} to logout.`,
       },
       {
         id: "lastfm_error",
-        text: "Something went wrong while trying to fetch info from Last.fm.",
+        text: "Something went wrong while trying to fetch information from Last.fm.",
       },
       {
         id: "exception",
@@ -32,7 +39,7 @@ export class Template {
   get(id: string): string {
     const template = this.templates.find((t) => t.id === id);
     if (!template) {
-      throw "No template with the ID found: " + id;
+      return "An unspecified error occured.";
     }
     return template.text;
   }
