@@ -7,28 +7,31 @@ import cb from "../misc/codeblock";
 import generate_random_strings from "../misc/generate_random_strings";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
 import { Template } from "../classes/Template";
+import { CommandResponse } from "./CommandResponse";
 
 export async function preflight_checks(
   bot: CrownBot,
   client: Client,
   interaction: GuildChatInteraction,
-  command: any
+  command: any,
+  response: CommandResponse
 ) {
   try {
     const exception_for_defer = ["bugreport", "managebot"];
 
-    if (!exception_for_defer.includes(interaction.commandName))
+    if (
+      !exception_for_defer.includes(interaction.commandName) &&
+      !interaction.deferred
+    )
       await interaction.deferReply();
 
     const db = new DB(bot.models);
-    const response = new BotMessage({ bot, interaction });
 
     if (bot.botconfig?.maintenance === "on") {
-      response.text =
-        "The bot is currently under maintenance; please try again in a while.";
       if (interaction.user.id !== bot.owner_ID) {
-        await response.send();
-        return;
+        response.text =
+          "The bot is currently under maintenance; please try again in a while.";
+        return response;
       }
     }
 
@@ -37,15 +40,14 @@ export async function preflight_checks(
       if (ban_info.type === "global") {
         response.text =
           "You are globally banned from accessing the bot; try `&about` to find the support server.";
-        await response.send();
-        return;
+
+        return response;
       }
       if (ban_info.type === "local") {
         if (interaction.commandName !== "unban") {
           response.text =
             "You are banned from accessing the bot on this server.";
-          await response.send();
-          return;
+          return response;
         }
       }
     }
@@ -54,18 +56,18 @@ export async function preflight_checks(
     if (interaction.commandName !== "login" && !user) {
       response.text = new Template().get("not_logged");
 
-      // temporary message for the &snap'ed users
-      if (await db.check_snap(interaction.guild.id, interaction.user.id)) {
-        response.text =
-          "You have been logged out of the bot on this server because **you have crown(s) registered under multiple Last.fm usernames**.\n\n" +
-          "Please login again with your primary username: `&login <lastfm username>`\n\n[Click here to learn more about this change](https://github.com/d-shaun/CrownBot/issues/40) ";
-      }
-
-      await response.send();
-      return;
+      return response;
     }
 
-    if (command) await command.execute(bot, client, interaction);
+    if (command) {
+      const command_response: CommandResponse | void = await command.execute(
+        bot,
+        client,
+        interaction,
+        response
+      );
+      return command_response;
+    }
   } catch (e: any) {
     await log_error(client, bot, interaction, e.stack || e);
     console.log("Uncaught exception at pre-flight checks");
