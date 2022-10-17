@@ -10,6 +10,7 @@ import { handle_editlyrics } from "./src/commands/owner_commands/editlyrics";
 import CrownBot from "./src/handlers/CrownBot";
 import handle_autocomplete from "./src/misc/handle_autocomplete";
 import handle_bugreport from "./src/misc/handle_bugreport";
+import { CommandResponse } from "./src/handlers/CommandResponse";
 /*
 # REQUIRED
 ======================================================================================================
@@ -118,12 +119,21 @@ SPOTIFY_SECRETID: Spotify client ID for the &chart command to show artist images
       if (!command) return;
 
       try {
-        await preflight_checks(
+        const response = new CommandResponse(bot, client, <any>interaction);
+
+        const command_response = await preflight_checks(
           bot,
           client,
           <GuildChatInteraction>interaction,
-          command
+          command,
+          response
         );
+        if (
+          typeof command_response == "object" &&
+          command_response instanceof CommandResponse
+        ) {
+          await command_response.reply();
+        }
       } catch (e: any) {
         console.error(e);
       }
