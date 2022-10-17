@@ -18,6 +18,7 @@ import {
   ButtonStyle,
   EmbedBuilder,
 } from "discord.js";
+import { CommandResponse } from "../CommandResponse";
 
 export default class extends LastFM {
   prefix = "user.";
@@ -141,6 +142,51 @@ export default class extends LastFM {
     return query;
   }
 
+  // soon to be replacing the og
+
+  async new_get_nowplaying(
+    response: CommandResponse
+  ): Promise<CommandResponse | UserRecentTrack["recenttracks"]["track"][0]> {
+    const prev_limit = this.configs.limit;
+    this.configs.limit = 1;
+    const query = await this.get_recenttracks();
+    this.configs.limit = prev_limit;
+    if (query.lastfm_errorcode === 6) {
+      response.error_code = "lastfm_error";
+      response.error_message = `User ${cb(
+        this.username
+      )} doesn't exist on Last.fm; please try logging out and in again.`;
+
+      return response;
+    }
+
+    if (!query.success || query.lastfm_errorcode) {
+      response.error_code = "lastfm_error";
+      response.error_message = query.lastfm_errormessage;
+      return response;
+    }
+
+    const last_track = [...query.data.recenttracks.track].shift();
+    if (last_track) {
+      const has_now_playing_tag =
+        last_track[`@attr`] && last_track[`@attr`].nowplaying;
+
+      // consider the track scrobbled in the last 3 minutes as 'now-playing'
+      let is_scrobbled_recently = false;
+      if (last_track.date) {
+        const diff = moment().diff(
+          moment.unix(parseInt(last_track.date.uts)),
+          "minutes"
+        );
+        is_scrobbled_recently = diff <= 3;
+      }
+
+      if (has_now_playing_tag || is_scrobbled_recently) return last_track;
+    }
+    response.error_code = "not_playing";
+    return response;
+  }
+
   //
   //This is here only to free bunch of commands of doing these checks.
   async get_nowplaying(bot: CrownBot, interaction: GuildChatInteraction) {
@@ -188,7 +234,7 @@ export default class extends LastFM {
       new ActionRowBuilder().addComponents(
         new ButtonBuilder()
           .setLabel("Need help?")
-          .setStyle(ButtonStyle.Primary)
+          .setStyle(ButtonStyle.Secondary)
           .setCustomId("scrobblingfaq")
       )
     );
