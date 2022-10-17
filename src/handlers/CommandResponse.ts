@@ -51,7 +51,6 @@ export class CommandResponse {
   async reply() {
     if (this.has_failed) return;
 
-    console.log(this);
     if (this.error_code) {
       if (this.error_code === "custom") {
         this.text = this.error_message;
