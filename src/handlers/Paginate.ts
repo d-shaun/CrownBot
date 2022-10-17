@@ -78,7 +78,10 @@ export default class Paginate {
         pageTravel: false,
       });
     } else {
-      return this.interaction.editReply({ embeds: [embeds[0]] });
+      return this.interaction.editReply({
+        embeds: [embeds[0]],
+        components: [],
+      });
     }
   }
 }
