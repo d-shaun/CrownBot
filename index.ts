@@ -11,6 +11,7 @@ import CrownBot from "./src/handlers/CrownBot";
 import handle_autocomplete from "./src/misc/handle_autocomplete";
 import handle_bugreport from "./src/misc/handle_bugreport";
 import { CommandResponse } from "./src/handlers/CommandResponse";
+import express from "express";
 /*
 # REQUIRED
 ======================================================================================================
@@ -152,3 +153,14 @@ SPOTIFY_SECRETID: Spotify client ID for the &chart command to show artist images
     debugger; //eslint-disable-line
   }
 })();
+
+// restart bot/re-deploy via url or another bot
+if (process.env.ENABLE_WEB_INTERFACE) {
+  const app = express();
+  app.get("/", (req, res) => {
+    console.log("Express is running!!?!");
+    res.sendStatus(200);
+  });
+
+  app.listen(443);
+}
