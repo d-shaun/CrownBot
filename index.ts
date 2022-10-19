@@ -162,5 +162,5 @@ if (process.env.ENABLE_WEB_INTERFACE) {
     res.sendStatus(200);
   });
 
-  app.listen(443);
+  app.listen();
 }
