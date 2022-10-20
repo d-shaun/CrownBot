@@ -21,7 +21,7 @@ if (process.env.ENABLE_WEB_INTERFACE) {
     res.sendStatus(200);
   });
 
-  app.listen();
+  app.listen(process.env.PORT || 3000);
 }
 
 /*
