@@ -1,6 +1,7 @@
 import {
   ActionRowBuilder,
   ButtonBuilder,
+  ButtonComponent,
   ButtonInteraction,
   ButtonStyle,
   Client,
@@ -157,7 +158,7 @@ export class CommandResponse {
 
     const collector = this.interaction.channel.createMessageComponentCollector({
       filter,
-      time: 120000,
+      time: 600000, // 10 minutes
     });
 
     collector.on("collect", async (new_interaction: ButtonInteraction) => {
@@ -199,6 +200,41 @@ export class CommandResponse {
             console.error(e);
           }
         }
+      }
+    });
+
+    // remove the retry button (customId set in `random_id`)
+    collector.on("end", async () => {
+      const sent_msg = await (<GuildChatInteraction>this.interaction)
+        .fetchReply()
+        .catch(() => {
+          // oh no, anyway.
+          // og message has been deleted by someone else.
+        });
+
+      if (sent_msg) {
+        const new_action_row = <ActionRowBuilder<ButtonBuilder>>(
+          new ActionRowBuilder()
+        );
+        const { components: buttons } = sent_msg.components[0];
+
+        buttons
+          .filter((comp) => comp.customId !== random_id)
+          .map((el) => {
+            const comp = <ButtonComponent>el;
+            if (!(comp.label && comp.style && comp.customId)) return;
+
+            new_action_row.addComponents(
+              new ButtonBuilder()
+                .setLabel(comp.label)
+                .setStyle(comp.style)
+                .setCustomId(comp.customId)
+            );
+          });
+
+        await (<GuildChatInteraction>this.interaction).editReply({
+          components: [new_action_row],
+        });
       }
     });
   }
