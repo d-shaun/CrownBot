@@ -25,7 +25,6 @@
   "dependencies": {
     "@devraelfreeze/discordjs-pagination": "^2.6.4",
     "@types/chart.js": "^2.9.25",
-    "@types/express": "^4.17.14",
     "@types/lyricist": "^2.2.0",
     "@types/mongodb": "^4.0.7",
     "@types/mongoose": "^5.11.97",
@@ -38,7 +37,6 @@
     "chartjs-node-canvas": "^3.0.6",
     "cheerio": "^1.0.0-rc.3",
     "discord.js": "^14.3.0",
-    "express": "^4.18.2",
     "lyricist": "https://github.com/d-shaun/lyricist.git",
     "moment": "^2.24.0",
     "mongodb": "^4.9.1",
