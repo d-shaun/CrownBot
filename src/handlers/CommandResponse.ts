@@ -163,42 +163,42 @@ export class CommandResponse {
 
     collector.on("collect", async (new_interaction: ButtonInteraction) => {
       if (new_interaction.customId === random_id) {
-        if (this.interaction.commandName === "whoknows") {
-          const command = this.bot.commands.find(
-            (e) => e.data.name == "whoknows"
+        const command = this.bot.commands.find((e) => {
+          return (
+            e.data.name == (<GuildChatInteraction>this.interaction).commandName
+          );
+        });
+
+        if (!command) return;
+
+        try {
+          const response = new CommandResponse(
+            this.bot,
+            this.client,
+            <any>this.interaction
           );
 
-          if (!command) return;
+          const embed = new EmbedBuilder().setDescription(
+            "Retrying the previously failed command..."
+          );
 
-          try {
-            const response = new CommandResponse(
-              this.bot,
-              this.client,
-              <any>this.interaction
-            );
-
-            const embed = new EmbedBuilder().setDescription(
-              "Retrying the previously failed command..."
-            );
-
-            await new_interaction.reply({ embeds: [embed] });
-            const command_response = await preflight_checks(
-              this.bot,
-              this.client,
-              <GuildChatInteraction>this.interaction,
-              command,
-              response
-            );
-            if (
-              typeof command_response == "object" &&
-              command_response instanceof CommandResponse
-            ) {
-              await command_response.reply();
-            }
-            await new_interaction.deleteReply();
-          } catch (e: any) {
-            console.error(e);
+          await new_interaction.reply({ embeds: [embed] });
+          const command_response = await preflight_checks(
+            this.bot,
+            this.client,
+            <GuildChatInteraction>this.interaction,
+            command,
+            response
+          );
+          if (
+            typeof command_response == "object" &&
+            command_response instanceof CommandResponse
+          ) {
+            await command_response.reply();
           }
+          await new_interaction.deleteReply();
+        } catch (e: any) {
+          console.error(e);
         }
       }
     });
