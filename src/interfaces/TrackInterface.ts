@@ -34,6 +34,7 @@ export interface UserTrack {
 export interface UserRecentTrack {
   recenttracks: {
     track: {
+      is_spotify?: never;
       id?: number;
       "@attr"?: {
         nowplaying: boolean;
