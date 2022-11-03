@@ -6,6 +6,7 @@ import CrownBot from "../handlers/CrownBot";
 import DB from "../handlers/DB";
 import User from "../handlers/LastFM_components/User";
 import esm from "../misc/escapemarkdown";
+import parse_spotify from "../misc/parse_spotify_presence";
 import time_difference from "../misc/time_difference";
 
 module.exports = {
@@ -34,44 +35,73 @@ module.exports = {
     const db = new DB(bot.models);
     const discord_user =
       interaction.options.getUser("discord_user") || interaction.user;
-
     const user = await db.fetch_user(interaction.guild.id, discord_user.id);
     if (!user) {
       response.text = "User is not logged in.";
       await response.send();
       return;
     }
+    const lastfm_user = new User({ username: user.username });
 
-    const lastfm_user = new User({ username: user.username, limit: 2 });
-    const query = await lastfm_user.get_recenttracks();
-    if (!query.success || query.lastfm_errorcode) {
-      response.error("lastfm_error", query.lastfm_errormessage);
-      return;
-    }
+    const embeds: EmbedBuilder[] = [];
+    let failed = false;
+    // Last.fm now-playing
+    await (async () => {
+      const now_playing = await lastfm_user.get_nowplaying(bot, interaction, 2);
 
-    const last_song = [...query.data.recenttracks.track].shift();
-    if (!last_song) {
-      response.text =
-        "Couldn't find **any** scrobbled track on your Last.fm account.";
-      await response.send();
-      return;
-    }
-    let status_text = "🎵 playing now";
+      if (!now_playing) {
+        failed = true;
+        return;
+      }
+      let status_text = "🎵 playing now on Last.Fm";
 
-    if (!last_song["@attr"]?.nowplaying) {
-      const timestamp = moment.unix(parseInt(last_song.date.uts)).valueOf();
-      status_text = "⏹️ scrobbled " + time_difference(timestamp) + " ago";
+      if (!now_playing["@attr"]?.nowplaying && now_playing.date) {
+        const timestamp = moment.unix(parseInt(now_playing.date.uts)).valueOf();
+        status_text = "⏹️ scrobbled " + time_difference(timestamp) + " ago";
+      }
+
+      const cover = now_playing.image?.pop();
+      const embed = new EmbedBuilder()
+        .setTitle("Last.fm")
+        .setDescription(
+          `**${esm(now_playing.name)}** by **${esm(
+            now_playing.artist["#text"]
+          )}**\n*${esm(now_playing.album["#text"])}*`
+        )
+        .setFooter({ text: status_text });
+      if (cover) embed.setThumbnail(cover["#text"]);
+      embeds.push(embed);
+    })();
+
+    // Spotify presence now-playing
+    await (async () => {
+      const guild_member = await interaction.guild.members.fetch({
+        user: discord_user.id,
+      });
+      const { artist_name, album_name, track_name, createdTimeStamp } =
+        parse_spotify(guild_member);
+      if (!(artist_name && album_name && track_name && createdTimeStamp)) {
+        return;
+      }
+
+      const embed = new EmbedBuilder()
+        .setTitle("Spotify")
+        .setDescription(
+          `**${esm(track_name)}** by **${esm(artist_name)}**\n*${esm(
+            album_name
+          )}*`
+        )
+        .setFooter({
+          text: "🎵 playing now on Spotify ",
+        });
+      embeds.push(embed);
+    })();
+    if (embeds.length) {
+      if (failed) {
+        await interaction.followUp({ embeds: embeds });
+      } else {
+        await interaction.editReply({ embeds: embeds });
+      }
     }
-    const cover = last_song.image.pop();
-    const embed = new EmbedBuilder()
-      .setTitle("Now playing · " + discord_user.username)
-      .setDescription(
-        `**${esm(last_song.name)}** by **${esm(
-          last_song.artist["#text"]
-        )}**\n*${esm(last_song.album["#text"])}*`
-      )
-      .setFooter({ text: status_text });
-    if (cover) embed.setThumbnail(cover["#text"]);
-    await interaction.editReply({ embeds: [embed] });
   },
 };
