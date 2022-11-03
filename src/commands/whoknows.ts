@@ -9,6 +9,7 @@ import { LeaderboardInterface } from "../interfaces/LeaderboardInterface";
 import cb from "../misc/codeblock";
 import esm from "../misc/escapemarkdown";
 import get_registered_users from "../misc/get_registered_users";
+import parse_spotify from "../misc/parse_spotify_presence";
 import time_difference from "../misc/time_difference";
 import { CrownInterface } from "../models/Crowns";
 import { LogInterface } from "../models/WhoKnowsLog";
@@ -39,7 +40,9 @@ module.exports = {
       username: user.username,
     });
 
-    let artist_name = interaction.options.getString("artist_name");
+    let artist_name =
+      interaction.options.getString("artist_name") ||
+      parse_spotify(interaction.member)?.artist_name;
     if (!artist_name) {
       const now_playing = await lastfm_user.new_get_nowplaying(response);
       if (now_playing instanceof CommandResponse) return now_playing;
