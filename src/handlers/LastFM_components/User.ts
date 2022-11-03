@@ -1,24 +1,26 @@
-import { UserTopAlbum } from "../../interfaces/AlbumInterface";
-import { UserTopArtist } from "../../interfaces/ArtistInterface";
-import { Period } from "../../interfaces/LastFMQueryInterface";
-import { UserinfoInterface } from "../../interfaces/LastFMUserinfoInterface";
-import { UserRecentTrack, UserTopTrack } from "../../interfaces/TrackInterface";
-import BotMessage from "../BotMessage";
-import CrownBot from "../CrownBot";
-import { LastFM } from "../LastFM";
-import cheerio from "cheerio";
-import cb from "../../misc/codeblock";
 import Axios from "axios";
-import { LastFMResponse } from "../../interfaces/LastFMResponseInterface";
-import moment from "moment";
-import GuildChatInteraction from "../../classes/GuildChatInteraction";
+import cheerio from "cheerio";
 import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
   EmbedBuilder,
 } from "discord.js";
+import moment from "moment";
+import GuildChatInteraction from "../../classes/GuildChatInteraction";
+import { UserTopAlbum } from "../../interfaces/AlbumInterface";
+import { UserTopArtist } from "../../interfaces/ArtistInterface";
+import { Period } from "../../interfaces/LastFMQueryInterface";
+import { LastFMResponse } from "../../interfaces/LastFMResponseInterface";
+import { UserinfoInterface } from "../../interfaces/LastFMUserinfoInterface";
+import { UserRecentTrack, UserTopTrack } from "../../interfaces/TrackInterface";
+import cb from "../../misc/codeblock";
+import parse_spotify from "../../misc/parse_spotify_presence";
+import BotMessage from "../BotMessage";
 import { CommandResponse } from "../CommandResponse";
+import CrownBot from "../CrownBot";
+import { LastFM } from "../LastFM";
+import { SpotifyNowPlaying } from "../Spotify";
 
 export default class extends LastFM {
   prefix = "user.";
@@ -187,13 +189,32 @@ export default class extends LastFM {
     return response;
   }
 
-  //
-  //This is here only to free bunch of commands of doing these checks.
-  async get_nowplaying(bot: CrownBot, interaction: GuildChatInteraction) {
+  async get_nowplaying(
+    bot: CrownBot,
+    interaction: GuildChatInteraction
+  ): Promise<
+    SpotifyNowPlaying | UserRecentTrack["recenttracks"]["track"][0] | undefined
+  > {
     const response = new BotMessage({
       bot,
       interaction,
     });
+
+    const presence_np = parse_spotify(interaction.member);
+    const { artist_name, album_name, track_name } = presence_np;
+    if (artist_name && album_name && track_name) {
+      const formatted_nowplaying = {
+        is_spotify: true,
+        "@attr": {
+          nowplaying: true,
+        },
+        album: { "#text": track_name },
+        artist: { "#text": artist_name },
+        name: track_name,
+      };
+      return formatted_nowplaying;
+    }
+
     const prev_limit = this.configs.limit;
     this.configs.limit = 1;
     const query = await this.get_recenttracks();
