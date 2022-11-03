@@ -60,7 +60,7 @@ SPOTIFY_SECRETID: Spotify client ID for the &chart command to show artist images
     }).init_dev();
 
     const client = new Client({
-      intents: [GatewayIntentBits.Guilds],
+      intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildPresences],
     });
 
     // register events
