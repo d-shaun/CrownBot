@@ -6,6 +6,20 @@ interface CustomData extends Data {
   artist_name: string;
 }
 
+export interface SpotifyNowPlaying {
+  is_spotify: boolean;
+  "@attr"?: {
+    nowplaying: boolean;
+  };
+  album: {
+    "#text": string;
+  };
+  artist: {
+    "#text": string;
+  };
+  name: string; // track name
+}
+
 export class Spotify {
   #clientid = SPOTIFY_CLIENTID;
   #clientsecret = SPOTIFY_CLIENTSECRET;
