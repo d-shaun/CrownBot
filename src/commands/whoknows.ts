@@ -58,9 +58,7 @@ module.exports = {
     }).user_get_info();
 
     if (query.lastfm_errorcode || !query.success) {
-      response.error_code = "lastfm_error";
-      response.error_message = query.lastfm_errormessage;
-      return response;
+      return response.error("lastfm_error", query.lastfm_errormessage);
     }
 
     // set minimum plays required to get a crown
@@ -110,8 +108,7 @@ module.exports = {
         (response) => !response?.wrapper.data?.artist?.stats?.playcount // sanity check
       )
     ) {
-      response.error_code = "lastfm_error";
-      return response;
+      return response.error("lastfm_error");
     }
 
     responses = responses.filter((response) => response.wrapper.success);

@@ -46,7 +46,10 @@ module.exports = {
     let artist_name = interaction.options.getString("artist_name");
 
     if (!track_name) {
-      const now_playing = await lastfm_user.new_get_nowplaying(response);
+      const now_playing = await lastfm_user.new_get_nowplaying(
+        interaction,
+        response
+      );
       if (now_playing instanceof CommandResponse) return now_playing;
       track_name = now_playing.name;
       artist_name = now_playing.artist["#text"];
@@ -59,9 +62,7 @@ module.exports = {
       }).search();
 
       if (query.lastfm_errorcode || !query.success) {
-        response.error_code = "lastfm_error";
-        response.error_message = query.lastfm_errormessage;
-        return response;
+        return response.error("lastfm_error", query.lastfm_errormessage);
       }
 
       const track = query.data.results.trackmatches.track.shift();
@@ -81,9 +82,7 @@ module.exports = {
     }).user_get_info();
 
     if (query.lastfm_errorcode || !query.success) {
-      response.error_code = "lastfm_error";
-      response.error_message = query.lastfm_errormessage;
-      return response;
+      return response.error("lastfm_error", query.lastfm_errormessage);
     }
 
     const track = query.data.track;
@@ -127,8 +126,7 @@ module.exports = {
       !responses.length ||
       responses.some((response) => !response?.wrapper.data?.track?.playcount)
     ) {
-      response.error_code = "lastfm_error";
-      return response;
+      return response.error("lastfm_error");
     }
 
     responses = responses.filter((response) => response.wrapper.success);

@@ -184,9 +184,7 @@ export default class extends LastFM {
     }
 
     if (!query.success || query.lastfm_errorcode) {
-      response.error_code = "lastfm_error";
-      response.error_message = query.lastfm_errormessage;
-      return response;
+      return response.error("lastfm_error", query.lastfm_errormessage);
     }
 
     const last_track = [...query.data.recenttracks.track].shift();
@@ -206,8 +204,7 @@ export default class extends LastFM {
 
       if (has_now_playing_tag || is_scrobbled_recently) return last_track;
     }
-    response.error_code = "not_playing";
-    return response;
+    return response.error("not_playing");
   }
 
   /**

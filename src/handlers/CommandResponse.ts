@@ -263,6 +263,12 @@ export class CommandResponse {
     return embed_permission;
   }
 
+  error(error_code: string, error_message?: string) {
+    this.error_code = error_code;
+    this.error_message = error_message;
+    return this;
+  }
+
   fail() {
     this.has_failed = true;
     return this;

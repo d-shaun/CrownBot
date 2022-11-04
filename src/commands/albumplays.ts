@@ -65,16 +65,12 @@ module.exports = {
       }).search();
 
       if (query.lastfm_errorcode || !query.success) {
-        response.error_code = "lastfm_error";
-        response.error_message = query.lastfm_errormessage;
-        return response;
+        return response.error("lastfm_error", query.lastfm_errormessage);
       }
 
       const album = query.data.results.albummatches.album.shift();
       if (!album) {
-        response.error_code = "custom";
-        response.error_message = "Couldn't find the album.";
-        return response;
+        return response.error("custom", "Couldn't find the album.");
       }
       artist_name = album.artist;
       album_name = album.name;
@@ -92,15 +88,11 @@ module.exports = {
     }).user_get_info();
 
     if (query_album.lastfm_errorcode || !query_album.success) {
-      response.error_code = "lastfm_error";
-      response.error_message = query_album.lastfm_errormessage;
-      return response;
+      return response.error("lastfm_error", query_album.lastfm_errormessage);
     }
 
     if (query_artist.lastfm_errorcode || !query_artist.success) {
-      response.error_code = "lastfm_error";
-      response.error_message = query_artist.lastfm_errormessage;
-      return response;
+      return response.error("lastfm_error", query_artist.lastfm_errormessage);
     }
 
     const artist = query_artist.data.artist;
