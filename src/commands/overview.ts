@@ -46,6 +46,11 @@ module.exports = {
       interaction.options.getUser("discord_user") || interaction.user;
 
     const user = await db.fetch_user(interaction.guild.id, discord_user.id);
+    const _user = await db.fetch_user(
+      interaction.guild.id,
+      interaction.user.id
+    );
+
     if (!user) {
       response.text =
         "User is not logged into the bot; please use the `/login` command.";
@@ -58,7 +63,16 @@ module.exports = {
 
     let artist_name = interaction.options.getString("artist_name");
     if (!artist_name) {
-      const now_playing = await lastfm_user.get_nowplaying(bot, interaction);
+      if (!_user) {
+        response.text =
+          "**You** are not logged into the bot; please use the `/login` command.";
+        await response.send();
+        return;
+      }
+      const _lastfm_user = new User({
+        username: _user.username,
+      });
+      const now_playing = await _lastfm_user.get_nowplaying(bot, interaction);
       if (!now_playing) return;
       artist_name = now_playing.artist["#text"];
     }
