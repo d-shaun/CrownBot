@@ -69,13 +69,14 @@ export default class Paginate {
 
     if (chunks.length >= 2) {
       return await pagination({
-        embeds: <any>embeds, // Array of embeds objects
+        embeds: <any>embeds,
         author: this.interaction.user,
         interaction: this.interaction,
-        time: 60000, // 60 seconds
-        disableButtons: true, // Remove buttons after timeout
+        time: 300000,
+        disableButtons: true,
         fastSkip: false,
         pageTravel: false,
+        customFilter: (interaction) => parseInt(interaction.customId) <= 4,
       });
     } else {
       return this.interaction.editReply({
