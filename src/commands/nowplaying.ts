@@ -44,15 +44,13 @@ module.exports = {
     const lastfm_user = new User({ username: user.username });
 
     const embeds: EmbedBuilder[] = [];
-
+    let failed = false;
     // Last.fm now-playing
     await (async () => {
       const now_playing = await lastfm_user.get_nowplaying(bot, interaction, 2);
 
       if (!now_playing) {
-        response.text =
-          "Couldn't find **any** scrobbled track on your Last.fm account.";
-        await response.send();
+        failed = true;
         return;
       }
       let status_text = "🎵 playing now on Last.Fm";
@@ -98,6 +96,12 @@ module.exports = {
         });
       embeds.push(embed);
     })();
-    if (embeds.length) await interaction.editReply({ embeds: embeds });
+    if (embeds.length) {
+      if (failed) {
+        await interaction.followUp({ embeds: embeds });
+      } else {
+        await interaction.editReply({ embeds: embeds });
+      }
+    }
   },
 };

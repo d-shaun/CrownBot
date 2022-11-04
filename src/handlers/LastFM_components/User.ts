@@ -8,6 +8,7 @@ import {
 } from "discord.js";
 import moment from "moment";
 import GuildChatInteraction from "../../classes/GuildChatInteraction";
+import { Template } from "../../classes/Template";
 import { UserTopAlbum } from "../../interfaces/AlbumInterface";
 import { UserTopArtist } from "../../interfaces/ArtistInterface";
 import { Period } from "../../interfaces/LastFMQueryInterface";
@@ -274,7 +275,7 @@ export default class extends LastFM {
     );
 
     const embed = new EmbedBuilder().setDescription(
-      `You aren't playing anything.`
+      new Template().get("not_playing")
     );
 
     await interaction.editReply({
