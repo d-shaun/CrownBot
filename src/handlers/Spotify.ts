@@ -9,6 +9,7 @@ interface CustomData extends Data {
 export interface SpotifyNowPlaying {
   is_spotify: boolean;
   image?: never;
+  date?: never;
   "@attr"?: never;
   album: {
     "#text": string;

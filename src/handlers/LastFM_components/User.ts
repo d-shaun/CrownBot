@@ -193,12 +193,19 @@ export default class extends LastFM {
    *
    * @param bot
    * @param interaction
-   * @param prio Change prio
+   * @param priority Priority for nowplaying.
+   *
+   * 0 = return both in an array
+   *
+   * 1 = enable Spotify
+   *
+   * 2 = disable Spotify
    * @returns
    */
   async get_nowplaying(
     bot: CrownBot,
-    interaction: GuildChatInteraction
+    interaction: GuildChatInteraction,
+    priority = 1
   ): Promise<
     SpotifyNowPlaying | UserRecentTrack["recenttracks"]["track"][0] | undefined
   > {
@@ -207,16 +214,18 @@ export default class extends LastFM {
       interaction,
     });
 
-    const presence_np = parse_spotify(interaction.member);
-    const { artist_name, album_name, track_name } = presence_np;
-    if (artist_name && album_name && track_name) {
-      const formatted_nowplaying = {
-        is_spotify: true,
-        album: { "#text": track_name },
-        artist: { "#text": artist_name },
-        name: track_name,
-      };
-      return formatted_nowplaying;
+    if (priority === 1) {
+      const presence_np = parse_spotify(interaction.member);
+      const { artist_name, album_name, track_name } = presence_np;
+      if (artist_name && album_name && track_name) {
+        const formatted_nowplaying = {
+          is_spotify: true,
+          album: { "#text": track_name },
+          artist: { "#text": artist_name },
+          name: track_name,
+        };
+        return formatted_nowplaying;
+      }
     }
 
     const prev_limit = this.configs.limit;
