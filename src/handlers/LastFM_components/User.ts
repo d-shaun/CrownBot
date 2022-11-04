@@ -189,6 +189,13 @@ export default class extends LastFM {
     return response;
   }
 
+  /**
+   *
+   * @param bot
+   * @param interaction
+   * @param prio Change prio
+   * @returns
+   */
   async get_nowplaying(
     bot: CrownBot,
     interaction: GuildChatInteraction
@@ -205,9 +212,6 @@ export default class extends LastFM {
     if (artist_name && album_name && track_name) {
       const formatted_nowplaying = {
         is_spotify: true,
-        "@attr": {
-          nowplaying: true,
-        },
         album: { "#text": track_name },
         artist: { "#text": artist_name },
         name: track_name,
