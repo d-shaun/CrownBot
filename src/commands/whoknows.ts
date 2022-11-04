@@ -44,7 +44,10 @@ module.exports = {
       interaction.options.getString("artist_name") ||
       parse_spotify(interaction.member)?.artist_name;
     if (!artist_name) {
-      const now_playing = await lastfm_user.new_get_nowplaying(response);
+      const now_playing = await lastfm_user.new_get_nowplaying(
+        interaction,
+        response
+      );
       if (now_playing instanceof CommandResponse) return now_playing;
       artist_name = now_playing.artist["#text"];
     }
@@ -56,8 +59,7 @@ module.exports = {
 
     if (query.lastfm_errorcode || !query.success) {
       response.error_code = "lastfm_error";
-      response.error_code = query.lastfm_errormessage;
-
+      response.error_message = query.lastfm_errormessage;
       return response;
     }
 

@@ -1,6 +1,5 @@
 import { Client, EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
-import BotMessage from "../handlers/BotMessage";
 import CrownBot from "../handlers/CrownBot";
 import DB from "../handlers/DB";
 import Artist from "../handlers/LastFM_components/Artist";
@@ -11,6 +10,7 @@ import time_difference from "../misc/time_difference";
 import moment from "moment";
 // @ts-ignore
 import abbreviate from "number-abbreviate";
+import { CommandResponse } from "../handlers/CommandResponse";
 import Album from "../handlers/LastFM_components/Album";
 import { UserAlbum } from "../interfaces/AlbumInterface";
 import { AlbumLogInterface } from "../models/AlbumLog";
@@ -35,16 +35,12 @@ module.exports = {
   async execute(
     bot: CrownBot,
     client: Client,
-    interaction: GuildChatInteraction
-  ) {
-    const response = new BotMessage({
-      bot,
-      interaction,
-    });
-
+    interaction: GuildChatInteraction,
+    response: CommandResponse
+  ): Promise<CommandResponse> {
     const db = new DB(bot.models);
     const user = await db.fetch_user(interaction.guild.id, interaction.user.id);
-    if (!user) return;
+    if (!user) return response.fail();
     const lastfm_user = new User({
       username: user.username,
     });
@@ -52,8 +48,12 @@ module.exports = {
     let album_name = interaction.options.getString("album_name");
     let artist_name = interaction.options.getString("artist_name");
     if (!album_name) {
-      const now_playing = await lastfm_user.get_nowplaying(bot, interaction);
-      if (!now_playing) return;
+      const now_playing = await lastfm_user.new_get_nowplaying(
+        interaction,
+        response
+      );
+      if (now_playing instanceof CommandResponse) return now_playing;
+
       artist_name = now_playing.artist["#text"];
       album_name = now_playing.album["#text"];
     }
@@ -65,14 +65,16 @@ module.exports = {
       }).search();
 
       if (query.lastfm_errorcode || !query.success) {
-        response.error("lastfm_error", query.lastfm_errormessage);
-        return;
+        response.error_code = "lastfm_error";
+        response.error_message = query.lastfm_errormessage;
+        return response;
       }
 
       const album = query.data.results.albummatches.album.shift();
       if (!album) {
-        await response.error("blank", "Couldn't find the album.");
-        return;
+        response.error_code = "custom";
+        response.error_message = "Couldn't find the album.";
+        return response;
       }
       artist_name = album.artist;
       album_name = album.name;
@@ -90,19 +92,21 @@ module.exports = {
     }).user_get_info();
 
     if (query_album.lastfm_errorcode || !query_album.success) {
-      response.error("lastfm_error", query_album.lastfm_errormessage);
-      return;
+      response.error_code = "lastfm_error";
+      response.error_message = query_album.lastfm_errormessage;
+      return response;
     }
 
     if (query_artist.lastfm_errorcode || !query_artist.success) {
-      response.error("lastfm_error", query_artist.lastfm_errormessage);
-      return;
+      response.error_code = "lastfm_error";
+      response.error_message = query_artist.lastfm_errormessage;
+      return response;
     }
 
     const artist = query_artist.data.artist;
     const album = query_album.data.album;
 
-    if (album.userplaycount === undefined) return;
+    if (album.userplaycount === undefined) return response.fail();
     let last_count = 0;
     let album_cover: boolean | string = false;
 
@@ -178,7 +182,8 @@ module.exports = {
       );
     if (album_cover) embed.setThumbnail(album_cover);
     await this.update_log(bot, interaction, album);
-    await interaction.editReply({ embeds: [embed] });
+    response.embeds = [embed];
+    return response;
   },
 
   async update_log(

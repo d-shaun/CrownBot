@@ -148,8 +148,28 @@ export default class extends LastFM {
   // soon to be replacing the og
 
   async new_get_nowplaying(
-    response: CommandResponse
-  ): Promise<CommandResponse | UserRecentTrack["recenttracks"]["track"][0]> {
+    interaction: GuildChatInteraction,
+    response: CommandResponse,
+    priority = 1
+  ): Promise<
+    | CommandResponse
+    | UserRecentTrack["recenttracks"]["track"][0]
+    | SpotifyNowPlaying
+  > {
+    if (priority === 1) {
+      const presence_np = parse_spotify(interaction.member);
+      const { artist_name, album_name, track_name } = presence_np;
+      if (artist_name && album_name && track_name) {
+        const formatted_nowplaying = {
+          is_spotify: true,
+          album: { "#text": album_name },
+          artist: { "#text": artist_name },
+          name: track_name,
+        };
+        return formatted_nowplaying;
+      }
+    }
+
     const prev_limit = this.configs.limit;
     this.configs.limit = 1;
     const query = await this.get_recenttracks();
