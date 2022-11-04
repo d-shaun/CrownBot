@@ -6,6 +6,7 @@ import {
   EmbedBuilder,
 } from "discord.js";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
+import { CommandResponse } from "../handlers/CommandResponse";
 import CrownBot from "../handlers/CrownBot";
 
 const { SlashCommandBuilder } = require("discord.js");
@@ -20,8 +21,9 @@ module.exports = {
   async execute(
     bot: CrownBot,
     client: Client,
-    interaction: GuildChatInteraction
-  ) {
+    interaction: GuildChatInteraction,
+    response: CommandResponse
+  ): Promise<CommandResponse> {
     const row = <ActionRowBuilder<ButtonBuilder>>(
       new ActionRowBuilder().addComponents(
         new ButtonBuilder()
@@ -58,6 +60,8 @@ module.exports = {
         },
       ]);
 
-    await interaction.editReply({ embeds: [embed], components: [row] });
+    response.embeds = [embed];
+    response.embed_components = [row];
+    return response;
   },
 };

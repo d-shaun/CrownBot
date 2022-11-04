@@ -252,7 +252,7 @@ module.exports = {
     await db.log_whoknows(artist.name, leaderboard, interaction.guild.id);
 
     response.paginate = true;
-    response.embed = embed;
+    response.paginate_embed = embed;
     response.data = data_list;
     return response;
   },
