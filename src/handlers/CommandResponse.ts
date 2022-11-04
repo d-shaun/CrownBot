@@ -24,8 +24,10 @@ export class CommandResponse {
   error_code?: string;
   error_message?: string;
 
+  paginate_embed?: EmbedBuilder;
   data?: any[];
-  embed?: EmbedBuilder;
+  embeds?: EmbedBuilder[];
+  embed_components?: ActionRowBuilder<ButtonBuilder>[];
 
   bot: CrownBot;
   client: Client;
@@ -68,10 +70,10 @@ export class CommandResponse {
       return;
     }
 
-    if (this.paginate && this.embed && this.data) {
+    if (this.paginate && this.paginate_embed && this.data) {
       const paginate = new Paginate(
         this.interaction,
-        this.embed,
+        this.paginate_embed,
         this.data,
         undefined,
         false
@@ -82,6 +84,15 @@ export class CommandResponse {
         this.force_followup = true;
         await this.#reply_text();
       }
+      return;
+    }
+
+    if (this.embeds?.length) {
+      await this.interaction.editReply({
+        embeds: this.embeds,
+        components: this.embed_components || [],
+      });
+
       return;
     }
 
