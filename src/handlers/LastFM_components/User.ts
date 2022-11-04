@@ -221,7 +221,7 @@ export default class extends LastFM {
       if (artist_name && album_name && track_name) {
         const formatted_nowplaying = {
           is_spotify: true,
-          album: { "#text": track_name },
+          album: { "#text": album_name },
           artist: { "#text": artist_name },
           name: track_name,
         };
