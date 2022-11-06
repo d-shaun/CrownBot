@@ -1,8 +1,8 @@
 import {
   Client,
+  EmbedBuilder,
   ModalSubmitInteraction,
   TextChannel,
-  EmbedBuilder,
 } from "discord.js";
 import CrownBot from "../handlers/CrownBot";
 

@@ -1,9 +1,9 @@
 import {
-  Message,
-  EmbedBuilder,
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
+  EmbedBuilder,
+  Message,
 } from "discord.js";
 import CrownBot from "../handlers/CrownBot";
 

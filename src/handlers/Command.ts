@@ -1,13 +1,13 @@
 import { Client, EmbedBuilder, TextChannel } from "discord.js";
-import BotMessage from "./BotMessage";
-import CrownBot from "./CrownBot";
-import DB from "./DB";
+import GuildChatInteraction from "../classes/GuildChatInteraction";
+import { Template } from "../classes/Template";
 import check_ban from "../misc/check_ban";
 import cb from "../misc/codeblock";
 import generate_random_strings from "../misc/generate_random_strings";
-import GuildChatInteraction from "../classes/GuildChatInteraction";
-import { Template } from "../classes/Template";
+import BotMessage from "./BotMessage";
 import { CommandResponse } from "./CommandResponse";
+import CrownBot from "./CrownBot";
+import DB from "./DB";
 
 export async function preflight_checks(
   bot: CrownBot,

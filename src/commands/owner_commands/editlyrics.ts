@@ -1,22 +1,22 @@
-import User from "../../handlers/LastFM_components/User";
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonInteraction,
+  ButtonStyle,
+  Client,
+  ComponentType,
+  ModalBuilder,
+  ModalSubmitInteraction,
+  TextInputBuilder,
+  TextInputStyle,
+} from "discord.js";
+import moment from "moment";
 import GuildChatInteraction from "../../classes/GuildChatInteraction";
 import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
 import Track from "../../handlers/LastFM_components/Track";
+import User from "../../handlers/LastFM_components/User";
 import { LyricsLogInterface } from "../../models/LyricsLog";
-import {
-  ModalBuilder,
-  TextInputBuilder,
-  TextInputStyle,
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  ButtonInteraction,
-  ComponentType,
-  Client,
-  ModalSubmitInteraction,
-} from "discord.js";
-import moment from "moment";
 
 export default async function edit_lyrics(
   bot: CrownBot,
