@@ -1,12 +1,10 @@
 import { Client, EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
-import { Template } from "../classes/Template";
-import BotMessage from "../handlers/BotMessage";
+import { CommandResponse } from "../handlers/CommandResponse";
 import CrownBot from "../handlers/CrownBot";
 import DB from "../handlers/DB";
 import Album from "../handlers/LastFM_components/Album";
 import User from "../handlers/LastFM_components/User";
-import Paginate from "../handlers/Paginate";
 import { LeaderboardInterface } from "../interfaces/LeaderboardInterface";
 import cb from "../misc/codeblock";
 import esm from "../misc/escapemarkdown";
@@ -15,7 +13,7 @@ import get_registered_users from "../misc/get_registered_users";
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("whoknowsalbum")
-    .setDescription("Lists users who listen to a certain album.")
+    .setDescription("List users who listen to a certain album")
     .addStringOption((option) =>
       option
         .setName("album_name")
@@ -32,16 +30,13 @@ module.exports = {
   async execute(
     bot: CrownBot,
     client: Client,
-    interaction: GuildChatInteraction
-  ) {
-    const response = new BotMessage({
-      bot,
-      interaction,
-    });
-
+    interaction: GuildChatInteraction,
+    response: CommandResponse
+  ): Promise<CommandResponse> {
+    response.allow_retry = true;
     const db = new DB(bot.models);
     const user = await db.fetch_user(interaction.guild.id, interaction.user.id);
-    if (!user) return;
+    if (!user) return response.fail();
     const lastfm_user = new User({
       username: user.username,
     });
@@ -50,8 +45,11 @@ module.exports = {
     let artist_name = interaction.options.getString("artist_name");
 
     if (!album_name) {
-      const now_playing = await lastfm_user.get_nowplaying(bot, interaction);
-      if (!now_playing) return;
+      const now_playing = await lastfm_user.new_get_nowplaying(
+        interaction,
+        response
+      );
+      if (now_playing instanceof CommandResponse) return now_playing;
       album_name = now_playing.album["#text"];
       artist_name = now_playing.artist["#text"];
     }
@@ -63,15 +61,13 @@ module.exports = {
       }).search();
 
       if (query.lastfm_errorcode || !query.success) {
-        response.error("lastfm_error", query.lastfm_errormessage);
-        return;
+        return response.error("lastfm_error", query.lastfm_errormessage);
       }
 
       const album = query.data.results.albummatches.album[0];
       if (!album) {
         response.text = `Couldn't find the album.`;
-        await response.send();
-        return;
+        return response;
       }
       album_name = album.name;
       artist_name = album.artist;
@@ -83,8 +79,7 @@ module.exports = {
       username: user.username,
     }).user_get_info();
     if (query.lastfm_errorcode || !query.success) {
-      response.error("lastfm_error", query.lastfm_errormessage);
-      return;
+      return response.error("lastfm_error", query.lastfm_errormessage);
     }
     const album = query.data.album;
     const users = (await get_registered_users(bot, interaction))?.users;
@@ -92,8 +87,7 @@ module.exports = {
       response.text = `No user on this server has registered their Last.fm username; use the ${cb(
         "/login"
       )} command.`;
-      await response.send();
-      return;
+      return response;
     }
 
     if (users.length > bot.max_users) {
@@ -128,9 +122,7 @@ module.exports = {
       !responses.length ||
       responses.some((response) => !response.wrapper.data?.album?.playcount)
     ) {
-      response.text = new Template().get("lastfm_error");
-      await response.send();
-      return;
+      return response.error("lastfm_error");
     }
 
     responses = responses.filter((response) => response.wrapper.success);
@@ -157,8 +149,7 @@ module.exports = {
       response.text = `No one here has played ${cb(album.name)} by ${cb(
         album.artist
       )}.`;
-      await response.send();
-      return;
+      return response;
     }
 
     leaderboard = leaderboard.sort(
@@ -182,7 +173,9 @@ module.exports = {
       return `${elem.discord_username} — **${elem.userplaycount} play(s)**`;
     });
 
-    const paginate = new Paginate(interaction, embed, data_list);
-    await paginate.send();
+    response.paginate = true;
+    response.paginate_embed = embed;
+    response.paginate_data = data_list;
+    return response;
   },
 };

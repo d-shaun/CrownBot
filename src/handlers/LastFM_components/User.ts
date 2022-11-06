@@ -148,8 +148,28 @@ export default class extends LastFM {
   // soon to be replacing the og
 
   async new_get_nowplaying(
-    response: CommandResponse
-  ): Promise<CommandResponse | UserRecentTrack["recenttracks"]["track"][0]> {
+    interaction: GuildChatInteraction,
+    response: CommandResponse,
+    priority = 1
+  ): Promise<
+    | CommandResponse
+    | UserRecentTrack["recenttracks"]["track"][0]
+    | SpotifyNowPlaying
+  > {
+    if (priority === 1) {
+      const presence_np = parse_spotify(interaction.member);
+      const { artist_name, album_name, track_name } = presence_np;
+      if (artist_name && album_name && track_name) {
+        const formatted_nowplaying = {
+          is_spotify: true,
+          album: { "#text": album_name },
+          artist: { "#text": artist_name },
+          name: track_name,
+        };
+        return formatted_nowplaying;
+      }
+    }
+
     const prev_limit = this.configs.limit;
     this.configs.limit = 1;
     const query = await this.get_recenttracks();
@@ -164,9 +184,7 @@ export default class extends LastFM {
     }
 
     if (!query.success || query.lastfm_errorcode) {
-      response.error_code = "lastfm_error";
-      response.error_message = query.lastfm_errormessage;
-      return response;
+      return response.error("lastfm_error", query.lastfm_errormessage);
     }
 
     const last_track = [...query.data.recenttracks.track].shift();
@@ -186,8 +204,7 @@ export default class extends LastFM {
 
       if (has_now_playing_tag || is_scrobbled_recently) return last_track;
     }
-    response.error_code = "not_playing";
-    return response;
+    return response.error("not_playing");
   }
 
   /**

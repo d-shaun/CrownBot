@@ -1,7 +1,7 @@
 import { Client, SlashCommandBuilder } from "discord.js";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
 import { Template } from "../classes/Template";
-import BotMessage from "../handlers/BotMessage";
+import { CommandResponse } from "../handlers/CommandResponse";
 import CrownBot from "../handlers/CrownBot";
 import DB from "../handlers/DB";
 import cb from "../misc/codeblock";
@@ -19,12 +19,9 @@ module.exports = {
   async execute(
     bot: CrownBot,
     client: Client,
-    interaction: GuildChatInteraction
-  ) {
-    const response = new BotMessage({
-      bot,
-      interaction,
-    });
+    interaction: GuildChatInteraction,
+    response: CommandResponse
+  ): Promise<CommandResponse> {
     const db = new DB(bot.models);
 
     if (interaction.options.getBoolean("global")) {
@@ -33,8 +30,7 @@ module.exports = {
         response.text = `You aren't logged into the bot in any server; use the ${cb(
           "/login"
         )} command to login.`;
-        await response.send();
-        return;
+        return response;
       }
 
       if (await db.remove_user(undefined, interaction.user.id, true)) {
@@ -42,8 +38,7 @@ module.exports = {
       } else {
         response.text = new Template().get("exception");
       }
-      await response.send();
-      return;
+      return response;
     }
 
     const user = await db.fetch_user(interaction.guild.id, interaction.user.id);
@@ -51,8 +46,7 @@ module.exports = {
       response.text = `You aren't logged in; use the ${cb(
         "/login"
       )} command to login.`;
-      await response.send();
-      return;
+      return response;
     }
 
     if (await db.remove_user(interaction.guild.id, interaction.user.id)) {
@@ -62,6 +56,6 @@ module.exports = {
     } else {
       response.text = new Template().get("exception");
     }
-    await response.send();
+    return response;
   },
 };

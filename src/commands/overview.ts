@@ -5,19 +5,18 @@ import {
   SlashCommandBuilder,
 } from "discord.js";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
-import BotMessage from "../handlers/BotMessage";
+import { CommandResponse } from "../handlers/CommandResponse";
 import CrownBot from "../handlers/CrownBot";
 import DB from "../handlers/DB";
 import Artist from "../handlers/LastFM_components/Artist";
 import User from "../handlers/LastFM_components/User";
-import esm from "../misc/escapemarkdown";
-import { Template } from "../classes/Template";
 import cb from "../misc/codeblock";
+import esm from "../misc/escapemarkdown";
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("overview")
-    .setDescription("Displays user's scrobble overview for an artist.")
+    .setDescription("Display user's scrobble overview for an artist")
     .addStringOption((option) =>
       option
         .setName("artist_name")
@@ -34,13 +33,10 @@ module.exports = {
   async execute(
     bot: CrownBot,
     client: Client,
-    interaction: GuildChatInteraction
-  ) {
-    const response = new BotMessage({
-      bot,
-      interaction,
-    });
-
+    interaction: GuildChatInteraction,
+    response: CommandResponse
+  ): Promise<CommandResponse> {
+    response.allow_retry = true;
     const db = new DB(bot.models);
     const discord_user =
       interaction.options.getUser("discord_user") || interaction.user;
@@ -54,8 +50,7 @@ module.exports = {
     if (!user) {
       response.text =
         "User is not logged into the bot; please use the `/login` command.";
-      await response.send();
-      return;
+      return response;
     }
     const lastfm_user = new User({
       username: user.username,
@@ -66,14 +61,16 @@ module.exports = {
       if (!_user) {
         response.text =
           "**You** are not logged into the bot; please use the `/login` command.";
-        await response.send();
-        return;
+        return response;
       }
       const _lastfm_user = new User({
         username: _user.username,
       });
-      const now_playing = await _lastfm_user.get_nowplaying(bot, interaction);
-      if (!now_playing) return;
+      const now_playing = await _lastfm_user.new_get_nowplaying(
+        interaction,
+        response
+      );
+      if (now_playing instanceof CommandResponse) return now_playing;
       artist_name = now_playing.artist["#text"];
     }
 
@@ -83,25 +80,21 @@ module.exports = {
     }).user_get_info();
 
     if (query.lastfm_errorcode || !query.success) {
-      response.error("lastfm_error", query.lastfm_errormessage);
-      return;
+      return response.error("lastfm_error", query.lastfm_errormessage);
     }
 
     const artist = query.data.artist;
-    if (artist.stats.userplaycount === undefined) return;
+    if (artist.stats.userplaycount === undefined) return response.fail();
     if (parseInt(artist.stats.userplaycount) <= 0) {
       response.text = `${discord_user.username} hasn't scrobbled ${cb(
         artist.name
       )}.`;
-      await response.send();
-      return;
+      return response;
     }
     const albums = await lastfm_user.get_albums(artist.name);
     const tracks = await lastfm_user.get_tracks(artist.name);
     if (!albums || !tracks) {
-      response.text = new Template().get("lastfm_error");
-      await response.send();
-      return;
+      return response.error("lastfm_error");
     }
 
     const truncate = function (str: string, n: number) {
@@ -151,6 +144,7 @@ module.exports = {
       .setTitle(`${cb(artist.name)} overview for ${discord_user.username}`)
       .addFields(fields);
 
-    await interaction.editReply({ embeds: [embed] });
+    response.embeds = [embed];
+    return response;
   },
 };

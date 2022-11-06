@@ -5,16 +5,16 @@ import CrownBot from "../handlers/CrownBot";
 import DB from "../handlers/DB";
 import Artist from "../handlers/LastFM_components/Artist";
 import User from "../handlers/LastFM_components/User";
-import cb from "../misc/codeblock";
+import esm from "../misc/escapemarkdown";
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName("topalbums")
-    .setDescription("List user's top-played albums of an artist")
+    .setName("trending")
+    .setDescription("List an artist's recently trending tracks on Last.fm")
     .addStringOption((option) =>
       option
         .setName("artist_name")
-        .setDescription("The artist's name")
+        .setDescription("Artist name")
         .setRequired(false)
     ),
 
@@ -33,7 +33,6 @@ module.exports = {
     });
 
     let artist_name = interaction.options.getString("artist_name");
-
     if (!artist_name) {
       const now_playing = await lastfm_user.new_get_nowplaying(
         interaction,
@@ -42,39 +41,26 @@ module.exports = {
       if (now_playing instanceof CommandResponse) return now_playing;
       artist_name = now_playing.artist["#text"];
     }
-    const query = await new Artist({
-      name: artist_name,
-      username: user.username,
-    }).user_get_info();
+
+    const artist = new Artist({ name: artist_name });
+    const query = await artist.get_info();
+
     if (query.lastfm_errorcode || !query.success) {
       return response.error("lastfm_error", query.lastfm_errormessage);
     }
-    const artist = query.data.artist;
-    if (
-      !artist.stats.userplaycount ||
-      parseInt(artist.stats.userplaycount) <= 0
-    ) {
-      response.text = `You haven't listened to ${cb(artist.name)}`;
-      return response;
-    }
-    const albums = await lastfm_user.get_albums(artist.name);
-    if (!albums) {
+    artist.name = query.data.artist.name;
+
+    const trending = await artist.get_trending();
+    if (!trending) {
       return response.error("lastfm_error");
     }
-    if (!albums.length) {
-      response.text =
-        "Couldn't find any album that you *may* have scrobbled from this artist.";
-      return response;
-    }
 
-    const embed = new EmbedBuilder()
-      .setDescription(`Album plays — **${albums.length}** albums`)
-      .setTitle(
-        `${interaction.user.username}'s top-played albums by ${cb(artist.name)}`
-      );
+    const embed = new EmbedBuilder().setTitle(
+      `${esm(artist.name)}'s trending tracks this week`
+    );
 
-    const data_list = albums.map((elem) => {
-      return `${elem.name} — **${elem.plays} play(s)**`;
+    const data_list = trending.map((elem) => {
+      return `**${elem.name}** — **${elem.listeners}** listeners`;
     });
 
     response.paginate = true;

@@ -1,22 +1,20 @@
 import { Client, EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
-import BotMessage from "../handlers/BotMessage";
+import { CommandResponse } from "../handlers/CommandResponse";
 import CrownBot from "../handlers/CrownBot";
 import DB from "../handlers/DB";
-import User from "../handlers/LastFM_components/User";
-import time_difference from "../misc/time_difference";
-import { Template } from "../classes/Template";
 import Track from "../handlers/LastFM_components/Track";
-import Paginate from "../handlers/Paginate";
+import User from "../handlers/LastFM_components/User";
 import { LeaderboardInterface } from "../interfaces/LeaderboardInterface";
 import cb from "../misc/codeblock";
 import get_registered_users from "../misc/get_registered_users";
+import time_difference from "../misc/time_difference";
 import { LogInterface } from "../models/WhoKnowsLog";
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("whoknowstrack")
-    .setDescription("Lists users who listen to a certain track.")
+    .setDescription("List users who listen to a certain track")
     .addStringOption((option) =>
       option
         .setName("track_name")
@@ -33,16 +31,13 @@ module.exports = {
   async execute(
     bot: CrownBot,
     client: Client,
-    interaction: GuildChatInteraction
-  ) {
-    const response = new BotMessage({
-      bot,
-      interaction,
-    });
-
+    interaction: GuildChatInteraction,
+    response: CommandResponse
+  ): Promise<CommandResponse> {
+    response.allow_retry = true;
     const db = new DB(bot.models);
     const user = await db.fetch_user(interaction.guild.id, interaction.user.id);
-    if (!user) return;
+    if (!user) return response.fail();
     const lastfm_user = new User({
       username: user.username,
     });
@@ -51,8 +46,11 @@ module.exports = {
     let artist_name = interaction.options.getString("artist_name");
 
     if (!track_name) {
-      const now_playing = await lastfm_user.get_nowplaying(bot, interaction);
-      if (!now_playing) return;
+      const now_playing = await lastfm_user.new_get_nowplaying(
+        interaction,
+        response
+      );
+      if (now_playing instanceof CommandResponse) return now_playing;
       track_name = now_playing.name;
       artist_name = now_playing.artist["#text"];
     }
@@ -64,16 +62,14 @@ module.exports = {
       }).search();
 
       if (query.lastfm_errorcode || !query.success) {
-        response.error("lastfm_error", query.lastfm_errormessage);
-        return;
+        return response.error("lastfm_error", query.lastfm_errormessage);
       }
 
       const track = query.data.results.trackmatches.track.shift();
 
       if (!track) {
         response.text = `Couldn't find the track.`;
-        await response.send();
-        return;
+        return response;
       }
       track_name = track.name;
       artist_name = track.artist;
@@ -86,8 +82,7 @@ module.exports = {
     }).user_get_info();
 
     if (query.lastfm_errorcode || !query.success) {
-      response.error("lastfm_error", query.lastfm_errormessage);
-      return;
+      return response.error("lastfm_error", query.lastfm_errormessage);
     }
 
     const track = query.data.track;
@@ -97,8 +92,7 @@ module.exports = {
       response.text = `No user on this server has registered their Last.fm username; use the ${cb(
         "/login"
       )} command.`;
-      await response.send();
-      return;
+      return response;
     }
     if (users.length > bot.max_users) {
       users.length = bot.max_users;
@@ -132,9 +126,7 @@ module.exports = {
       !responses.length ||
       responses.some((response) => !response?.wrapper.data?.track?.playcount)
     ) {
-      response.text = new Template().get("lastfm_error");
-      await response.send();
-      return;
+      return response.error("lastfm_error");
     }
 
     responses = responses.filter((response) => response.wrapper.success);
@@ -163,8 +155,8 @@ module.exports = {
       response.text = `No one here has played ${cb(track.name)} by ${cb(
         track.artist.name
       )}.`;
-      await response.send();
-      return;
+
+      return response;
     }
 
     const last_log: LogInterface | null = await bot.models.whoplayslog.findOne({
@@ -224,13 +216,17 @@ module.exports = {
 
       return `${elem.discord_username} — **${elem.userplaycount} play(s)** ${diff_str}`;
     });
-    const paginate = new Paginate(interaction, embed, data_list);
-    await paginate.send();
+
     await db.log_whoplays(
       track.name,
       track.artist.name,
       leaderboard,
       interaction.guild.id
     );
+
+    response.paginate = true;
+    response.paginate_embed = embed;
+    response.paginate_data = data_list;
+    return response;
   },
 };

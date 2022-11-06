@@ -1,7 +1,7 @@
 import { Client, Colors, EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import moment from "moment";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
-import BotMessage from "../handlers/BotMessage";
+import { CommandResponse } from "../handlers/CommandResponse";
 import CrownBot from "../handlers/CrownBot";
 import DB from "../handlers/DB";
 import User from "../handlers/LastFM_components/User";
@@ -12,7 +12,7 @@ import truncate_str from "../misc/truncate";
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("recent")
-    .setDescription("Shows your recently played tracks")
+    .setDescription("See your recently played tracks")
     .addUserOption((option) =>
       option
         .setName("discord_user")
@@ -23,13 +23,10 @@ module.exports = {
   async execute(
     bot: CrownBot,
     client: Client,
-    interaction: GuildChatInteraction
-  ) {
-    const response = new BotMessage({
-      bot,
-      interaction,
-    });
-
+    interaction: GuildChatInteraction,
+    response: CommandResponse
+  ): Promise<CommandResponse> {
+    response.allow_retry = true;
     const db = new DB(bot.models);
     const discord_user =
       interaction.options.getUser("discord_user") || interaction.user;
@@ -37,15 +34,13 @@ module.exports = {
     const user = await db.fetch_user(interaction.guild.id, discord_user.id);
     if (!user) {
       response.text = "User is not logged in.";
-      await response.send();
-      return;
+      return response;
     }
 
     const lastfm_user = new User({ username: user.username, limit: 10 });
     const query = await lastfm_user.get_recenttracks();
     if (!query.success || query.lastfm_errorcode) {
-      response.error("lastfm_error", query.lastfm_errormessage);
-      return;
+      return response.error("lastfm_error", query.lastfm_errormessage);
     }
 
     const recent_tracks = query.data.recenttracks.track.map((track, i) => {
@@ -54,9 +49,8 @@ module.exports = {
     });
 
     if (!recent_tracks || !recent_tracks.length) {
-      response.text = `Couldn't find any scrobble on this account.`;
-      await response.send();
-      return;
+      response.text = `Couldn't find any scrobbles on this account.`;
+      return response;
     }
     const embed = new EmbedBuilder()
       .setTitle(`Recent tracks`)
@@ -83,6 +77,7 @@ module.exports = {
         )}`,
       });
     }
-    await interaction.editReply({ embeds: [embed] });
+    response.embeds = [embed];
+    return response;
   },
 };

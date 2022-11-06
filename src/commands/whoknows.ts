@@ -17,7 +17,7 @@ import { LogInterface } from "../models/WhoKnowsLog";
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("whoknows")
-    .setDescription("Lists users who listen to a certain artist.")
+    .setDescription("List users who listen to a certain artist")
     .addStringOption((option) =>
       option
         .setName("artist_name")
@@ -44,7 +44,10 @@ module.exports = {
       interaction.options.getString("artist_name") ||
       parse_spotify(interaction.member)?.artist_name;
     if (!artist_name) {
-      const now_playing = await lastfm_user.new_get_nowplaying(response);
+      const now_playing = await lastfm_user.new_get_nowplaying(
+        interaction,
+        response
+      );
       if (now_playing instanceof CommandResponse) return now_playing;
       artist_name = now_playing.artist["#text"];
     }
@@ -55,10 +58,7 @@ module.exports = {
     }).user_get_info();
 
     if (query.lastfm_errorcode || !query.success) {
-      response.error_code = "lastfm_error";
-      response.error_code = query.lastfm_errormessage;
-
-      return response;
+      return response.error("lastfm_error", query.lastfm_errormessage);
     }
 
     // set minimum plays required to get a crown
@@ -108,8 +108,7 @@ module.exports = {
         (response) => !response?.wrapper.data?.artist?.stats?.playcount // sanity check
       )
     ) {
-      response.error_code = "lastfm_error";
-      return response;
+      return response.error("lastfm_error");
     }
 
     responses = responses.filter((response) => response.wrapper.success);
@@ -240,7 +239,7 @@ module.exports = {
           (user) => user.id === last_crown.userID
         );
         if (last_user && last_user.user.id !== top_user.user_id) {
-          response.follow_up = `**${esm(
+          response.follow_up.text = `**${esm(
             top_user.discord_username
           )}** took the ${cb(artist.name)} crown from **${esm(
             last_user.user.username
@@ -252,8 +251,8 @@ module.exports = {
     await db.log_whoknows(artist.name, leaderboard, interaction.guild.id);
 
     response.paginate = true;
-    response.embed = embed;
-    response.data = data_list;
+    response.paginate_embed = embed;
+    response.paginate_data = data_list;
     return response;
   },
 };

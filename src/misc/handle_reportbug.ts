@@ -1,12 +1,12 @@
 import {
   Client,
+  EmbedBuilder,
   ModalSubmitInteraction,
   TextChannel,
-  EmbedBuilder,
 } from "discord.js";
 import CrownBot from "../handlers/CrownBot";
 
-export default async function handle_bugreport(
+export default async function handle_reportbug(
   bot: CrownBot,
   client: Client,
   interaction: ModalSubmitInteraction
@@ -20,7 +20,7 @@ export default async function handle_bugreport(
     message,
     timestamp: new Date().toUTCString(),
   };
-  await new bot.models.bugreport({ ...data }).save();
+  await new bot.models.reportbug({ ...data }).save();
 
   // check if exception_log_channel is set
   const config = await bot.models.botconfig.findOne();

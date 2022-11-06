@@ -1,20 +1,20 @@
-import { Client, SlashCommandBuilder } from "discord.js";
+import { Client, EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
-import BotMessage from "../handlers/BotMessage";
 import CrownBot from "../handlers/CrownBot";
 import DB from "../handlers/DB";
 import User from "../handlers/LastFM_components/User";
 import esm from "../misc/escapemarkdown";
 
-import moment from "moment";
 import Lyricist from "lyricist";
+import moment from "moment";
+import { CommandResponse } from "../handlers/CommandResponse";
 import Track from "../handlers/LastFM_components/Track";
 import { LyricsLogInterface } from "../models/LyricsLog";
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("lyrics")
-    .setDescription("Get lyrics of a track")
+    .setDescription("Get the lyrics for a track")
     .addStringOption((option) =>
       option
         .setName("track_name")
@@ -31,20 +31,17 @@ module.exports = {
   async execute(
     bot: CrownBot,
     client: Client,
-    interaction: GuildChatInteraction
-  ) {
+    interaction: GuildChatInteraction,
+    response: CommandResponse
+  ): Promise<CommandResponse> {
+    response.allow_retry = true;
     if (!bot.genius_api) {
       throw "You must set the `GENIUS_API` in the environment variable for this command to work.";
     }
 
-    const response = new BotMessage({
-      bot,
-      interaction,
-    });
-
     const db = new DB(bot.models);
     const user = await db.fetch_user(interaction.guild.id, interaction.user.id);
-    if (!user) return;
+    if (!user) return response.fail();
     const lastfm_user = new User({
       username: user.username,
     });
@@ -53,8 +50,12 @@ module.exports = {
     let artist_name = interaction.options.getString("artist_name");
 
     if (!track_name) {
-      const now_playing = await lastfm_user.get_nowplaying(bot, interaction);
-      if (!now_playing) return;
+      const now_playing = await lastfm_user.new_get_nowplaying(
+        interaction,
+        response
+      );
+      if (now_playing instanceof CommandResponse) return now_playing;
+
       track_name = now_playing.name;
       artist_name = now_playing.artist["#text"];
     }
@@ -66,16 +67,13 @@ module.exports = {
       }).search();
 
       if (query.lastfm_errorcode || !query.success) {
-        response.error("lastfm_error", query.lastfm_errormessage);
-        return;
+        return response.error("lastfm_error", query.lastfm_errormessage);
       }
 
       const track = query.data.results.trackmatches.track.shift();
 
       if (!track) {
-        response.text = `Couldn't find the track.`;
-        await response.send();
-        return;
+        return response.error("custom", "Couldn't find the track");
       }
       track_name = track.name;
       artist_name = track.artist;
@@ -87,8 +85,7 @@ module.exports = {
     }).get_info();
 
     if (query.lastfm_errorcode || !query.success) {
-      response.error("lastfm_error", query.lastfm_errormessage);
-      return;
+      return response.error("lastfm_error", query.lastfm_errormessage);
     }
     const track = query.data.track;
 
@@ -109,8 +106,14 @@ module.exports = {
       const lyrics_chunks = toChunks(lyrics);
 
       if (lyrics_chunks && lyrics_chunks.length) {
-        await response.send_embeds(lyrics_chunks);
-        return;
+        const embeds = [];
+
+        for (const chunk of lyrics_chunks) {
+          embeds.push(new EmbedBuilder().setDescription(chunk));
+        }
+
+        response.embeds = embeds;
+        return response;
       }
     }
 
@@ -121,34 +124,28 @@ module.exports = {
     )[0];
     if (!song) {
       response.text = "Couldn't find the song.";
-      await response.send();
-      return;
+      return response;
     }
 
     const song_info = await lyricist.song(song.id, { fetchLyrics: true });
     const original_lyrics = song_info.lyrics;
     if (!original_lyrics) {
       response.text = "Couldn't parse lyrics for the song.";
-      await response.send();
-      return;
+      return response;
     }
     const lyrics = `**${esm(song.title)}** by **${esm(
       song.primary_artist.name
     )}**\n\n${original_lyrics}`;
     if (lyrics.length > 6000) {
       response.text = "Couldn't find lyrics for the song.";
-      await response.send();
-      return;
+      return response;
     }
     const lyrics_chunks = toChunks(lyrics);
     if (!lyrics_chunks || !lyrics_chunks.length) {
       throw "toChunks() failed.";
     }
 
-    await response.send_embeds(lyrics_chunks);
-
     const timestamp = moment.utc().valueOf();
-
     await bot.models.lyricslog.findOneAndUpdate(
       {
         track_name: track.name,
@@ -165,5 +162,13 @@ module.exports = {
         useFindAndModify: false,
       }
     );
+
+    const embeds = [];
+    for (const chunk of lyrics_chunks) {
+      embeds.push(new EmbedBuilder().setDescription(chunk));
+    }
+
+    response.embeds = embeds;
+    return response;
   },
 };

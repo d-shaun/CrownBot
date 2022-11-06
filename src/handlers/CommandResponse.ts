@@ -1,5 +1,6 @@
 import {
   ActionRowBuilder,
+  AttachmentBuilder,
   ButtonBuilder,
   ButtonComponent,
   ButtonInteraction,
@@ -9,8 +10,9 @@ import {
   PermissionFlagsBits,
   TextChannel,
 } from "discord.js";
+import GLOBALS from "../../GLOBALS";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
-import { Template } from "../classes/Template";
+import { ERRORID, Template } from "../classes/Template";
 import esm from "../misc/escapemarkdown";
 import { preflight_checks } from "./Command";
 import CrownBot from "./CrownBot";
@@ -18,18 +20,29 @@ import Paginate from "./Paginate";
 
 export class CommandResponse {
   text?: string;
-  follow_up?: string;
   footer?: string;
   author?: string;
-  error_code?: string;
+  error_code?: ERRORID;
   error_message?: string;
 
-  data?: any[];
-  embed?: EmbedBuilder;
+  paginate_embed?: EmbedBuilder;
+  paginate_elements?: number;
+  paginate_data?: any[];
+  embeds?: EmbedBuilder[];
+  embed_components?: ActionRowBuilder<ButtonBuilder>[];
+  files?: AttachmentBuilder[];
 
   bot: CrownBot;
   client: Client;
   interaction: any;
+
+  // follow up to the initial reply
+  follow_up: {
+    text?: string;
+    embeds?: EmbedBuilder[];
+    embed_components?: ActionRowBuilder<ButtonBuilder>[];
+    files?: AttachmentBuilder[];
+  } = {};
 
   // options
   custom_obj = {};
@@ -55,6 +68,7 @@ export class CommandResponse {
     if (this.error_code) {
       if (this.error_code === "custom") {
         this.text = this.error_message;
+        this.allow_retry = false;
         await this.#reply_text();
         return;
       }
@@ -68,31 +82,41 @@ export class CommandResponse {
       return;
     }
 
-    if (this.paginate && this.embed && this.data) {
+    if (this.paginate && this.paginate_embed && this.paginate_data) {
       const paginate = new Paginate(
         this.interaction,
-        this.embed,
-        this.data,
-        undefined,
+        this.paginate_embed,
+        this.paginate_data,
+        this.paginate_elements,
         false
       );
       await paginate.send();
-      if (this.follow_up) {
-        this.text = this.follow_up;
-        this.force_followup = true;
-        await this.#reply_text();
-      }
       return;
     }
 
-    // otherwise, just a normal text reply
+    // otherwise, just a normal text reply (with potential components and files)
     await this.#reply_text();
+    if (this.follow_up.text || this.follow_up.embeds || this.follow_up.files) {
+      const { text, embeds, embed_components, files } = this.follow_up;
+
+      const follow_up_response = new CommandResponse(
+        this.bot,
+        this.client,
+        this.interaction
+      );
+      follow_up_response.text = text;
+      follow_up_response.embeds = embeds;
+      follow_up_response.embed_components = embed_components;
+      follow_up_response.files = files;
+      follow_up_response.force_followup = true;
+      await follow_up_response.reply();
+    }
   }
 
   // extra methods to make things ez-ier
 
   async #reply_text() {
-    if (!this.text) return;
+    if (!this.text && !this.embeds?.length && !this.files?.length) return;
     const has_embed_perms = await this.check_embed_perms();
     if (!has_embed_perms) {
       // oh noo anyway....
@@ -100,7 +124,6 @@ export class CommandResponse {
       // maybe dont fuck up with the default bot permissions in the first place like a normal person smh
       return;
     }
-    const embed = new EmbedBuilder();
     const components = [];
     const embeds: EmbedBuilder[] = [];
     const random_id =
@@ -136,19 +159,37 @@ export class CommandResponse {
       components.push(row);
     }
 
-    embed.setDescription(`\n${this.text}\n`);
-    if (this.footer) embed.setFooter({ text: this.footer });
+    if (this.text) {
+      const embed = new EmbedBuilder();
+      embed.setDescription(`\n${this.text}\n`);
+      if (this.footer) embed.setFooter({ text: this.footer });
+      embeds.push(embed);
+    }
 
-    embeds.push(embed);
+    if (this.embeds?.length) {
+      embeds.push(...this.embeds);
+    }
     if (!this.interaction.deferred) {
       // initial reply
-      return this.interaction.reply({ embeds, components });
+      return this.interaction.reply({
+        embeds,
+        components,
+        files: this.files || [],
+      });
     } else if (this.force_followup) {
       // force follow-up to initial reply
-      return this.interaction.followUp({ embeds, components });
+      return this.interaction.followUp({
+        embeds,
+        components,
+        files: this.files || [],
+      });
     } else {
       // edit initial reply
-      return this.interaction.editReply({ embeds, components });
+      return this.interaction.editReply({
+        embeds,
+        components,
+        files: this.files || [],
+      });
     }
   }
 
@@ -158,47 +199,47 @@ export class CommandResponse {
 
     const collector = this.interaction.channel.createMessageComponentCollector({
       filter,
-      time: 600000, // 10 minutes
+      time: GLOBALS.RETRY_BUTTON_TIMEOUT,
     });
 
     collector.on("collect", async (new_interaction: ButtonInteraction) => {
       if (new_interaction.customId === random_id) {
-        if (this.interaction.commandName === "whoknows") {
-          const command = this.bot.commands.find(
-            (e) => e.data.name == "whoknows"
+        const command = this.bot.commands.find((e) => {
+          return (
+            e.data.name == (<GuildChatInteraction>this.interaction).commandName
+          );
+        });
+
+        if (!command) return;
+
+        try {
+          const response = new CommandResponse(
+            this.bot,
+            this.client,
+            <any>this.interaction
           );
 
-          if (!command) return;
+          const embed = new EmbedBuilder().setDescription(
+            "Retrying the previously failed command..."
+          );
 
-          try {
-            const response = new CommandResponse(
-              this.bot,
-              this.client,
-              <any>this.interaction
-            );
-
-            const embed = new EmbedBuilder().setDescription(
-              "Retrying the previously failed command..."
-            );
-
-            await new_interaction.reply({ embeds: [embed] });
-            const command_response = await preflight_checks(
-              this.bot,
-              this.client,
-              <GuildChatInteraction>this.interaction,
-              command,
-              response
-            );
-            if (
-              typeof command_response == "object" &&
-              command_response instanceof CommandResponse
-            ) {
-              await command_response.reply();
-            }
-            await new_interaction.deleteReply();
-          } catch (e: any) {
-            console.error(e);
+          await new_interaction.reply({ embeds: [embed] });
+          const command_response = await preflight_checks(
+            this.bot,
+            this.client,
+            <GuildChatInteraction>this.interaction,
+            command,
+            response
+          );
+          if (
+            typeof command_response == "object" &&
+            command_response instanceof CommandResponse
+          ) {
+            await command_response.reply();
           }
+          await new_interaction.deleteReply();
+        } catch (e: any) {
+          console.error(e);
         }
       }
     });
@@ -252,8 +293,36 @@ export class CommandResponse {
     return embed_permission;
   }
 
+  error(error_code: ERRORID, error_message?: string) {
+    this.error_code = error_code;
+    this.error_message = error_message;
+    return this;
+  }
+
   fail() {
     this.has_failed = true;
+    return this;
+  }
+
+  reset() {
+    this.text = undefined;
+    this.follow_up = {};
+    this.footer = undefined;
+    this.author = undefined;
+    this.error_code = undefined;
+    this.error_message = undefined;
+    this.paginate_embed = undefined;
+    this.paginate_data = undefined;
+    this.embeds = undefined;
+    this.embed_components = undefined;
+    this.files = undefined;
+
+    this.custom_obj = {};
+    this.allow_retry = false;
+    this.force_followup = false;
+    this.has_failed = false;
+    this.send_as_embed = true;
+    this.paginate = false;
     return this;
   }
 }

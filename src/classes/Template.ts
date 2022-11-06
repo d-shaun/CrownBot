@@ -1,6 +1,16 @@
 import cb from "../misc/codeblock";
+export type ERRORID =
+  | "not_playing"
+  | "404_artist"
+  | "not_logged"
+  | "already_logged"
+  | "lastfm_error"
+  | "exception"
+  | "spotify_connect"
+  | "custom"; // theres definitely an easier way to dp this but ehh whatever
+
 export class Template {
-  templates: { id: string; text: string }[];
+  templates: { id: ERRORID; text: string }[];
   constructor() {
     this.templates = [
       {
@@ -30,17 +40,19 @@ export class Template {
       {
         id: "exception",
         text: `Something went wrong; please try again, and drop a note in the support server if this issue persists (see ${cb(
-          "/support"
-        )}).`,
+          "/about"
+        )} or ${cb("/reportbug")}).`,
+      },
+
+      {
+        id: "spotify_connect",
+        text: "Something went wrong while connecting to the Spotify API to fetch the cover images.",
       },
     ];
   }
 
-  get(id: string): string {
+  get(id: ERRORID) {
     const template = this.templates.find((t) => t.id === id);
-    if (!template) {
-      return "An unspecified error occured.";
-    }
-    return template.text;
+    return template?.text || "Unknown error code";
   }
 }
