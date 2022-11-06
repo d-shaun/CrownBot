@@ -9,8 +9,8 @@ import GuildChatInteraction from "./src/classes/GuildChatInteraction";
 import { handle_editlyrics } from "./src/commands/owner_commands/editlyrics";
 import CrownBot from "./src/handlers/CrownBot";
 import handle_autocomplete from "./src/misc/handle_autocomplete";
-import handle_bugreport from "./src/misc/handle_bugreport";
 import { CommandResponse } from "./src/handlers/CommandResponse";
+import handle_reportbug from "./src/misc/handle_reportbug";
 
 /*
 # REQUIRED
@@ -105,7 +105,7 @@ SPOTIFY_SECRETID: Spotify client ID for the &chart command to show artist images
 
       if (interaction.isModalSubmit()) {
         if (interaction.customId === "bugmodal")
-          await handle_bugreport(bot, client, interaction);
+          await handle_reportbug(bot, client, interaction);
         else if (interaction.customId === "lyricsmodal")
           await handle_editlyrics(bot, client, interaction);
         return;

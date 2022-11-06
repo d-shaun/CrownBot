@@ -1,10 +1,10 @@
+import { createCanvas, loadImage, registerFont } from "canvas";
 import { AttachmentBuilder, Client, SlashCommandBuilder } from "discord.js";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
-import BotMessage from "../handlers/BotMessage";
+import { CommandResponse } from "../handlers/CommandResponse";
 import CrownBot from "../handlers/CrownBot";
 import DB from "../handlers/DB";
 import User from "../handlers/LastFM_components/User";
-import { createCanvas, loadImage, registerFont } from "canvas";
 import { Spotify } from "../handlers/Spotify";
 import { UserTopAlbum } from "../interfaces/AlbumInterface";
 import { UserTopArtist } from "../interfaces/ArtistInterface";
@@ -91,16 +91,12 @@ module.exports = {
   async execute(
     bot: CrownBot,
     client: Client,
-    interaction: GuildChatInteraction
-  ) {
-    const response = new BotMessage({
-      bot,
-      interaction,
-    });
-
+    interaction: GuildChatInteraction,
+    response: CommandResponse
+  ): Promise<CommandResponse> {
     const db = new DB(bot.models);
     const user = await db.fetch_user(interaction.guild.id, interaction.user.id);
-    if (!user) return;
+    if (!user) return response.fail();
     const lastfm_user = new User({
       username: user.username,
     });
@@ -140,52 +136,54 @@ module.exports = {
 
     if (chart_type === "track" || chart_type === "artist") {
       try {
-        await spotify.attach_access_token();
-      } catch (e) {
+        await spotify.attach_access_token().catch(() => {
+          throw "Failed authenticating.";
+        });
+      } catch {
         response.text =
           "Something went wrong while authenticating the Spotify API; the API is required to show the artists' images.";
-        await response.send();
-        return;
+        return response;
       }
     }
 
     let data: Data[] | undefined;
 
-    if (chart_type === "album") {
-      const query = await lastfm_user.get_top_albums({
-        period: time_frame,
-      });
-      if (query.lastfm_errorcode || !query.success) {
-        await response.error("lastfm_error", query.lastfm_errormessage);
-        return;
-      }
-      const albums = query.data.topalbums.album;
-      data = this.format_albums(albums);
-    } else if (chart_type === "artist") {
-      const query = await lastfm_user.get_top_artists({
-        period: time_frame,
-      });
-      if (query.lastfm_errorcode || !query.success) {
-        await response.error("lastfm_error", query.lastfm_errormessage);
-        return;
-      }
-      const artists = query.data.topartists.artist;
-      const temp_data = this.format_artists(artists);
+    try {
+      if (chart_type === "album") {
+        const query = await lastfm_user.get_top_albums({
+          period: time_frame,
+        });
+        if (query.lastfm_errorcode || !query.success) {
+          return response.error("lastfm_error", query.lastfm_errormessage);
+        }
+        const albums = query.data.topalbums.album;
+        data = this.format_albums(albums);
+      } else if (chart_type === "artist") {
+        const query = await lastfm_user.get_top_artists({
+          period: time_frame,
+        });
+        if (query.lastfm_errorcode || !query.success) {
+          return response.error("lastfm_error", query.lastfm_errormessage);
+        }
+        const artists = query.data.topartists.artist;
+        const temp_data = this.format_artists(artists);
 
-      data = await spotify.attach_artist_images(temp_data);
-    } else if (chart_type === "track") {
-      const query = await lastfm_user.get_top_tracks({
-        period: time_frame,
-      });
-      if (query.lastfm_errorcode || !query.success) {
-        await response.error("lastfm_error", query.lastfm_errormessage);
-        return;
+        data = await spotify.attach_artist_images(temp_data);
+      } else if (chart_type === "track") {
+        const query = await lastfm_user.get_top_tracks({
+          period: time_frame,
+        });
+        if (query.lastfm_errorcode || !query.success) {
+          return response.error("lastfm_error", query.lastfm_errormessage);
+        }
+        const tracks = query.data.toptracks.track;
+        const temp_data = this.format_tracks(tracks);
+        data = await spotify.attach_track_images(<any>temp_data);
       }
-      const tracks = query.data.toptracks.track;
-      const temp_data = this.format_tracks(tracks);
-      data = await spotify.attach_track_images(<any>temp_data);
+    } catch {
+      return response.error("spotify_connect");
     }
-    if (!data) return;
+    if (!data) return response.fail();
 
     /* generate chart */
     const config = {
@@ -194,10 +192,10 @@ module.exports = {
       hide_titles,
     };
     const chart = await this.generate_chart(data, config);
-    await interaction.editReply({
-      content: `Here's your ${time_text} ${columns}x${rows} ${chart_type} chart.`,
-      files: [chart],
-    });
+
+    response.text = `Here's your ${time_text} ${columns}x${rows} ${chart_type} chart.`;
+    response.files = [chart];
+    return response;
   },
 
   async generate_chart(

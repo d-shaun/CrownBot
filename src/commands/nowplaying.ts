@@ -1,7 +1,7 @@
 import { Client, EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import moment from "moment";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
-import BotMessage from "../handlers/BotMessage";
+import { CommandResponse } from "../handlers/CommandResponse";
 import CrownBot from "../handlers/CrownBot";
 import DB from "../handlers/DB";
 import User from "../handlers/LastFM_components/User";
@@ -25,32 +25,30 @@ module.exports = {
   async execute(
     bot: CrownBot,
     client: Client,
-    interaction: GuildChatInteraction
-  ) {
-    const response = new BotMessage({
-      bot,
-      interaction,
-    });
-
+    interaction: GuildChatInteraction,
+    response: CommandResponse
+  ): Promise<CommandResponse> {
     const db = new DB(bot.models);
     const discord_user =
       interaction.options.getUser("discord_user") || interaction.user;
     const user = await db.fetch_user(interaction.guild.id, discord_user.id);
     if (!user) {
-      response.text = "User is not logged in.";
-      await response.send();
-      return;
+      return response.error("custom", "User is not logged in");
     }
     const lastfm_user = new User({ username: user.username });
 
     const embeds: EmbedBuilder[] = [];
-    let failed = false;
     // Last.fm now-playing
     await (async () => {
       const now_playing = await lastfm_user.get_nowplaying(bot, interaction, 2);
 
       if (!now_playing) {
-        failed = true;
+        const embed = new EmbedBuilder()
+          .setTitle("Last.fm")
+          .setDescription(
+            `Currently, it seems you aren't scrobbling anything on your Last.fm account. Try the /recent and /mylogin commands to see your scrobbling history.`
+          );
+        embeds.push(embed);
         return;
       }
       let status_text = "🎵 playing now on Last.Fm";
@@ -97,11 +95,9 @@ module.exports = {
       embeds.push(embed);
     })();
     if (embeds.length) {
-      if (failed) {
-        await interaction.followUp({ embeds: embeds });
-      } else {
-        await interaction.editReply({ embeds: embeds });
-      }
+      response.embeds = embeds;
+      return response;
     }
+    return response.fail();
   },
 };

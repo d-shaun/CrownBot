@@ -1,7 +1,7 @@
 import { Client, EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
+import { CommandResponse } from "../handlers/CommandResponse";
 import CrownBot from "../handlers/CrownBot";
-import Paginate from "../handlers/Paginate";
 import get_registered_users from "../misc/get_registered_users";
 import { CrownInterface } from "../models/Crowns";
 interface CrownStat {
@@ -19,10 +19,11 @@ module.exports = {
   async execute(
     bot: CrownBot,
     client: Client,
-    interaction: GuildChatInteraction
-  ) {
+    interaction: GuildChatInteraction,
+    response: CommandResponse
+  ): Promise<CommandResponse> {
     const server_users = (await get_registered_users(bot, interaction))?.users;
-    if (!server_users) return;
+    if (!server_users) return response.fail();
 
     const crowns: CrownInterface[] = await bot.models.crowns.find({
       guildID: interaction.guild.id,
@@ -57,18 +58,18 @@ module.exports = {
     const embed = new EmbedBuilder().setTitle(`Crown leaderboard`);
 
     if (!counts.length) {
-      embed.setDescription(
-        "Nobody has acquired any crown in this server; try using the `whoknows` command."
-      );
-      await interaction.channel.send({ embeds: [embed] });
-      return;
+      response.text =
+        "Nobody has acquired any crown in this server; try using the `whoknows` command.";
+      return response;
     }
 
     const data_list = counts.map((user) => {
       return `**${user.username}** — **${user.count}** crowns`;
     });
 
-    const paginate = new Paginate(interaction, embed, data_list);
-    await paginate.send();
+    response.paginate = true;
+    response.paginate_embed = embed;
+    response.paginate_data = data_list;
+    return response;
   },
 };

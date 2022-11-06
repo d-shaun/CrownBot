@@ -239,7 +239,7 @@ module.exports = {
           (user) => user.id === last_crown.userID
         );
         if (last_user && last_user.user.id !== top_user.user_id) {
-          response.follow_up = `**${esm(
+          response.follow_up.text = `**${esm(
             top_user.discord_username
           )}** took the ${cb(artist.name)} crown from **${esm(
             last_user.user.username
@@ -252,7 +252,7 @@ module.exports = {
 
     response.paginate = true;
     response.paginate_embed = embed;
-    response.data = data_list;
+    response.paginate_data = data_list;
     return response;
   },
 };

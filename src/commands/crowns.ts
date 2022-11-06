@@ -1,8 +1,7 @@
 import { Client, EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
-import BotMessage from "../handlers/BotMessage";
+import { CommandResponse } from "../handlers/CommandResponse";
 import CrownBot from "../handlers/CrownBot";
-import Paginate from "../handlers/Paginate";
 import esm from "../misc/escapemarkdown";
 import { CrownInterface } from "../models/Crowns";
 
@@ -20,13 +19,9 @@ module.exports = {
   async execute(
     bot: CrownBot,
     client: Client,
-    interaction: GuildChatInteraction
-  ) {
-    const response = new BotMessage({
-      bot,
-      interaction,
-    });
-
+    interaction: GuildChatInteraction,
+    response: CommandResponse
+  ): Promise<CommandResponse> {
     const discord_user =
       interaction.options.getUser("discord_user") || interaction.user;
 
@@ -41,8 +36,7 @@ module.exports = {
       response.text =
         "There are no crowns obtained under that username on this server.";
 
-      await response.send();
-      return;
+      return response;
     }
 
     const sorted_crowns = crowns.sort((a, b) => b.artistPlays - a.artistPlays);
@@ -56,7 +50,9 @@ module.exports = {
     const data_list = sorted_crowns.map((elem) => {
       return `${esm(elem.artistName)} — **${elem.artistPlays} play(s)**`;
     });
-    const paginate = new Paginate(interaction, embed, data_list);
-    await paginate.send();
+    response.paginate = true;
+    response.paginate_embed = embed;
+    response.paginate_data = data_list;
+    return response;
   },
 };

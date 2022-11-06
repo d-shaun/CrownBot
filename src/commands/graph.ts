@@ -1,12 +1,11 @@
+import { CanvasRenderService } from "chartjs-node-canvas";
 import { AttachmentBuilder, Client, SlashCommandBuilder } from "discord.js";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
-import BotMessage from "../handlers/BotMessage";
+import { CommandResponse } from "../handlers/CommandResponse";
 import CrownBot from "../handlers/CrownBot";
 import DB from "../handlers/DB";
-import User from "../handlers/LastFM_components/User";
-import { CanvasRenderService } from "chartjs-node-canvas";
-import { Template } from "../classes/Template";
 import Artist from "../handlers/LastFM_components/Artist";
+import User from "../handlers/LastFM_components/User";
 
 interface GraphStat {
   date: string;
@@ -54,16 +53,12 @@ module.exports = {
   async execute(
     bot: CrownBot,
     client: Client,
-    interaction: GuildChatInteraction
-  ) {
-    const response = new BotMessage({
-      bot,
-      interaction,
-    });
-
+    interaction: GuildChatInteraction,
+    response: CommandResponse
+  ): Promise<CommandResponse> {
     const db = new DB(bot.models);
     const user = await db.fetch_user(interaction.guild.id, interaction.user.id);
-    if (!user) return;
+    if (!user) return response.fail();
     const lastfm_user = new User({
       username: user.username,
     });
@@ -92,14 +87,18 @@ module.exports = {
 
     if (artist_name) {
       if (artist_name === "np") {
-        const now_playing = await lastfm_user.get_nowplaying(bot, interaction);
-        if (!now_playing) return;
+        const now_playing = await lastfm_user.new_get_nowplaying(
+          interaction,
+          response
+        );
+        if (now_playing instanceof CommandResponse) return now_playing;
+
         artist_name = now_playing.artist["#text"];
       } else {
         const query = await new Artist({ name: artist_name }).get_info();
         if (query.lastfm_errorcode || !query.success) {
           response.error("lastfm_error", query.lastfm_errormessage);
-          return;
+          return response.fail();
         }
         const artist = query.data.artist;
         artist_name = artist.name;
@@ -112,9 +111,7 @@ module.exports = {
       undefined
     );
     if (!stats) {
-      response.text = new Template().get("lastfm_error");
-      await response.send();
-      return;
+      return response.error("lastfm_error");
     }
 
     const graph_image_buffer = await this.generate_graph(
@@ -135,10 +132,10 @@ module.exports = {
     if (time_frame === "ALL") {
       reply_message = `Here's your all-time scrobble graph. ${artist_text}`;
     }
-    await interaction.editReply({
-      content: reply_message,
-      files: [attachment],
-    });
+
+    response.text = reply_message;
+    response.files = [attachment];
+    return response;
   },
 
   async generate_graph(

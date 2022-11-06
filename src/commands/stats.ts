@@ -1,8 +1,7 @@
 import { Client, Colors, EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import moment from "moment";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
-import { Template } from "../classes/Template";
-import BotMessage from "../handlers/BotMessage";
+import { CommandResponse } from "../handlers/CommandResponse";
 import CrownBot from "../handlers/CrownBot";
 import DB from "../handlers/DB";
 import User from "../handlers/LastFM_components/User";
@@ -21,13 +20,9 @@ module.exports = {
   async execute(
     bot: CrownBot,
     client: Client,
-    interaction: GuildChatInteraction
-  ) {
-    const response = new BotMessage({
-      bot,
-      interaction,
-    });
-
+    interaction: GuildChatInteraction,
+    response: CommandResponse
+  ): Promise<CommandResponse> {
     const db = new DB(bot.models);
     const discord_user =
       interaction.options.getUser("discord_user") || interaction.user;
@@ -35,8 +30,7 @@ module.exports = {
     const user = await db.fetch_user(interaction.guild.id, discord_user.id);
     if (!user) {
       response.text = "User is not logged in.";
-      await response.send();
-      return;
+      return response;
     }
 
     const lastfm_user = new User({
@@ -44,8 +38,7 @@ module.exports = {
     });
     const user_details = await lastfm_user.get_info();
     if (user_details.lastfm_errorcode || !user_details.success) {
-      await response.error("lastfm_error", user_details.lastfm_errormessage);
-      return;
+      return response.error("lastfm_error", user_details.lastfm_errormessage);
     }
 
     const user_registered_date = moment
@@ -71,9 +64,7 @@ module.exports = {
       responses = res;
     });
     if (!responses || responses.length !== 4) {
-      response.text = new Template().get("lastfm_error");
-      await response.send();
-      return;
+      return response.error("lastfm_error");
     }
     let weekly: GetStatsResponse | undefined,
       monthly: GetStatsResponse | undefined,
@@ -97,9 +88,7 @@ module.exports = {
     }
 
     if (!(weekly && monthly && yearly && all_time)) {
-      response.text = new Template().get("lastfm_error");
-      await response.send();
-      return;
+      return response.error("lastfm_error");
     }
     const stats = [
       { field_name: "Weekly", data: weekly },
@@ -121,7 +110,7 @@ module.exports = {
           `**${data.albums}** albums, **${data.tracks}** tracks · avg. ${data.average_per_day}/day`,
       });
     });
-
-    await interaction.editReply({ embeds: [embed] });
+    response.embeds = [embed];
+    return response;
   },
 };

@@ -226,7 +226,7 @@ module.exports = {
 
     response.paginate = true;
     response.paginate_embed = embed;
-    response.data = data_list;
+    response.paginate_data = data_list;
     return response;
   },
 };

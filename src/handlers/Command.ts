@@ -17,7 +17,7 @@ export async function preflight_checks(
   response: CommandResponse
 ) {
   try {
-    const exception_for_defer = ["bugreport", "managebot"];
+    const exception_for_defer = ["reportbug", "managebot"];
 
     if (
       !exception_for_defer.includes(interaction.commandName) &&

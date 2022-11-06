@@ -1,6 +1,5 @@
 import { Client, EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
-import BotMessage from "../handlers/BotMessage";
 import CrownBot from "../handlers/CrownBot";
 import DB from "../handlers/DB";
 import Artist from "../handlers/LastFM_components/Artist";
@@ -11,6 +10,7 @@ import time_difference from "../misc/time_difference";
 import moment from "moment";
 // @ts-ignore
 import abbreviate from "number-abbreviate";
+import { CommandResponse } from "../handlers/CommandResponse";
 import Track from "../handlers/LastFM_components/Track";
 import { UserTrack } from "../interfaces/TrackInterface";
 import { AlbumLogInterface } from "../models/AlbumLog";
@@ -36,16 +36,12 @@ module.exports = {
   async execute(
     bot: CrownBot,
     client: Client,
-    interaction: GuildChatInteraction
-  ) {
-    const response = new BotMessage({
-      bot,
-      interaction,
-    });
-
+    interaction: GuildChatInteraction,
+    response: CommandResponse
+  ): Promise<CommandResponse> {
     const db = new DB(bot.models);
     const user = await db.fetch_user(interaction.guild.id, interaction.user.id);
-    if (!user) return;
+    if (!user) return response.fail();
     const lastfm_user = new User({
       username: user.username,
     });
@@ -54,8 +50,11 @@ module.exports = {
     let artist_name = interaction.options.getString("artist_name");
 
     if (!track_name) {
-      const now_playing = await lastfm_user.get_nowplaying(bot, interaction);
-      if (!now_playing) return;
+      const now_playing = await lastfm_user.new_get_nowplaying(
+        interaction,
+        response
+      );
+      if (now_playing instanceof CommandResponse) return now_playing;
       track_name = now_playing.name;
       artist_name = now_playing.artist["#text"];
     }
@@ -67,16 +66,14 @@ module.exports = {
       }).search();
 
       if (query.lastfm_errorcode || !query.success) {
-        response.error("lastfm_error", query.lastfm_errormessage);
-        return;
+        return response.error("lastfm_error", query.lastfm_errormessage);
       }
 
       const track = query.data.results.trackmatches.track.shift();
 
       if (!track) {
         response.text = `Couldn't find the track.`;
-        await response.send();
-        return;
+        return response;
       }
       track_name = track.name;
       artist_name = track.artist;
@@ -98,13 +95,12 @@ module.exports = {
       track_query.lastfm_errorcode ||
       !(artist_query.success && track_query.success)
     ) {
-      await response.error("lastfm_error", artist_query.lastfm_errormessage);
-      return;
+      return response.error("lastfm_error", artist_query.lastfm_errormessage);
     }
     const artist = artist_query.data.artist;
     const track = track_query.data.track;
 
-    if (track.userplaycount === undefined) return;
+    if (track.userplaycount === undefined) return response.fail();
     let last_count = 0;
 
     const strs = {
@@ -174,7 +170,8 @@ module.exports = {
       );
 
     await this.update_log(bot, interaction, track);
-    await interaction.editReply({ embeds: [embed] });
+    response.embeds = [embed];
+    return response;
   },
 
   async update_log(

@@ -1,13 +1,13 @@
 import { Client, EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
-import BotMessage from "../handlers/BotMessage";
+import { CommandResponse } from "../handlers/CommandResponse";
 import CrownBot from "../handlers/CrownBot";
 import DB from "../handlers/DB";
 import User from "../handlers/LastFM_components/User";
-import esm from "../misc/escapemarkdown";
-import time_difference from "../misc/time_difference";
 import { UserTopArtist } from "../interfaces/ArtistInterface";
 import { Period } from "../interfaces/LastFMQueryInterface";
+import esm from "../misc/escapemarkdown";
+import time_difference from "../misc/time_difference";
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -69,16 +69,12 @@ module.exports = {
   async execute(
     bot: CrownBot,
     client: Client,
-    interaction: GuildChatInteraction
-  ) {
-    const response = new BotMessage({
-      bot,
-      interaction,
-    });
-
+    interaction: GuildChatInteraction,
+    response: CommandResponse
+  ): Promise<CommandResponse> {
     const db = new DB(bot.models);
     const user = await db.fetch_user(interaction.guild.id, interaction.user.id);
-    if (!user) return;
+    if (!user) return response.fail();
     const lastfm_user = new User({
       username: user.username,
     });
@@ -108,10 +104,10 @@ module.exports = {
     const length = interaction.options.getInteger("size") || 10;
 
     if (length > 30 || length < 0) {
-      await interaction.editReply(
+      return response.error(
+        "custom",
         "List size cannot be less than 0 or greater than 30."
       );
-      return;
     }
 
     lastfm_user.configs.limit = length;
@@ -121,8 +117,7 @@ module.exports = {
         period: time_frame,
       });
       if (query.lastfm_errorcode || !query.success) {
-        response.error("lastfm_error", query.lastfm_errormessage);
-        return;
+        return response.error("lastfm_error", query.lastfm_errormessage);
       }
       let top_artists = query.data.topartists.artist;
 
@@ -203,14 +198,14 @@ module.exports = {
           interaction.guild.id
         );
       }
-      await interaction.editReply({ embeds: [embed] });
+      response.embeds = [embed];
+      return response;
     } else if (list_type === "track") {
       const query = await lastfm_user.get_top_tracks({
         period: time_frame,
       });
       if (query.lastfm_errorcode || !query.success) {
-        response.error("lastfm_error", query.lastfm_errormessage);
-        return;
+        return response.error("lastfm_error", query.lastfm_errormessage);
       }
       const top_tracks = query.data.toptracks.track;
       const embed_list = top_tracks
@@ -226,14 +221,14 @@ module.exports = {
           `${interaction.user.username}'s ${time_text}-top ${list_type}s`
         )
         .setDescription(embed_list);
-      await interaction.editReply({ embeds: [embed] });
+      response.embeds = [embed];
+      return response;
     } else if (list_type === "album") {
       const query = await lastfm_user.get_top_albums({
         period: time_frame,
       });
       if (query.lastfm_errorcode || !query.success) {
-        response.error("lastfm_error", query.lastfm_errormessage);
-        return;
+        return response.error("lastfm_error", query.lastfm_errormessage);
       }
       const top_albums = query.data.topalbums.album;
 
@@ -250,7 +245,10 @@ module.exports = {
           `${interaction.user.username}'s ${time_text}-top ${list_type}s`
         )
         .setDescription(embed_list);
-      await interaction.editReply({ embeds: [embed] });
+      response.embeds = [embed];
+      return response;
+    } else {
+      return response.fail();
     }
   },
 };
