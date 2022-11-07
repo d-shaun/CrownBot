@@ -44,7 +44,7 @@ SPOTIFY_SECRETID: Spotify client ID for the &chart command to show artist images
     }
 
     const bot = await new CrownBot({
-      version: "11.0.0-beta",
+      version: "11.0.0",
       buttons_version: "001", // update this to invalidate existing buttons
       max_users: 250, // max user-support per server
 
