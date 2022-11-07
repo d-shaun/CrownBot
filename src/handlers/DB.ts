@@ -6,7 +6,6 @@ import { UserTopArtist } from "../interfaces/ArtistInterface";
 import { DBUser } from "../interfaces/DBUserInterface";
 import { LeaderboardInterface } from "../interfaces/LeaderboardInterface";
 import { ServerConfigInterface } from "../models/ServerConfig";
-import { SnapLogInterface } from "../models/SnapLog";
 
 export default class DB {
   #models: { [key: string]: Model<any> };
@@ -341,65 +340,5 @@ export default class DB {
       });
     }
     return server_config;
-  }
-
-  /// TEMPORARY HELPER FUNCTIONS FOR &eval command snap AND WHATEVER IT AFFECTS
-  // (https://discord.com/channels/657915913567469588/663355060058718228/879388787489276034)
-
-  async find_multiple_usernames(): Promise<SnapLogInterface[]> {
-    return await this.#models.crowns.aggregate([
-      {
-        $group: {
-          _id: { userID: "$userID", guildID: "$guildID" },
-          usernames: { $addToSet: "$lastfm_username" },
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-          userID: "$_id.userID",
-          guildID: "$_id.guildID",
-          username_count: {
-            $size: "$usernames",
-          },
-        },
-      },
-      {
-        $match: {
-          username_count: {
-            $gt: 1,
-          },
-        },
-      },
-    ]);
-  }
-
-  async check_snap(guildID: string, userID: string) {
-    const snap_log = await this.#models.snaplog.findOne({ userID, guildID });
-    return !!snap_log;
-  }
-
-  async snap(guildID: string, userID: string) {
-    return await this.#models.snaplog.findOneAndUpdate(
-      {
-        userID,
-        guildID,
-      },
-      {
-        userID,
-        guildID,
-      },
-      {
-        upsert: true,
-        useFindAndModify: false,
-      }
-    );
-  }
-
-  async unsnap(guildID: string, userID: string) {
-    return await this.#models.snaplog.deleteMany({
-      userID,
-      guildID,
-    });
   }
 }

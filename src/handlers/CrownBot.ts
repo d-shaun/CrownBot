@@ -51,7 +51,7 @@ export default class CrownBot {
    * - Finally, logs the bot in.
    */
 
-  async init_dev() {
+  async init() {
     await this.load_db();
     this.load_models();
     await this.register_commands();

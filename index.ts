@@ -58,7 +58,7 @@ SPOTIFY_SECRETID: Spotify client ID for the &chart command to show artist images
       genius_api: GENIUS_API,
 
       url: GLOBALS.LASTFM_ENDPOINT,
-    }).init_dev();
+    }).init();
 
     const client = new Client({
       intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildPresences],
