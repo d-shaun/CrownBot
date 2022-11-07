@@ -1,5 +1,6 @@
 import { pagination } from "@devraelfreeze/discordjs-pagination";
 import { EmbedBuilder } from "discord.js";
+import GLOBALS from "../../GLOBALS";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
 
 export default class Paginate {
@@ -13,7 +14,7 @@ export default class Paginate {
     interaction: GuildChatInteraction,
     embed: EmbedBuilder,
     list: string[],
-    elements = 15,
+    elements = GLOBALS.PAGINATE_ELEMENTS,
     numbering = true
   ) {
     this.interaction = interaction;
@@ -72,7 +73,7 @@ export default class Paginate {
         embeds: <any>embeds,
         author: this.interaction.user,
         interaction: this.interaction,
-        time: 300000,
+        time: GLOBALS.PAGINATE_TIMEOUT,
         disableButtons: true,
         fastSkip: false,
         pageTravel: false,

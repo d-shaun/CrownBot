@@ -84,10 +84,7 @@ export default class CrownBot {
       .readdirSync(dir)
       .filter((file) => file.endsWith(".js"));
 
-    // Place your client and guild ids here
     const clientId = this.client_id;
-    // const guildId = "1001517710917767188";
-
     for (const file of commandFiles) {
       const command = require(path.join(dir, file));
       this.commands.push(command);
@@ -101,18 +98,9 @@ export default class CrownBot {
           `Started refreshing ${commands.length} application (/) commands.`
         );
 
-        const data: any = await rest.put(Routes.applicationCommands(clientId), {
+        await rest.put(Routes.applicationCommands(clientId), {
           body: commands,
         });
-
-        // const data: any = await rest.put(
-        //   Routes.applicationGuildCommands(clientId, guildId),
-        //   { body: commands }
-        // );
-
-        console.log(
-          `Successfully reloaded ${data.length} application (/) commands.`
-        );
       } catch (error) {
         console.error(error);
       }

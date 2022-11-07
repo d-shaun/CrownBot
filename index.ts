@@ -4,12 +4,13 @@ import {
   GatewayIntentBits,
   Interaction,
 } from "discord.js";
-import { preflight_checks } from "./src/handlers/Command";
+import GLOBALS from "./GLOBALS";
 import GuildChatInteraction from "./src/classes/GuildChatInteraction";
 import { handle_editlyrics } from "./src/commands/owner_commands/editlyrics";
+import { preflight_checks } from "./src/handlers/Command";
+import { CommandResponse } from "./src/handlers/CommandResponse";
 import CrownBot from "./src/handlers/CrownBot";
 import handle_autocomplete from "./src/misc/handle_autocomplete";
-import { CommandResponse } from "./src/handlers/CommandResponse";
 import handle_reportbug from "./src/misc/handle_reportbug";
 
 /*
@@ -44,9 +45,9 @@ SPOTIFY_SECRETID: Spotify client ID for the &chart command to show artist images
     }
 
     const bot = await new CrownBot({
-      version: "11.0.0",
-      buttons_version: "001", // update this to invalidate existing buttons
-      max_users: 250, // max user-support per server
+      version: GLOBALS.VERSION,
+      buttons_version: GLOBALS.BUTTONS_VERSION,
+      max_users: GLOBALS.MAX_USERS,
 
       client_id: CLIENT_ID,
       token: TOKEN,
@@ -56,7 +57,7 @@ SPOTIFY_SECRETID: Spotify client ID for the &chart command to show artist images
       mongo: MONGO,
       genius_api: GENIUS_API,
 
-      url: "https://ws.audioscrobbler.com/2.0/?",
+      url: GLOBALS.LASTFM_ENDPOINT,
     }).init_dev();
 
     const client = new Client({

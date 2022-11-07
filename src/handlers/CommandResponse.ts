@@ -10,6 +10,7 @@ import {
   PermissionFlagsBits,
   TextChannel,
 } from "discord.js";
+import GLOBALS from "../../GLOBALS";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
 import { ERRORID, Template } from "../classes/Template";
 import esm from "../misc/escapemarkdown";
@@ -198,7 +199,7 @@ export class CommandResponse {
 
     const collector = this.interaction.channel.createMessageComponentCollector({
       filter,
-      time: 600000, // 10 minutes
+      time: GLOBALS.RETRY_BUTTON_TIMEOUT,
     });
 
     collector.on("collect", async (new_interaction: ButtonInteraction) => {
