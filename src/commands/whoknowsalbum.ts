@@ -13,7 +13,7 @@ import get_registered_users from "../misc/get_registered_users";
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("whoknowsalbum")
-    .setDescription("Lists users who listen to a certain album.")
+    .setDescription("List users who listen to a certain album")
     .addStringOption((option) =>
       option
         .setName("album_name")

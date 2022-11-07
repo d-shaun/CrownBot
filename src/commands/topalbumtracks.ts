@@ -11,7 +11,7 @@ import esm from "../misc/escapemarkdown";
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("topalbumtracks")
-    .setDescription("Displays user's top-played tracks in an album.")
+    .setDescription("List user's top-played tracks in an album")
     .addStringOption((option) =>
       option
         .setName("album_name")

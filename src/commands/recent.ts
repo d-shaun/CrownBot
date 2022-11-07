@@ -12,7 +12,7 @@ import truncate_str from "../misc/truncate";
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("recent")
-    .setDescription("Shows your recently played tracks")
+    .setDescription("See your recently played tracks")
     .addUserOption((option) =>
       option
         .setName("discord_user")

@@ -8,7 +8,7 @@ import esm from "../misc/escapemarkdown";
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("mylogin")
-    .setDescription("Displays your Last.fm username that is set on this bot"),
+    .setDescription("Display your Last.fm username that is set on this bot"),
 
   async execute(
     bot: CrownBot,

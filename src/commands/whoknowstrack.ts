@@ -14,7 +14,7 @@ import { LogInterface } from "../models/WhoKnowsLog";
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("whoknowstrack")
-    .setDescription("Lists users who listen to a certain track.")
+    .setDescription("List users who listen to a certain track")
     .addStringOption((option) =>
       option
         .setName("track_name")

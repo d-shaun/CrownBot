@@ -17,7 +17,9 @@ import truncate_str from "../misc/truncate";
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("playing")
-    .setDescription("See songs being played in the server"),
+    .setDescription(
+      "List tracks that are currently being played in the server"
+    ),
 
   async execute(
     bot: CrownBot,

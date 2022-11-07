@@ -18,7 +18,7 @@ import { AlbumLogInterface } from "../models/AlbumLog";
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("albumplays")
-    .setDescription("Displays user's play count of an album.")
+    .setDescription("Display user's playcount of an album")
     .addStringOption((option) =>
       option
         .setName("album_name")

@@ -8,7 +8,7 @@ import { CrownInterface } from "../models/Crowns";
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("crowns")
-    .setDescription("See your crowns on a server")
+    .setDescription("See the crowns you've obtained in a server")
     .addUserOption((option) =>
       option
         .setName("discord_user")

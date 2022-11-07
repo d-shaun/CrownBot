@@ -13,7 +13,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("list")
     .setDescription(
-      "Lists user's weekly, monthly, or yearly top artists or songs."
+      "List user's weekly, monthly, or yearly top artists or songs."
     )
     .addStringOption((option) =>
       option

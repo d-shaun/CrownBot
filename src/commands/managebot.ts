@@ -29,7 +29,7 @@ module.exports = {
     .addSubcommand((option) =>
       option
         .setName("editlyrics")
-        .setDescription("Edit lyrics of a song on the database")
+        .setDescription("Edit lyrics of a song on the database (owner only)")
         .addStringOption((option) =>
           option
             .setName("track_name")

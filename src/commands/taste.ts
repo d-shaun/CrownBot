@@ -10,7 +10,7 @@ import esm from "../misc/escapemarkdown";
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("taste")
-    .setDescription("Compares same artists' plays between two users")
+    .setDescription("Compare same artists' plays between two users")
     .addUserOption((option) =>
       option
         .setName("discord_user")

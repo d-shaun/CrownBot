@@ -9,7 +9,7 @@ import User from "../handlers/LastFM_components/User";
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("stats")
-    .setDescription("Shows your scrobbling stats")
+    .setDescription("See your scrobbling stats")
     .addUserOption((option) =>
       option
         .setName("discord_user")

@@ -10,7 +10,7 @@ import esm from "../misc/escapemarkdown";
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("trending")
-    .setDescription("Displays artist's recently trending tracks on Last.fm.")
+    .setDescription("List an artist's recently trending tracks on Last.fm")
     .addStringOption((option) =>
       option
         .setName("artist_name")

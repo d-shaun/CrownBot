@@ -17,7 +17,7 @@ import { UserArtist } from "../interfaces/ArtistInterface";
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("artistplays")
-    .setDescription("Displays user's play count of an artist.")
+    .setDescription("Display user's playcount of an artist.")
     .addStringOption((option) =>
       option
         .setName("artist_name")

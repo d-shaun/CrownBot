@@ -15,7 +15,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("about")
     .setDescription(
-      "Displays the bot's invite link, support server, maintainer, and more"
+      "Display the bot's invite link, support server, maintainer, and more"
     ),
 
   async execute(

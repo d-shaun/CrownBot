@@ -16,7 +16,7 @@ import esm from "../misc/escapemarkdown";
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("overview")
-    .setDescription("Displays user's scrobble overview for an artist.")
+    .setDescription("Display user's scrobble overview for an artist")
     .addStringOption((option) =>
       option
         .setName("artist_name")

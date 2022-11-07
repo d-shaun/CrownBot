@@ -10,7 +10,7 @@ import cb from "../misc/codeblock";
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("topalbums")
-    .setDescription("Displays user's top-played albums of an artist.")
+    .setDescription("List user's top-played albums of an artist")
     .addStringOption((option) =>
       option
         .setName("artist_name")

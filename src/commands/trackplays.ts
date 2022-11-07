@@ -19,7 +19,7 @@ import { TrackLogInterface } from "../models/TrackLog";
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("trackplays")
-    .setDescription("Displays user's play count of a track.")
+    .setDescription("See user's play count of a track")
     .addStringOption((option) =>
       option
         .setName("track_name")

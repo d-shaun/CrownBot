@@ -14,7 +14,7 @@ import { LyricsLogInterface } from "../models/LyricsLog";
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("lyrics")
-    .setDescription("Get lyrics of a track")
+    .setDescription("Get the lyrics for a track")
     .addStringOption((option) =>
       option
         .setName("track_name")

@@ -23,7 +23,7 @@ export interface Data {
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("chart")
-    .setDescription("Generates user's artist/album/track charts")
+    .setDescription("Generate user's artist/album/track charts")
     .addStringOption((option) =>
       option
         .setName("chart_type")

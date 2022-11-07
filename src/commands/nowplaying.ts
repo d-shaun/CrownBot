@@ -12,9 +12,7 @@ import time_difference from "../misc/time_difference";
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("nowplaying")
-    .setDescription(
-      "Shows your currently playing (or the last scrobbled) track"
-    )
+    .setDescription("See your currently playing (or the last scrobbled) track")
     .addUserOption((option) =>
       option
         .setName("discord_user")
