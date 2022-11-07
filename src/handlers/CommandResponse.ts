@@ -91,11 +91,10 @@ export class CommandResponse {
         false
       );
       await paginate.send();
-      return;
+    } else {
+      // otherwise, just a normal text reply (with potential components and files)
+      await this.#reply_text();
     }
-
-    // otherwise, just a normal text reply (with potential components and files)
-    await this.#reply_text();
     if (this.follow_up.text || this.follow_up.embeds || this.follow_up.files) {
       const { text, embeds, embed_components, files } = this.follow_up;
 
