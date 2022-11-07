@@ -141,12 +141,6 @@ SPOTIFY_SECRETID: Spotify client ID for the &chart command to show artist images
       }
     });
 
-    // TEMPORARY NOTICE OF THE BOT SWITCHING TO SLASH COMMANDS
-    // register events
-    // client.on("messageCreate", async (message: Message) => {
-    //   await send_temp_notice(message, bot);
-    // });
-
     await client.login(TOKEN);
     console.log(`Logged in as ${client.user?.tag}`);
   } catch (e) {
