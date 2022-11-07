@@ -56,6 +56,7 @@ module.exports = {
     interaction: GuildChatInteraction,
     response: CommandResponse
   ): Promise<CommandResponse> {
+    response.allow_retry = true;
     const db = new DB(bot.models);
     const user = await db.fetch_user(interaction.guild.id, interaction.user.id);
     if (!user) return response.fail();
@@ -97,8 +98,7 @@ module.exports = {
       } else {
         const query = await new Artist({ name: artist_name }).get_info();
         if (query.lastfm_errorcode || !query.success) {
-          response.error("lastfm_error", query.lastfm_errormessage);
-          return response.fail();
+          return response.error("lastfm_error", query.lastfm_errormessage);
         }
         const artist = query.data.artist;
         artist_name = artist.name;

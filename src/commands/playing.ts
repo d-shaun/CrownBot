@@ -25,6 +25,7 @@ module.exports = {
     interaction: GuildChatInteraction,
     response: CommandResponse
   ): Promise<CommandResponse> {
+    response.allow_retry = true;
     const users = (await get_registered_users(bot, interaction))?.users;
     if (!users || users.length <= 0) {
       response.text = `No user in this guild has registered their Last.fm username; use ${cb(

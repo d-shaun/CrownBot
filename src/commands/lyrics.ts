@@ -34,6 +34,7 @@ module.exports = {
     interaction: GuildChatInteraction,
     response: CommandResponse
   ): Promise<CommandResponse> {
+    response.allow_retry = true;
     if (!bot.genius_api) {
       throw "You must set the `GENIUS_API` in the environment variable for this command to work.";
     }

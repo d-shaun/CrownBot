@@ -67,6 +67,7 @@ export class CommandResponse {
     if (this.error_code) {
       if (this.error_code === "custom") {
         this.text = this.error_message;
+        this.allow_retry = false;
         await this.#reply_text();
         return;
       }

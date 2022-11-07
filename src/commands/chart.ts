@@ -140,9 +140,7 @@ module.exports = {
           throw "Failed authenticating.";
         });
       } catch {
-        response.text =
-          "Something went wrong while authenticating the Spotify API; the API is required to show the artists' images.";
-        return response;
+        return response.error("spotify_connect");
       }
     }
 

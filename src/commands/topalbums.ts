@@ -24,6 +24,7 @@ module.exports = {
     interaction: GuildChatInteraction,
     response: CommandResponse
   ): Promise<CommandResponse> {
+    response.allow_retry = true;
     const db = new DB(bot.models);
     const user = await db.fetch_user(interaction.guild.id, interaction.user.id);
     if (!user) return response.fail();
