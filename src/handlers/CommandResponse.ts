@@ -20,6 +20,7 @@ import Paginate from "./Paginate";
 
 export class CommandResponse {
   text?: string;
+  title?: string;
   footer?: string;
   author?: string;
   error_code?: ERRORID;
@@ -161,6 +162,7 @@ export class CommandResponse {
     if (this.text) {
       const embed = new EmbedBuilder();
       embed.setDescription(`\n${this.text}\n`);
+      if (this.title) embed.setTitle(this.title);
       if (this.footer) embed.setFooter({ text: this.footer });
       embeds.push(embed);
     }

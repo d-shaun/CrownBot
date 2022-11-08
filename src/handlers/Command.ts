@@ -29,6 +29,7 @@ export async function preflight_checks(
 
     if (bot.botconfig?.disabled === "on") {
       if (interaction.user.id !== bot.owner_ID) {
+        response.title = "Bot is currently disabled";
         if (bot.botconfig.disabled_message) {
           response.text = bot.botconfig.disabled_message;
         } else {
