@@ -204,6 +204,10 @@ export class CommandResponse {
     });
 
     collector.on("collect", async (new_interaction: ButtonInteraction) => {
+      await (<GuildChatInteraction>this.interaction).editReply({
+        components: [],
+      });
+
       if (new_interaction.customId === random_id) {
         const command = this.bot.commands.find((e) => {
           return (
