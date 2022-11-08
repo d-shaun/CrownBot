@@ -27,6 +27,18 @@ export async function preflight_checks(
 
     const db = new DB(bot.models);
 
+    if (bot.botconfig?.disabled === "on") {
+      if (interaction.user.id !== bot.owner_ID) {
+        if (bot.botconfig.disabled_message) {
+          response.text = bot.botconfig.disabled_message;
+        } else {
+          response.text =
+            "The bot is currently disabled. For support, please check the bot's profile.";
+        }
+        return response;
+      }
+    }
+
     if (bot.botconfig?.maintenance === "on") {
       if (interaction.user.id !== bot.owner_ID) {
         response.text =
