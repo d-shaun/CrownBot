@@ -7,22 +7,24 @@ export default async function handle_autocomplete(
   interaction: AutocompleteInteraction
 ) {
   if (!interaction.guildId) return;
-  const server_artists = await bot.cache.artists.get(interaction.guildId);
-  if (!server_artists) return;
-  const focused_value = interaction.options.getFocused();
-  const choices = server_artists.artists;
 
-  const filtered = choices.filter((choice) =>
-    choice.toLowerCase().startsWith(focused_value.toLowerCase())
-  );
-
-  if (filtered.length >= 24) filtered.length = 24;
-
-  try {
-    await interaction.respond(
-      filtered.map((choice) => ({ name: choice, value: choice }))
+  const focused = interaction.options.getFocused(true);
+  if (focused.name === "artist_name") {
+    const server_artists = await bot.cache.artists.get(interaction.guildId);
+    if (!server_artists) return;
+    const choices = server_artists.artists;
+    const filtered = choices.filter((choice) =>
+      choice.toLowerCase().startsWith(focused.value.toLowerCase())
     );
-  } catch (e) {
-    // too bad!!
+
+    if (filtered.length >= 24) filtered.length = 24;
+
+    try {
+      await interaction.respond(
+        filtered.map((choice) => ({ name: choice, value: choice }))
+      );
+    } catch {
+      // too bad!!
+    }
   }
 }

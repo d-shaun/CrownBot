@@ -16,6 +16,7 @@ module.exports = {
         .setName("artist_name")
         .setDescription("The artist's name")
         .setRequired(false)
+        .setAutocomplete(true)
     ),
 
   async execute(

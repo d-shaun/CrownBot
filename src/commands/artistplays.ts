@@ -23,6 +23,7 @@ module.exports = {
         .setName("artist_name")
         .setDescription("Artist name (defaults to now-playing)")
         .setRequired(false)
+        .setAutocomplete(true)
     ),
 
   async execute(
