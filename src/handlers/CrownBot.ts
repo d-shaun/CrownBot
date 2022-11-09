@@ -5,6 +5,7 @@ import path from "path";
 import { BotConfigInterface } from "../models/BotConfig";
 import { ServerConfigInterface } from "../models/ServerConfig";
 import CacheHandler from "./Cache";
+import Logger from "./Logger";
 
 export default class CrownBot {
   version: string;
@@ -12,6 +13,8 @@ export default class CrownBot {
   max_users: number;
 
   cache = new CacheHandler(this);
+  logger = new Logger(this);
+
   client_id: string;
   #token: string;
   owner_ID: string;

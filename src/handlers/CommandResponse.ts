@@ -70,15 +70,15 @@ export class CommandResponse {
         this.text = this.error_message;
         this.allow_retry = false;
         await this.#reply_text();
-        return;
+      } else {
+        const template = new Template().get(this.error_code);
+        this.text = template;
+        if (this.error_message) {
+          this.text += "\n\n>>> " + esm(this.error_message);
+        }
+        await this.#reply_text();
       }
-
-      const template = new Template().get(this.error_code);
-      this.text = template;
-      if (this.error_message) {
-        this.text += "\n\n>>> " + esm(this.error_message);
-      }
-      await this.#reply_text();
+      await this.bot.logger.log_error(this);
       return;
     }
 
