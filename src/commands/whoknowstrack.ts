@@ -228,6 +228,7 @@ module.exports = {
     response.paginate = true;
     response.paginate_embed = embed;
     response.paginate_data = data_list;
+    response.paginate_numbering = true;
     return response;
   },
 };
