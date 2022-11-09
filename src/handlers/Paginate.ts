@@ -15,7 +15,7 @@ export default class Paginate {
     embed: EmbedBuilder,
     list: string[],
     elements = GLOBALS.PAGINATE_ELEMENTS,
-    numbering = true
+    numbering = false
   ) {
     this.interaction = interaction;
     this.embed = embed;
