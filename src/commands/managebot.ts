@@ -15,7 +15,6 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("managebot")
     .setDescription("Commands to manage the bot (only for bot owner)")
-    .setDefaultMemberPermissions(0)
     .addSubcommand((option) =>
       option
         .setName("eval")
