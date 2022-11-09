@@ -6,7 +6,7 @@ import {
 } from "discord.js";
 import CrownBot from "../handlers/CrownBot";
 
-export default async function handle_reportbug(
+export async function handle_reportbug(
   bot: CrownBot,
   client: Client,
   interaction: ModalSubmitInteraction
@@ -56,4 +56,34 @@ export default async function handle_reportbug(
   await channel.send({ embeds: [embed] });
 
   await interaction.reply("Bug report has been submitted. Thank you!");
+}
+
+export async function handle_editconfig(
+  bot: CrownBot,
+  client: Client,
+  interaction: ModalSubmitInteraction
+) {
+  const exception_log_channel = interaction.fields.getTextInputValue(
+    "exception_log_channel"
+  );
+  const maintenance = interaction.fields.getTextInputValue("maintenance");
+  const disabled = interaction.fields.getTextInputValue("disabled");
+  const disabled_message =
+    interaction.fields.getTextInputValue("disabled_message");
+
+  let extra = "Currently cached configs have been updated.";
+  await bot.models.botconfig.findOneAndUpdate(
+    {},
+    { exception_log_channel, maintenance, disabled, disabled_message },
+    { useFindAndModify: false }
+  );
+  if (bot.botconfig) {
+    bot.botconfig.exception_log_channel = exception_log_channel;
+    bot.botconfig.maintenance = maintenance;
+    bot.botconfig.disabled = disabled;
+    bot.botconfig.disabled_message = disabled_message;
+  } else extra = "Failed to update the currently cached configs.";
+
+  await interaction.reply("BotConfig has been updated. " + extra);
+  return;
 }
