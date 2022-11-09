@@ -11,8 +11,7 @@ import { preflight_checks } from "./src/handlers/Command";
 import { CommandResponse } from "./src/handlers/CommandResponse";
 import CrownBot from "./src/handlers/CrownBot";
 import handle_autocomplete from "./src/misc/handle_autocomplete";
-import handle_reportbug from "./src/misc/handle_reportbug";
-
+import { handle_editconfig, handle_reportbug } from "./src/misc/handle_model";
 /*
 # REQUIRED
 ======================================================================================================
@@ -109,6 +108,8 @@ SPOTIFY_SECRETID: Spotify client ID for the &chart command to show artist images
           await handle_reportbug(bot, client, interaction);
         else if (interaction.customId === "lyricsmodal")
           await handle_editlyrics(bot, client, interaction);
+        else if (interaction.customId === "configmodal")
+          await handle_editconfig(bot, client, interaction);
         return;
       }
       if (!interaction.isChatInputCommand()) return;

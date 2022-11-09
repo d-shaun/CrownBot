@@ -129,26 +129,4 @@ export default class CrownBot {
     this.botconfig = await this.models.botconfig.findOne().lean();
     return this;
   }
-
-  /**
-   *
-   * @param name Updates bot config
-   * @param value
-   * @returns
-   */
-  async update_conf(
-    name: "maintenance" | "disabled" | "disabled_message",
-    value: string
-  ) {
-    if (!this.botconfig) return;
-    this.botconfig[name] = value;
-
-    await this.models.botconfig.findOneAndUpdate(
-      {},
-      { [name]: value },
-      { useFindAndModify: false }
-    );
-
-    return { ...(await this.models.botconfig.findOne()) };
-  }
 }

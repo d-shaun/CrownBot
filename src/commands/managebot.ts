@@ -1,4 +1,11 @@
-import { Client, SlashCommandBuilder } from "discord.js";
+import {
+  ActionRowBuilder,
+  Client,
+  ModalBuilder,
+  SlashCommandBuilder,
+  TextInputBuilder,
+  TextInputStyle,
+} from "discord.js";
 import { inspect } from "util";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
 import CrownBot from "../handlers/CrownBot";
@@ -48,6 +55,11 @@ module.exports = {
             .setDescription("Hide bot's reply")
             .setRequired(false)
         )
+    )
+    .addSubcommand((option) =>
+      option
+        .setName("config")
+        .setDescription("Manage bot's config (owner only)")
     ),
 
   async execute(
@@ -61,9 +73,64 @@ module.exports = {
     if (interaction.user.id !== bot.owner_ID) {
       await interaction.reply({
         content:
-          "The /managebot command and its sub-commands can only be used by the bot owner. zzz.",
+          "The /managebot command and its sub-commands can only be used by the bot owner.",
         ephemeral: true,
       });
+      return;
+    }
+
+    /**
+     * Config command
+     */
+    if (interaction.options.getSubcommand() === "config") {
+      const modal = new ModalBuilder()
+        .setCustomId("configmodal")
+        .setTitle("Bot config");
+
+      const exception_log_channel = new TextInputBuilder()
+        .setCustomId("exception_log_channel")
+        .setLabel("Exception log channel")
+        .setRequired(true)
+        .setStyle(TextInputStyle.Short)
+        .setValue(bot.botconfig?.exception_log_channel || "failed to fetch");
+
+      const maintenance = new TextInputBuilder()
+        .setCustomId("maintenance")
+        .setLabel("Under maintenance (on/off)")
+        .setRequired(true)
+        .setStyle(TextInputStyle.Short)
+        .setValue(bot.botconfig?.maintenance || "failed to fetch");
+
+      const disabled = new TextInputBuilder()
+        .setCustomId("disabled")
+        .setLabel("Disabled (on/off)")
+        .setRequired(true)
+        .setStyle(TextInputStyle.Short)
+        .setValue(bot.botconfig?.disabled || "failed to fetch");
+
+      const disabled_message = new TextInputBuilder()
+        .setCustomId("disabled_message")
+        .setLabel("Disabled message (if disabled is on)")
+        .setStyle(TextInputStyle.Paragraph)
+        .setRequired(false)
+        .setValue(bot.botconfig?.disabled_message || "");
+
+      const first = new ActionRowBuilder<TextInputBuilder>().addComponents(
+        exception_log_channel
+      );
+      const second = new ActionRowBuilder<TextInputBuilder>().addComponents(
+        maintenance
+      );
+      const third = new ActionRowBuilder<TextInputBuilder>().addComponents(
+        disabled
+      );
+      const fourth = new ActionRowBuilder<TextInputBuilder>().addComponents(
+        disabled_message
+      );
+
+      modal.addComponents(first, second, third, fourth);
+
+      await interaction.showModal(modal);
       return;
     }
 
