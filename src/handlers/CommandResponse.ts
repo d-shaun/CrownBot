@@ -126,7 +126,7 @@ export class CommandResponse {
       // maybe dont fuck up with the default bot permissions in the first place like a normal person smh
       return;
     }
-    const components = [];
+    const components = [...(this.embed_components || [])];
     const embeds: EmbedBuilder[] = [];
     const random_id =
       "ret" +
