@@ -29,6 +29,8 @@ export class CommandResponse {
   paginate_embed?: EmbedBuilder;
   paginate_elements?: number;
   paginate_data?: any[];
+  paginate_numbering?: boolean;
+
   embeds?: EmbedBuilder[];
   embed_components?: ActionRowBuilder<ButtonBuilder>[];
   files?: AttachmentBuilder[];
@@ -89,7 +91,7 @@ export class CommandResponse {
         this.paginate_embed,
         this.paginate_data,
         this.paginate_elements,
-        false
+        this.paginate_numbering
       );
       await paginate.send();
     } else {
