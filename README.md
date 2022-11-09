@@ -15,33 +15,3 @@ A Discord bot that uses the Last.fm API to track scrobbles and rank users.
 ### Support server
 
 <https://discord.gg/4vU6kGhejv>
-
-## Self-hosting instructions
-
-### Requirements
-
-- A Discord API token: see <https://discord.com/developers/docs/topics/oauth2#shared-resources>.
-
-- Your (bot owner's) Discord ID: you need to specify this for the "owner only" commands to work. ([Learn how to get it](https://support.discord.com/hc/en-us/articles/206346498))
-
-- A Last.fm API key: you'll need to create an ["API account"](https://www.last.fm/api/) on Last.fm.
-
-- A MongoDB connection string; this is how:
-  - On the "Cluster" section, click the "CONNECT" button and then "Connect your application."
-  - Copy the string and replace `<password>` with password and `<dbname>` with the database name.
-    (See the [reference page](https://docs.mongodb.com/manual/reference/connection-string/) from MongoDB.)
-
-### Initial setup
-
-- Download the source code of the version you want to use from [releases](https://github.com/d-shaun/CrownBot/releases) and extract that.
-- Open up a terminal in the extracted folder and run either `npm install` or `yarn install` to install the required packages.
-- Add the following environment variables:
-
-  - `TOKEN`: Discord API token
-  - `OWNER_ID`: User ID of the bot owner
-  - `API_KEY`: Last.fm API key
-  - `MONGO`: Mongo DB connection string
-
-    If you don't know how to do that, see: <https://medium.com/the-node-js-collection/2da8cdf6e786>.
-
-- Run `npm run build && npm run start` in the console to build the project with TypeScript and start running the bot.
