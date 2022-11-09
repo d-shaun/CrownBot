@@ -14,7 +14,7 @@ export default class Logger {
       command_name: response.interaction.commandName,
       user_ID: response.interaction.user.id,
       guild_ID: response.interaction.guild.id,
-      timestamp: `${new Date().toUTCString()}`,
+      timestamp: new Date(),
     };
     return await new this.bot.models.logs({ ...data }).save();
   }
