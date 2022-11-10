@@ -38,8 +38,8 @@ export default class extends LastFM {
     return true;
   }
 
-  async get_info() {
-    return this.query<Album>({
+  async get_info<T = Album>() {
+    return this.query<T>({
       method: this.prefix + "getInfo",
       album: this.name,
       artist: this.artist_name,
@@ -50,7 +50,7 @@ export default class extends LastFM {
 
   // with username
   async user_get_info() {
-    return <LastFMResponse<UserAlbum>>await this.get_info();
+    return await this.get_info<UserAlbum>();
   }
 
   async search() {

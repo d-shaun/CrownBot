@@ -7,7 +7,7 @@ export type ERRORID =
   | "lastfm_error"
   | "exception"
   | "spotify_connect"
-  | "custom"; // theres definitely an easier way to dp this but ehh whatever
+  | "custom"; // theres definitely an easier way to do this but ehh whatever
 
 export class Template {
   templates: { id: ERRORID; text: string }[];

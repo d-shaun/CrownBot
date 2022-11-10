@@ -17,42 +17,116 @@ import esm from "../misc/escapemarkdown";
 import { preflight_checks } from "./Command";
 import CrownBot from "./CrownBot";
 import Paginate from "./Paginate";
-
+/**
+ * Class that handles most of the commands' responses.
+ */
 export class CommandResponse {
+  /**
+   * Plain text to send
+   */
   text?: string;
+
+  /**
+   * Title to set to the embed
+   */
   title?: string;
+
+  /**
+   * Footer to set to the embed
+   */
   footer?: string;
+
+  /**
+   * Author to set to the embed
+   */
   author?: string;
+
+  /**
+   * Error code available in Template (priotized over everything else)
+   */
   error_code?: ERRORID;
+
+  /**
+   *  Optional error message
+   */
   error_message?: string;
 
+  /**
+   * Embed for paginator to use as base (for title, description, color...)
+   */
   paginate_embed?: EmbedBuilder;
+
+  /**
+   * Number of elements to show per pagination
+   */
   paginate_elements?: number;
-  paginate_data?: any[];
+
+  /**
+   * Array of string elements to paginate
+   */
+  paginate_data?: string[];
+
+  /**
+   * Enable numbering on paginations (default: false)
+   */
   paginate_numbering?: boolean;
 
+  /**
+   * Array of embeds to send
+   */
   embeds?: EmbedBuilder[];
+
+  /**
+   * Array of embed components to attach to `embeds`
+   */
   embed_components?: ActionRowBuilder<ButtonBuilder>[];
+
+  /**
+   * Array of files to send along with `embeds`
+   */
   files?: AttachmentBuilder[];
 
   bot: CrownBot;
   client: Client;
   interaction: any;
 
-  // follow up to the initial reply
+  /**
+   * If values are set, it is sent as a follow up to the original message after execution.
+   */
   follow_up: {
     text?: string;
     embeds?: EmbedBuilder[];
     embed_components?: ActionRowBuilder<ButtonBuilder>[];
     files?: AttachmentBuilder[];
-  } = {};
+    send_as_embed: boolean;
+  } = { send_as_embed: true };
 
   // options
   custom_obj = {};
+
+  /**
+   * Allow this CommandResponse to be retried
+   */
   allow_retry = false;
+
+  /**
+   * Send this message as a follow up
+   */
   force_followup = false;
+
+  /**
+   * Indicates whether the command has fatally failed; if true, this message response is discarded and never sent
+   */
   has_failed = false;
+
+  /**
+   * Send the plain-text `text` inside an embed (default: `true`)
+   */
   send_as_embed = true;
+
+  /**
+   * Indicates whether this response is to be routed through Paginate and not sent as a "normal" message
+   */
   paginate = false;
 
   constructor(
@@ -99,7 +173,8 @@ export class CommandResponse {
       await this.#reply_text();
     }
     if (this.follow_up.text || this.follow_up.embeds || this.follow_up.files) {
-      const { text, embeds, embed_components, files } = this.follow_up;
+      const { text, embeds, embed_components, files, send_as_embed } =
+        this.follow_up;
 
       const follow_up_response = new CommandResponse(
         this.bot,
@@ -110,6 +185,7 @@ export class CommandResponse {
       follow_up_response.embeds = embeds;
       follow_up_response.embed_components = embed_components;
       follow_up_response.files = files;
+      follow_up_response.send_as_embed = send_as_embed;
       follow_up_response.force_followup = true;
       await follow_up_response.reply();
     }
@@ -128,6 +204,7 @@ export class CommandResponse {
     }
     const components = [...(this.embed_components || [])];
     const embeds: EmbedBuilder[] = [];
+    let plaintext = "";
     const random_id =
       "ret" +
       (Math.random().toString(36) + "00000000000000000").slice(2, 7 + 2);
@@ -150,7 +227,7 @@ export class CommandResponse {
             .setStyle(ButtonStyle.Primary)
             .setCustomId(random_id)
         );
-        this.hook_button_event(random_id);
+        this.#hook_button_event(random_id);
       }
     }
 
@@ -162,11 +239,15 @@ export class CommandResponse {
     }
 
     if (this.text) {
-      const embed = new EmbedBuilder();
-      embed.setDescription(`\n${this.text}\n`);
-      if (this.title) embed.setTitle(this.title);
-      if (this.footer) embed.setFooter({ text: this.footer });
-      embeds.push(embed);
+      if (this.send_as_embed) {
+        const embed = new EmbedBuilder();
+        embed.setDescription(`\n${this.text}\n`);
+        if (this.title) embed.setTitle(this.title);
+        if (this.footer) embed.setFooter({ text: this.footer });
+        embeds.push(embed);
+      } else {
+        plaintext = this.text;
+      }
     }
 
     if (this.embeds?.length) {
@@ -175,6 +256,7 @@ export class CommandResponse {
     if (!this.interaction.deferred) {
       // initial reply
       return this.interaction.reply({
+        content: plaintext,
         embeds,
         components,
         files: this.files || [],
@@ -182,6 +264,7 @@ export class CommandResponse {
     } else if (this.force_followup) {
       // force follow-up to initial reply
       return this.interaction.followUp({
+        content: plaintext,
         embeds,
         components,
         files: this.files || [],
@@ -189,6 +272,7 @@ export class CommandResponse {
     } else {
       // edit initial reply
       return this.interaction.editReply({
+        content: plaintext,
         embeds,
         components,
         files: this.files || [],
@@ -196,7 +280,7 @@ export class CommandResponse {
     }
   }
 
-  async hook_button_event(random_id: string) {
+  async #hook_button_event(random_id: string) {
     const filter = (i: ButtonInteraction) =>
       i.user.id === this.interaction.user.id && i.customId === random_id;
 
@@ -300,36 +384,22 @@ export class CommandResponse {
     return embed_permission;
   }
 
+  /**
+   * Set error code and error message to this response
+   * @param error_code
+   * @param error_message
+   */
   error(error_code: ERRORID, error_message?: string) {
     this.error_code = error_code;
     this.error_message = error_message;
     return this;
   }
 
+  /**
+   * Set this response as failed and prevent any message (even `error`s) from being sent
+   */
   fail() {
     this.has_failed = true;
-    return this;
-  }
-
-  reset() {
-    this.text = undefined;
-    this.follow_up = {};
-    this.footer = undefined;
-    this.author = undefined;
-    this.error_code = undefined;
-    this.error_message = undefined;
-    this.paginate_embed = undefined;
-    this.paginate_data = undefined;
-    this.embeds = undefined;
-    this.embed_components = undefined;
-    this.files = undefined;
-
-    this.custom_obj = {};
-    this.allow_retry = false;
-    this.force_followup = false;
-    this.has_failed = false;
-    this.send_as_embed = true;
-    this.paginate = false;
     return this;
   }
 }

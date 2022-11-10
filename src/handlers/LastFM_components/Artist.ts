@@ -29,8 +29,8 @@ export default class extends LastFM {
     return true;
   }
 
-  async get_info() {
-    return this.query<Artist>({
+  async get_info<T = Artist>() {
+    return this.query<T>({
       method: this.prefix + "getInfo",
       artist: this.name,
       user: this.username,
@@ -40,7 +40,7 @@ export default class extends LastFM {
 
   // with username
   async user_get_info() {
-    return <LastFMResponse<UserArtist>>await this.get_info();
+    return await this.get_info<UserArtist>();
   }
 
   // SCRAPING SECTION
