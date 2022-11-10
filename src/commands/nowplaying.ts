@@ -93,7 +93,6 @@ module.exports = {
         .setFooter({
           text: "🎵 playing now on Spotify ",
         });
-      embeds.push(embed);
 
       try {
         const spotify = new Spotify();
@@ -103,10 +102,12 @@ module.exports = {
         );
         if (track) {
           spotify_url = track.external_urls.spotify;
+          embed.setThumbnail(track.album.images[0].url);
         }
       } catch {
         spotify_url = undefined;
       }
+      embeds.push(embed);
     })();
 
     if (embeds.length) {
