@@ -7,6 +7,6 @@ export default (mongoose: Mongoose) => {
     command_name: String,
     user_ID: String,
     guild_ID: String,
-    timestamp: String,
+    timestamp: Date,
   });
 };
