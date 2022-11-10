@@ -5,6 +5,7 @@ import { CommandResponse } from "../handlers/CommandResponse";
 import CrownBot from "../handlers/CrownBot";
 import DB from "../handlers/DB";
 import User from "../handlers/LastFM_components/User";
+import { Spotify } from "../handlers/Spotify";
 import esm from "../misc/escapemarkdown";
 import parse_spotify from "../misc/parse_spotify_presence";
 import time_difference from "../misc/time_difference";
@@ -36,6 +37,7 @@ module.exports = {
     }
     const lastfm_user = new User({ username: user.username });
 
+    let spotify_url;
     const embeds: EmbedBuilder[] = [];
     // Last.fm now-playing
     await (async () => {
@@ -92,8 +94,26 @@ module.exports = {
           text: "🎵 playing now on Spotify ",
         });
       embeds.push(embed);
+
+      try {
+        const spotify = new Spotify();
+        await spotify.attach_access_token();
+        const track = await spotify.search_track(
+          track_name + " " + artist_name
+        );
+        if (track) {
+          spotify_url = track.external_urls.spotify;
+        }
+      } catch {
+        spotify_url = undefined;
+      }
     })();
+
     if (embeds.length) {
+      if (spotify_url) {
+        response.follow_up.text = spotify_url;
+        response.follow_up.send_as_embed = false;
+      }
       response.embeds = embeds;
       return response;
     }
