@@ -23,8 +23,15 @@ import CrownBot from "../CrownBot";
 import { LastFM } from "../LastFM";
 import { SpotifyNowPlaying } from "../Spotify";
 
+export type UserMethods = {
+  "user.getInfo": UserinfoInterface;
+  "user.getRecentTracks": UserRecentTrack;
+  "user.getTopArtists": UserTopArtist;
+  "user.getTopTracks": UserTopTrack;
+  "user.getTopAlbums": UserTopAlbum;
+};
+
 export default class extends LastFM {
-  prefix = "user.";
   configs = {
     autocorrect: 1,
     limit: 10,
@@ -47,8 +54,8 @@ export default class extends LastFM {
   }
 
   async get_info() {
-    const query = await this.query<UserinfoInterface>({
-      method: this.prefix + "getInfo",
+    const query = await this.query({
+      method: "user.getInfo",
       user: this.username,
       ...this.configs,
     });
@@ -62,8 +69,8 @@ export default class extends LastFM {
   }
 
   async get_recenttracks() {
-    const query = await this.query<UserRecentTrack>({
-      method: this.prefix + "getRecentTracks",
+    const query = await this.query({
+      method: "user.getRecentTracks",
       user: this.username,
       ...this.configs,
     });
@@ -84,8 +91,8 @@ export default class extends LastFM {
   }
 
   async get_top_artists({ period }: { period: Period }) {
-    const query = await this.query<UserTopArtist>({
-      method: this.prefix + "getTopArtists",
+    const query = await this.query({
+      method: "user.getTopArtists",
       user: this.username,
 
       period,
@@ -108,8 +115,8 @@ export default class extends LastFM {
   }
 
   async get_top_tracks({ period }: { period: Period }) {
-    const query = await this.query<UserTopTrack>({
-      method: this.prefix + "getTopTracks",
+    const query = await this.query({
+      method: "user.getTopTracks",
       user: this.username,
       period,
       ...this.configs,
@@ -127,8 +134,8 @@ export default class extends LastFM {
   }
 
   async get_top_albums({ period }: { period: Period }) {
-    const query = await this.query<UserTopAlbum>({
-      method: this.prefix + "getTopAlbums",
+    const query = await this.query({
+      method: "user.getTopAlbums",
       user: this.username,
       period,
       ...this.configs,

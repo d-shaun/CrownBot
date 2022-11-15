@@ -1,9 +1,13 @@
 import { LastFMResponse } from "../../interfaces/LastFMResponseInterface";
-import { SearchTrack, Track, UserTrack } from "../../interfaces/TrackInterface";
+import { Track, UserTrack } from "../../interfaces/TrackInterface";
 import { LastFM } from "../LastFM";
 
+export type TrackMethods = {
+  "track.getInfo": Track;
+  "track.search": Track;
+};
+
 export default class extends LastFM {
-  prefix = "track.";
   configs = {
     autocorrect: 1,
     limit: 10,
@@ -38,9 +42,9 @@ export default class extends LastFM {
     return true;
   }
 
-  async get_info<T = Track>() {
-    return this.query<T>({
-      method: this.prefix + "getInfo",
+  async get_info() {
+    return this.query({
+      method: "track.getInfo",
       track: this.name,
       artist: this.artist_name,
       user: this.username,
@@ -50,13 +54,13 @@ export default class extends LastFM {
 
   // with username
   async user_get_info() {
-    return await this.get_info<UserTrack>();
+    return <LastFMResponse<UserTrack>>await this.get_info();
   }
 
   async search() {
     if (!this.name) throw "Track name is required to search.";
-    return this.query<SearchTrack>({
-      method: this.prefix + "search",
+    return this.query({
+      method: "track.search",
       track: this.name,
       user: this.username,
       ...this.configs,

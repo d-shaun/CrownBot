@@ -2,8 +2,11 @@ import { Album, SearchAlbum, UserAlbum } from "../../interfaces/AlbumInterface";
 import { LastFMResponse } from "../../interfaces/LastFMResponseInterface";
 import { LastFM } from "../LastFM";
 
+export type AlbumMethods = {
+  "album.getInfo": Album;
+  "album.search": SearchAlbum;
+};
 export default class extends LastFM {
-  prefix = "album.";
   configs = {
     autocorrect: 1,
     limit: 10,
@@ -38,9 +41,9 @@ export default class extends LastFM {
     return true;
   }
 
-  async get_info<T = Album>() {
-    return this.query<T>({
-      method: this.prefix + "getInfo",
+  async get_info() {
+    return this.query({
+      method: "album.getInfo",
       album: this.name,
       artist: this.artist_name,
       user: this.username,
@@ -50,13 +53,13 @@ export default class extends LastFM {
 
   // with username
   async user_get_info() {
-    return await this.get_info<UserAlbum>();
+    return <LastFMResponse<UserAlbum>>await this.get_info();
   }
 
   async search() {
     if (!this.name) throw "Album name is required to search.";
-    return this.query<SearchAlbum>({
-      method: this.prefix + "search",
+    return this.query({
+      method: "album.search",
       album: this.name,
       user: this.username,
       ...this.configs,

@@ -4,8 +4,11 @@ import { Artist, UserArtist } from "../../interfaces/ArtistInterface";
 import { LastFMResponse } from "../../interfaces/LastFMResponseInterface";
 import { LastFM } from "../LastFM";
 
+export type ArtistMethods = {
+  "artist.getInfo": Artist;
+};
+
 export default class extends LastFM {
-  prefix = "artist.";
   configs = {
     autocorrect: 1,
   };
@@ -29,9 +32,9 @@ export default class extends LastFM {
     return true;
   }
 
-  async get_info<T = Artist>() {
-    return this.query<T>({
-      method: this.prefix + "getInfo",
+  async get_info() {
+    return this.query({
+      method: "artist.getInfo",
       artist: this.name,
       user: this.username,
       ...this.configs,
@@ -40,7 +43,7 @@ export default class extends LastFM {
 
   // with username
   async user_get_info() {
-    return await this.get_info<UserArtist>();
+    return <LastFMResponse<UserArtist>>await this.get_info();
   }
 
   // SCRAPING SECTION

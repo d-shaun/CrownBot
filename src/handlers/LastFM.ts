@@ -1,6 +1,11 @@
 import Axios, { AxiosResponse } from "axios";
 import { stringify } from "querystring";
-import { LastFMParams, LastFMQuery } from "../interfaces/LastFMQueryInterface";
+import {
+  GetMethod,
+  LastFMParams,
+  LastFMQuery,
+  ValidMethods,
+} from "../interfaces/LastFMQueryInterface";
 import { LastFMResponse } from "../interfaces/LastFMResponseInterface";
 
 const { API_KEY } = process.env;
@@ -25,7 +30,9 @@ export class LastFM {
    * Centralized method to make queries to the Last.fm API.
    * @param params
    */
-  async query<T>(params: LastFMParams): Promise<LastFMResponse<T>> {
+  async query<K extends keyof ValidMethods>(
+    params: LastFMParams<K>
+  ): Promise<LastFMResponse<GetMethod<K>>> {
     if (!this.#apikey)
       throw "Last.fm API is not set in the environment variable.";
 
