@@ -1,10 +1,10 @@
 import { LastFMResponse } from "../../interfaces/LastFMResponseInterface";
-import { Track, UserTrack } from "../../interfaces/TrackInterface";
+import { SearchTrack, Track, UserTrack } from "../../interfaces/TrackInterface";
 import { LastFM } from "../LastFM";
 
 export type TrackMethods = {
   "track.getInfo": Track;
-  "track.search": Track;
+  "track.search": SearchTrack;
 };
 
 export default class extends LastFM {
