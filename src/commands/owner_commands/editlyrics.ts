@@ -16,7 +16,7 @@ import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
 import Track from "../../handlers/LastFM_components/Track";
 import User from "../../handlers/LastFM_components/User";
-import { LyricsLogInterface } from "../../models/LyricsLog";
+import { ModelTypes } from "../../models/DBModels";
 
 export default async function edit_lyrics(
   bot: CrownBot,
@@ -73,11 +73,10 @@ export default async function edit_lyrics(
   }
   const track = query.data.track;
 
-  const db_entry: LyricsLogInterface | null =
-    await bot.models.lyricslog.findOne(<LyricsLogInterface>{
-      track_name: track.name,
-      artist_name: track.artist.name,
-    });
+  const db_entry = await bot.models.LyricsLog.findOne({
+    track_name: track.name,
+    artist_name: track.artist.name,
+  });
   if (!db_entry) {
     await interaction.editReply({
       content: "No entry on the database",
@@ -118,7 +117,7 @@ export default async function edit_lyrics(
 
 async function show_modal(
   interaction: ButtonInteraction,
-  db_entry: LyricsLogInterface
+  db_entry: ModelTypes["LyricsLog"]
 ) {
   const modal = new ModalBuilder()
     .setCustomId("lyricsmodal")

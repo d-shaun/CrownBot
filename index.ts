@@ -35,7 +35,7 @@ SPOTIFY_SECRETID: Spotify client ID for the &chart command to show artist images
       MONGO,
       GENIUS_API,
     } = process.env;
-    if (!(TOKEN && OWNER_ID && API_KEY && MONGO)) {
+    if (!(TOKEN && OWNER_ID && API_KEY && MONGO && CLIENT_ID && ACCESS_TOKEN)) {
       throw "Some of the environment variables are missing.";
     }
 

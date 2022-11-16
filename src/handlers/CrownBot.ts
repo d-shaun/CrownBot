@@ -1,11 +1,24 @@
 import { REST, Routes } from "discord.js";
 import fs from "fs";
-import { connect, model, Model, Mongoose } from "mongoose";
+import { connect, Mongoose } from "mongoose";
 import path from "path";
-import { BotConfigInterface } from "../models/BotConfig";
-import { ServerConfigInterface } from "../models/ServerConfig";
+import { generate_models, ModelTypes } from "../models/DBModels";
 import CacheHandler from "./Cache";
 import Logger from "./Logger";
+
+type Options = {
+  version: string;
+  buttons_version: string;
+  max_users: number;
+  client_id: string;
+  token: string;
+  owner_ID: string;
+  api_key: string;
+  access_token: string;
+  genius_api?: string;
+  mongo: string;
+  url: string;
+};
 
 export default class CrownBot {
   version: string;
@@ -25,12 +38,13 @@ export default class CrownBot {
   mongoose: Mongoose | undefined;
 
   url: string;
-  server_configs: ServerConfigInterface[] | undefined = undefined;
+  server_configs: ModelTypes["ServerConfig"] | undefined;
   commands: any[] = [];
-  models: { [key: string]: Model<any> } = {};
-  botconfig: BotConfigInterface | undefined;
+  //@ts-ignore: app throws exception error if there are no models anyway
+  models: ModelTypes;
+  botconfig: ModelTypes["BotConfig"] | undefined;
 
-  constructor(options: any) {
+  constructor(options: Options) {
     this.version = options.version;
     this.#token = options.token;
     this.buttons_version = options.buttons_version;
@@ -56,11 +70,10 @@ export default class CrownBot {
 
   async init() {
     await this.load_db();
-    this.load_models();
     await this.register_commands();
     await this.load_botconfig();
     await this.cache.config.init(); /* cache server configs for the session */
-    if (!this.commands.length || !this.mongoose)
+    if (!this.commands.length || !this.mongoose || !this.models)
       throw "Failed initializing mongoose and/or commands. (never really happens tho)";
     return this;
   }
@@ -73,6 +86,9 @@ export default class CrownBot {
       console.log(e);
       return e;
     });
+    const gen_models = generate_models(this.mongoose);
+    if (!gen_models) throw "Could not generate models.";
+    this.models = gen_models;
   }
 
   /**
@@ -110,23 +126,10 @@ export default class CrownBot {
   }
 
   /**
-   * Loads mongoose models from `../models` to `client.models[modelname]`.
-   */
-  load_models() {
-    const dir: string = path.join(__dirname, "../models");
-    const models: string[] = fs.readdirSync(dir);
-    models.forEach((file) => {
-      const [model_name] = file.split(".");
-      const schema = require(path.join(dir, file)).default(this.mongoose);
-      this.models[model_name.toLowerCase()] = model(model_name, schema);
-    });
-  }
-
-  /**
    * Fetches and stores the BotConfig model
    */
   async load_botconfig() {
-    this.botconfig = await this.models.botconfig.findOne().lean();
+    this.botconfig = await this.models?.BotConfig.findOne().lean();
     return this;
   }
 }
