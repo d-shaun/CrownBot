@@ -1,16 +1,12 @@
-import { CanvasRenderService } from "chartjs-node-canvas";
-import { AttachmentBuilder, Client, SlashCommandBuilder } from "discord.js";
+import { Client, SlashCommandBuilder } from "discord.js";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
 import { CommandResponse } from "../handlers/CommandResponse";
 import CrownBot from "../handlers/CrownBot";
-import DB from "../handlers/DB";
-import Artist from "../handlers/LastFM_components/Artist";
-import User from "../handlers/LastFM_components/User";
 
-interface GraphStat {
-  date: string;
-  playcount: number;
-}
+// interface GraphStat {
+//   date: string;
+//   playcount: number;
+// }
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -56,6 +52,12 @@ module.exports = {
     interaction: GuildChatInteraction,
     response: CommandResponse
   ): Promise<CommandResponse> {
+    response.error_code = "custom";
+    response.error_message =
+      "**This command has been discounted**\nLast.fm now requires the user to be logged-in in order to view libraries, which isn't possible* on this bot that anonymously scrapes the pages.\n\n**Support post where you might want to complain:** https://support.last.fm/t/login-now-required-to-view-users-libraries/67569";
+
+    return response;
+    /*
     response.allow_retry = true;
     const db = new DB(bot.models);
     const user = await db.fetch_user(interaction.guild.id, interaction.user.id);
@@ -110,9 +112,11 @@ module.exports = {
       artist_name,
       undefined
     );
-    if (!stats) {
+    if (!stats || !stats.length) {
       return response.error("lastfm_error");
     }
+
+    console.log(stats);
 
     const graph_image_buffer = await this.generate_graph(
       stats,
@@ -205,5 +209,6 @@ module.exports = {
       },
     };
     return canvasRenderService.renderToBuffer(configuration, "image/jpeg");
+    */
   },
 };
