@@ -3,7 +3,6 @@ import GuildChatInteraction from "../classes/GuildChatInteraction";
 import { CommandResponse } from "../handlers/CommandResponse";
 import CrownBot from "../handlers/CrownBot";
 import get_registered_users from "../misc/get_registered_users";
-import { CrownInterface } from "../models/Crowns";
 interface CrownStat {
   username: string;
   lastfm_username: string;
@@ -25,7 +24,7 @@ module.exports = {
     const server_users = (await get_registered_users(bot, interaction))?.users;
     if (!server_users) return response.fail();
 
-    const crowns: CrownInterface[] = await bot.models.crowns.find({
+    const crowns = await bot.models.crowns.find({
       guildID: interaction.guild.id,
       userID: {
         $in: server_users.map((user) => user.database.userID),

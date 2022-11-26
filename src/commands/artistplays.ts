@@ -6,7 +6,6 @@ import Artist from "../handlers/LastFM_components/Artist";
 import User from "../handlers/LastFM_components/User";
 import esm from "../misc/escapemarkdown";
 import time_difference from "../misc/time_difference";
-import { ArtistLogInterface } from "../models/ArtistLog";
 
 import moment from "moment";
 // @ts-ignore
@@ -67,7 +66,7 @@ module.exports = {
       count: "No change",
       time: <boolean | string>false,
     };
-    const last_log = await bot.models.artistlog.findOne(<ArtistLogInterface>{
+    const last_log = await bot.models.artistlog.findOne({
       name: artist.name,
       userID: interaction.user.id,
     });
@@ -112,7 +111,7 @@ module.exports = {
     const timestamp = moment.utc().valueOf();
 
     await client.models.artistlog.findOneAndUpdate(
-      <ArtistLogInterface>{
+      {
         name: artist.name,
         userID: interaction.user.id,
       },

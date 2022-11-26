@@ -1,202 +1,213 @@
-import { connect, model, Mongoose } from "mongoose";
+import { model, Mongoose } from "mongoose";
+import { UserTopArtist } from "../interfaces/ArtistInterface";
 
 export function generate_models(mongoose?: Mongoose) {
   if (!mongoose) return null;
 
-  return {
-    AlbumLog: model(
-      "AlbumLog",
-      new mongoose.Schema({
-        name: String,
-        artistName: String,
-        userplaycount: Number,
-        userID: String,
-        timestamp: Number,
-      })
-    ),
+  const albumlog = model(
+    "albumlog",
+    new mongoose.Schema({
+      name: { type: String, required: true },
+      artistName: { Type: String, required: true },
+      userplaycount: { type: Number, required: true },
+      userID: { type: String, required: true },
+      timestamp: { type: Number, required: true },
+    })
+  );
 
-    ArtistLog: model(
-      "ArtistLog",
-      new mongoose.Schema({
-        name: String,
-        userplaycount: Number,
-        userID: String,
-        timestamp: Number,
-      })
-    ),
+  const artistlog = model(
+    "artistlog",
+    new mongoose.Schema({
+      name: { type: String, required: true },
+      userplaycount: { type: Number, required: true },
+      userID: { type: String, required: true },
+      timestamp: { type: Number, required: true },
+    })
+  );
 
-    Bans: model(
-      "ArtistLog",
-      new mongoose.Schema({
-        guildID: String,
-        guildName: String,
-        userID: String,
-        username: String,
-        executor: String,
-      })
-    ),
+  const bans = model(
+    "bans",
+    new mongoose.Schema({
+      guildID: { type: String, required: true },
+      guildName: { type: String, required: true },
+      userID: { type: String, required: true },
+      username: { type: String, required: true },
+      executor: { type: String, required: true },
+    })
+  );
 
-    BotConfig: model(
-      "BotConfig",
-      new mongoose.Schema({
-        exception_log_channel: String,
-        maintenance: String,
-        disabled: String,
-        disabled_message: String,
-      })
-    ),
+  const botconfig = model(
+    "botconfig",
+    new mongoose.Schema({
+      exception_log_channel: { type: String, required: false },
+      maintenance: { type: String, required: false },
+      disabled: { type: String, required: false },
+      disabled_message: { type: String, required: false },
+    })
+  );
 
-    Crowns: model(
-      "Crowns",
-      new mongoose.Schema({
-        guildID: {
-          type: String,
-        },
-        userID: String,
-        userTag: String,
-        lastfm_username: String,
-        artistName: String,
-        artistPlays: Number,
-      })
-    ),
-
-    ErrorLogs: model(
-      "ErrorLogs",
-      new mongoose.Schema({
-        incident_id: String,
-        command_name: String,
-        message_content: String,
-        user_ID: String,
-        guild_ID: String,
-        timestamp: String,
-        stack: String,
-      })
-    ),
-
-    ListArtistLog: model(
-      "ListArtistLog",
-      new mongoose.Schema({
-        user_id: String,
-        guild_id: String,
-        stat: Object,
-        timestamp: Number,
-      })
-    ),
-
-    Logs: model(
-      "Logs",
-      new mongoose.Schema({
-        error_id: String,
-        error_message: String,
-        command_name: String,
-        user_ID: String,
-        guild_ID: String,
-        timestamp: Date,
-      })
-    ),
-
-    LyricsLog: model(
-      "LyricsLog",
-      new mongoose.Schema({
-        track_name: String,
-        artist_name: String,
-        lyrics: String,
-        timestamp: Number,
-        permanent: Boolean,
-      })
-    ),
-
-    OptIns: model(
-      "OptIns",
-      new mongoose.Schema({
+  const crowns = model(
+    "crowns",
+    new mongoose.Schema({
+      guildID: {
         type: String,
-        guild_ID: {
-          type: String,
-          unique: true,
-        },
-        guild_name: String,
-        username: String,
-        user_ID: String,
-        timestamp: String,
-      })
-    ),
+        required: true,
+      },
+      userID: { type: String, required: true },
+      userTag: { type: String, required: true },
+      lastfm_username: { type: String, required: true },
+      artistName: { type: String, required: true },
+      artistPlays: { type: Number, required: true },
+    })
+  );
 
-    ReportBug: model(
-      "ReportBug",
-      new mongoose.Schema({
-        user: String,
-        userID: String,
-        guildID: String,
-        message: String,
-        timestamp: String,
-      })
-    ),
+  const errorlogs = model(
+    "errorlogs",
+    new mongoose.Schema({
+      incident_id: { type: String, required: true },
+      command_name: String,
+      message_content: String,
+      user_ID: { type: String, required: true },
+      guild_ID: { type: String, required: true },
+      timestamp: String,
+      stack: String,
+    })
+  );
 
-    ServerConfig: model(
-      "ServerConfig",
-      new mongoose.Schema({
-        guild_ID: {
-          type: String,
-          unique: true,
-        },
-        min_plays_for_crown: Number,
-      })
-    ),
+  const listartistlog = model(
+    "listartistlog",
+    new mongoose.Schema({
+      user_id: { type: String, required: true },
+      guild_id: { type: String, required: true },
+      stat: {
+        type: <UserTopArtist["topartists"]["artist"]>(<unknown>Object),
+        required: true,
+      },
+      timestamp: Number,
+    })
+  );
 
-    ServerUsers: model(
-      "ServerUsers",
-      new mongoose.Schema({
-        guildID: String,
-        userID: String,
-        username: String,
-      })
-    ),
+  const logs = model(
+    "logs",
+    new mongoose.Schema({
+      error_id: String,
+      error_message: String,
+      command_name: String,
+      user_ID: String,
+      guild_ID: String,
+      timestamp: Date,
+    })
+  );
 
-    TrackLog: model(
-      "TrackLog",
-      new mongoose.Schema({
-        name: String,
-        artistName: String,
-        userplaycount: Number,
-        userID: String,
-        timestamp: Number,
-      })
-    ),
+  const lyricslog = model(
+    "lyricslog",
+    new mongoose.Schema({
+      track_name: { type: String, required: true },
+      artist_name: { type: String, required: true },
+      lyrics: { type: String, required: true },
+      timestamp: { type: Number, required: true },
+      permanent: Boolean,
+    })
+  );
 
-    Users: model(
-      "Users",
-      new mongoose.Schema({
-        userID: {
-          type: String,
-          unique: true,
-        },
-        username: String,
-      })
-    ),
+  const reportbug = model(
+    "reportbug",
+    new mongoose.Schema({
+      user: { type: String, required: true },
+      userID: { type: String, required: true },
+      guildID: { type: String, required: true },
+      message: { type: String, required: true },
+      timestamp: { type: String, required: true },
+    })
+  );
 
-    WhoKnowsLog: model(
-      "WhoKnowsLog",
-      new mongoose.Schema({
-        artist_name: String,
-        guild_id: String,
-        listener: Number,
-        stat: Object,
-        timestamp: Number,
-      })
-    ),
+  const serverconfig = model(
+    "serverconfig",
+    new mongoose.Schema({
+      guild_ID: {
+        type: { type: String, required: true },
+        unique: true,
+      },
+      min_plays_for_crown: Number,
+    })
+  );
 
-    WhoPlaysLog: model(
-      "WhoPlaysLog",
-      new mongoose.Schema({
-        track_name: String,
-        artist_name: String,
-        guild_id: String,
-        listener: Number,
-        stat: Object,
-        timestamp: Number,
-      })
-    ),
-  } as const;
+  const serverusers = model(
+    "serverusers",
+    new mongoose.Schema({
+      guildID: { type: String, required: true },
+      userID: { type: String, required: true },
+      username: { type: String, required: true },
+    })
+  );
+
+  const tracklog = model(
+    "tracklog",
+    new mongoose.Schema({
+      name: { type: String, required: true },
+      artistName: { type: String, required: true },
+      userplaycount: { type: Number, required: true },
+      userID: { type: String, required: true },
+      timestamp: { type: Number, required: true },
+    })
+  );
+
+  const whoknowslog = model(
+    "whoknowslog",
+    new mongoose.Schema({
+      artist_name: { type: String, required: true },
+      guild_id: { type: String, required: true },
+      listener: { type: Number, required: true },
+      stat: Object,
+      timestamp: { type: Number, required: true },
+    })
+  );
+
+  const whoplayslog = model(
+    "whoplayslog",
+    new mongoose.Schema({
+      track_name: String,
+      artist_name: String,
+      guild_id: String,
+      listener: Number,
+      stat: Object,
+      timestamp: Number,
+    })
+  );
+
+  //
+
+  //
+  // Return all in key-value pair based on variable names
+  // ex: { "whoknowslog": Model<whoknowslog> }
+  return {
+    albumlog,
+    artistlog,
+    bans,
+    botconfig,
+    crowns,
+    errorlogs,
+    listartistlog,
+    logs,
+    lyricslog,
+    reportbug,
+    serverconfig,
+    serverusers,
+    tracklog,
+    whoknowslog,
+    whoplayslog,
+  };
 }
 
+// mongoose models as "types" with this one simple trick
+export type MongooseModelTypes = Exclude<
+  ReturnType<typeof generate_models>,
+  null
+>;
+
 export type ModelTypes = Exclude<ReturnType<typeof generate_models>, null>;
+
+// stupid hack to "extract" return document interface from stupid mongoose model thingy
+export type ExtractModelType<T extends keyof MongooseModelTypes> = ReturnType<
+  MongooseModelTypes[T]["castObject"]
+>;

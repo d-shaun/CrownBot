@@ -13,7 +13,6 @@ import abbreviate from "number-abbreviate";
 import { CommandResponse } from "../handlers/CommandResponse";
 import Album from "../handlers/LastFM_components/Album";
 import { UserAlbum } from "../interfaces/AlbumInterface";
-import { AlbumLogInterface } from "../models/AlbumLog";
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -113,7 +112,7 @@ module.exports = {
       time: <boolean | string>false,
     };
 
-    const last_log = await bot.models.albumlog.findOne(<AlbumLogInterface>{
+    const last_log = await bot.models.albumlog.findOne({
       name: album.name,
       artistName: album.artist,
       userID: interaction.user.id,
@@ -187,7 +186,7 @@ module.exports = {
     const timestamp = moment.utc().valueOf();
 
     await client.models.albumlog.findOneAndUpdate(
-      <AlbumLogInterface>{
+      {
         name: album.name,
         artistName: album.artist,
         userID: interaction.user.id,
