@@ -54,7 +54,7 @@ module.exports = {
   ): Promise<CommandResponse> {
     response.error_code = "custom";
     response.error_message =
-      "**This command has been discounted**\nLast.fm now requires the user to be logged-in in order to view libraries, which isn't possible* on this bot that anonymously scrapes the pages.\n\n**Support post where you might want to complain:** https://support.last.fm/t/login-now-required-to-view-users-libraries/67569";
+      "**This command has been discontinued**\nLast.fm now requires the user to be logged-in in order to view libraries, which isn't possible* on this bot that anonymously scrapes the pages.\n\n**Support post where you might want to complain:** https://support.last.fm/t/login-now-required-to-view-users-libraries/67569";
 
     return response;
     /*
