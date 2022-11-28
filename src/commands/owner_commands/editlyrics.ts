@@ -16,7 +16,6 @@ import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
 import Track from "../../handlers/LastFM_components/Track";
 import User from "../../handlers/LastFM_components/User";
-import { ExtractModelType } from "../../models/DBModels";
 
 export default async function edit_lyrics(
   bot: CrownBot,

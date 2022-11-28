@@ -3,7 +3,6 @@ import GuildChatInteraction from "../classes/GuildChatInteraction";
 import { CommandResponse } from "../handlers/CommandResponse";
 import CrownBot from "../handlers/CrownBot";
 import esm from "../misc/escapemarkdown";
-import { CrownInterface } from "../models/Crowns";
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -25,11 +24,10 @@ module.exports = {
     const discord_user =
       interaction.options.getUser("discord_user") || interaction.user;
 
-    const crowns: CrownInterface[] = await bot.models.crowns.find(<
-      CrownInterface
-    >{
+    const crowns = await bot.models.crowns.find({
       guildID: interaction.guild.id,
       userID: discord_user.id,
+      whatever: "wh",
     });
 
     if (crowns.length <= 0) {

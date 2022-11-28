@@ -11,8 +11,6 @@ import esm from "../misc/escapemarkdown";
 import get_registered_users from "../misc/get_registered_users";
 import parse_spotify from "../misc/parse_spotify_presence";
 import time_difference from "../misc/time_difference";
-import { CrownInterface } from "../models/Crowns";
-import { LogInterface } from "../models/WhoKnowsLog";
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -119,7 +117,7 @@ module.exports = {
       const context = response.context;
       if (!context || !context.discord_user) return;
       if (artist.stats.userplaycount === undefined) return;
-      if (parseInt(artist.stats.userplaycount) <= 0) return;
+      if (artist.stats.userplaycount <= 0) return;
 
       leaderboard.push({
         artist_name: artist.name,
@@ -160,17 +158,15 @@ module.exports = {
       });
     }
 
-    leaderboard = leaderboard.sort(
-      (a, b) => parseInt(b.userplaycount) - parseInt(a.userplaycount)
-    );
+    leaderboard = leaderboard.sort((a, b) => b.userplaycount - a.userplaycount);
     const total_scrobbles = leaderboard.reduce(
-      (a, b) => a + parseInt(b.userplaycount),
+      (a, b) => a + b.userplaycount,
       0
     );
     const top_user = leaderboard[0];
     let disallow_crown = false;
     let min_count_text;
-    if (parseInt(top_user.userplaycount) < min_plays_for_crown) {
+    if (top_user.userplaycount < min_plays_for_crown) {
       min_count_text = `(>=${min_plays_for_crown} plays required for the crown.)`;
     } else {
       if (leaderboard.length >= 2) {
@@ -202,7 +198,7 @@ module.exports = {
       let count_diff;
       let diff_str = "";
       if (elem.last_count) {
-        count_diff = parseInt(elem.userplaycount) - parseInt(elem.last_count);
+        count_diff = elem.userplaycount - elem.last_count;
       }
       if (count_diff && count_diff < 0) {
         diff_str = ` ― (:small_red_triangle_down: ${count_diff} ${
@@ -220,7 +216,7 @@ module.exports = {
       const indicator = `${
         index === 1 &&
         !disallow_crown &&
-        parseInt(elem.userplaycount) >= min_plays_for_crown
+        elem.userplaycount >= min_plays_for_crown
           ? ":crown:"
           : index + "."
       }`;
@@ -230,10 +226,7 @@ module.exports = {
     // delete if there's an existing crown for the artist in the server
     await db.delete_crown(top_user.artist_name, top_user.guild_id);
 
-    if (
-      parseInt(top_user.userplaycount) >= min_plays_for_crown &&
-      !disallow_crown
-    ) {
+    if (top_user.userplaycount >= min_plays_for_crown && !disallow_crown) {
       if (last_crown) {
         const last_user = interaction.guild.members.cache.find(
           (user) => user.id === last_crown.userID

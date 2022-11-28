@@ -202,10 +202,7 @@ export default class extends LastFM {
       // consider the track scrobbled in the last 3 minutes as 'now-playing'
       let is_scrobbled_recently = false;
       if (last_track.date) {
-        const diff = moment().diff(
-          moment.unix(parseInt(last_track.date.uts)),
-          "minutes"
-        );
+        const diff = moment().diff(moment.unix(last_track.date.uts), "minutes");
         is_scrobbled_recently = diff <= 3;
       }
 
@@ -280,10 +277,7 @@ export default class extends LastFM {
       // consider the track scrobbled in the last 3 minutes as 'now-playing'
       let is_scrobbled_recently = false;
       if (last_track.date) {
-        const diff = moment().diff(
-          moment.unix(parseInt(last_track.date.uts)),
-          "minutes"
-        );
+        const diff = moment().diff(moment.unix(last_track.date.uts), "minutes");
         is_scrobbled_recently = diff <= 3;
       }
 
@@ -334,7 +328,7 @@ export default class extends LastFM {
         .replace(",", "");
       stats.push({
         name,
-        plays: parseInt(plays),
+        plays: plays,
       });
     });
     return stats;
@@ -404,27 +398,25 @@ export default class extends LastFM {
       .find("ul.metadata-list")
       .find("li.metadata-item");
 
-    const scrobbles = parseInt(
-      $(items[0]).find("p").text().trim().replace(",", "")
-    );
-    const average_per_day = parseInt(
-      $(items[1]).find("p").text().trim().replace(",", "")
-    );
+    const scrobbles = $(items[0]).find("p").text().trim().replace(",", "");
+    const average_per_day = $(items[1])
+      .find("p")
+      .text()
+      .trim()
+      .replace(",", "");
     return { scrobbles, average_per_day };
   }
 
   find_library_scrobbles(data: string) {
     if (typeof data !== "string") return undefined;
     const $ = cheerio.load(data);
-    return parseInt(
-      $(".page-content")
-        .find("ul.metadata-list")
-        .find("li.metadata-item")
-        .find("p")
-        .text()
-        .trim()
-        .replace(",", "")
-    );
+    return $(".page-content")
+      .find("ul.metadata-list")
+      .find("li.metadata-item")
+      .find("p")
+      .text()
+      .trim()
+      .replace(",", "");
   }
 
   generate_promise(date_preset: string, type?: string) {
@@ -509,7 +501,7 @@ export default class extends LastFM {
         .replace(",", "");
       stats.push({
         date,
-        playcount: parseInt(playcount),
+        playcount: playcount,
       });
     });
     return stats;

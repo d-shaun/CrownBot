@@ -323,7 +323,7 @@ module.exports = {
         name: album.name,
         artist_name: album.artist.name,
         image_url: image,
-        playcount: parseInt(album.playcount),
+        playcount: album.playcount,
       };
     });
   },
@@ -332,7 +332,7 @@ module.exports = {
     return artists.map((artist) => {
       return {
         name: artist.name,
-        playcount: parseInt(artist.playcount),
+        playcount: artist.playcount,
       };
     });
   },
@@ -343,7 +343,7 @@ module.exports = {
         artist_name: track.artist.name,
         album_name: track.name,
         name: track.name,
-        playcount: parseInt(track.playcount),
+        playcount: track.playcount,
       };
     });
   },

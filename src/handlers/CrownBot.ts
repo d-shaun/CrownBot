@@ -2,7 +2,7 @@ import { REST, Routes } from "discord.js";
 import fs from "fs";
 import { connect, Mongoose } from "mongoose";
 import path from "path";
-import { generate_models, ModelTypes } from "../models/DBModels";
+import { generate_models, GetReturnType, ModelTypes } from "../models/DBModels";
 import CacheHandler from "./Cache";
 import Logger from "./Logger";
 
@@ -38,11 +38,11 @@ export default class CrownBot {
   mongoose: Mongoose | undefined;
 
   url: string;
-  server_configs: ModelTypes["ServerConfig"] | undefined;
+  server_configs: GetReturnType<"serverconfig"> | undefined;
   commands: any[] = [];
   //@ts-ignore: app throws exception error if there are no models anyway
   models: ModelTypes;
-  botconfig: ModelTypes["BotConfig"] | undefined;
+  botconfig: GetReturnType<"botconfig"> | undefined;
 
   constructor(options: Options) {
     this.version = options.version;
@@ -129,7 +129,7 @@ export default class CrownBot {
    * Fetches and stores the BotConfig model
    */
   async load_botconfig() {
-    this.botconfig = await this.models?.BotConfig.findOne().lean();
+    this.botconfig = await this.models?.botconfig.findOne();
     return this;
   }
 }

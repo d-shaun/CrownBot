@@ -13,8 +13,6 @@ import abbreviate from "number-abbreviate";
 import { CommandResponse } from "../handlers/CommandResponse";
 import Track from "../handlers/LastFM_components/Track";
 import { UserTrack } from "../interfaces/TrackInterface";
-import { AlbumLogInterface } from "../models/AlbumLog";
-import { TrackLogInterface } from "../models/TrackLog";
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -109,7 +107,7 @@ module.exports = {
       time: <boolean | string>false,
     };
 
-    const last_log = await bot.models.tracklog.findOne(<AlbumLogInterface>{
+    const last_log = await bot.models.tracklog.findOne({
       name: track.name,
       artistName: track.artist.name,
       userID: interaction.user.id,
@@ -118,7 +116,7 @@ module.exports = {
       last_count = last_log.userplaycount;
       strs.time = time_difference(last_log.timestamp);
     }
-    const count_diff = parseInt(track.userplaycount) - last_count;
+    const count_diff = track.userplaycount - last_count;
     if (count_diff < 0) {
       strs.count = `:small_red_triangle_down: ${count_diff}`;
     } else if (count_diff > 0) {
@@ -134,14 +132,8 @@ module.exports = {
     }
 
     const percentage = {
-      track: (
-        (parseInt(track.userplaycount) / parseInt(track.playcount)) *
-        100
-      ).toFixed(2),
-      artist: (
-        (parseInt(track.userplaycount) / parseInt(artist_plays)) *
-        100
-      ).toFixed(2),
+      track: ((track.userplaycount / track.playcount) * 100).toFixed(2),
+      artist: ((track.userplaycount / artist_plays) * 100).toFixed(2),
     };
 
     const percentage_text = {

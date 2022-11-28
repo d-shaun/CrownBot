@@ -61,8 +61,7 @@ export class Artists implements CacheComponent {
       .sort({
         listener: "desc",
       })
-      .limit(2000)
-      .lean();
+      .limit(2000);
 
     const top_artists: string[] = db_server_artists.map((e) => e.artist_name);
 

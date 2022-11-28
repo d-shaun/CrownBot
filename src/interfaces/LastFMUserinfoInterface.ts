@@ -9,7 +9,7 @@ export interface UserinfoInterface {
       size: string;
     }[];
     name: string;
-    playcount: string;
+    playcount: number;
     playlists: string;
     realname: string;
     registered: {

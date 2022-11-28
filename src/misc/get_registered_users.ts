@@ -1,8 +1,6 @@
 import { GuildMember, UserResolvable } from "discord.js";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
 import CrownBot from "../handlers/CrownBot";
-import { BanInterface } from "../models/Bans";
-import { UserInterface } from "../models/Users";
 
 interface UserFetchInterface {
   users: {

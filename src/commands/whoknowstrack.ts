@@ -9,7 +9,6 @@ import { LeaderboardInterface } from "../interfaces/LeaderboardInterface";
 import cb from "../misc/codeblock";
 import get_registered_users from "../misc/get_registered_users";
 import time_difference from "../misc/time_difference";
-import { LogInterface } from "../models/WhoKnowsLog";
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -139,7 +138,7 @@ module.exports = {
       const context = response.context;
       if (!context || !context.discord_user) return;
       if (track.userplaycount === undefined) return;
-      if (parseInt(track.userplaycount) <= 0) return;
+      if (track.userplaycount <= 0) return;
       leaderboard.push({
         track_name: track.name,
         artist_name: track.artist.name,
@@ -178,11 +177,9 @@ module.exports = {
       });
     }
 
-    leaderboard = leaderboard.sort(
-      (a, b) => parseInt(b.userplaycount) - parseInt(a.userplaycount)
-    );
+    leaderboard = leaderboard.sort((a, b) => b.userplaycount - a.userplaycount);
     const total_scrobbles = leaderboard.reduce(
-      (a, b) => a + parseInt(b.userplaycount),
+      (a, b) => a + b.userplaycount,
       0
     );
 
@@ -205,7 +202,7 @@ module.exports = {
       let count_diff;
       let diff_str = "";
       if (elem.last_count) {
-        count_diff = parseInt(elem.userplaycount) - parseInt(elem.last_count);
+        count_diff = elem.userplaycount - elem.last_count;
       }
       if (count_diff && count_diff < 0) {
         diff_str = ` ― (:small_red_triangle_down: ${count_diff} ${

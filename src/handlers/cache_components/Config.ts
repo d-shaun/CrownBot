@@ -1,10 +1,10 @@
 import { Guild } from "discord.js";
 import { CacheComponent } from "../../interfaces/CacheComponentInterface";
-import { ServerConfigInterface } from "../../models/ServerConfig";
+import { GetReturnType } from "../../models/DBModels";
 import CrownBot from "../CrownBot";
 export class Config implements CacheComponent {
   #bot: CrownBot;
-  #configs: ServerConfigInterface[] | undefined = [];
+  #configs: GetReturnType<"serverconfig">[] | undefined = [];
 
   constructor(bot: CrownBot) {
     this.#bot = bot;

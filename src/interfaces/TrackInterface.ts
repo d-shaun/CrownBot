@@ -16,7 +16,7 @@ interface TrackComponent {
   duration: string;
   listeners: string;
   name: string;
-  playcount: string;
+  playcount: number;
   url: string;
 }
 
@@ -27,7 +27,7 @@ export interface Track {
 export interface UserTrack {
   track: TrackComponent & {
     userloved: string;
-    userplaycount: string;
+    userplaycount: number;
   };
 }
 
@@ -96,7 +96,7 @@ export interface UserTopTrack {
       }[];
       mbid: string;
       name: string;
-      playcount: string;
+      playcount: number;
       url: string;
     }[];
   };

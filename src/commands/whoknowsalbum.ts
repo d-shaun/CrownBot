@@ -134,7 +134,7 @@ module.exports = {
       const context = response.context;
       if (!context || !context.discord_user) return;
       if (album.userplaycount === undefined) return;
-      if (parseInt(album.userplaycount) <= 0) return;
+      if (album.userplaycount <= 0) return;
       leaderboard.push({
         album_name: album.name,
         artist_name: album.artist,
@@ -153,11 +153,9 @@ module.exports = {
       return response;
     }
 
-    leaderboard = leaderboard.sort(
-      (a, b) => parseInt(b.userplaycount) - parseInt(a.userplaycount)
-    );
+    leaderboard = leaderboard.sort((a, b) => b.userplaycount - a.userplaycount);
     const total_scrobbles = leaderboard.reduce(
-      (a, b) => a + parseInt(b.userplaycount),
+      (a, b) => a + b.userplaycount,
       0
     );
 

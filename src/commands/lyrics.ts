@@ -9,7 +9,6 @@ import Lyricist from "lyricist";
 import moment from "moment";
 import { CommandResponse } from "../handlers/CommandResponse";
 import Track from "../handlers/LastFM_components/Track";
-import { LyricsLogInterface } from "../models/LyricsLog";
 
 module.exports = {
   data: new SlashCommandBuilder()

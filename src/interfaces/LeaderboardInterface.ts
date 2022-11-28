@@ -4,7 +4,7 @@ export interface LeaderboardInterface {
   album_name?: string;
   discord_username: string;
   lastfm_username: string;
-  userplaycount: string;
+  userplaycount: number;
   user_id: string;
   user_tag: string;
   guild_id: string | undefined;
