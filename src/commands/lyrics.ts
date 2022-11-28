@@ -88,11 +88,10 @@ module.exports = {
     }
     const track = query.data.track;
 
-    const db_entry: LyricsLogInterface | null =
-      await bot.models.lyricslog.findOne(<LyricsLogInterface>{
-        track_name: track.name,
-        artist_name: track.artist.name,
-      });
+    const db_entry = await bot.models.lyricslog.findOne({
+      track_name: track.name,
+      artist_name: track.artist.name,
+    });
 
     const toChunks = (lyrics: string) => {
       return lyrics.match(/(.|[\r\n]){1,2000}/g);
@@ -150,7 +149,7 @@ module.exports = {
         track_name: track.name,
         artist_name: track.artist.name,
       },
-      <LyricsLogInterface>{
+      {
         track_name: track.name,
         artist_name: track.artist.name,
         lyrics: original_lyrics,

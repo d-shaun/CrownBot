@@ -1,7 +1,9 @@
 import { model, Mongoose } from "mongoose";
 import { UserTopArtist } from "../interfaces/ArtistInterface";
+import { LeaderboardInterface } from "../interfaces/LeaderboardInterface";
+// import { ModelTypes } from "../typings/ModelTypes";
 
-const model_params = {
+export const model_params = {
   albumlog: {
     name: { type: String, required: true },
     artistName: { type: String, required: true },
@@ -114,7 +116,7 @@ const model_params = {
     artist_name: { type: String, required: true },
     guild_id: { type: String, required: true },
     listener: { type: Number, required: true },
-    stat: Object,
+    stat: <LeaderboardInterface>(<any>Object),
     timestamp: { type: Number, required: true },
   },
 
@@ -138,46 +140,62 @@ export function generate_models(mongoose?: Mongoose) {
   return models;
 }
 
-///////////
-
-// Typings clusterfuck
-// mongoose is kinda trash at it so I implemented my own hacky typings
-
-////////
-
-type Extras = {
-  $in?: any[];
-  $lt?: any;
+type Extras<T> = {
+  [P in keyof T]?:
+    | T[P]
+    | {
+        $in?: unknown;
+        $lt?: unknown;
+        $not?: unknown;
+      };
 };
+
 type MongooseMethods<Z> = Z & {
-  find: <Y extends Partial<Z>>(query?: {
-    [I in keyof Y]: Y[I] | Extras;
-  }) => Promise<Z[]>;
-  findOne: <Y extends Partial<Z>>(query?: {
-    [I in keyof Y]: Y[I] | Extras;
-  }) => Promise<Z>;
-  findOneAndUpdate: <Y extends Partial<Z>>(
-    query: Y,
-    replacement: Y,
+  find: (query?: Extras<Z>) => Promise<Z[]>;
+  findOne: (query?: Extras<Z>) => Promise<Z>;
+
+  findOneAndUpdate: (
+    query: Extras<Z>,
+    replacement: Partial<Z>,
     options?: any
   ) => Promise<Z>;
+
+  deleteOne: (query?: Extras<Z>) => Promise<{ deletedCount: number }>;
+
+  deleteMany: (query?: Extras<Z>) => Promise<{ deletedCount: number }>;
 };
+
+type CustomTypes<T> = T extends {
+  type: infer Y extends any;
+}
+  ? Y
+  : never;
+
+type Constructors =
+  | NumberConstructor
+  | StringConstructor
+  | BooleanConstructor
+  | DateConstructor
+  | ObjectConstructor;
 
 export type ModelTypes = {
   [K in keyof typeof model_params]: MongooseMethods<{
     -readonly [Z in keyof typeof model_params[K]]: typeof model_params[K][Z] extends {
-      type: infer Y extends
-        | NumberConstructor
-        | StringConstructor
-        | BooleanConstructor
-        | DateConstructor
-        | ObjectConstructor;
+      type: infer Y extends Constructors | LeaderboardInterface;
     }
-      ? ReturnType<Y>
-      : unknown;
+      ? Y extends Constructors
+        ? ReturnType<Y>
+        : Y
+      : never;
   }>;
 };
 
 export type GetReturnType<T extends keyof ModelTypes> = Awaited<
   ReturnType<ModelTypes[T]["findOne"]>
 >;
+
+// const kek: ModelTypes["artistlog"] = <any>1;
+// kek.findOneAndUpdate()
+// const wow = kek.findOneAndUpdate({
+//   "what"
+// })

@@ -134,12 +134,12 @@ module.exports = {
       return response;
     }
 
-    const last_log: LogInterface | null = await bot.models.whoknowslog.findOne({
+    const last_log = await bot.models.whoknowslog.findOne({
       artist_name: artist.name,
       guild_id: interaction.guild.id,
     });
 
-    const last_crown: CrownInterface | null = await bot.models.crowns.findOne({
+    const last_crown = await bot.models.crowns.findOne({
       artistName: artist.name,
       guildID: interaction.guild.id,
     });

@@ -398,25 +398,27 @@ export default class extends LastFM {
       .find("ul.metadata-list")
       .find("li.metadata-item");
 
-    const scrobbles = $(items[0]).find("p").text().trim().replace(",", "");
-    const average_per_day = $(items[1])
-      .find("p")
-      .text()
-      .trim()
-      .replace(",", "");
+    const scrobbles = parseInt(
+      $(items[0]).find("p").text().trim().replace(",", "")
+    );
+    const average_per_day = parseInt(
+      $(items[1]).find("p").text().trim().replace(",", "")
+    );
     return { scrobbles, average_per_day };
   }
 
   find_library_scrobbles(data: string) {
     if (typeof data !== "string") return undefined;
     const $ = cheerio.load(data);
-    return $(".page-content")
-      .find("ul.metadata-list")
-      .find("li.metadata-item")
-      .find("p")
-      .text()
-      .trim()
-      .replace(",", "");
+    return parseInt(
+      $(".page-content")
+        .find("ul.metadata-list")
+        .find("li.metadata-item")
+        .find("p")
+        .text()
+        .trim()
+        .replace(",", "")
+    );
   }
 
   generate_promise(date_preset: string, type?: string) {

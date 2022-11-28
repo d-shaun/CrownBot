@@ -76,7 +76,7 @@ module.exports = {
         await response.send();
         return;
       }
-      const existing_crowns: Document[] = await bot.models.crowns.find({
+      const existing_crowns = await bot.models.crowns.find({
         guildID: interaction.guild.id,
         artistPlays: {
           $lt: number,

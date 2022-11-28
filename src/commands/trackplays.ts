@@ -126,7 +126,7 @@ module.exports = {
     const aggr_str = strs.time
       ? `**${strs.count}** since last checked ${strs.time} ago.`
       : "";
-    let artist_plays = "";
+    let artist_plays = 0;
     if (artist.stats && artist.stats.userplaycount) {
       artist_plays = artist.stats.userplaycount;
     }
@@ -175,7 +175,7 @@ module.exports = {
     const timestamp = moment.utc().valueOf();
 
     await bot.models.tracklog.findOneAndUpdate(
-      <TrackLogInterface>{
+      {
         name: track.name,
         artistName: track.artist.name,
         userID: interaction.user.id,
