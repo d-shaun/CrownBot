@@ -32,7 +32,7 @@
     "@types/spotify-web-api-node": "^4.0.2",
     "@types/ws": "^7.2.5",
     "axios": "^0.21.1",
-    "canvas": "^2.6.1",
+    "canvas": "2.10.2",
     "chart.js": "^2.9.3",
     "chartjs-node-canvas": "^3.0.6",
     "cheerio": "^1.0.0-rc.3",
