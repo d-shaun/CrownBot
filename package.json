@@ -41,6 +41,7 @@
     "mongodb": "^4.9.1",
     "mongoose": "^6.6.0",
     "number-abbreviate": "^2.0.0",
-    "spotify-web-api-node": "^5.0.0"
+    "spotify-web-api-node": "^5.0.0",
+    "tslib": "^2.4.1"
   }
 }

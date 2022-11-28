@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "importHelpers": true,
     "module": "commonjs",
     "lib": ["dom", "es2018"],
     "target": "es2018",
