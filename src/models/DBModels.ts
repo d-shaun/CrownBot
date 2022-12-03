@@ -129,12 +129,17 @@ export const model_params = {
 
 export function generate_models(mongoose?: Mongoose) {
   if (!mongoose) return null;
+  const new_models: any = {};
 
-  const models: ModelTypes = <any>Object.keys(model_params).map((key: any) => {
-    model(key, new mongoose.Schema((<any>model_params)[key]));
+  const keys: (keyof typeof model_params)[] = <any>Object.keys(model_params);
+
+  keys.forEach((model_name) => {
+    const schema = new mongoose.Schema(model_params[model_name]);
+
+    new_models[model_name] = model(model_name, schema);
   });
 
-  return models;
+  return new_models;
 }
 
 type Extras<T> = {
