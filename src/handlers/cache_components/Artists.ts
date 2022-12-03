@@ -1,5 +1,6 @@
 import { Guild } from "discord.js";
 import { CacheComponent } from "../../interfaces/CacheComponentInterface";
+import { GetReturnType } from "../../models/DBModels";
 import CrownBot from "../CrownBot";
 
 interface ServerArtists {
@@ -54,16 +55,18 @@ export class Artists implements CacheComponent {
       guild_id = guild;
     }
 
-    const db_server_artists = await this.#bot.models.whoknowslog
-      .find({
-        guild_id: guild_id,
-      })
-      .sort({
-        listener: "desc",
-      })
-      .limit(2000);
+    const db_server_artists: GetReturnType<"whoknowslog">[] =
+      await this.#bot.models.whoknowslog
+        .find({
+          guild_id: guild_id,
+        })
+        // @ts-ignore
+        .sort({
+          listener: "desc",
+        })
+        .limit(2000);
 
-    const top_artists: string[] = db_server_artists.map((e) => e.artist_name);
+    const top_artists = db_server_artists.map((e) => e.artist_name);
 
     const cached = this.#server_artists.find((entry) => {
       return entry.guild_id === guild_id;

@@ -27,7 +27,6 @@ module.exports = {
     const crowns = await bot.models.crowns.find({
       guildID: interaction.guild.id,
       userID: discord_user.id,
-      whatever: "wh",
     });
 
     if (crowns.length <= 0) {

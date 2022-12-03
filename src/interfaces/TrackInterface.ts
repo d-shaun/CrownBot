@@ -56,7 +56,7 @@ export interface UserRecentTrack {
       streamable: string;
       url: string;
       date: {
-        uts: string;
+        uts: number;
         "#text": string;
       };
     }[];

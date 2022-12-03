@@ -58,7 +58,7 @@ export interface UserTopArtist {
       playcount: number;
       streamable: string;
       url: string;
-      last_count?: string;
+      last_count?: number;
       is_new?: boolean;
     }[];
   };

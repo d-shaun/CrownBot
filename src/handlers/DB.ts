@@ -82,16 +82,12 @@ export default class DB {
     global = false
   ): Promise<boolean> {
     if (global) {
-      return !!(await this.#models.serverusers.deleteMany({ userID: user_ID }, {
-        useFindAndModify: false,
-      } as any));
+      return !!(await this.#models.serverusers.deleteMany({ userID: user_ID }));
     } else {
-      return !!(await this.#models.serverusers.deleteMany(
-        { guildID: guild_ID, userID: user_ID },
-        {
-          useFindAndModify: false,
-        } as any
-      ));
+      return !!(await this.#models.serverusers.deleteMany({
+        guildID: guild_ID,
+        userID: user_ID,
+      }));
     }
   }
 
@@ -146,7 +142,7 @@ export default class DB {
         userTag: top.user_tag,
         lastfm_username: top.lastfm_username,
         artistName: top.artist_name,
-        artistPlays: top.userplaycount,
+        artistPlays: parseInt(top.userplaycount),
       },
       {
         upsert: true,
@@ -262,6 +258,7 @@ export default class DB {
       guild_ID: interaction.guild.id,
     });
     if (!server_config) {
+      // @ts-ignore
       return new this.#models.serverconfig({
         guild_ID: interaction.guild.id,
         min_plays_for_crowns: 1,

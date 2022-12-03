@@ -62,7 +62,7 @@ export const model_params = {
       type: <UserTopArtist["topartists"]["artist"]>(<unknown>Object),
       required: true,
     },
-    timestamp: Number,
+    timestamp: { type: Number, required: true },
   },
 
   logs: {
@@ -79,7 +79,7 @@ export const model_params = {
     artist_name: { type: String, required: true },
     lyrics: { type: String, required: true },
     timestamp: { type: Number, required: true },
-    permanent: Boolean,
+    permanent: { type: Boolean },
   },
 
   reportbug: {
@@ -91,11 +91,8 @@ export const model_params = {
   },
 
   serverconfig: {
-    guild_ID: {
-      type: { type: String, required: true },
-      unique: true,
-    },
-    min_plays_for_crown: Number,
+    guild_ID: { type: String, required: true, unique: true },
+    min_plays_for_crown: { type: Number, required: true },
   },
 
   serverusers: {
@@ -116,17 +113,17 @@ export const model_params = {
     artist_name: { type: String, required: true },
     guild_id: { type: String, required: true },
     listener: { type: Number, required: true },
-    stat: <LeaderboardInterface>(<any>Object),
+    stat: { type: <LeaderboardInterface[]>(<any>Object) },
     timestamp: { type: Number, required: true },
   },
 
   whoplayslog: {
-    track_name: String,
-    artist_name: String,
-    guild_id: String,
-    listener: Number,
-    stat: Object,
-    timestamp: Number,
+    track_name: { type: String, required: true },
+    artist_name: { type: String, required: true },
+    guild_id: { type: String, required: true },
+    listener: { type: Number, required: true },
+    stat: { type: <LeaderboardInterface[]>(<any>Object) },
+    timestamp: { type: Number, required: true },
   },
 } as const;
 
@@ -153,6 +150,7 @@ type Extras<T> = {
 type MongooseMethods<Z> = Z & {
   find: (query?: Extras<Z>) => Promise<Z[]>;
   findOne: (query?: Extras<Z>) => Promise<Z>;
+  create: (query?: Extras<Z>) => Promise<Z>;
 
   findOneAndUpdate: (
     query: Extras<Z>,
@@ -165,12 +163,6 @@ type MongooseMethods<Z> = Z & {
   deleteMany: (query?: Extras<Z>) => Promise<{ deletedCount: number }>;
 };
 
-type CustomTypes<T> = T extends {
-  type: infer Y extends any;
-}
-  ? Y
-  : never;
-
 type Constructors =
   | NumberConstructor
   | StringConstructor
@@ -181,7 +173,7 @@ type Constructors =
 export type ModelTypes = {
   [K in keyof typeof model_params]: MongooseMethods<{
     -readonly [Z in keyof typeof model_params[K]]: typeof model_params[K][Z] extends {
-      type: infer Y extends Constructors | LeaderboardInterface;
+      type: infer Y;
     }
       ? Y extends Constructors
         ? ReturnType<Y>
@@ -193,9 +185,3 @@ export type ModelTypes = {
 export type GetReturnType<T extends keyof ModelTypes> = Awaited<
   ReturnType<ModelTypes[T]["findOne"]>
 >;
-
-// const kek: ModelTypes["artistlog"] = <any>1;
-// kek.findOneAndUpdate()
-// const wow = kek.findOneAndUpdate({
-//   "what"
-// })

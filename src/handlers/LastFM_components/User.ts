@@ -328,7 +328,7 @@ export default class extends LastFM {
         .replace(",", "");
       stats.push({
         name,
-        plays: plays,
+        plays: parseInt(plays),
       });
     });
     return stats;
@@ -503,7 +503,7 @@ export default class extends LastFM {
         .replace(",", "");
       stats.push({
         date,
-        playcount: playcount,
+        playcount: parseInt(playcount),
       });
     });
     return stats;

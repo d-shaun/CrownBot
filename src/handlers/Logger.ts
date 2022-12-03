@@ -16,6 +16,7 @@ export default class Logger {
       guild_ID: response.interaction.guild.id,
       timestamp: new Date(),
     };
+    // @ts-ignore
     return await new this.bot.models.logs({ ...data }).save();
   }
 }

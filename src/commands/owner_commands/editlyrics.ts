@@ -16,6 +16,7 @@ import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
 import Track from "../../handlers/LastFM_components/Track";
 import User from "../../handlers/LastFM_components/User";
+import { GetReturnType } from "../../models/DBModels";
 
 export default async function edit_lyrics(
   bot: CrownBot,
@@ -116,7 +117,7 @@ export default async function edit_lyrics(
 
 async function show_modal(
   interaction: ButtonInteraction,
-  db_entry: ExtractModelType<"lyricslog">
+  db_entry: GetReturnType<"lyricslog">
 ) {
   const modal = new ModalBuilder()
     .setCustomId("lyricsmodal")

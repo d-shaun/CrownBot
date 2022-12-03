@@ -5,7 +5,7 @@ import CrownBot from "../handlers/CrownBot";
 import DB from "../handlers/DB";
 import Album from "../handlers/LastFM_components/Album";
 import User from "../handlers/LastFM_components/User";
-import { LeaderboardInterface } from "../interfaces/LeaderboardInterface";
+import { NewLeaderboardInterface } from "../interfaces/LeaderboardInterface";
 import cb from "../misc/codeblock";
 import esm from "../misc/escapemarkdown";
 import get_registered_users from "../misc/get_registered_users";
@@ -127,7 +127,7 @@ module.exports = {
     }
 
     responses = responses.filter((response) => response.wrapper.success);
-    let leaderboard: LeaderboardInterface[] = [];
+    let leaderboard: NewLeaderboardInterface[] = [];
 
     responses.forEach((response) => {
       const album = response.wrapper.data.album;
