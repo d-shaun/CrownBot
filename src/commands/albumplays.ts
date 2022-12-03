@@ -13,7 +13,6 @@ import abbreviate from "number-abbreviate";
 import { CommandResponse } from "../handlers/CommandResponse";
 import Album from "../handlers/LastFM_components/Album";
 import { UserAlbum } from "../interfaces/AlbumInterface";
-import { AlbumLogInterface } from "../models/AlbumLog";
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -113,7 +112,7 @@ module.exports = {
       time: <boolean | string>false,
     };
 
-    const last_log = await bot.models.albumlog.findOne(<AlbumLogInterface>{
+    const last_log = await bot.models.albumlog.findOne({
       name: album.name,
       artistName: album.artist,
       userID: interaction.user.id,
@@ -122,7 +121,7 @@ module.exports = {
       last_count = last_log.userplaycount;
       strs.time = time_difference(last_log.timestamp);
     }
-    const count_diff = parseInt(album.userplaycount) - last_count;
+    const count_diff = album.userplaycount - last_count;
     if (count_diff < 0) {
       strs.count = `:small_red_triangle_down: ${count_diff}`;
     } else if (count_diff > 0) {
@@ -132,20 +131,13 @@ module.exports = {
     const aggr_str = strs.time
       ? `**${strs.count}** since last checked ${strs.time} ago.`
       : "";
-    let artist_plays = "";
-    if (artist.stats && artist.stats.userplaycount) {
-      artist_plays = artist.stats.userplaycount;
-    }
+    // let artist_plays;
+
+    const artist_plays = artist.stats.userplaycount;
 
     const percentage = {
-      album: (
-        (parseInt(album.userplaycount) / parseInt(album.playcount)) *
-        100
-      ).toFixed(2),
-      artist: (
-        (parseInt(album.userplaycount) / parseInt(artist_plays)) *
-        100
-      ).toFixed(2),
+      album: ((album.userplaycount / album.playcount) * 100).toFixed(2),
+      artist: ((album.userplaycount / artist_plays) * 100).toFixed(2),
     };
 
     const percentage_text = {
@@ -187,7 +179,7 @@ module.exports = {
     const timestamp = moment.utc().valueOf();
 
     await client.models.albumlog.findOneAndUpdate(
-      <AlbumLogInterface>{
+      {
         name: album.name,
         artistName: album.artist,
         userID: interaction.user.id,

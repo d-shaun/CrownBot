@@ -51,10 +51,7 @@ module.exports = {
       return response.error("lastfm_error", query.lastfm_errormessage);
     }
     const artist = query.data.artist;
-    if (
-      !artist.stats.userplaycount ||
-      parseInt(artist.stats.userplaycount) <= 0
-    ) {
+    if (!artist.stats.userplaycount || artist.stats.userplaycount <= 0) {
       response.text = `You haven't listened to ${cb(artist.name)}`;
       return response;
     }

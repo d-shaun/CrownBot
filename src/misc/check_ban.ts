@@ -22,12 +22,10 @@ export default async function check_ban(
     banned: false,
     type: <undefined | string>undefined,
   };
-  const bans = await bot.models.bans
-    .find({
-      userID: interaction.user.id,
-      guildID: { $in: [interaction.guild.id, "any"] },
-    })
-    .lean();
+  const bans = await bot.models.bans.find({
+    userID: interaction.user.id,
+    guildID: { $in: [interaction.guild.id, "any"] },
+  });
   if (!bans.length) {
     return response;
   }

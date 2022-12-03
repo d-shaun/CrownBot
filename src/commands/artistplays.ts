@@ -6,7 +6,6 @@ import Artist from "../handlers/LastFM_components/Artist";
 import User from "../handlers/LastFM_components/User";
 import esm from "../misc/escapemarkdown";
 import time_difference from "../misc/time_difference";
-import { ArtistLogInterface } from "../models/ArtistLog";
 
 import moment from "moment";
 // @ts-ignore
@@ -67,7 +66,7 @@ module.exports = {
       count: "No change",
       time: <boolean | string>false,
     };
-    const last_log = await bot.models.artistlog.findOne(<ArtistLogInterface>{
+    const last_log = await bot.models.artistlog.findOne({
       name: artist.name,
       userID: interaction.user.id,
     });
@@ -75,7 +74,7 @@ module.exports = {
       last_count = last_log.userplaycount;
       strs.time = time_difference(last_log.timestamp);
     }
-    const count_diff = parseInt(artist.stats.userplaycount) - last_count;
+    const count_diff = artist.stats.userplaycount - last_count;
     if (count_diff < 0) {
       strs.count = `:small_red_triangle_down: ${count_diff}`;
     } else if (count_diff > 0) {
@@ -85,8 +84,7 @@ module.exports = {
       ? `**${strs.count}** since last checked ${strs.time} ago.`
       : "";
     const percentage = (
-      (parseInt(artist.stats.userplaycount) /
-        parseInt(artist.stats.playcount)) *
+      (artist.stats.userplaycount / artist.stats.playcount) *
       100
     ).toFixed(2);
     const embed = new EmbedBuilder()
@@ -112,7 +110,7 @@ module.exports = {
     const timestamp = moment.utc().valueOf();
 
     await client.models.artistlog.findOneAndUpdate(
-      <ArtistLogInterface>{
+      {
         name: artist.name,
         userID: interaction.user.id,
       },

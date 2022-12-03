@@ -1,15 +1,7 @@
 import { GuildMember, UserResolvable } from "discord.js";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
 import CrownBot from "../handlers/CrownBot";
-import { BanInterface } from "../models/Bans";
-import { UserInterface } from "../models/Users";
-
-interface UserFetchInterface {
-  users: {
-    discord: GuildMember;
-    database: UserInterface;
-  }[];
-}
+import { GetReturnType } from "../models/DBModels";
 
 /**
  * Returns users registered to the bot in a server.
@@ -21,16 +13,26 @@ interface UserFetchInterface {
 export default async function get_registered_users(
   bot: CrownBot,
   interaction: GuildChatInteraction
-): Promise<UserFetchInterface | undefined> {
-  const banned_users: BanInterface[] = await bot.models.bans.find({
+): Promise<
+  | {
+      users: {
+        discord: GuildMember;
+        database: GetReturnType<"serverusers">;
+      }[];
+    }
+  | undefined
+> {
+  const banned_users = await bot.models.bans.find({
     guildID: { $in: [interaction.guild.id, "any"] },
   });
 
   const banned_ids = banned_users.map((user) => user.userID);
 
-  const server_db = (<UserInterface[]>await bot.models.serverusers.find({
-    guildID: interaction.guild.id,
-  })).filter((user) => !banned_ids.includes(user.userID));
+  const server_db = (
+    await bot.models.serverusers.find({
+      guildID: interaction.guild.id,
+    })
+  ).filter((user) => !banned_ids.includes(user.userID));
 
   const entries = [];
 

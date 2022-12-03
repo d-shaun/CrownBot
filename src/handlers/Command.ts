@@ -110,6 +110,7 @@ async function log_error(
     stack: `${stack || `none`}`,
   };
   if (stack) {
+    // @ts-ignore
     await new bot.models.errorlogs({ ...data }).save();
     response.text =
       `The bot has encountered an unexpected error while executing your request; ` +

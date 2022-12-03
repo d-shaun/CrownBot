@@ -7,7 +7,7 @@ interface AlbumComponent {
   listeners: string;
   mbid: string;
   name: string;
-  playcount: string;
+  playcount: number;
   tags: { tag: { name: string; url: string }[] };
   tracks: {
     track: AlbumTrack[];
@@ -21,7 +21,7 @@ export interface Album {
 
 export interface UserAlbum {
   album: AlbumComponent & {
-    userplaycount: string;
+    userplaycount: number;
   };
 }
 
@@ -53,7 +53,7 @@ export interface UserTopAlbum {
   topalbums: {
     album: {
       name: string;
-      playcount: string;
+      playcount: number;
       mbid: string;
       url: string;
       artist: {

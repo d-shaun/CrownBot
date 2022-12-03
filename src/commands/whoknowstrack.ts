@@ -9,7 +9,6 @@ import { LeaderboardInterface } from "../interfaces/LeaderboardInterface";
 import cb from "../misc/codeblock";
 import get_registered_users from "../misc/get_registered_users";
 import time_difference from "../misc/time_difference";
-import { LogInterface } from "../models/WhoKnowsLog";
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -139,13 +138,13 @@ module.exports = {
       const context = response.context;
       if (!context || !context.discord_user) return;
       if (track.userplaycount === undefined) return;
-      if (parseInt(track.userplaycount) <= 0) return;
+      if (track.userplaycount <= 0) return;
       leaderboard.push({
         track_name: track.name,
         artist_name: track.artist.name,
         discord_username: context.discord_user?.user.username,
         lastfm_username: context.lastfm_username,
-        userplaycount: track.userplaycount,
+        userplaycount: track.userplaycount.toString(),
         user_id: context.discord_user.user.id,
         user_tag: context.discord_user.user.tag,
         guild_id: interaction.guild.id,
@@ -160,7 +159,7 @@ module.exports = {
       return response;
     }
 
-    const last_log: LogInterface | null = await bot.models.whoplayslog.findOne({
+    const last_log = await bot.models.whoplayslog.findOne({
       track_name: track.name,
       artist_name: track.artist.name,
       guild_id: interaction.guild.id,

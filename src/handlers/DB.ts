@@ -1,14 +1,13 @@
 import { User as DiscordUser } from "discord.js";
 import moment from "moment";
-import { Model } from "mongoose";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
 import { UserTopArtist } from "../interfaces/ArtistInterface";
 import { DBUser } from "../interfaces/DBUserInterface";
 import { LeaderboardInterface } from "../interfaces/LeaderboardInterface";
-import { ServerConfigInterface } from "../models/ServerConfig";
+import { ModelTypes } from "../models/DBModels";
 
 export default class DB {
-  #models: { [key: string]: Model<any> };
+  #models: ModelTypes;
 
   /**
    *
@@ -16,7 +15,7 @@ export default class DB {
    * The object made of mongoose models.
    * In this setup, it is `client.models`.
    */
-  constructor(models: { [key: string]: Model<any> }) {
+  constructor(models: ModelTypes) {
     this.#models = models;
   }
 
@@ -55,7 +54,7 @@ export default class DB {
     guild_ID: string | undefined,
     user_ID: string,
     global = false
-  ): Promise<DBUser | undefined> {
+  ): Promise<DBUser | null> {
     let user;
     if (global) {
       user = await this.#models.serverusers.findOne({
@@ -67,21 +66,6 @@ export default class DB {
         userID: user_ID,
       });
     }
-    return user;
-  }
-
-  /**
-   * Legacy method of fetching user. This is similar to `fetch_user` with `global` set to `true`.
-   *
-   * - THIS WILL BE SOON REMOVED. REFER TO <https://discord.com/channels/657915913567469588/663355060058718228/747164031248367731>.
-   *
-   * @param user_ID
-   * Discord user ID.
-   */
-  async legacy_fetch_user(user_ID: string): Promise<DBUser | undefined> {
-    const user = await this.#models.users.findOne({
-      userID: user_ID,
-    });
     return user;
   }
 
@@ -98,16 +82,12 @@ export default class DB {
     global = false
   ): Promise<boolean> {
     if (global) {
-      return !!(await this.#models.serverusers.deleteMany({ userID: user_ID }, {
-        useFindAndModify: false,
-      } as any));
+      return !!(await this.#models.serverusers.deleteMany({ userID: user_ID }));
     } else {
-      return !!(await this.#models.serverusers.deleteMany(
-        { guildID: guild_ID, userID: user_ID },
-        {
-          useFindAndModify: false,
-        } as any
-      ));
+      return !!(await this.#models.serverusers.deleteMany({
+        guildID: guild_ID,
+        userID: user_ID,
+      }));
     }
   }
 
@@ -124,7 +104,7 @@ export default class DB {
     interaction: GuildChatInteraction,
     user: DiscordUser
   ): Promise<boolean> {
-    return this.#models.bans.create({
+    return !!this.#models.bans.create({
       guildID: interaction.guild.id,
       guildName: interaction.guild.name,
       userID: user.id,
@@ -162,7 +142,7 @@ export default class DB {
         userTag: top.user_tag,
         lastfm_username: top.lastfm_username,
         artistName: top.artist_name,
-        artistPlays: top.userplaycount,
+        artistPlays: parseInt(top.userplaycount),
       },
       {
         upsert: true,
@@ -269,71 +249,16 @@ export default class DB {
   }
 
   /**
-   * Opts a server out of beta features.
-   * @param interaction
-   */
-  async opt_out(interaction: GuildChatInteraction): Promise<void> {
-    await this.#models.optins.findOneAndRemove(
-      {
-        type: "beta",
-        guild_ID: interaction.guild.id,
-      },
-      {
-        useFindAndModify: false,
-      }
-    );
-  }
-
-  /**
-   * Opts a server in to beta features.
-   * @param interaction
-   */
-  async opt_in(interaction: GuildChatInteraction): Promise<void> {
-    await this.#models.optins.findOneAndUpdate(
-      {
-        type: "beta",
-        guild_ID: interaction.guild.id,
-      },
-      {
-        type: "beta",
-        guild_ID: interaction.guild.id,
-        guild_name: interaction.guild.name,
-        username: interaction.user.tag,
-        user_ID: interaction.user.id,
-        timestamp: `${new Date().toUTCString()}`,
-      },
-      {
-        upsert: true,
-        useFindAndModify: false,
-      }
-    );
-  }
-
-  /**
-   * Checks current opt-in status of a server.
-   * @param interaction
-   */
-  async check_optin(interaction: GuildChatInteraction): Promise<boolean> {
-    const beta_log = await this.#models.optins
-      .findOne({
-        type: "beta",
-        guild_ID: interaction.guild.id,
-      })
-      .lean();
-    return !!beta_log;
-  }
-
-  /**
    * Fetches configurations of a server.
    * - Returns an object with `min_plays_for_crowns` set to 1 if no config is found.
    * @param interaction
    */
   async server_config(interaction: GuildChatInteraction) {
-    const server_config: ServerConfigInterface | null =
-      await this.#models.serverconfig.findOne({
-        guild_ID: interaction.guild.id,
-      });
+    const server_config = await this.#models.serverconfig.findOne({
+      guild_ID: interaction.guild.id,
+    });
     if (!server_config) {
+      // @ts-ignore
       return new this.#models.serverconfig({
         guild_ID: interaction.guild.id,
         min_plays_for_crowns: 1,

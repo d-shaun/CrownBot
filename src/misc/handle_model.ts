@@ -20,6 +20,7 @@ export async function handle_reportbug(
     message,
     timestamp: new Date().toUTCString(),
   };
+  // @ts-ignore
   await new bot.models.reportbug({ ...data }).save();
 
   // check if exception_log_channel is set

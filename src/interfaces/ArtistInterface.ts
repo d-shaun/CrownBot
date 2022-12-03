@@ -24,7 +24,7 @@ interface ArtistComponent {
   };
   stats: {
     listeners: string;
-    playcount: string;
+    playcount: number;
   };
   streamable: string;
   tags: { tag: { name: string; url: string }[] };
@@ -39,8 +39,8 @@ export interface UserArtist {
   artist: ArtistComponent & {
     stats: {
       listeners: string;
-      playcount: string;
-      userplaycount: string;
+      playcount: number;
+      userplaycount: number;
     };
   };
 }
@@ -55,10 +55,10 @@ export interface UserTopArtist {
       }[];
       mbid: string;
       name: string;
-      playcount: string;
+      playcount: number;
       streamable: string;
       url: string;
-      last_count?: string;
+      last_count?: number;
       is_new?: boolean;
     }[];
   };

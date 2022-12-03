@@ -40,7 +40,7 @@ module.exports = {
       return response;
     }
 
-    if (await banned_user.remove()) {
+    if (await (<any>banned_user).remove()) {
       response.text = `\`${user.tag}\` has been unbanned.`;
       return response;
     } else {

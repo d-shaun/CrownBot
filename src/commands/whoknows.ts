@@ -11,8 +11,6 @@ import esm from "../misc/escapemarkdown";
 import get_registered_users from "../misc/get_registered_users";
 import parse_spotify from "../misc/parse_spotify_presence";
 import time_difference from "../misc/time_difference";
-import { CrownInterface } from "../models/Crowns";
-import { LogInterface } from "../models/WhoKnowsLog";
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -119,13 +117,13 @@ module.exports = {
       const context = response.context;
       if (!context || !context.discord_user) return;
       if (artist.stats.userplaycount === undefined) return;
-      if (parseInt(artist.stats.userplaycount) <= 0) return;
+      if (artist.stats.userplaycount <= 0) return;
 
       leaderboard.push({
         artist_name: artist.name,
         discord_username: context.discord_user?.user.username,
         lastfm_username: context.lastfm_username,
-        userplaycount: artist.stats.userplaycount,
+        userplaycount: artist.stats.userplaycount.toString(),
         user_id: context.discord_user.user.id,
         user_tag: context.discord_user.user.tag,
         guild_id: interaction.guild.id,
@@ -136,12 +134,12 @@ module.exports = {
       return response;
     }
 
-    const last_log: LogInterface | null = await bot.models.whoknowslog.findOne({
+    const last_log = await bot.models.whoknowslog.findOne({
       artist_name: artist.name,
       guild_id: interaction.guild.id,
     });
 
-    const last_crown: CrownInterface | null = await bot.models.crowns.findOne({
+    const last_crown = await bot.models.crowns.findOne({
       artistName: artist.name,
       guildID: interaction.guild.id,
     });

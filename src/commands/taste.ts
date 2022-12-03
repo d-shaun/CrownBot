@@ -68,8 +68,8 @@ module.exports = {
       if (!usertwo_artist) return;
       plays.push({
         name: artist.name,
-        userone_plays: parseInt(artist.playcount),
-        usertwo_plays: parseInt(usertwo_artist.playcount),
+        userone_plays: artist.playcount,
+        usertwo_plays: usertwo_artist.playcount,
       });
     });
 

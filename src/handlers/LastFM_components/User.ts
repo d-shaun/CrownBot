@@ -202,10 +202,7 @@ export default class extends LastFM {
       // consider the track scrobbled in the last 3 minutes as 'now-playing'
       let is_scrobbled_recently = false;
       if (last_track.date) {
-        const diff = moment().diff(
-          moment.unix(parseInt(last_track.date.uts)),
-          "minutes"
-        );
+        const diff = moment().diff(moment.unix(last_track.date.uts), "minutes");
         is_scrobbled_recently = diff <= 3;
       }
 
@@ -280,10 +277,7 @@ export default class extends LastFM {
       // consider the track scrobbled in the last 3 minutes as 'now-playing'
       let is_scrobbled_recently = false;
       if (last_track.date) {
-        const diff = moment().diff(
-          moment.unix(parseInt(last_track.date.uts)),
-          "minutes"
-        );
+        const diff = moment().diff(moment.unix(last_track.date.uts), "minutes");
         is_scrobbled_recently = diff <= 3;
       }
 

@@ -1,17 +1,17 @@
 import { Guild } from "discord.js";
 import { CacheComponent } from "../../interfaces/CacheComponentInterface";
-import { ServerConfigInterface } from "../../models/ServerConfig";
+import { GetReturnType } from "../../models/DBModels";
 import CrownBot from "../CrownBot";
 export class Config implements CacheComponent {
   #bot: CrownBot;
-  #configs: ServerConfigInterface[] | undefined = [];
+  #configs: GetReturnType<"serverconfig">[] | undefined = [];
 
   constructor(bot: CrownBot) {
     this.#bot = bot;
   }
 
   async init() {
-    const configs: any = await this.#bot.models.serverconfig.find().lean();
+    const configs: any = await this.#bot.models.serverconfig.find();
     this.#configs = configs;
     console.log(`initialized ${configs.length} config(s)`);
 
@@ -36,7 +36,7 @@ export class Config implements CacheComponent {
     return server_config;
   }
 
-  set(new_config: ServerConfigInterface, guild: Guild | string) {
+  set(new_config: GetReturnType<"serverconfig">, guild: Guild | string) {
     if (!this.#configs) throw "Configs are not initialized";
 
     let guild_id: string;

@@ -5,7 +5,7 @@ import CrownBot from "../handlers/CrownBot";
 import DB from "../handlers/DB";
 import Album from "../handlers/LastFM_components/Album";
 import User from "../handlers/LastFM_components/User";
-import { LeaderboardInterface } from "../interfaces/LeaderboardInterface";
+import { NewLeaderboardInterface } from "../interfaces/LeaderboardInterface";
 import cb from "../misc/codeblock";
 import esm from "../misc/escapemarkdown";
 import get_registered_users from "../misc/get_registered_users";
@@ -127,14 +127,14 @@ module.exports = {
     }
 
     responses = responses.filter((response) => response.wrapper.success);
-    let leaderboard: LeaderboardInterface[] = [];
+    let leaderboard: NewLeaderboardInterface[] = [];
 
     responses.forEach((response) => {
       const album = response.wrapper.data.album;
       const context = response.context;
       if (!context || !context.discord_user) return;
       if (album.userplaycount === undefined) return;
-      if (parseInt(album.userplaycount) <= 0) return;
+      if (album.userplaycount <= 0) return;
       leaderboard.push({
         album_name: album.name,
         artist_name: album.artist,
@@ -153,11 +153,9 @@ module.exports = {
       return response;
     }
 
-    leaderboard = leaderboard.sort(
-      (a, b) => parseInt(b.userplaycount) - parseInt(a.userplaycount)
-    );
+    leaderboard = leaderboard.sort((a, b) => b.userplaycount - a.userplaycount);
     const total_scrobbles = leaderboard.reduce(
-      (a, b) => a + parseInt(b.userplaycount),
+      (a, b) => a + b.userplaycount,
       0
     );
 

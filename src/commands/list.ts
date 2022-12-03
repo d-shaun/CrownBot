@@ -162,8 +162,7 @@ module.exports = {
           let count_diff;
           let diff_str = "";
           if (artist.last_count) {
-            count_diff =
-              parseInt(artist.playcount) - parseInt(artist.last_count);
+            count_diff = artist.playcount - artist.last_count;
           }
 
           if (count_diff && count_diff < 0) {
