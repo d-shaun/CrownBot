@@ -17,7 +17,6 @@
   "license": "MIT",
   "devDependencies": {
     "@types/chart.js": "^2.9.25",
-    "@types/lyricist": "^2.2.0",
     "@types/node": "^18.7.18",
     "@types/spotify-web-api-node": "^4.0.2",
     "@types/ws": "^7.2.5",
@@ -33,7 +32,6 @@
     "canvas": "^2.10.2",
     "cheerio": "^1.0.0-rc.12",
     "discord.js": "^14.6.0",
-    "lyricist": "https://github.com/d-shaun/lyricist.git",
     "moment": "^2.24.0",
     "mongodb": "^4.9.1",
     "mongoose": "^6.6.0",
