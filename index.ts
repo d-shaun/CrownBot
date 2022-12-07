@@ -19,9 +19,17 @@ MONGO: Mongo DB connection string
 
 # OPTIONAL
 ACCESS_TOKEN: Deezer access token—used to be used in the topalbums command; no longer required.
-GENIUS_API: Genius API for the &lyrics command.
-SPOTIFY_CLIENTID: Spotify client ID for the &chart command to show artist images
-SPOTIFY_SECRETID: Spotify client ID for the &chart command to show artist images
+
+
+LYRICS_ENDPOINT: Lyrics endpoint for the /lyrics command--command won't work unless this is set. 
+    Setup a server to use it as:
+     <server>?gquery=<query string>
+    That <server> needs to be in the environment variable as LYRICS_ENDPOINT. /lyrics appends `?gquery=<query string>` to it.
+    Example, set it to https://mycoolsite.com/lyrics (only add trailing / when necessary) and it becomes https://mycoolsite.com/lyrics?gquery=something 
+
+
+SPOTIFY_CLIENTID: Spotify client ID for the /chart command to show artist images
+SPOTIFY_SECRETID: Spotify client ID for the /chart command to show artist images
 */
 
 (async () => {
