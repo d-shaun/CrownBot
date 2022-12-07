@@ -26,15 +26,8 @@ SPOTIFY_SECRETID: Spotify client ID for the &chart command to show artist images
 
 (async () => {
   try {
-    const {
-      CLIENT_ID,
-      TOKEN,
-      OWNER_ID,
-      API_KEY,
-      ACCESS_TOKEN,
-      MONGO,
-      GENIUS_API,
-    } = process.env;
+    const { CLIENT_ID, TOKEN, OWNER_ID, API_KEY, ACCESS_TOKEN, MONGO } =
+      process.env;
     if (!(TOKEN && OWNER_ID && API_KEY && MONGO && CLIENT_ID && ACCESS_TOKEN)) {
       throw "Some of the environment variables are missing.";
     }
@@ -50,7 +43,6 @@ SPOTIFY_SECRETID: Spotify client ID for the &chart command to show artist images
       api_key: API_KEY,
       access_token: ACCESS_TOKEN,
       mongo: MONGO,
-      genius_api: GENIUS_API,
 
       url: GLOBALS.LASTFM_ENDPOINT,
     }).init();
