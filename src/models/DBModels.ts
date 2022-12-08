@@ -82,6 +82,16 @@ export const model_params = {
     permanent: { type: Boolean },
   },
 
+  submittedlyrics: {
+    request_id: { type: String, required: true, unique: true },
+    user_tag: { type: String, required: true },
+    user_id: { type: String, required: true },
+    track_name: { type: String, required: true },
+    artist_name: { type: String, required: true },
+    lyrics: { type: String, required: true },
+    timestamp: { type: Number, required: true },
+  },
+
   reportbug: {
     user: { type: String, required: true },
     userID: { type: String, required: true },

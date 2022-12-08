@@ -82,6 +82,16 @@ export class CommandResponse {
   embed_components?: ActionRowBuilder<ButtonBuilder>[];
 
   /**
+   * Custom filter for the collector to match
+   */
+  custom_filter?: (i: ButtonInteraction) => boolean;
+
+  /**
+   * Custom function to execute when Collector matches `custom_filter`
+   */
+  custom_hook?: (new_interaction: ButtonInteraction) => unknown;
+
+  /**
    * Array of files to send along with `embeds`
    */
   files?: AttachmentBuilder[];
@@ -227,7 +237,7 @@ export class CommandResponse {
             .setStyle(ButtonStyle.Primary)
             .setCustomId(random_id)
         );
-        this.#hook_button_event(random_id);
+        this.#hook_retry_button(random_id);
       }
     }
 
@@ -236,6 +246,10 @@ export class CommandResponse {
         new ActionRowBuilder().addComponents(buttonComps)
       );
       components.push(row);
+    }
+
+    if (this.custom_filter && this.custom_hook) {
+      this.#hook_custom_function();
     }
 
     if (this.text) {
@@ -280,7 +294,30 @@ export class CommandResponse {
     }
   }
 
-  async #hook_button_event(random_id: string) {
+  async #hook_custom_function() {
+    const collector = this.interaction.channel.createMessageComponentCollector({
+      filter: this.custom_filter,
+      time: GLOBALS.RETRY_BUTTON_TIMEOUT,
+    });
+
+    collector.on("collect", this.custom_hook);
+    collector.on("end", async () => {
+      const sent_msg = await (<GuildChatInteraction>this.interaction)
+        .fetchReply()
+        .catch(() => {
+          // oh no, anyway.
+          // og message has been deleted by someone else.
+        });
+
+      if (sent_msg) {
+        await (<GuildChatInteraction>this.interaction).editReply({
+          components: [],
+        });
+      }
+    });
+  }
+
+  async #hook_retry_button(random_id: string) {
     const filter = (i: ButtonInteraction) =>
       i.user.id === this.interaction.user.id && i.customId === random_id;
 

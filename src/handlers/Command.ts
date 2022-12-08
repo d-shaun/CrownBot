@@ -1,4 +1,4 @@
-import { Client, EmbedBuilder, TextChannel } from "discord.js";
+import { Client, EmbedBuilder } from "discord.js";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
 import { Template } from "../classes/Template";
 import check_ban from "../misc/check_ban";
@@ -149,19 +149,10 @@ async function send_exception_log(
   stack?: string
 ) {
   // check if exception_log_channel is set
-  const config = await bot.models.botconfig.findOne();
-  if (!config || !config.exception_log_channel) return;
-
-  const channel = <TextChannel | undefined>(
-    client.channels.cache.get(config.exception_log_channel)
-  );
+  const channel = await bot.get_log_channel(client);
 
   if (!channel) {
-    console.log(
-      "Cannot find the channel `" +
-        config.exception_log_channel +
-        "` set in exception_log_channel."
-    );
+    console.log("Cannot find the logging channel (exception_log_channel).");
     return;
   }
 

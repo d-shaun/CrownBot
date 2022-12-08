@@ -1,4 +1,12 @@
-import { Client, EmbedBuilder, SlashCommandBuilder } from "discord.js";
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonInteraction,
+  ButtonStyle,
+  Client,
+  EmbedBuilder,
+  SlashCommandBuilder,
+} from "discord.js";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
 import CrownBot from "../handlers/CrownBot";
 import DB from "../handlers/DB";
@@ -9,6 +17,8 @@ import axios from "axios";
 import moment from "moment";
 import { CommandResponse } from "../handlers/CommandResponse";
 import Track from "../handlers/LastFM_components/Track";
+import generate_random_strings from "../misc/generate_random_strings";
+import { LyricsData, show_modal } from "./owner_commands/editlyrics";
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -37,6 +47,7 @@ module.exports = {
 
     // https://whateverendpoint/ --- appends ?gquery=string query
     const { LYRICS_ENDPOINT } = process.env;
+    const random_id = generate_random_strings(8);
 
     const db = new DB(bot.models);
     const user = await db.fetch_user(interaction.guild.id, interaction.user.id);
@@ -46,6 +57,73 @@ module.exports = {
     });
     let track_name = interaction.options.getString("track_name");
     let artist_name = interaction.options.getString("artist_name");
+
+    // Contribute and clear cache buttons (filter & funct)
+    const buttonComps: ButtonBuilder[] = [
+      new ButtonBuilder()
+        .setLabel("✏️ Contribute")
+        .setStyle(ButtonStyle.Success)
+        .setCustomId("edit" + random_id),
+      new ButtonBuilder()
+        .setLabel("🔃 Clear cache")
+        .setStyle(ButtonStyle.Secondary)
+        .setCustomId("purge" + random_id),
+    ];
+    const row = <ActionRowBuilder<ButtonBuilder>>(
+      new ActionRowBuilder().addComponents(buttonComps)
+    );
+
+    const generate_filter_function = async (data: LyricsData) => {
+      return async (new_interaction: ButtonInteraction) => {
+        try {
+          if (new_interaction.customId === "edit" + random_id) {
+            const is_admin = new_interaction.user.id === bot.owner_ID;
+            await show_modal(bot, new_interaction, data, is_admin);
+          } else if (new_interaction.customId === "purge" + random_id) {
+            const fresh_entry = await bot.models.lyricslog.findOne({
+              track_name: track.name,
+              artist_name: track.artist.name,
+            });
+            if (!fresh_entry) {
+              await new_interaction.reply({
+                content:
+                  "There's no entry on the database; please consider submitting the lyrics.",
+                ephemeral: true,
+              });
+              return;
+            }
+            if (fresh_entry.permanent) {
+              await new_interaction.reply({
+                content:
+                  "The lyrics for this track is verified and its cached revision cannot be altered.",
+                ephemeral: true,
+              });
+              return;
+            }
+            //@ts-ignore
+            fresh_entry.delete();
+
+            await new_interaction.reply({
+              content:
+                "The cached lyrics for this track has been cleared; run the /lyrics command again to obtain a fresh revision.",
+              ephemeral: true,
+            });
+            return;
+
+            //
+          }
+        } catch (e) {
+          console.log(e);
+          // add logger here maybe?
+          console.log("Unexpected exception occured.");
+        }
+      };
+    };
+
+    const filter = (i: ButtonInteraction) =>
+      i.customId === "edit" + random_id || i.customId === "purge" + random_id;
+    response.custom_filter = filter;
+
     if (!track_name) {
       const now_playing = await lastfm_user.new_get_nowplaying(
         interaction,
@@ -86,6 +164,9 @@ module.exports = {
       return lyrics.match(/(.|[\r\n]){1,2000}/g);
     };
     if (db_entry) {
+      const filter_function = await generate_filter_function(db_entry);
+      response.custom_hook = filter_function;
+
       const lyrics =
         `**${db_entry.track_name}** by **${db_entry.artist_name}**\n\n` +
         db_entry.lyrics;
@@ -95,15 +176,29 @@ module.exports = {
         for (const chunk of lyrics_chunks) {
           embeds.push(new EmbedBuilder().setDescription(chunk));
         }
+        if (db_entry.permanent) {
+          embeds[embeds.length - 1].setFooter({ text: "(⭐ Verified lyrics)" });
+        } else {
+          embeds[embeds.length - 1].setFooter({ text: "(Cached lyrics)" });
+        }
+        response.embed_components = [row];
         response.embeds = embeds;
         return response;
       }
     }
 
+    const data: LyricsData = {
+      lyrics: "",
+      track_name: track.name,
+      artist_name: track.artist.name,
+    };
+    response.embed_components = [row];
+    const filter_function = await generate_filter_function(data);
+    response.custom_hook = filter_function;
+
     if (!LYRICS_ENDPOINT) {
-      response.error_message =
+      response.text =
         "Couldn't find the source to fetch lyrics from. Please contact the bot maintainer.";
-      response.error_code = "custom";
       return response;
     }
 
@@ -168,7 +263,13 @@ module.exports = {
     for (const chunk of lyrics_chunks) {
       embeds.push(new EmbedBuilder().setDescription(chunk));
     }
+    response.embed_components = [row];
     response.embeds = embeds;
+
+    data.lyrics = original_lyrics;
+    const final_filter_function = await generate_filter_function(data);
+    response.custom_hook = final_filter_function;
+
     return response;
   },
 };

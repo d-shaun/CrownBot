@@ -1,4 +1,4 @@
-import { REST, Routes } from "discord.js";
+import { Client, REST, Routes } from "discord.js";
 import fs from "fs";
 import { connect, Mongoose } from "mongoose";
 import path from "path";
@@ -128,5 +128,16 @@ export default class CrownBot {
   async load_botconfig() {
     this.botconfig = await this.models?.botconfig.findOne();
     return this;
+  }
+
+  /**
+   * Returns logs channel or undefined
+   */
+  async get_log_channel(client: Client) {
+    const config = await this.models.botconfig.findOne();
+    if (!config || !config.exception_log_channel) return;
+
+    const channel = client.channels.cache.get(config.exception_log_channel);
+    if (channel?.isTextBased()) return channel;
   }
 }
