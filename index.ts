@@ -1,7 +1,6 @@
 import { Client, GatewayIntentBits, Interaction } from "discord.js";
 import GLOBALS from "./GLOBALS";
 import GuildChatInteraction from "./src/classes/GuildChatInteraction";
-import { handle_editlyrics } from "./src/commands/owner_commands/editlyrics";
 import { preflight_checks } from "./src/handlers/Command";
 import { CommandResponse } from "./src/handlers/CommandResponse";
 import CrownBot from "./src/handlers/CrownBot";
@@ -73,8 +72,6 @@ SPOTIFY_SECRETID: Spotify client ID for the /chart command to show artist images
       if (interaction.isModalSubmit()) {
         if (interaction.customId === "bugmodal")
           await handle_reportbug(bot, client, interaction);
-        else if (interaction.customId === "lyricsmodal")
-          await handle_editlyrics(bot, client, interaction);
         else if (interaction.customId === "configmodal")
           await handle_editconfig(bot, client, interaction);
         return;

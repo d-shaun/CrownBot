@@ -3,10 +3,9 @@ import {
   ButtonBuilder,
   ButtonInteraction,
   ButtonStyle,
-  Client,
   ComponentType,
+  EmbedBuilder,
   ModalBuilder,
-  ModalSubmitInteraction,
   TextInputBuilder,
   TextInputStyle,
 } from "discord.js";
@@ -16,7 +15,7 @@ import CrownBot from "../../handlers/CrownBot";
 import DB from "../../handlers/DB";
 import Track from "../../handlers/LastFM_components/Track";
 import User from "../../handlers/LastFM_components/User";
-import { GetReturnType } from "../../models/DBModels";
+import generate_random_strings from "../../misc/generate_random_strings";
 
 export default async function edit_lyrics(
   bot: CrownBot,
@@ -110,17 +109,36 @@ export default async function edit_lyrics(
 
   collector.on("collect", async (i) => {
     if (i.customId === random_id) {
-      await show_modal(i, db_entry);
+      await show_modal(bot, i, db_entry);
     }
   });
 }
 
-async function show_modal(
+export type LyricsData = {
+  track_name: string;
+  artist_name: string;
+  lyrics?: string;
+  permanent?: boolean;
+};
+
+export async function show_modal(
+  bot: CrownBot,
   interaction: ButtonInteraction,
-  db_entry: GetReturnType<"lyricslog">
+  entry_data: LyricsData,
+  is_admin = false
 ) {
+  const random_id = generate_random_strings(8);
+
+  if (entry_data.lyrics && entry_data.lyrics?.length >= 3950) {
+    await interaction.reply({
+      content:
+        "The lyrics for this track is too large for the Discord Modal to support. Contact bot support to make changes to the lyrics (see `/about`).",
+      ephemeral: true,
+    });
+    return;
+  }
   const modal = new ModalBuilder()
-    .setCustomId("lyricsmodal")
+    .setCustomId("newlyricsmodal")
     .setTitle("Edit lyrics");
 
   const track_input = new TextInputBuilder()
@@ -128,28 +146,28 @@ async function show_modal(
     .setLabel("Track name")
     .setRequired(true)
     .setStyle(TextInputStyle.Short)
-    .setValue(db_entry.track_name);
+    .setValue(entry_data.track_name);
 
   const artist_input = new TextInputBuilder()
     .setCustomId("new_artist")
     .setLabel("Artist name")
     .setRequired(true)
     .setStyle(TextInputStyle.Short)
-    .setValue(db_entry.artist_name);
+    .setValue(entry_data.artist_name);
 
   const permanent_input = new TextInputBuilder()
     .setCustomId("new_permanent")
     .setLabel("Permanent?")
     .setRequired(true)
     .setStyle(TextInputStyle.Short)
-    .setValue(db_entry.permanent ? "true" : "false");
+    .setValue(entry_data.permanent ? "true" : "false");
 
   const lyrics_input = new TextInputBuilder()
     .setCustomId("new_lyrics")
-    .setLabel("Lyrics")
+    .setLabel("New lyrics")
     .setRequired(true)
     .setStyle(TextInputStyle.Paragraph)
-    .setValue(db_entry.lyrics);
+    .setValue(entry_data.lyrics || "");
 
   const first = new ActionRowBuilder<TextInputBuilder>().addComponents(
     track_input
@@ -164,39 +182,115 @@ async function show_modal(
     lyrics_input
   );
 
-  modal.addComponents(first, second, third, fourth);
+  if (is_admin) modal.addComponents(first, second, third, fourth);
+  else modal.addComponents(fourth);
   await interaction.showModal(modal);
-}
+  // Get the Modal Submit Interaction that is emitted once the User submits the Modal
+  const submitted = await interaction
+    .awaitModalSubmit({
+      time: 60000,
+    })
+    .catch(() => {
+      return null;
+    });
+  if (submitted) {
+    // const track_name = submitted.fields.getTextInputValue("new_track");
+    // const artist_name = submitted.fields.getTextInputValue("new_artist");
+    // const permanent = submitted.fields.getTextInputValue("new_permanent");
+    const lyrics = submitted.fields.getTextInputValue("new_lyrics");
+    const timestamp = moment.utc().valueOf();
 
-export async function handle_editlyrics(
-  bot: CrownBot,
-  client: Client,
-  interaction: ModalSubmitInteraction
-) {
-  const track_name = interaction.fields.getTextInputValue("new_track");
-  const artist_name = interaction.fields.getTextInputValue("new_artist");
-  const permanent = interaction.fields.getTextInputValue("new_permanent");
-  const lyrics = interaction.fields.getTextInputValue("new_lyrics");
+    if (!lyrics) return;
 
-  const timestamp = moment.utc().valueOf();
+    const data = {
+      request_id: random_id,
+      user_tag: submitted.user.tag,
+      user_id: submitted.user.id,
+    };
+    if (is_admin) {
+      const track_name = submitted.fields.getTextInputValue("new_track");
+      const artist_name = submitted.fields.getTextInputValue("new_artist");
+      const permanent = submitted.fields.getTextInputValue("new_permanent");
+      const lyrics = submitted.fields.getTextInputValue("new_lyrics");
 
-  await bot.models.lyricslog.findOneAndUpdate(
-    {
-      track_name: track_name,
-      artist_name: artist_name,
-    },
-    {
-      track_name: track_name,
-      artist_name: artist_name,
-      lyrics: lyrics,
-      permanent: permanent === "true" ? true : false,
-      timestamp,
-    },
-    {
-      upsert: true,
-      useFindAndModify: false,
+      const timestamp = moment.utc().valueOf();
+
+      await bot.models.lyricslog.findOneAndUpdate(
+        {
+          track_name: track_name,
+          artist_name: artist_name,
+        },
+        {
+          track_name: track_name,
+          artist_name: artist_name,
+          lyrics: lyrics,
+          permanent: permanent === "true" ? true : false,
+          timestamp,
+        },
+        {
+          upsert: true,
+          useFindAndModify: false,
+        }
+      );
+
+      const admin_embed = new EmbedBuilder()
+        .setTitle("Lyrics updated")
+        .setDescription(
+          interaction.user.toString() + ": The lyrics entry has updated."
+        );
+      await submitted.reply({
+        embeds: [admin_embed],
+      });
+
+      return;
     }
-  );
-  await interaction.reply("The entry has been updated");
-  return;
+
+    // normal user
+    await bot.models.submittedlyrics.create({
+      ...data,
+      track_name: entry_data.track_name,
+      artist_name: entry_data.artist_name,
+      lyrics: lyrics,
+      timestamp,
+    });
+    const user_embed = new EmbedBuilder()
+      .setTitle("Lyrics submitted")
+      .setDescription(
+        interaction.user.toString() +
+          ": Your new lyrics have been submitted and it is **currently under review**. Please check back later for your changes to show up. Thank you!"
+      );
+    await submitted.reply({
+      embeds: [user_embed],
+    });
+
+    const channel = await bot.get_log_channel(interaction.client);
+
+    if (!channel) {
+      console.log("Cannot find the logging channel (exception_log_channel).");
+      return;
+    }
+
+    const log_embed = new EmbedBuilder()
+      .setTitle("New lyrics submission")
+      .addFields([
+        { name: "Request ID", value: random_id, inline: false },
+        { name: "User tag", value: data.user_tag, inline: false },
+        { name: "Track name", value: entry_data.track_name, inline: false },
+        { name: "Artist name", value: entry_data.artist_name, inline: false },
+
+        { name: "Timestamp", value: new Date().toUTCString(), inline: false },
+      ]);
+
+    const buttonComps: ButtonBuilder[] = [
+      new ButtonBuilder()
+        .setLabel("🔍 Review")
+        .setStyle(ButtonStyle.Secondary)
+        .setCustomId("review-" + random_id),
+    ];
+    const row = <ActionRowBuilder<ButtonBuilder>>(
+      new ActionRowBuilder().addComponents(buttonComps)
+    );
+
+    await channel.send({ embeds: [log_embed], components: [row] });
+  }
 }

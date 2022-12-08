@@ -5,6 +5,8 @@ export default {
   MAX_USERS: 250, // max user limit per server
   LASTFM_ENDPOINT: "https://ws.audioscrobbler.com/2.0/?",
 
+  GENERAL_TIMEOUT: 300000, // ms -> 5 minutes
+
   PAGINATE_TIMEOUT: 300000, // ms -> 5 minutes
   PAGINATE_ELEMENTS: 15,
 
