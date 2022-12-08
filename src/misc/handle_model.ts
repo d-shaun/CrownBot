@@ -16,7 +16,7 @@ export async function handle_reportbug(
   const data = {
     user: interaction.user.tag,
     userID: interaction.user.id,
-    guilID: interaction.guildId,
+    guildID: interaction.guildId,
     message,
     timestamp: new Date().toUTCString(),
   };
