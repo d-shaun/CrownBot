@@ -195,9 +195,12 @@ module.exports = {
     response.embed_components = [row];
     const filter_function = await generate_filter_function(data);
     response.custom_hook = filter_function;
-
+    const title = `Track: **${esm(track.name)}** by **${esm(
+      track.artist.name
+    )}**\n`;
     if (!LYRICS_ENDPOINT) {
       response.text =
+        title +
         "Couldn't find the source to fetch lyrics from. Please contact the bot maintainer.";
       return response;
     }
@@ -228,14 +231,14 @@ module.exports = {
     }
 
     if (!original_lyrics) {
-      response.text = "Couldn't parse lyrics for the song.";
+      response.text = title + "Couldn't parse lyrics for the song.";
       return response;
     }
     const lyrics = `**${esm(track.name)}** by **${esm(
       track.artist.name
     )}**\n\n${original_lyrics}`;
     if (lyrics.length > 6000) {
-      response.text = "Couldn't find lyrics for the song.";
+      response.text = title + "Couldn't find lyrics for the song.";
       return response;
     }
     const lyrics_chunks = toChunks(lyrics);
