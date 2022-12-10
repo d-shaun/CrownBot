@@ -166,7 +166,7 @@ export async function handle_button(
       });
     } else {
       const old_attachment = new AttachmentBuilder(
-        Buffer.from(new_lyrics.lyrics),
+        Buffer.from(saved_lyrics.lyrics),
         {
           name: "Database lyrics.txt",
         }
