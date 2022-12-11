@@ -9,7 +9,8 @@ export class Collectors implements CacheComponent {
     return true;
   }
 
-  async add(collector: InteractionCollector<ButtonInteraction>) {
-    this.entries.push(collector);
+  add(collector: InteractionCollector<ButtonInteraction>) {
+    if (this.entries.length > 100) this.entries.length = 90;
+    this.entries.unshift(collector);
   }
 }
