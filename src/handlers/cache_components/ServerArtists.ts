@@ -3,14 +3,12 @@ import { CacheComponent } from "../../interfaces/CacheComponentInterface";
 import { GetReturnType } from "../../models/DBModels";
 import CrownBot from "../CrownBot";
 
-interface ServerArtists {
-  guild_id: string;
-  artists: string[];
-}
-
-export class Artists implements CacheComponent {
+export class ServerArtists implements CacheComponent {
   #bot: CrownBot;
-  #server_artists: ServerArtists[] = [];
+  #entries: {
+    guild_id: string;
+    artists: string[];
+  }[] = [];
 
   constructor(bot: CrownBot) {
     this.#bot = bot;
@@ -22,7 +20,7 @@ export class Artists implements CacheComponent {
   }
 
   async check() {
-    return !!this.#server_artists;
+    return !!this.#entries;
   }
 
   async get(guild: Guild | string) {
@@ -33,14 +31,14 @@ export class Artists implements CacheComponent {
       guild_id = guild;
     }
 
-    let cached = this.#server_artists.find((entry) => {
+    let cached = this.#entries.find((entry) => {
       return entry.guild_id === guild_id;
     });
     if (!cached) {
       await this.set(guild_id);
     }
 
-    cached = this.#server_artists.find((entry) => {
+    cached = this.#entries.find((entry) => {
       return entry.guild_id === guild_id;
     });
 
@@ -68,14 +66,14 @@ export class Artists implements CacheComponent {
 
     const top_artists = db_server_artists.map((e) => e.artist_name);
 
-    const cached = this.#server_artists.find((entry) => {
+    const cached = this.#entries.find((entry) => {
       return entry.guild_id === guild_id;
     });
 
     if (cached) {
       cached.artists = top_artists;
     } else {
-      this.#server_artists.push({ guild_id: guild_id, artists: top_artists });
+      this.#entries.push({ guild_id: guild_id, artists: top_artists });
     }
 
     return true;
