@@ -4,9 +4,12 @@ import GuildChatInteraction from "./src/classes/GuildChatInteraction";
 import { preflight_checks } from "./src/handlers/Command";
 import { CommandResponse } from "./src/handlers/CommandResponse";
 import CrownBot from "./src/handlers/CrownBot";
-import handle_autocomplete from "./src/misc/handle_autocomplete";
-import { handle_button } from "./src/misc/handle_button";
-import { handle_editconfig, handle_reportbug } from "./src/misc/handle_model";
+import handle_autocomplete from "./src/handlers/handle_autocomplete";
+import { handle_button } from "./src/handlers/handle_button";
+import {
+  handle_editconfig,
+  handle_reportbug,
+} from "./src/handlers/handle_modal";
 /*
 # REQUIRED
 ======================================================================================================

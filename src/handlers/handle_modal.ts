@@ -4,7 +4,7 @@ import {
   ModalSubmitInteraction,
   TextChannel,
 } from "discord.js";
-import CrownBot from "../handlers/CrownBot";
+import CrownBot from "./CrownBot";
 
 export async function handle_reportbug(
   bot: CrownBot,

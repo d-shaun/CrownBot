@@ -6,6 +6,7 @@ import {
   TextInputBuilder,
   TextInputStyle,
 } from "discord.js";
+import { exit } from "process";
 import { inspect } from "util";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
 import CrownBot from "../handlers/CrownBot";
@@ -14,11 +15,12 @@ import edit_lyrics from "./owner_commands/editlyrics";
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("managebot")
-    .setDescription("Commands to manage the bot (only for bot owner)")
+    .setDescription("Commands to manage the bot [ONLY FOR BOT OWNER]")
+    .setDefaultMemberPermissions(0)
     .addSubcommand((option) =>
       option
         .setName("eval")
-        .setDescription("Execute code on the bot (owner only)")
+        .setDescription("Execute code on the bot [BOT OWNER ONLY!]")
         .addStringOption((option) =>
           option
             .setName("code")
@@ -32,10 +34,19 @@ module.exports = {
             .setRequired(false)
         )
     )
+
+    .addSubcommand((option) =>
+      option
+        .setName("shutdown")
+        .setDescription("Gracefully shutdown the bot [BOT OWNER ONLY!]")
+    )
+
     .addSubcommand((option) =>
       option
         .setName("editlyrics")
-        .setDescription("Edit lyrics of a song on the database (owner only)")
+        .setDescription(
+          "Edit lyrics of a song on the database [BOT OWNER ONLY!]"
+        )
         .addStringOption((option) =>
           option
             .setName("track_name")
@@ -58,7 +69,7 @@ module.exports = {
     .addSubcommand((option) =>
       option
         .setName("config")
-        .setDescription("Manage bot's config (owner only)")
+        .setDescription("Manage bot's config [BOT OWNER ONLY!]")
     ),
 
   async execute(
@@ -69,6 +80,7 @@ module.exports = {
     const hide_reply =
       interaction.options.getBoolean("hide_reply", false) || false;
 
+    // check if it's the bot owner
     if (interaction.user.id !== bot.owner_ID) {
       await interaction.reply({
         content:
@@ -78,9 +90,7 @@ module.exports = {
       return;
     }
 
-    /**
-     * Config command
-     */
+    // config command
     if (interaction.options.getSubcommand() === "config") {
       const modal = new ModalBuilder()
         .setCustomId("configmodal")
@@ -136,11 +146,7 @@ module.exports = {
     if (hide_reply) await interaction.deferReply({ ephemeral: true });
     else await interaction.deferReply({ ephemeral: false });
 
-    /*
-    ***
-        EVAL COMMAND
-    ***
-    */
+    // the EV(A/I)L command
     if (interaction.options.getSubcommand() === "eval") {
       const code = interaction.options.getString("code", true);
       let trimmed_string;
@@ -158,13 +164,38 @@ module.exports = {
       return;
     }
 
-    /*
-    ***
-        EDITLYRICS COMMAND
-    ***
-    */
+    // editlyrics command
     if (interaction.options.getSubcommand() === "editlyrics") {
       await edit_lyrics(bot, interaction);
+      return;
+    }
+
+    // shutdown command
+    if (interaction.options.getSubcommand() === "shutdown") {
+      try {
+        const collectors = bot.cache.collectors.get();
+        if (collectors.length) {
+          await interaction.editReply(
+            `Gracefully shutting down the bot... (Terminating **${collectors.length}** active collectors.)`
+          );
+          collectors.forEach((collector) => collector.emit("end"));
+        } else {
+          await interaction.editReply(
+            "Gracefully shutting down the bot... (No active collectors.)"
+          );
+        }
+      } catch (e) {
+        // ignore any error and continue shutting down
+        console.log(e);
+      }
+      // wait 3s and destroy the Client
+      setTimeout(async () => {
+        await interaction.editReply(
+          "All active processes have been terminated. Bye!"
+        );
+        client.destroy();
+        exit(0);
+      }, 3000);
       return;
     }
   },

@@ -131,7 +131,6 @@ module.exports = {
     const aggr_str = strs.time
       ? `**${strs.count}** since last checked ${strs.time} ago.`
       : "";
-    // let artist_plays;
 
     const artist_plays = artist.stats.userplaycount;
 

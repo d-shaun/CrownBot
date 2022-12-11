@@ -10,7 +10,9 @@ export default async function handle_autocomplete(
 
   const focused = interaction.options.getFocused(true);
   if (focused.name === "artist_name") {
-    const server_artists = await bot.cache.artists.get(interaction.guildId);
+    const server_artists = await bot.cache.serverartists.get(
+      interaction.guildId
+    );
     if (!server_artists) return;
     const choices = server_artists.artists;
     const filtered = choices.filter((choice) =>

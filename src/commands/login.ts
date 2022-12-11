@@ -113,13 +113,12 @@ module.exports = {
       const filter = (i: ButtonInteraction) =>
         i.user.id === interaction.user.id;
 
-      const collector =
-        interaction.channel.createMessageComponentCollector<ComponentType.Button>(
-          {
-            filter,
-            time: 120000,
-          }
-        );
+      const collector = interaction.channel.createMessageComponentCollector({
+        componentType: ComponentType.Button,
+        filter,
+        time: 120000,
+      });
+      bot.cache.collectors.add(collector);
 
       collector.once("collect", async (i) => {
         if (i.customId === "cancel") {
