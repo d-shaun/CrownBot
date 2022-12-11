@@ -6,6 +6,7 @@ import {
   TextInputBuilder,
   TextInputStyle,
 } from "discord.js";
+import { exit } from "process";
 import { inspect } from "util";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
 import CrownBot from "../handlers/CrownBot";
@@ -68,11 +69,6 @@ module.exports = {
     .addSubcommand((option) =>
       option
         .setName("config")
-        .setDescription("Manage bot's config [BOT OWNER ONLY!]")
-    )
-    .addSubcommand((option) =>
-      option
-        .setName("shutdown")
         .setDescription("Manage bot's config [BOT OWNER ONLY!]")
     ),
 
@@ -176,7 +172,30 @@ module.exports = {
 
     // shutdown command
     if (interaction.options.getSubcommand() === "shutdown") {
-      await interaction.editReply("On my way...");
+      try {
+        const collectors = bot.cache.collectors.get();
+        if (collectors.length) {
+          await interaction.editReply(
+            `Gracefully shutting down the bot... (Terminating **${collectors.length}** active collectors.)`
+          );
+          collectors.forEach((collector) => collector.emit("end"));
+        } else {
+          await interaction.editReply(
+            "Gracefully shutting down the bot... (No active collectors.)"
+          );
+        }
+      } catch (e) {
+        // ignore any error and continue shutting down
+        console.log(e);
+      }
+      // wait 3s and destroy the Client
+      setTimeout(async () => {
+        await interaction.editReply(
+          "All active processes have been terminated. Bye!"
+        );
+        client.destroy();
+        exit(0);
+      }, 3000);
       return;
     }
   },
