@@ -201,16 +201,25 @@ export class CommandResponse {
     }
   }
 
-  // extra methods to make things ez-ier
-
   async #reply_text() {
     if (!this.text && !this.embeds?.length && !this.files?.length) return;
     const has_embed_perms = await this.check_embed_perms();
     if (!has_embed_perms) {
-      // oh noo anyway....
-      // TODO: add a message or something here idk im tired
-      // maybe dont fuck up with the default bot permissions in the first place like a normal person smh
-      return;
+      // don't have permission to send embeds
+
+      if (!this.interaction.deferred) {
+        return this.interaction.reply({
+          text: "Please grant this bot the permission to send embeds ('Embed links')",
+        });
+      } else if (this.force_followup) {
+        return this.interaction.followup({
+          text: "Please grant this bot the permission to send embeds ('Embed links')",
+        });
+      }
+      // edit initial reply
+      return this.interaction.editReply({
+        text: "Please grant this bot the permission to send embeds ('Embed links')",
+      });
     }
     const components = [...(this.embed_components || [])];
     const embeds: EmbedBuilder[] = [];
