@@ -14,12 +14,12 @@ import edit_lyrics from "./owner_commands/editlyrics";
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("managebot")
-    .setDescription("Commands to manage the bot (only for bot owner)")
+    .setDescription("Commands to manage the bot [ONLY FOR BOT OWNER]")
     .setDefaultMemberPermissions(0)
     .addSubcommand((option) =>
       option
         .setName("eval")
-        .setDescription("Execute code on the bot (owner only)")
+        .setDescription("Execute code on the bot [BOT OWNER ONLY!]")
         .addStringOption((option) =>
           option
             .setName("code")
@@ -33,10 +33,19 @@ module.exports = {
             .setRequired(false)
         )
     )
+
+    .addSubcommand((option) =>
+      option
+        .setName("shutdown")
+        .setDescription("Gracefully shutdown the bot [BOT OWNER ONLY!]")
+    )
+
     .addSubcommand((option) =>
       option
         .setName("editlyrics")
-        .setDescription("Edit lyrics of a song on the database (owner only)")
+        .setDescription(
+          "Edit lyrics of a song on the database [BOT OWNER ONLY!]"
+        )
         .addStringOption((option) =>
           option
             .setName("track_name")
@@ -59,12 +68,12 @@ module.exports = {
     .addSubcommand((option) =>
       option
         .setName("config")
-        .setDescription("Manage bot's config (owner only)")
+        .setDescription("Manage bot's config [BOT OWNER ONLY!]")
     )
     .addSubcommand((option) =>
       option
         .setName("shutdown")
-        .setDescription("Manage bot's config (owner only)")
+        .setDescription("Manage bot's config [BOT OWNER ONLY!]")
     ),
 
   async execute(
@@ -75,6 +84,7 @@ module.exports = {
     const hide_reply =
       interaction.options.getBoolean("hide_reply", false) || false;
 
+    // check if it's the bot owner
     if (interaction.user.id !== bot.owner_ID) {
       await interaction.reply({
         content:
@@ -84,9 +94,7 @@ module.exports = {
       return;
     }
 
-    /**
-     * Config command
-     */
+    // config command
     if (interaction.options.getSubcommand() === "config") {
       const modal = new ModalBuilder()
         .setCustomId("configmodal")
@@ -142,11 +150,7 @@ module.exports = {
     if (hide_reply) await interaction.deferReply({ ephemeral: true });
     else await interaction.deferReply({ ephemeral: false });
 
-    /*
-    ***
-        EVAL COMMAND
-    ***
-    */
+    // the EV(A/I)L command
     if (interaction.options.getSubcommand() === "eval") {
       const code = interaction.options.getString("code", true);
       let trimmed_string;
@@ -164,13 +168,15 @@ module.exports = {
       return;
     }
 
-    /*
-    ***
-        EDITLYRICS COMMAND
-    ***
-    */
+    // editlyrics command
     if (interaction.options.getSubcommand() === "editlyrics") {
       await edit_lyrics(bot, interaction);
+      return;
+    }
+
+    // shutdown command
+    if (interaction.options.getSubcommand() === "shutdown") {
+      await interaction.editReply("On my way...");
       return;
     }
   },

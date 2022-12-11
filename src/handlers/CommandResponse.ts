@@ -1,11 +1,13 @@
 import {
   ActionRowBuilder,
   AttachmentBuilder,
+  Awaitable,
   ButtonBuilder,
   ButtonComponent,
   ButtonInteraction,
   ButtonStyle,
   Client,
+  ComponentType,
   EmbedBuilder,
   PermissionFlagsBits,
   TextChannel,
@@ -89,7 +91,7 @@ export class CommandResponse {
   /**
    * Custom function to execute when Collector matches `custom_filter`
    */
-  custom_hook?: (new_interaction: ButtonInteraction) => unknown;
+  custom_hook?: (new_interaction: ButtonInteraction) => Awaitable<void>;
 
   /**
    * Array of files to send along with `embeds`
@@ -304,10 +306,18 @@ export class CommandResponse {
   }
 
   async #hook_custom_function() {
-    const collector = this.interaction.channel.createMessageComponentCollector({
+    if (!this.custom_hook) return;
+
+    const collector = (<GuildChatInteraction>(
+      this.interaction
+    )).channel.createMessageComponentCollector({
+      componentType: ComponentType.Button,
       filter: this.custom_filter,
       time: GLOBALS.RETRY_BUTTON_TIMEOUT,
     });
+
+    // add collector to cached collectors
+    this.bot.cache.collectors.add(collector);
 
     collector.on("collect", this.custom_hook);
     collector.on("end", async () => {
@@ -330,10 +340,15 @@ export class CommandResponse {
     const filter = (i: ButtonInteraction) =>
       i.user.id === this.interaction.user.id && i.customId === random_id;
 
-    const collector = this.interaction.channel.createMessageComponentCollector({
+    const collector = (<GuildChatInteraction>(
+      this.interaction
+    )).channel.createMessageComponentCollector({
+      componentType: ComponentType.Button,
       filter,
       time: GLOBALS.RETRY_BUTTON_TIMEOUT,
     });
+
+    this.bot.cache.collectors.add(collector);
 
     collector.on("collect", async (new_interaction: ButtonInteraction) => {
       await (<GuildChatInteraction>this.interaction).editReply({

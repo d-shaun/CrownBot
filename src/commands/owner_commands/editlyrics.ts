@@ -101,11 +101,13 @@ export default async function edit_lyrics(
   const filter = (i: ButtonInteraction) =>
     i.user.id === interaction.user.id && i.customId === random_id;
 
-  const collector =
-    interaction.channel.createMessageComponentCollector<ComponentType.Button>({
-      filter,
-      time: 120000,
-    });
+  const collector = interaction.channel.createMessageComponentCollector({
+    componentType: ComponentType.Button,
+    filter,
+    time: 120000,
+  });
+
+  bot.cache.collectors.add(collector);
 
   collector.on("collect", async (i) => {
     if (i.customId === random_id) {
