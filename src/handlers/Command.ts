@@ -109,19 +109,19 @@ async function log_error(
     timestamp: `${new Date().toUTCString()}`,
     stack: `${stack || `none`}`,
   };
-  if (stack) {
-    // @ts-ignore
-    await new bot.models.errorlogs({ ...data }).save();
-    response.text =
-      `The bot has encountered an unexpected error while executing your request; ` +
-      `please consider reporting this incident (id: ${cb(
-        incident_id
-      )}) to the bot's support server—see ${cb("/about")}.`;
-    await response.send();
-  }
-
-  // attempt to send logs to the channel specified in "exception_log_channel" (/src/models/BotConfig.ts)
   try {
+    if (stack) {
+      // @ts-ignore
+      await new bot.models.errorlogs({ ...data }).save();
+      response.text =
+        `The bot has encountered an unexpected error while executing your request; ` +
+        `please consider reporting this incident (id: ${cb(
+          incident_id
+        )}) to the bot's support server—see ${cb("/about")}.`;
+      await response.send();
+    }
+
+    // attempt to send logs to the channel specified in "exception_log_channel" (/src/models/BotConfig.ts)
     await send_exception_log(client, bot, interaction, incident_id, stack);
   } catch (e) {
     // supress any error to avoid infinite error loop
