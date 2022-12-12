@@ -3,7 +3,6 @@ import {
   AttachmentBuilder,
   Awaitable,
   ButtonBuilder,
-  ButtonComponent,
   ButtonInteraction,
   ButtonStyle,
   Client,
@@ -398,41 +397,17 @@ export class CommandResponse {
 
     // remove the retry button (customId set in `random_id`)
     collector.on("end", async () => {
-      try {
-        const sent_msg = await (<GuildChatInteraction>this.interaction)
-          .fetchReply()
-          .catch(() => {
-            // oh no, anyway.
-            // og message has been deleted by someone else.
-          });
+      const sent_msg = await (<GuildChatInteraction>this.interaction)
+        .fetchReply()
+        .catch(() => {
+          // oh no, anyway.
+          // og message has been deleted by someone else.
+        });
 
-        if (sent_msg) {
-          const new_action_row = <ActionRowBuilder<ButtonBuilder>>(
-            new ActionRowBuilder()
-          );
-          const { components: buttons } = sent_msg.components[0];
-
-          buttons
-            .filter((comp) => comp.customId !== random_id)
-            .map((el) => {
-              const comp = <ButtonComponent>el;
-              if (!(comp.label && comp.style && comp.customId)) return;
-
-              new_action_row.addComponents(
-                new ButtonBuilder()
-                  .setLabel(comp.label)
-                  .setStyle(comp.style)
-                  .setCustomId(comp.customId)
-              );
-            });
-
-          await (<GuildChatInteraction>this.interaction).editReply({
-            components: [new_action_row],
-          });
-        }
-      } catch (e: any) {
-        // suppress exception errors when fetching removed interactions/components
-        console.error(e);
+      if (sent_msg) {
+        await (<GuildChatInteraction>this.interaction).editReply({
+          components: [],
+        });
       }
     });
   }
