@@ -233,9 +233,12 @@ module.exports = {
       !disallow_crown
     ) {
       if (last_crown) {
-        const last_user = interaction.guild.members.cache.find(
-          (user) => user.id === last_crown.userID
-        );
+        const last_user = await interaction.guild.members
+          .fetch({
+            user: last_crown.userID,
+          })
+          .catch(() => null);
+
         if (last_user && last_user.user.id !== top_user.user_id) {
           response.follow_up.text = `**${esm(
             top_user.discord_username
