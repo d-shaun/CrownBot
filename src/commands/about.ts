@@ -5,6 +5,7 @@ import {
   Client,
   EmbedBuilder,
 } from "discord.js";
+import GLOBALS from "../../GLOBALS";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
 import { CommandResponse } from "../handlers/CommandResponse";
 import CrownBot from "../handlers/CrownBot";
@@ -33,9 +34,9 @@ module.exports = {
             "https://discord.com/api/oauth2/authorize?client_id=636075999154536449&permissions=313344&scope=bot"
           ),
         new ButtonBuilder()
-          .setLabel("Join support server (NEW LINK TO NEW SERVER!!)")
+          .setLabel("Join support server")
           .setStyle(ButtonStyle.Link)
-          .setURL("https://discord.gg/4vU6kGhejv")
+          .setURL(GLOBALS.SUPPORT_SERVER)
       )
     );
 
@@ -55,8 +56,8 @@ module.exports = {
             "<https://discord.com/api/oauth2/authorize?client_id=636075999154536449&permissions=313344&scope=bot>",
         },
         {
-          name: "New support server",
-          value: "https://discord.gg/4vU6kGhejv",
+          name: "Support server",
+          value: GLOBALS.SUPPORT_SERVER,
         },
       ]);
 

@@ -1,14 +1,16 @@
-import {
-  Client,
-  ButtonInteraction,
-  EmbedBuilder,
-  AttachmentBuilder,
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-} from "discord.js";
-import CrownBot from "../handlers/CrownBot";
 import { diffLines } from "diff";
+import {
+  ActionRowBuilder,
+  AttachmentBuilder,
+  ButtonBuilder,
+  ButtonInteraction,
+  ButtonStyle,
+  Client,
+  EmbedBuilder,
+} from "discord.js";
+import GLOBALS from "../../GLOBALS";
+import CrownBot from "../handlers/CrownBot";
+import esm from "../misc/escapemarkdown";
 
 export async function handle_button(
   bot: CrownBot,
@@ -36,7 +38,9 @@ export async function handle_button(
     {
       name: "Still no luck?",
       value:
-        "The [support server](https://discord.gg/zzJ5zmA) might be able to help you.",
+        "The [support server](" +
+        GLOBALS.SUPPORT_SERVER +
+        ") might be able to help you.",
     },
   ]);
 
@@ -45,18 +49,32 @@ export async function handle_button(
     return;
   }
 
+  // helper functions
   const checkOwner = async () => {
     if (interaction.user.id === bot.owner_ID) return true;
-
     await interaction.reply({
       content: "Hmph, you cannot perform this action.",
       ephemeral: true,
     });
     return false;
   };
+
   const extractReqId = (str: string) => {
     return interaction.customId.split(str)[1];
   };
+
+  const row = <ActionRowBuilder<ButtonBuilder>>(
+    new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setLabel("Join support server")
+        .setStyle(ButtonStyle.Link)
+        .setURL(GLOBALS.SUPPORT_SERVER)
+    )
+  );
+
+  const lyrics_submission_dm_embed = new EmbedBuilder().setFooter({
+    text: "If you wish to discuss this action or anything related to the bot, feel free to hop into the support server.",
+  });
 
   // Accept request
   if (interaction.customId.startsWith("accept-")) {
@@ -100,6 +118,21 @@ export async function handle_button(
     await interaction.reply({
       content: `The submitted request has been accepted. (${request_id})`,
     });
+
+    lyrics_submission_dm_embed.setDescription(
+      `Hello!\nYour lyrics submission for the track **${esm(
+        new_lyrics.track_name
+      )}** by **${esm(
+        new_lyrics.artist_name
+      )}** has been **accepted**. Thank you!`
+    );
+
+    await client.users
+      .send(new_lyrics.user_id, {
+        embeds: [lyrics_submission_dm_embed],
+        components: [row],
+      })
+      .catch(console.error);
   }
 
   // Reject request
@@ -109,12 +142,29 @@ export async function handle_button(
       components: [],
     });
     const request_id = extractReqId("reject-");
+    const new_lyrics = await bot.models.submittedlyrics.findOne({
+      request_id,
+    });
+
     await bot.models.submittedlyrics.deleteOne({
       request_id,
     });
     await interaction.reply({
       content: `The submitted request has been declined. (${request_id})`,
     });
+
+    lyrics_submission_dm_embed.setDescription(
+      `Hello!\nUnfortunately, your lyrics submission for the track **${esm(
+        new_lyrics.track_name
+      )}** by **${esm(new_lyrics.artist_name)}** has been **rejected**.`
+    );
+
+    await client.users
+      .send(new_lyrics.user_id, {
+        embeds: [lyrics_submission_dm_embed],
+        components: [row],
+      })
+      .catch(console.error);
   }
 
   // Review request
