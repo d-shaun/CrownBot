@@ -370,11 +370,7 @@ export class CommandResponse {
             <any>this.interaction
           );
 
-          const embed = new EmbedBuilder().setDescription(
-            "Retrying the previously failed command..."
-          );
-
-          await new_interaction.reply({ embeds: [embed] });
+          await new_interaction.deferUpdate();
           const command_response = await preflight_checks(
             this.bot,
             this.client,
@@ -388,7 +384,6 @@ export class CommandResponse {
           ) {
             await command_response.reply();
           }
-          await new_interaction.deleteReply();
         } catch (e: any) {
           console.error(e);
         }
