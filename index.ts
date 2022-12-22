@@ -1,4 +1,4 @@
-import { Client, GatewayIntentBits, Interaction, Options } from "discord.js";
+import { Client, GatewayIntentBits, Interaction } from "discord.js";
 import GLOBALS from "./GLOBALS";
 import GuildChatInteraction from "./src/classes/GuildChatInteraction";
 import { preflight_checks } from "./src/handlers/Command";
@@ -59,15 +59,15 @@ SPOTIFY_SECRETID: Spotify client ID for the /chart command to show artist images
 
     const client = new Client({
       intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildPresences],
-      makeCache: Options.cacheWithLimits({
-        ReactionManager: 0,
-        GuildMemberManager: 0,
-        MessageManager: 0,
-        UserManager: 0,
-        GuildEmojiManager: 0,
-        ThreadManager: 0,
-        ThreadMemberManager: 0,
-      }),
+      // makeCache: Options.cacheWithLimits({
+      //   ReactionManager: 0,
+      //   GuildMemberManager: 0,
+      //   MessageManager: 0,
+      //   UserManager: 0,
+      //   GuildEmojiManager: 0,
+      //   ThreadManager: 0,
+      //   ThreadMemberManager: 0,
+      // }),
     });
 
     // register events
