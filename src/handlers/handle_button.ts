@@ -232,9 +232,15 @@ export async function handle_button(
         c = 0;
       changes.forEach((diff) => {
         if (diff.added || diff.removed) {
-          str += (diff.added ? "+" : "-") + diff.value + "\n";
+          str +=
+            diff.value
+              .split("\n")
+              .map((line) => {
+                return (diff.added ? "+" : "-") + line;
+              })
+              .join("\n") + "\n";
           if (c == 1) {
-            str += "...\n";
+            str += "================================================\n";
             c = 0;
           } else c++;
         }
