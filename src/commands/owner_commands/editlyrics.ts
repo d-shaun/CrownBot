@@ -238,7 +238,7 @@ export async function show_modal(
       const admin_embed = new EmbedBuilder()
         .setTitle("Lyrics updated")
         .setDescription(
-          interaction.user.toString() + ": The lyrics entry has updated."
+          interaction.user.toString() + ": The lyrics entry has been updated."
         );
       await submitted.reply({
         embeds: [admin_embed],
