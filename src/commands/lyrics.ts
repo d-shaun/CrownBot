@@ -216,9 +216,9 @@ module.exports = {
       const response = await axios.get<ReturnDataType>(
         LYRICS_ENDPOINT + `?gquery=${track.name} ${track.artist.name}`,
         { timeout: 30 * 1000 }
-      );
+      ).catch(console.error);
 
-      const { data } = response;
+      const { data } = response || {};
 
       if (data && typeof data === "object") {
         if (data.error_message !== "false" && data.response) {
