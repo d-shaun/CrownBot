@@ -8,6 +8,7 @@ import {
   ModalBuilder,
   TextInputBuilder,
   TextInputStyle,
+  ChannelType,
 } from "discord.js";
 import moment from "moment";
 import GuildChatInteraction from "../../classes/GuildChatInteraction";
@@ -292,7 +293,7 @@ export async function show_modal(
     const row = <ActionRowBuilder<ButtonBuilder>>(
       new ActionRowBuilder().addComponents(buttonComps)
     );
-
+    if (channel.type == ChannelType.GuildStageVoice) return;
     await channel.send({ embeds: [log_embed], components: [row] });
   }
 }
