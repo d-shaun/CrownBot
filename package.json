@@ -27,7 +27,7 @@
     "typescript": "^4.9.3"
   },
   "dependencies": {
-    "@devraelfreeze/discordjs-pagination": "^2.6.4",
+    "@devraelfreeze/discordjs-pagination": "^2.7.2",
     "@types/diff": "^5.0.2",
     "axios": "^0.21.1",
     "canvas": "^2.10.2",
