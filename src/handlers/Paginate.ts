@@ -77,7 +77,8 @@ export default class Paginate {
         disableButtons: true,
         fastSkip: false,
         pageTravel: false,
-        customFilter: (interaction) => parseInt(interaction.customId) <= 4,
+        customFilter: (interaction) =>
+          parseInt((<any>interaction).customId) <= 4,
       });
     } else {
       return this.interaction.editReply({

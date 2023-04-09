@@ -1,4 +1,4 @@
-import { Client, EmbedBuilder } from "discord.js";
+import { ChannelType, Client, EmbedBuilder } from "discord.js";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
 import { Template } from "../classes/Template";
 import check_ban from "../misc/check_ban";
@@ -166,5 +166,6 @@ async function send_exception_log(
     },
   ]);
 
+  if (channel.type == ChannelType.GuildStageVoice) return;
   await channel.send({ embeds: [embed] });
 }
