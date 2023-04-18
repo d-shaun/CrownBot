@@ -54,7 +54,6 @@ export default async function get_registered_users(
   for await (const chunk of split_users) {
     const res = await interaction.guild.members.fetch({
       user: <UserResolvable[]>chunk.map((user) => user.userID),
-      force: true,
     });
 
     const values = [...res.values()];
