@@ -8,7 +8,7 @@ import {
 } from "../interfaces/LastFMQueryInterface";
 import { LastFMResponse } from "../interfaces/LastFMResponseInterface";
 
-const { API_KEY } = process.env;
+const { LASTFM_API_KEY } = process.env;
 
 // custom overrides for vague or unfitting Last.fm error messages
 const error_overrides = [
@@ -23,7 +23,7 @@ const error_overrides = [
 export class LastFM {
   timeout = { timeout: 30 * 1000 };
   format = "json";
-  #apikey = API_KEY;
+  #apikey = LASTFM_API_KEY;
   url = "https://ws.audioscrobbler.com/2.0/?";
 
   /**
