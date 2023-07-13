@@ -13,14 +13,12 @@ import {
 /*
 # REQUIRED
 ======================================================================================================
-TOKEN: Discord API token
+DISCORD_CLIENTID: Bot's client ID
+DISCORD_TOKEN: Discord API token
 OWNER_ID: User ID of the bot owner
-API_KEY: Last.fm API key
+LASTFM_API_KEY: Last.fm API key
 MONGO: Mongo DB connection string
 ======================================================================================================
-
-# OPTIONAL
-ACCESS_TOKEN: Deezer access token—used to be used in the topalbums command; no longer required.
 
 
 LYRICS_ENDPOINT: Lyrics endpoint for the /lyrics command--command won't work unless this is set. 
@@ -36,9 +34,9 @@ SPOTIFY_SECRETID: Spotify client ID for the /chart command to show artist images
 
 (async () => {
   try {
-    const { CLIENT_ID, TOKEN, OWNER_ID, API_KEY, ACCESS_TOKEN, MONGO } =
+    const { DISCORD_CLIENTID, DISCORD_TOKEN, OWNER_ID, LASTFM_API_KEY, MONGO } =
       process.env;
-    if (!(TOKEN && OWNER_ID && API_KEY && MONGO && CLIENT_ID && ACCESS_TOKEN)) {
+    if (!(DISCORD_TOKEN && OWNER_ID && LASTFM_API_KEY && MONGO && DISCORD_CLIENTID)) {
       throw "Some of the environment variables are missing.";
     }
 
@@ -47,11 +45,10 @@ SPOTIFY_SECRETID: Spotify client ID for the /chart command to show artist images
       buttons_version: GLOBALS.BUTTONS_VERSION,
       max_users: GLOBALS.MAX_USERS,
 
-      client_id: CLIENT_ID,
-      token: TOKEN,
+      client_id: DISCORD_CLIENTID,
+      token: DISCORD_TOKEN,
       owner_ID: OWNER_ID,
-      api_key: API_KEY,
-      access_token: ACCESS_TOKEN,
+      api_key: LASTFM_API_KEY,
       mongo: MONGO,
 
       url: GLOBALS.LASTFM_ENDPOINT,
@@ -117,7 +114,7 @@ SPOTIFY_SECRETID: Spotify client ID for the /chart command to show artist images
       }
     });
 
-    await client.login(TOKEN);
+    await client.login(DISCORD_TOKEN);
     console.log(`Logged in as ${client.user?.tag}`);
   } catch (e) {
     console.log(e);

@@ -14,7 +14,6 @@ type Options = {
   token: string;
   owner_ID: string;
   api_key: string;
-  access_token: string;
   mongo: string;
   url: string;
 };
@@ -31,7 +30,6 @@ export default class CrownBot {
   #token: string;
   owner_ID: string;
   api_key: string;
-  access_token: string;
   mongo: string;
   mongoose: Mongoose | undefined;
 
@@ -51,7 +49,6 @@ export default class CrownBot {
     this.client_id = options.client_id;
     this.owner_ID = options.owner_ID;
     this.api_key = options.api_key;
-    this.access_token = options.access_token;
     this.mongo = options.mongo;
 
     this.url = options.url;
