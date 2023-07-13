@@ -10,7 +10,7 @@
     "start": "node ./dist/index.js",
     "lint": "yarn run eslint ./src/",
     "dev": "yarn run copy:fonts && tsc -w",
-    "copy:fonts": "copyfiles src/fonts/* dist/src/fonts/"
+    "copy:fonts": "copyfiles src/fonts/* dist/"
   },
   "main": "./dist/index.js",
   "author": "Shaun",
