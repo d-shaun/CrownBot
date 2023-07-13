@@ -43,6 +43,7 @@ export default class Paginate {
     const embeds: EmbedBuilder[] = [];
 
     if (this.numbering) {
+      // eslint-disable-next-line no-irregular-whitespace
       this.list = this.list.map((item, i) => `${i + 1}.  ${item}`);
     }
     const chunks = this.chunk(this.list, this.elements);
