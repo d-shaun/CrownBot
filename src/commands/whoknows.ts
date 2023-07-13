@@ -222,7 +222,8 @@ module.exports = {
           ? ":crown:"
           : index + "."
       }`;
-      return `${indicator} ${elem.discord_username} — **${elem.userplaycount} play(s)** ${diff_str}`;
+      // eslint-disable-next-line no-irregular-whitespace
+      return `${indicator}  ${elem.discord_username} — **${elem.userplaycount} play(s)** ${diff_str}`;
     });
 
     // delete if there's an existing crown for the artist in the server
