@@ -43,7 +43,7 @@ export default class Paginate {
     const embeds: EmbedBuilder[] = [];
 
     if (this.numbering) {
-      this.list = this.list.map((item, i) => `${i + 1}. ${item}`);
+      this.list = this.list.map((item, i) => `${i + 1}.  ${item}`);
     }
     const chunks = this.chunk(this.list, this.elements);
 
@@ -59,10 +59,6 @@ export default class Paginate {
       if (this.embed.data.footer?.text)
         new_embed.setFooter({ text: this.embed.data.footer.text });
 
-      if (this.embed.data.footer?.text && chunks.length >= 2) {
-        // no footer text if there's only one page
-        description += "\n\n" + this.embed.data.footer.text;
-      }
       new_embed.setDescription(description);
 
       embeds.push(new_embed);
