@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="dataScr.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css?family=Raleway"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Montserrat"
+      rel="stylesheet"
+    />
+
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="bg-img"></div>
+      <div class="content">
+        <h1>
+          <div class="__heading-text-bg"></div>
+          <span style="color: rgb(131, 6, 6)">High</span
+          ><span style="color: rgb(197, 23, 23)">lights</span>
+        </h1>
+        <div class="grid">
+          <div class="col artist-col">
+            <div class="col-items">
+              <li>
+                <img
+                  src="https://i.scdn.co/image/ab6761610000e5ebcaea403b29f6a09260b6a18a"
+                />
+                <span>The Strokes </span>
+                <div class="playcount">45 plays</div>
+              </li>
+
+              <li>
+                <img
+                  src="https://i.scdn.co/image/6c98292c9880183d77d470f206a32d69c4a8d1be"
+                />
+                <span>Carissa's Wierd</span>
+                <div class="playcount">30 plays</div>
+              </li>
+
+              <li>
+                <img
+                  src="https://i.scdn.co/image/ab6761610000e5ebfd1b8991f04c138abe626cf6"
+                />
+                <span>c4ff31n3</span>
+                <div class="playcount">28 plays</div>
+              </li>
+
+              <li>
+                <img
+                  src="https://i.scdn.co/image/ab6761610000e5ebb3e38a46a56a423d8f741c09"
+                />
+                <span>Beach House</span>
+                <div class="playcount">23 plays</div>
+              </li>
+            </div>
+          </div>
+          <div class="col artist-scol">
+            <div id="chart-container" style="width: 100%; height: 590px"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+
+  <style type="text/css">
+    .__heading-text-bg {
+      background: #fff;
+      height: 40px;
+      position: absolute;
+      top: 4.4px;
+      width: 100%;
+      z-index: -2;
+    }
+
+    .bg-img {
+      background: url(https://i.scdn.co/image/ab6761610000e5ebfd1b8991f04c138abe626cf6)
+        no-repeat;
+      background-position: center;
+      background-size: cover;
+      filter: blur(14px) brightness(0.7);
+      height: 100%;
+      position: absolute;
+      scale: 1.1;
+      width: 100%;
+    }
+
+    .col {
+      height: 800px;
+      overflow: hidden;
+      padding: 10px;
+    }
+
+    .col-header {
+      background-color: red;
+      font-size: 16pt;
+      margin-bottom: 30px;
+    }
+
+    .col-items {
+      font-size: 15pt;
+    }
+
+    .container {
+      background-color: #fff;
+      border-radius: 12px;
+      height: 800px;
+      margin: auto;
+      overflow: hidden;
+      position: relative;
+      width: 1300px;
+    }
+
+    .content {
+      padding: 50px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      margin-top: 15px;
+    }
+
+    body {
+      background: gray;
+      font-family: Montserrat;
+      font-size: 22px;
+    }
+
+    h1 {
+      color: #080808;
+      font-family: Raleway, sans-serif;
+      font-size: 30px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin: auto;
+      max-width: 200px;
+      padding: 0 0 13px;
+      position: relative;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    h1:after {
+      background-color: #c50000;
+      bottom: 0;
+      content: "";
+      display: block;
+      height: 3px;
+      margin-bottom: 0.25em;
+      position: absolute;
+      right: 0;
+      width: 75px;
+    }
+
+    h1:before {
+      background-color: #c50000;
+      content: "";
+      display: block;
+      height: 3px;
+      margin-bottom: 5px;
+      width: 75px;
+    }
+
+    li {
+      align-items: center;
+      background: rgba(255, 255, 255, 0.13);
+      border-radius: 10px;
+      display: grid;
+      font-weight: 700;
+      grid-template-columns: 1fr 2fr;
+      justify-items: center;
+      list-style: none;
+      margin-bottom: 10px;
+      padding: 20px;
+      position: relative;
+    }
+
+    li .playcount {
+      background: rgba(255, 0, 0, 0.61);
+      border-radius: 0 0 10px 0;
+      bottom: 0;
+      color: #fff;
+      font-size: 10pt;
+      padding: 4px;
+      position: absolute;
+      right: 0;
+    }
+
+    li img {
+      border-radius: 50%;
+      display: inline-block;
+      height: 100px;
+      width: 100px;
+    }
+
+    li span {
+      display: block;
+      max-height: 100px;
+      overflow: hidden;
+      padding-left: 10px;
+      text-overflow: ellipsis;
+    }
+  </style>
+</html>
+
+<script>
+  console.log(DATAPOINTS);
+
+  const grouped_dates = {
+    Sunday: [],
+    Monday: [],
+    Tuesday: [],
+    Wednesday: [],
+    Thursday: [],
+    Friday: [],
+    Saturday: [],
+  };
+
+  DATAPOINTS.forEach((timestamp) => {
+    const rel_date = new Date(timestamp * 1000);
+    const day = rel_date.toLocaleDateString("en-US", { weekday: "long" });
+    if (grouped_dates[day]) {
+      grouped_dates[day].push(rel_date.toUTCString);
+    } else {
+      console.error("Ignored day that wasn't accounted for: " + day);
+    }
+  });
+  // const grouped_dates = DATAPOINTS.reduce((groups, timestamp) => {
+  // const rel_date = new Date(timestamp * 1000);
+  // const day = rel_date.toLocaleDateString("en-US", { weekday: "long" });
+  // if (!groups[day]) {
+  //   groups[day] = [];
+  // }
+  // groups[day].push(rel_date.toUTCString());
+  //   return groups;
+  // }, {});
+
+  console.log(grouped_dates);
+
+  const counts = Object.values(grouped_dates).map((group) => group.length);
+
+  const chartData = Object.keys(grouped_dates).map((date_string, index) => ({
+    name: date_string,
+    value: counts[index],
+  }));
+
+  const categories = chartData.map((elem) => elem.name);
+  const values = chartData.map((elem) => elem.value);
+
+  const options = {
+    chart: {
+      borderRadius: 15,
+      type: "line",
+      spacing: 50,
+      spacingRight: 90,
+      style: {
+        fontFamily: "Montserrat",
+      },
+      backgroundColor: "rgba(255, 255, 255, 0.5)",
+    },
+    title: {
+      text: null,
+    },
+
+    plotOptions: {
+      line: {
+        borderWidth: 0,
+        dataLabels: {
+          enabled: true,
+          color: "black",
+          format: "{y} plays",
+        },
+      },
+      series: {
+        dataLabels: {
+          enabled: true,
+          inside: true,
+          style: {
+            textOutline: 0,
+          },
+        },
+      },
+    },
+
+    xAxis: {
+      categories: categories,
+    },
+    yAxis: {
+      title: {
+        text: "Playcount",
+      },
+    },
+    series: [
+      {
+        name: "Weekly scrobble history",
+        data: values,
+      },
+    ],
+
+    // series: [
+    //   {
+    //     data: chartData.map((item) => ({
+    //       name: `${item.name} (${item.value} plays)`,
+    //       y: item.value,
+    //     })),
+    //   },
+    // ],
+    colors: [
+      "#56282D",
+      "#544343",
+      "#626D58",
+      "#77966D",
+      "#CFCCD6",
+      "#9EADC8",
+      "#EDFF7A",
+    ],
+  };
+
+  Highcharts.chart("chart-container", options);
+
+  console.log(chartData);
+
+  // set div background
+  // const top_artist = ARTISTS.shift();
+  // console.log(top_artist);
+  // document.querySelector(".container").style.background =
+</script>

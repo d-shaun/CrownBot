@@ -68,11 +68,13 @@ export default class extends LastFM {
     return query;
   }
 
-  async get_recenttracks() {
+  async get_recenttracks(custom?: Record<string, unknown>) {
+    const custom_options = { ...(custom || {}) };
     const query = await this.query({
       method: "user.getRecentTracks",
       user: this.username,
       ...this.configs,
+      ...custom_options,
     });
     if (query.success) {
       // only check the following conditions if query is a success.
@@ -509,6 +511,26 @@ export default class extends LastFM {
     return stats;
   }
 
+  async get_alltime_listening_history() {
+    try {
+      const response = await Axios.get(
+        `https://www.last.fm/user/${encodeURIComponent(this.username)}/library`,
+        this.timeout
+      ).catch(() => {
+        return undefined;
+      });
+
+      if (response?.status !== 200) {
+        return undefined;
+      }
+      const stat = this.parse_listening_history(response.data);
+      return stat;
+    } catch (_) {
+      return undefined;
+    }
+  }
+
+  // doesn't work anymore
   async get_listening_history(
     date_preset?: string,
     artist_name?: string,

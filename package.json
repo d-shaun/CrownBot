@@ -3,7 +3,7 @@
   "styled": "CrownBot",
   "description": "A Discord bot that uses Last.fm API to track scrobbles and rank users in a guild.",
   "engines": {
-    "node": "18.x"
+    "node": "19.x"
   },
   "scripts": {
     "build": "tsc && yarn run copy:fonts",
