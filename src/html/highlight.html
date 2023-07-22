@@ -61,15 +61,43 @@
               </li>
             </div>
           </div>
-          <div class="col artist-scol">
+          <div class="col extra-col">
             <div id="chart-container" style="width: 100%; height: 590px"></div>
           </div>
         </div>
+      </div>
+      <div class="footer">
+        <div class="lfm">last.fm</div>
+        <div class="username">cogwizard</div>
       </div>
     </div>
   </body>
 
   <style type="text/css">
+    .footer {
+      position: absolute;
+      display: flex;
+      bottom: 0px;
+      right: 0;
+    }
+
+    .footer .lfm {
+      background: red;
+      color: white;
+    }
+
+    .footer .username {
+      background: white;
+      font-weight: bolder;
+    }
+
+    .footer div {
+      display: inline-block;
+      padding: 5px;
+      font-size: 15px;
+      margin: 0;
+    }
+
     .__heading-text-bg {
       background: #fff;
       height: 40px;
@@ -92,7 +120,6 @@
     }
 
     .col {
-      height: 800px;
       overflow: hidden;
       padding: 10px;
     }
@@ -213,48 +240,77 @@
 </html>
 
 <script>
-  console.log(DATAPOINTS);
-
-  const grouped_dates = {
-    Sunday: [],
-    Monday: [],
-    Tuesday: [],
-    Wednesday: [],
-    Thursday: [],
-    Friday: [],
-    Saturday: [],
+  const get_UTC_day = (date) => {
+    return date.toLocaleDateString("en-US", {
+      weekday: "long",
+      timeZone: "UTC",
+    });
   };
 
-  DATAPOINTS.forEach((timestamp) => {
-    const rel_date = new Date(timestamp * 1000);
-    const day = rel_date.toLocaleDateString("en-US", { weekday: "long" });
-    if (grouped_dates[day]) {
-      grouped_dates[day].push(rel_date.toUTCString);
-    } else {
-      console.error("Ignored day that wasn't accounted for: " + day);
-    }
+  const now = new Date();
+  const today = get_UTC_day(now);
+
+  const all_days = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+
+  const weekly_data_array = all_days.map((day, i) => {
+    const newdate = new Date(now);
+    const cur_index = all_days.indexOf(today);
+    const d_index = all_days.indexOf(day);
+
+    newdate.setDate(now.getDate() - (cur_index - d_index));
+
+    const week_date = newdate.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      timeZone: "UTC",
+    });
+
+    return {
+      day,
+      date: week_date,
+      values: [],
+    };
   });
-  // const grouped_dates = DATAPOINTS.reduce((groups, timestamp) => {
-  // const rel_date = new Date(timestamp * 1000);
-  // const day = rel_date.toLocaleDateString("en-US", { weekday: "long" });
-  // if (!groups[day]) {
-  //   groups[day] = [];
-  // }
-  // groups[day].push(rel_date.toUTCString());
-  //   return groups;
-  // }, {});
 
-  console.log(grouped_dates);
+  const current_week_days = all_days.slice(0, all_days.indexOf(today) + 1);
 
-  const counts = Object.values(grouped_dates).map((group) => group.length);
+  DATAPOINTS.forEach((timestamp) => {
+    const parsed_ts = new Date(timestamp * 1000);
+    const rel_day = get_UTC_day(parsed_ts);
 
-  const chartData = Object.keys(grouped_dates).map((date_string, index) => ({
-    name: date_string,
-    value: counts[index],
-  }));
+    const rel_elem = weekly_data_array.find((point) => point.day === rel_day);
+    if (!rel_elem) {
+      console.log("Ignored day that wasn't accounted for: " + rel_day);
+      return;
+    }
 
-  const categories = chartData.map((elem) => elem.name);
-  const values = chartData.map((elem) => elem.value);
+    if (!current_week_days.includes(rel_day)) {
+      rel_elem.values = [];
+      return;
+    }
+
+    if (today === rel_day) {
+      // if, for example, sunday === sunday, then check date, if it's currently 14, but the date is 7, don't push
+      if (now.getUTCDate() != parsed_ts.getUTCDate()) {
+        return;
+      }
+    }
+
+    rel_elem.values.push(parsed_ts.toUTCString());
+  });
+
+  const categories = weekly_data_array.map(
+    (elem) => elem.day + "<br>" + elem.date
+  );
+  const values = weekly_data_array.map((elem) => elem.values.length);
 
   const options = {
     chart: {
@@ -273,7 +329,7 @@
 
     plotOptions: {
       line: {
-        borderWidth: 0,
+        lineWidth: 3,
         dataLabels: {
           enabled: true,
           color: "black",
@@ -285,7 +341,7 @@
           enabled: true,
           inside: true,
           style: {
-            textOutline: 0,
+            textOutline: 2,
           },
         },
       },
@@ -293,6 +349,7 @@
 
     xAxis: {
       categories: categories,
+      max: categories.length - 1,
     },
     yAxis: {
       title: {
@@ -306,28 +363,10 @@
       },
     ],
 
-    // series: [
-    //   {
-    //     data: chartData.map((item) => ({
-    //       name: `${item.name} (${item.value} plays)`,
-    //       y: item.value,
-    //     })),
-    //   },
-    // ],
-    colors: [
-      "#56282D",
-      "#544343",
-      "#626D58",
-      "#77966D",
-      "#CFCCD6",
-      "#9EADC8",
-      "#EDFF7A",
-    ],
+    colors: ["red"],
   };
 
   Highcharts.chart("chart-container", options);
-
-  console.log(chartData);
 
   // set div background
   // const top_artist = ARTISTS.shift();
