@@ -122,8 +122,8 @@ SPOTIFY_SECRETID: Spotify client ID for the /chart command to show artist images
       }
     });
 
-    // await client.login(DISCORD_TOKEN);
-    // console.log(`Logged in as ${client.user?.tag}`);
+    await client.login(DISCORD_TOKEN);
+    console.log(`Logged in as ${client.user?.tag}`);
   } catch (e) {
     console.log(e);
     debugger; //eslint-disable-line

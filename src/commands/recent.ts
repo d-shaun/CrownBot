@@ -63,7 +63,7 @@ module.exports = {
       if (track["@attr"]?.nowplaying) {
         time_str = "Playing";
       } else {
-        const timestamp = moment.unix(track.date.uts).valueOf();
+        const timestamp = moment.unix(parseInt(track.date.uts)).valueOf();
         time_str = time_difference(timestamp) + " ago";
       }
       embed.addFields({

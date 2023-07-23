@@ -5,6 +5,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="dataScr.js"></script>
+    <script>
+      //DATA_PLACEHOLDER//
+    </script>
     <link
       href="https://fonts.googleapis.com/css?family=Raleway"
       rel="stylesheet"
@@ -27,39 +30,7 @@
         </h1>
         <div class="grid">
           <div class="col artist-col">
-            <div class="col-items">
-              <li>
-                <img
-                  src="https://i.scdn.co/image/ab6761610000e5ebcaea403b29f6a09260b6a18a"
-                />
-                <span>The Strokes </span>
-                <div class="playcount">45 plays</div>
-              </li>
-
-              <li>
-                <img
-                  src="https://i.scdn.co/image/6c98292c9880183d77d470f206a32d69c4a8d1be"
-                />
-                <span>Carissa's Wierd</span>
-                <div class="playcount">30 plays</div>
-              </li>
-
-              <li>
-                <img
-                  src="https://i.scdn.co/image/ab6761610000e5ebfd1b8991f04c138abe626cf6"
-                />
-                <span>c4ff31n3</span>
-                <div class="playcount">28 plays</div>
-              </li>
-
-              <li>
-                <img
-                  src="https://i.scdn.co/image/ab6761610000e5ebb3e38a46a56a423d8f741c09"
-                />
-                <span>Beach House</span>
-                <div class="playcount">23 plays</div>
-              </li>
-            </div>
+            <div class="col-items">[missing artists]</div>
           </div>
           <div class="col extra-col">
             <div id="chart-container" style="width: 100%; height: 590px"></div>
@@ -68,36 +39,12 @@
       </div>
       <div class="footer">
         <div class="lfm">last.fm</div>
-        <div class="username">cogwizard</div>
+        <div class="username">[missing username]</div>
       </div>
     </div>
   </body>
 
   <style type="text/css">
-    .footer {
-      position: absolute;
-      display: flex;
-      bottom: 0px;
-      right: 0;
-    }
-
-    .footer .lfm {
-      background: red;
-      color: white;
-    }
-
-    .footer .username {
-      background: white;
-      font-weight: bolder;
-    }
-
-    .footer div {
-      display: inline-block;
-      padding: 5px;
-      font-size: 15px;
-      margin: 0;
-    }
-
     .__heading-text-bg {
       background: #fff;
       height: 40px;
@@ -108,8 +55,6 @@
     }
 
     .bg-img {
-      background: url(https://i.scdn.co/image/ab6761610000e5ebfd1b8991f04c138abe626cf6)
-        no-repeat;
       background-position: center;
       background-size: cover;
       filter: blur(14px) brightness(0.7);
@@ -236,10 +181,52 @@
       padding-left: 10px;
       text-overflow: ellipsis;
     }
+
+    .footer {
+      position: absolute;
+      display: flex;
+      bottom: 0px;
+      right: 0;
+    }
+
+    .footer .lfm {
+      background: red;
+      color: white;
+    }
+
+    .footer .username {
+      background: white;
+      font-weight: bolder;
+    }
+
+    .footer div {
+      display: inline-block;
+      padding: 5px;
+      font-size: 15px;
+      margin: 0;
+    }
   </style>
 </html>
 
 <script>
+  (() => {
+    // startup
+    const username_selector = document.querySelector(".username");
+    const col_items_selector = document.querySelector(".col-items");
+    const bg_img_selector = document.querySelector(".bg-img");
+
+    username_selector.innerHTML = LASTFM_USERNAME;
+    col_items_selector.innerHTML = "";
+
+    ARTISTS.slice(0, 4).forEach((artist) => {
+      col_items_selector.innerHTML += `<li><img src="${artist.image_url}"/><span>${artist.name}</span><div class="playcount">${artist.playcount} plays</div>`;
+    });
+    bg_img_selector.style.background = `url(${ARTISTS[0]?.image_url}) no-repeat`;
+
+    bg_img_selector.style.backgroundPosition = "center";
+    bg_img_selector.style.backgroundSize = "cover";
+  })();
+
   const get_UTC_day = (date) => {
     return date.toLocaleDateString("en-US", {
       weekday: "long",
@@ -260,6 +247,8 @@
     "Saturday",
   ];
 
+  const current_week_days = all_days.slice(0, all_days.indexOf(today) + 1);
+
   const weekly_data_array = all_days.map((day, i) => {
     const newdate = new Date(now);
     const cur_index = all_days.indexOf(today);
@@ -276,11 +265,9 @@
     return {
       day,
       date: week_date,
-      values: [],
+      values: current_week_days.includes(day) ? [] : null,
     };
   });
-
-  const current_week_days = all_days.slice(0, all_days.indexOf(today) + 1);
 
   DATAPOINTS.forEach((timestamp) => {
     const parsed_ts = new Date(timestamp * 1000);
@@ -292,10 +279,7 @@
       return;
     }
 
-    if (!current_week_days.includes(rel_day)) {
-      rel_elem.values = [];
-      return;
-    }
+    if (!current_week_days.includes(rel_day)) return;
 
     if (today === rel_day) {
       // if, for example, sunday === sunday, then check date, if it's currently 14, but the date is 7, don't push
@@ -306,11 +290,14 @@
 
     rel_elem.values.push(parsed_ts.toUTCString());
   });
+  console.log(weekly_data_array);
 
   const categories = weekly_data_array.map(
     (elem) => elem.day + "<br>" + elem.date
   );
-  const values = weekly_data_array.map((elem) => elem.values.length);
+  const values = weekly_data_array.map((elem) =>
+    elem.values ? elem.values.length : null
+  );
 
   const options = {
     chart: {
@@ -367,9 +354,4 @@
   };
 
   Highcharts.chart("chart-container", options);
-
-  // set div background
-  // const top_artist = ARTISTS.shift();
-  // console.log(top_artist);
-  // document.querySelector(".container").style.background =
 </script>
