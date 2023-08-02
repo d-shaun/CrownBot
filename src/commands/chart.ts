@@ -210,7 +210,7 @@ module.exports = {
     try {
       cached_noalbumcover = await loadImage(no_album_cover);
     } catch {
-      cached_noalbumcover = "";
+      cached_noalbumcover = "SKIP";
     }
 
     const promises = data.map(async (elem) => {
@@ -238,7 +238,8 @@ module.exports = {
       if (loaded_images[iter]) {
         for (let xAxis = 0; xAxis < x * 100; xAxis += 100) {
           if (loaded_images[iter]) {
-            ctx.drawImage(loaded_images[iter], xAxis, yAxis, 100, 100);
+            if (loaded_images[iter] !== "SKIP")
+              ctx.drawImage(loaded_images[iter], xAxis, yAxis, 100, 100);
             iter++;
           } else break;
         }
