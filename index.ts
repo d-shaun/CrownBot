@@ -36,7 +36,15 @@ SPOTIFY_SECRETID: Spotify client ID for the /chart command to show artist images
   try {
     const { DISCORD_CLIENTID, DISCORD_TOKEN, OWNER_ID, LASTFM_API_KEY, MONGO } =
       process.env;
-    if (!(DISCORD_TOKEN && OWNER_ID && LASTFM_API_KEY && MONGO && DISCORD_CLIENTID)) {
+    if (
+      !(
+        DISCORD_TOKEN &&
+        OWNER_ID &&
+        LASTFM_API_KEY &&
+        MONGO &&
+        DISCORD_CLIENTID
+      )
+    ) {
       throw "Some of the environment variables are missing.";
     }
 

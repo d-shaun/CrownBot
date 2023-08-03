@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      //DATA_PLACEHOLDER//
+    </script>
+    <link
+      href="https://fonts.googleapis.com/css?family=Raleway"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Montserrat"
+      rel="stylesheet"
+    />
+
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="bg-img"></div>
+      <div class="content">
+        <h1>
+          <div class="__heading-text-bg"></div>
+          <span style="color: rgb(131, 6, 6)">High</span
+          ><span style="color: rgb(197, 23, 23)">lights</span>
+        </h1>
+        <div class="grid">
+          <div class="col artist-col">
+            <div class="col-items">[missing artists]</div>
+          </div>
+          <div class="col extra-col">
+            <div id="chart-container" style="width: 100%; height: 590px"></div>
+          </div>
+        </div>
+      </div>
+      <div class="footer">
+        <div class="lfm">last.fm</div>
+        <div class="username">[missing username]</div>
+      </div>
+    </div>
+  </body>
+
+  <style type="text/css">
+    .__heading-text-bg {
+      background: #fff;
+      height: 40px;
+      position: absolute;
+      top: 4.4px;
+      width: 100%;
+      z-index: -2;
+    }
+
+    .bg-img {
+      background-position: center;
+      background-size: cover;
+      filter: blur(14px) brightness(0.7);
+      height: 100%;
+      position: absolute;
+      scale: 1.1;
+      width: 100%;
+    }
+
+    .col {
+      overflow: hidden;
+      padding: 10px;
+    }
+
+    .col-header {
+      background-color: red;
+      font-size: 16pt;
+      margin-bottom: 30px;
+    }
+
+    .col-items {
+      font-size: 15pt;
+    }
+
+    .container {
+      background-color: #fff;
+      border-radius: 12px;
+      height: 800px;
+      margin: auto;
+      overflow: hidden;
+      position: relative;
+      width: 1300px;
+    }
+
+    .content {
+      padding: 50px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      margin-top: 15px;
+    }
+
+    body {
+      background: gray;
+      font-family: Montserrat;
+      font-size: 22px;
+    }
+
+    h1 {
+      color: #080808;
+      font-family: Raleway, sans-serif;
+      font-size: 30px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin: auto;
+      max-width: 200px;
+      padding: 0 0 13px;
+      position: relative;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    h1:after {
+      background-color: #c50000;
+      bottom: 0;
+      content: "";
+      display: block;
+      height: 3px;
+      margin-bottom: 0.25em;
+      position: absolute;
+      right: 0;
+      width: 75px;
+    }
+
+    h1:before {
+      background-color: #c50000;
+      content: "";
+      display: block;
+      height: 3px;
+      margin-bottom: 5px;
+      width: 75px;
+    }
+
+    li {
+      align-items: center;
+      background: rgba(255, 255, 255, 0.13);
+      border-radius: 10px;
+      display: grid;
+      font-weight: 700;
+      grid-template-columns: 1fr 2fr;
+      justify-items: center;
+      list-style: none;
+      margin-bottom: 10px;
+      padding: 20px;
+      position: relative;
+    }
+
+    li .playcount {
+      background: rgba(255, 0, 0, 0.61);
+      border-radius: 0 0 10px 0;
+      bottom: 0;
+      color: #fff;
+      font-size: 10pt;
+      padding: 4px;
+      position: absolute;
+      right: 0;
+    }
+
+    li img {
+      border-radius: 50%;
+      display: inline-block;
+      height: 100px;
+      width: 100px;
+    }
+
+    li span {
+      display: block;
+      max-height: 100px;
+      overflow: hidden;
+      padding-left: 10px;
+      text-overflow: ellipsis;
+    }
+
+    .footer {
+      position: absolute;
+      display: flex;
+      bottom: 0px;
+      right: 0;
+    }
+
+    .footer .lfm {
+      background: red;
+      color: white;
+    }
+
+    .footer .username {
+      background: white;
+      font-weight: bolder;
+    }
+
+    .footer div {
+      display: inline-block;
+      padding: 5px;
+      font-size: 15px;
+      margin: 0;
+    }
+  </style>
+</html>
+
+<script>
+  (() => {
+    // startup
+    const username_selector = document.querySelector(".username");
+    const col_items_selector = document.querySelector(".col-items");
+    const bg_img_selector = document.querySelector(".bg-img");
+
+    username_selector.innerHTML = LASTFM_USERNAME;
+    col_items_selector.innerHTML = "";
+
+    ARTISTS.slice(0, 4).forEach((artist) => {
+      col_items_selector.innerHTML += `<li><img src="${artist.image_url}"/><span>${artist.name}</span><div class="playcount">${artist.playcount} plays</div>`;
+    });
+    bg_img_selector.style.background = `url(${ARTISTS[0]?.image_url}) no-repeat`;
+
+    bg_img_selector.style.backgroundPosition = "center";
+    bg_img_selector.style.backgroundSize = "cover";
+  })();
+
+  const get_UTC_day = (date) => {
+    return date.toLocaleDateString("en-US", {
+      weekday: "long",
+      timeZone: "UTC",
+    });
+  };
+
+  const now = new Date();
+  const today = get_UTC_day(now);
+
+  const all_days = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+
+  const current_week_days = all_days.slice(0, all_days.indexOf(today) + 1);
+
+  const weekly_data_array = all_days.map((day, i) => {
+    const newdate = new Date(now);
+    const cur_index = all_days.indexOf(today);
+    const d_index = all_days.indexOf(day);
+
+    newdate.setDate(now.getDate() - (cur_index - d_index));
+
+    const week_date = newdate.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      timeZone: "UTC",
+    });
+
+    return {
+      day,
+      date: week_date,
+      values: current_week_days.includes(day) ? [] : null,
+    };
+  });
+
+  DATAPOINTS.forEach((timestamp) => {
+    const parsed_ts = new Date(timestamp * 1000);
+    const rel_day = get_UTC_day(parsed_ts);
+
+    const rel_elem = weekly_data_array.find((point) => point.day === rel_day);
+    if (!rel_elem) {
+      console.log("Ignored day that wasn't accounted for: " + rel_day);
+      return;
+    }
+
+    if (!current_week_days.includes(rel_day)) return;
+
+    if (today === rel_day) {
+      // if, for example, sunday === sunday, then check date, if it's currently 14, but the date is 7, don't push
+      if (now.getUTCDate() != parsed_ts.getUTCDate()) {
+        return;
+      }
+    }
+
+    rel_elem.values.push(parsed_ts.toUTCString());
+  });
+  console.log(weekly_data_array);
+
+  const categories = weekly_data_array.map(
+    (elem) => elem.day + "<br>" + elem.date
+  );
+  const values = weekly_data_array.map((elem) =>
+    elem.values ? elem.values.length : null
+  );
+
+  const options = {
+    chart: {
+      borderRadius: 15,
+      type: "line",
+      spacing: 50,
+      spacingRight: 90,
+      style: {
+        fontFamily: "Montserrat",
+      },
+      backgroundColor: "rgba(255, 255, 255, 0.5)",
+    },
+    title: {
+      text: null,
+    },
+
+    plotOptions: {
+      line: {
+        lineWidth: 3,
+        dataLabels: {
+          enabled: true,
+          color: "black",
+          format: "{y} plays",
+        },
+      },
+      series: {
+        dataLabels: {
+          enabled: true,
+          inside: true,
+          style: {
+            textOutline: 2,
+          },
+        },
+      },
+    },
+
+    xAxis: {
+      categories: categories,
+      max: categories.length - 1,
+    },
+    yAxis: {
+      title: {
+        text: "Playcount",
+      },
+    },
+    series: [
+      {
+        name: "Weekly scrobble history",
+        data: values,
+      },
+    ],
+
+    colors: ["red"],
+  };
+
+  Highcharts.chart("chart-container", options);
+</script>

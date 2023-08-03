@@ -55,7 +55,7 @@ module.exports = {
       let status_text = "🎵 playing now on Last.Fm";
 
       if (!now_playing["@attr"]?.nowplaying && now_playing.date) {
-        const timestamp = moment.unix(now_playing.date.uts).valueOf();
+        const timestamp = moment.unix(parseInt(now_playing.date.uts)).valueOf();
         status_text = "⏹️ scrobbled " + time_difference(timestamp) + " ago";
       }
 

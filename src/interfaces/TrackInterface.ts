@@ -33,6 +33,13 @@ export interface UserTrack {
 
 export interface UserRecentTrack {
   recenttracks: {
+    "@attr": {
+      user: string;
+      totalPages: string;
+      page: string;
+      total: string;
+      perPage: string;
+    };
     track: {
       is_spotify?: never;
       id?: number;
@@ -56,7 +63,7 @@ export interface UserRecentTrack {
       streamable: string;
       url: string;
       date: {
-        uts: number;
+        uts: string;
         "#text": string;
       };
     }[];
