@@ -1,6 +1,6 @@
 // Global constants used throughout the bot
 export default {
-  VERSION: "11.1.0",
+  VERSION: "11.2.0",
   BUTTONS_VERSION: "001", // update this to invalidate existing buttons
   MAX_USERS: 250, // max user limit per server
   LASTFM_ENDPOINT: "https://ws.audioscrobbler.com/2.0/?",
