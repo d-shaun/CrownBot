@@ -1,4 +1,9 @@
-import { AttachmentBuilder, Client, SlashCommandBuilder } from "discord.js";
+import {
+  AttachmentBuilder,
+  BufferResolvable,
+  Client,
+  SlashCommandBuilder,
+} from "discord.js";
 import GuildChatInteraction from "../classes/GuildChatInteraction";
 import { CommandResponse } from "../handlers/CommandResponse";
 import CrownBot from "../handlers/CrownBot";
@@ -8,8 +13,8 @@ import { Spotify } from "../handlers/Spotify";
 import { LastFMResponse } from "../interfaces/LastFMResponseInterface";
 import { UserRecentTrack } from "../interfaces/TrackInterface";
 
+import axios, { Method, ResponseType } from "axios";
 import { promises as fs } from "fs";
-import nodeHtmlToImage from "node-html-to-image";
 import path from "path";
 
 module.exports = {
@@ -116,12 +121,25 @@ module.exports = {
       .toString()
       .replace("//DATA_PLACEHOLDER//", data_code);
 
-    const img_buffer: any = await nodeHtmlToImage({
-      html: injected_html,
-      selector: ".container",
-    });
+    const method: Method = "post";
+    const responseType: ResponseType = "arraybuffer";
 
-    const attachment = new AttachmentBuilder(img_buffer, {
+    const options = {
+      responseType,
+      method,
+      url: "https://crownbotutils.onrender.com/screencap",
+      headers: { "Content-Type": "text/plain" },
+      data: injected_html,
+    };
+    const data_res: any = <any>(
+      await axios.request(options).catch(console.error)
+    );
+    if (data_res.status !== 200) return response.fail();
+
+    const img: BufferResolvable | undefined = Buffer.from(data_res.data);
+    if (!img) return response.fail();
+
+    const attachment = new AttachmentBuilder(img, {
       name: "chart.png",
     });
 
