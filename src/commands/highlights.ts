@@ -16,6 +16,7 @@ import { UserRecentTrack } from "../interfaces/TrackInterface";
 import axios, { Method, ResponseType } from "axios";
 import { promises as fs } from "fs";
 import path from "path";
+import GLOBALS from "../../GLOBALS";
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -130,6 +131,7 @@ module.exports = {
       url: "https://crownbotutils.onrender.com/screencap",
       headers: { "Content-Type": "text/plain" },
       data: injected_html,
+      timeout: GLOBALS.GENERAL_TIMEOUT,
     };
     const data_res: any = <any>(
       await axios.request(options).catch(console.error)
