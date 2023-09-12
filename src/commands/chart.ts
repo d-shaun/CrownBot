@@ -203,7 +203,9 @@ module.exports = {
     const { columns: x, rows: y } = config;
 
     const no_album_cover = "https://i.imgur.com/N5xps21.png";
-    registerFont("./src/fonts/Roboto-Regular.ttf", { family: "Roboto" });
+    registerFont(appRoot + "/fonts/Roboto-Regular.ttf", {
+      family: "Roboto",
+    });
     const font = "15px Roboto";
 
     let cached_noalbumcover: any;
