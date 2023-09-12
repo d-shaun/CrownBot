@@ -6,11 +6,12 @@
     "node": "19.x"
   },
   "scripts": {
-    "build": "tsc && yarn run copy:fonts",
+    "build": "tsc && yarn run copy:fonts && yarn run copy:html",
     "start": "node ./dist/index.js",
     "lint": "yarn run eslint ./src/",
     "dev": "yarn run copy:fonts && tsc -w",
-    "copy:fonts": "copyfiles src/fonts/* dist/"
+    "copy:fonts": "copyfiles src/fonts/* dist/",
+    "copy:html":"copyfiles html/* dist/"
   },
   "main": "./dist/index.js",
   "author": "Shaun",

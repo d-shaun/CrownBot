@@ -1,4 +1,5 @@
 import { Client, GatewayIntentBits, Interaction, Options } from "discord.js";
+import path from "path";
 import GLOBALS from "./GLOBALS";
 import GuildChatInteraction from "./src/classes/GuildChatInteraction";
 import { preflight_checks } from "./src/handlers/Command";
@@ -31,6 +32,8 @@ LYRICS_ENDPOINT: Lyrics endpoint for the /lyrics command--command won't work unl
 SPOTIFY_CLIENTID: Spotify client ID for the /chart command to show artist images
 SPOTIFY_SECRETID: Spotify client ID for the /chart command to show artist images
 */
+
+(<any>global).appRoot = path.resolve(__dirname);
 
 (async () => {
   try {

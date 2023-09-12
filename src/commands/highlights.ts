@@ -108,7 +108,7 @@ module.exports = {
 
     await Promise.all(promises);
 
-    const file_path = path.resolve(__dirname, "../../../html/highlights.html");
+    const file_path = path.resolve(appRoot, "./html/highlights.html");
 
     const template_html = await fs.readFile(file_path);
 
