@@ -11,6 +11,9 @@ import {
   handle_editconfig,
   handle_reportbug,
 } from "./src/handlers/handle_modal";
+import { config } from "dotenv";
+
+config();
 /*
 # REQUIRED
 ======================================================================================================
