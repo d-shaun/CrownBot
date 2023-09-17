@@ -136,7 +136,10 @@ export default class CrownBot {
     for (const file of commandFiles) {
       const command = require(path.join(dir, file));
 
-      if (command.data) commands.push(command.data.toJSON());
+      if (command.data) {
+        this.commands.push(command);
+        commands.push(command.data.toJSON());
+      }
     }
     const rest = new REST({ version: "10" }).setToken(this.#token);
 
