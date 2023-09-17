@@ -8,9 +8,9 @@ import {
 } from "discord.js";
 import { exit } from "process";
 import { inspect } from "util";
-import GuildChatInteraction from "../classes/GuildChatInteraction";
-import CrownBot from "../handlers/CrownBot";
-import edit_lyrics from "./owner_commands/editlyrics";
+import GuildChatInteraction from "../../classes/GuildChatInteraction";
+import CrownBot from "../../handlers/CrownBot";
+import edit_lyrics from "./editlyrics";
 
 module.exports = {
   data: new SlashCommandBuilder()

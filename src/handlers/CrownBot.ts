@@ -5,6 +5,7 @@ import path from "path";
 import { generate_models, GetReturnType, ModelTypes } from "../models/DBModels";
 import CacheHandler from "./Cache";
 import Logger from "./Logger";
+import GLOBALS from "../../GLOBALS";
 
 type Options = {
   version: string;
@@ -65,6 +66,7 @@ export default class CrownBot {
   async init() {
     await this.load_db();
     await this.register_commands();
+    await this.register_owner_commands();
     await this.load_botconfig();
     await this.cache.config.init(); /* cache server configs for the session */
     if (!this.commands.length || !this.mongoose || !this.models)
@@ -113,6 +115,43 @@ export default class CrownBot {
         await rest.put(Routes.applicationCommands(clientId), {
           body: commands,
         });
+      } catch (error) {
+        console.error(error);
+      }
+    })();
+  }
+
+  /**
+   * Registers owner-only slash commands
+   */
+  async register_owner_commands() {
+    const commands = [];
+    const dir: string = path.join(__dirname, "../commands/owner_commands");
+
+    const commandFiles = fs
+      .readdirSync(dir)
+      .filter((file) => file.endsWith(".js"));
+
+    const clientId = this.client_id;
+    for (const file of commandFiles) {
+      const command = require(path.join(dir, file));
+
+      if (command.data) commands.push(command.data.toJSON());
+    }
+    const rest = new REST({ version: "10" }).setToken(this.#token);
+
+    return (async () => {
+      try {
+        console.log(
+          `Started refreshing ${commands.length} owner-only (/) commands.`
+        );
+
+        await rest.put(
+          Routes.applicationGuildCommands(clientId, GLOBALS.SUPPORT_SERVER_ID),
+          {
+            body: commands,
+          }
+        );
       } catch (error) {
         console.error(error);
       }
