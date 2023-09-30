@@ -25,6 +25,21 @@ module.exports = {
     interaction: GuildChatInteraction,
     response: CommandResponse
   ): Promise<CommandResponse> {
+    const formatUptime = (seconds: number) => {
+      // idk i copied from chatgpt
+      const days = Math.floor(seconds / 86400);
+      seconds %= 86400;
+      const hours = Math.floor(seconds / 3600);
+      seconds %= 3600;
+      const minutes = Math.floor(seconds / 60);
+      const remainingSeconds = Math.floor(seconds % 60);
+
+      return `${days}d ${hours}h ${minutes}m ${remainingSeconds}s`;
+    };
+
+    const uptime_seconds = process.uptime();
+    const formatted_uptime = formatUptime(uptime_seconds);
+
     const row = <ActionRowBuilder<ButtonBuilder>>(
       new ActionRowBuilder().addComponents(
         new ButtonBuilder()
@@ -48,6 +63,7 @@ module.exports = {
 
       .addFields([
         { name: "Version", value: bot.version },
+        { name: "Uptime", value: formatted_uptime },
         { name: "Maintainer", value: "shaun#4761" },
         { name: "Repository", value: "<https://github.com/d-shaun/CrownBot/>" },
         {
