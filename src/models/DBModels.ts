@@ -132,7 +132,7 @@ export const model_params = {
     artist_name: { type: String, required: true },
     guild_id: { type: String, required: true },
     listener: { type: Number, required: true },
-    stat: { type: <LeaderboardInterface[]>(<any>Object) },
+    stat: { type: <{ user_id: string; userplaycount: string }[]>(<any>Object) },
     timestamp: { type: Number, required: true },
   },
 } as const;
@@ -187,7 +187,7 @@ type Constructors =
 
 export type ModelTypes = {
   [K in keyof typeof model_params]: MongooseMethods<{
-    -readonly [Z in keyof typeof model_params[K]]: typeof model_params[K][Z] extends {
+    -readonly [Z in keyof (typeof model_params)[K]]: (typeof model_params)[K][Z] extends {
       type: infer Y;
     }
       ? Y extends Constructors

@@ -165,6 +165,12 @@ export default class DB {
     guild_id: string
   ) {
     const timestamp = moment.utc().valueOf();
+    const simplified_stat = leaderboard.map((elem) => {
+      return {
+        user_id: elem.user_id,
+        userplaycount: elem.userplaycount,
+      };
+    });
     return this.#models.whoplayslog.findOneAndUpdate(
       {
         track_name,
@@ -176,7 +182,7 @@ export default class DB {
         artist_name,
         guild_id,
         listener: leaderboard.length,
-        stat: leaderboard,
+        stat: simplified_stat,
         timestamp,
       },
       {
