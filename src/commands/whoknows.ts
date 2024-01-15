@@ -11,9 +11,6 @@ import esm from "../misc/escapemarkdown";
 import get_registered_users from "../misc/get_registered_users";
 import parse_spotify from "../misc/parse_spotify_presence";
 import time_difference from "../misc/time_difference";
-import axios from "axios";
-import { LastFMResponse } from "../interfaces/LastFMResponseInterface";
-import { UserArtist } from "../interfaces/ArtistInterface";
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -80,42 +77,29 @@ module.exports = {
     if (users.length > bot.max_users) {
       users.length = bot.max_users;
     }
+    const lastfm_requests = [];
 
-    const req_users = users.map((user) => {
-      return {
+    for await (const user of users) {
+      const context = {
+        discord_user: user.discord,
         lastfm_username: user.database.username,
-        discord_username: user.discord.user.username,
-        discord_id: user.discord.user.id,
-        discord_tag: user.discord.user.tag,
       };
-    });
-
-    // TODO: Switch between this and the old one based on whether ENV variable is set
-    const req = await axios
-      .post(
-        bot.wk_helper_endpoint,
-        {
-          artist: artist.name,
-          users: JSON.stringify(req_users),
-        },
-        { timeout: 30 * 1000 }
-      )
-      .catch((e) => {
-        console.log(e);
-        return undefined;
-      });
-
-    if (!req || req.status !== 200 || !req.data) {
-      return response.error("lastfm_error");
+      lastfm_requests.push(
+        new Artist({
+          name: artist_name,
+          username: user.database.username,
+        })
+          .user_get_info()
+          .then((res) => {
+            const response_with_context = {
+              wrapper: res,
+              context,
+            };
+            return response_with_context;
+          })
+      );
     }
-
-    type APIResponses = {
-      wrapper: LastFMResponse<UserArtist>;
-      context: (typeof req_users)[0];
-    }[];
-
-    let responses: APIResponses = req.data;
-
+    let responses = await Promise.all(lastfm_requests);
     if (
       !responses.length ||
       responses.some(
@@ -126,22 +110,22 @@ module.exports = {
     }
 
     responses = responses.filter((response) => response.wrapper.success);
-
     let leaderboard: LeaderboardInterface[] = [];
 
     responses.forEach((response) => {
       const artist = response.wrapper.data.artist;
       const context = response.context;
+      if (!context || !context.discord_user) return;
       if (artist.stats.userplaycount === undefined) return;
       if (artist.stats.userplaycount <= 0) return;
 
       leaderboard.push({
         artist_name: artist.name,
-        discord_username: context.discord_username,
+        discord_username: context.discord_user?.user.username,
         lastfm_username: context.lastfm_username,
         userplaycount: artist.stats.userplaycount.toString(),
-        user_id: context.discord_id,
-        user_tag: context.discord_tag,
+        user_id: context.discord_user.user.id,
+        user_tag: context.discord_user.user.tag,
         guild_id: interaction.guild.id,
       });
     });
@@ -219,9 +203,8 @@ module.exports = {
         count_diff = parseInt(elem.userplaycount) - parseInt(elem.last_count);
       }
       if (count_diff && count_diff < 0) {
-        diff_str = ` ― (:small_red_triangle_down: ${count_diff} ${
-          count_diff > 1 ? "plays" : "play"
-        })`;
+        diff_str = ` ― (:small_red_triangle_down: ${count_diff} ${count_diff > 1 ? "plays" : "play"
+          })`;
       } else if (count_diff && count_diff > 0) {
         diff_str = ` ― (+${count_diff} ${count_diff > 1 ? "plays" : "play"})`;
       }
@@ -231,13 +214,12 @@ module.exports = {
       const index =
         leaderboard.findIndex((e) => e.user_id === elem.user_id) + 1;
 
-      const indicator = `${
-        index === 1 &&
-        !disallow_crown &&
-        parseInt(elem.userplaycount) >= min_plays_for_crown
+      const indicator = `${index === 1 &&
+          !disallow_crown &&
+          parseInt(elem.userplaycount) >= min_plays_for_crown
           ? ":crown:"
           : index + "."
-      }`;
+        }`;
       // eslint-disable-next-line no-irregular-whitespace
       return `${indicator}  ${elem.discord_username} — **${elem.userplaycount} play(s)** ${diff_str}`;
     });

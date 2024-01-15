@@ -6,7 +6,18 @@ import { generate_models, GetReturnType, ModelTypes } from "../models/DBModels";
 import CacheHandler from "./Cache";
 import Logger from "./Logger";
 import GLOBALS from "../../GLOBALS";
-import { BotOptions } from "../..";
+
+type Options = {
+  version: string;
+  buttons_version: string;
+  max_users: number;
+  client_id: string;
+  token: string;
+  owner_ID: string;
+  api_key: string;
+  mongo: string;
+  url: string;
+};
 
 export default class CrownBot {
   version: string;
@@ -29,9 +40,8 @@ export default class CrownBot {
   //@ts-ignore: app throws exception error if there are no models anyway
   models: ModelTypes;
   botconfig: GetReturnType<"botconfig"> | undefined;
-  wk_helper_endpoint: string;
 
-  constructor(options: BotOptions) {
+  constructor(options: Options) {
     this.version = options.version;
     this.#token = options.token;
     this.buttons_version = options.buttons_version;
@@ -43,8 +53,6 @@ export default class CrownBot {
     this.mongo = options.mongo;
 
     this.url = options.url;
-
-    this.wk_helper_endpoint = options.wk_helper_endpoint;
   }
 
   /**

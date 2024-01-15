@@ -37,36 +37,18 @@ SPOTIFY_SECRETID: Spotify client ID for the /chart command to show artist images
 */
 
 (<any>global).appRoot = path.resolve(__dirname);
-export type BotOptions = {
-  version: string;
-  buttons_version: string;
-  max_users: number;
-  client_id: string;
-  token: string;
-  owner_ID: string;
-  api_key: string;
-  mongo: string;
-  url: string;
-  wk_helper_endpoint: string;
-};
+
 (async () => {
   try {
-    const {
-      DISCORD_CLIENTID,
-      DISCORD_TOKEN,
-      OWNER_ID,
-      LASTFM_API_KEY,
-      MONGO,
-      WK_HELPER_ENDPOINT,
-    } = process.env;
+    const { DISCORD_CLIENTID, DISCORD_TOKEN, OWNER_ID, LASTFM_API_KEY, MONGO } =
+      process.env;
     if (
       !(
         DISCORD_TOKEN &&
         OWNER_ID &&
         LASTFM_API_KEY &&
         MONGO &&
-        DISCORD_CLIENTID &&
-        WK_HELPER_ENDPOINT
+        DISCORD_CLIENTID
       )
     ) {
       throw "Some of the environment variables are missing.";
@@ -84,8 +66,6 @@ export type BotOptions = {
       mongo: MONGO,
 
       url: GLOBALS.LASTFM_ENDPOINT,
-
-      wk_helper_endpoint: WK_HELPER_ENDPOINT,
     }).init();
 
     const client = new Client({
