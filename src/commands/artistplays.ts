@@ -74,6 +74,12 @@ module.exports = {
       last_count = last_log.userplaycount;
       strs.time = time_difference(last_log.timestamp);
     }
+
+    const last_wk_log = await bot.models.whoknowslog.findOne({
+      artist_name: artist.name,
+      guild_id: interaction.guild.id,
+    });
+
     const count_diff = artist.stats.userplaycount - last_count;
     if (count_diff < 0) {
       strs.count = `:small_red_triangle_down: ${count_diff}`;
@@ -87,16 +93,54 @@ module.exports = {
       (artist.stats.userplaycount / artist.stats.playcount) *
       100
     ).toFixed(2);
-    const embed = new EmbedBuilder()
-      .setTitle(`Artist plays`)
-      .setDescription(
-        `**${esm(artist.name)}** — **${
-          artist.stats.userplaycount
-        } play(s)** \n\n (**${percentage}%** of ${abbreviate(
-          artist.stats.playcount,
+
+    const thumb = artist.image.pop()?.["#text"];
+
+    const short_bio = artist.bio?.summary.replace(
+      /<a href.*<\/a>/g,
+      ` (Source: [Last.fm](${artist.url}))`
+    );
+
+    const text = `# ${esm(artist.name)}\n## Bio\n${short_bio}\n## Stats\n`;
+    const embed = new EmbedBuilder().setDescription(text);
+
+    const fields = [
+      {
+        name: "Global (Last.fm)",
+        value: `${abbreviate(artist.stats.playcount, 1)} plays (${abbreviate(
+          artist.stats.listeners,
           1
-        )} plays) \n\n ${aggr_str}`
+        )} listeners)`,
+        inline: true,
+      },
+    ];
+    if (last_wk_log) {
+      const aggr_plays = last_wk_log.stat.reduce(
+        (acc, cur) => acc + parseInt(cur.userplaycount),
+        0
       );
+      fields.push({
+        name: "This server",
+        value: `${aggr_plays} plays (${last_wk_log.stat.length} listeners)`,
+        inline: true,
+      });
+    }
+
+    fields.push({
+      name: `${interaction.user.username}'s playcount`,
+      value: `**${
+        artist.stats.userplaycount
+      } play(s)** — (**${percentage}%** of ${abbreviate(
+        artist.stats.playcount,
+        1
+      )} plays) \n ${aggr_str}`,
+      inline: false,
+    });
+
+    embed.addFields(fields);
+
+    if (thumb) embed.setThumbnail(thumb);
+
     await this.update_log(bot, interaction, artist);
     response.embeds = [embed];
     return response;
