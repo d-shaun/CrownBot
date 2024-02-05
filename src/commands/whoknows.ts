@@ -90,6 +90,7 @@ module.exports = {
       };
     });
 
+    // TODO: Switch between this and the old one based on whether ENV variable is set
     const req = await axios
       .post(
         bot.wk_helper_endpoint,
