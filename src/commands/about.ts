@@ -64,7 +64,7 @@ module.exports = {
       .addFields([
         { name: "Version", value: bot.version },
         { name: "Uptime", value: formatted_uptime },
-        { name: "Maintainer", value: "shaun#4761" },
+        { name: "Maintainer", value: "d_shaun" },
         { name: "Repository", value: "<https://github.com/d-shaun/CrownBot/>" },
         {
           name: "Invite link",
