@@ -14,6 +14,7 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 19.9.0
+          corepack-enable: true
       - name: Install packages
         run: yarn install
       - name: Build project
