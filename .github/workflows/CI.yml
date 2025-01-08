@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
+      - name: Enable Corepack before setting up Node
+        run: corepack enable
       - name: Install Node.js v19
         uses: actions/setup-node@v1
         with:
