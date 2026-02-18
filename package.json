@@ -43,5 +43,8 @@
     "spotify-web-api-node": "^5.0.2",
     "tslib": "^2.4.1"
   },
-  "packageManager": "yarn@3.6.1"
+  "packageManager": "yarn@3.6.1",
+  "volta": {
+    "node": "19.9.0"
+  }
 }
