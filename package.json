@@ -31,7 +31,7 @@
     "@devraelfreeze/discordjs-pagination": "^2.7.4",
     "@types/diff": "^5.0.2",
     "axios": "^1.13.5",
-    "canvas": "^2.11.2",
+    "canvas": "^3.2.1",
     "cheerio": "^1.2.0",
     "diff": "^8.0.3",
     "discord.js": "^14.9.0",
